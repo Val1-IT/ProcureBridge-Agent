@@ -28,4 +28,15 @@ describe("call lifecycle state machine", () => {
       reason: "Transisi draft → CREATE_CALL tidak diizinkan.",
     });
   });
+
+  it.each([
+    ["approved", "COMPLETE"],
+    ["completed", "APPROVE_RESULT"],
+    ["completed", "COMPLETE"],
+    ["failed", "CONNECT"],
+  ] as const)("rejects illegal %s -> %s transitions", (state, event) => {
+    const result = transitionCall(state, event);
+    expect(result.ok).toBe(false);
+    expect(result.state).toBe(state);
+  });
 });

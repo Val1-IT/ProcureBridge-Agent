@@ -1,16 +1,19 @@
 import { createSeedState } from "./seed";
 import { applyApprovedResult, markResultForReview, rejectResult } from "../domain/results";
-import type { AuditLog, CallApproval, CallLifecycle, CallRecord, DemoState, StructuredResult, TranscriptSegment } from "../domain/types";
+import { transitionCall, type CallEvent } from "../domain/call-machine";
+import type { AuditLog, CallApproval, CallRecord, DemoState, StructuredResult, TranscriptSegment } from "../domain/types";
 import type { SimulationSpeed } from "./simulation";
 
 export type DemoAction =
   | { type: "HYDRATE"; state: DemoState }
   | { type: "RESET" }
+  | { type: "REGISTER_CALL_DRAFT"; call: CallRecord }
   | { type: "SAVE_APPROVAL"; approval: CallApproval }
-  | { type: "CREATE_CALL"; call: CallRecord }
-  | { type: "UPDATE_CALL_STATUS"; callId: string; status: CallLifecycle; durationSeconds?: number }
+  | { type: "TRANSITION_CALL"; callId: string; event: CallEvent }
+  | { type: "ATTACH_PROVIDER_CALL"; callId: string; provider: CallRecord["provider"]; providerCallId: string }
+  | { type: "SET_CALL_DURATION"; callId: string; durationSeconds: number }
+  | { type: "SET_CALL_OUTCOME"; callId: string; outcome: string; summary: string; sentiment: string }
   | { type: "SET_TRANSCRIPT"; callId: string; transcript: TranscriptSegment[] }
-  | { type: "COMPLETE_CALL"; callId: string; outcome: string; summary: string; sentiment: string }
   | { type: "EDIT_RESULT"; resultId: string; patch: Partial<StructuredResult> }
   | { type: "APPROVE_RESULT"; resultId: string; actor: string }
   | { type: "REJECT_RESULT"; resultId: string; actor: string }
@@ -24,19 +27,59 @@ function touch(state: DemoState): DemoState {
   return { ...state, updatedAt: new Date().toISOString() };
 }
 
+function applyCallTransition(state: DemoState, callId: string, event: CallEvent): DemoState {
+  const call = state.calls.find((item) => item.id === callId);
+  if (!call) return state;
+  const transition = transitionCall(call.status, event);
+  if (!transition.ok) return state;
+  const changedAt = new Date().toISOString();
+  return touch({
+    ...state,
+    calls: state.calls.map((item) => item.id === callId ? {
+      ...item,
+      status: transition.state,
+      startedAt: transition.state === "active" && !item.startedAt ? changedAt : item.startedAt,
+      endedAt: transition.state === "completed" ? changedAt : item.endedAt,
+    } : item),
+    auditLogs: [...state.auditLogs, {
+      id: `audit-transition-${callId}-${event}-${Date.now()}`,
+      entityType: "call",
+      entityId: callId,
+      action: "call.transitioned",
+      actorType: "system",
+      actorId: "call-lifecycle-machine",
+      beforeData: { status: call.status },
+      afterData: { status: transition.state, event },
+      createdAt: changedAt,
+    }],
+  });
+}
+
 export function demoReducer(state: DemoState, action: DemoAction): DemoState {
   switch (action.type) {
     case "HYDRATE":
       return action.state;
     case "RESET":
       return createSeedState();
+    case "REGISTER_CALL_DRAFT":
+      if (action.call.status !== "draft" || state.calls.some((call) => call.id === action.call.id)) return state;
+      return touch({ ...state, calls: [...state.calls, action.call] });
     case "SAVE_APPROVAL": {
+      const call = state.calls.find((item) => item.id === action.approval.callId);
+      if (!call) return state;
+      let transitioned = state;
+      if (call.status === "draft" || call.status === "blocked") transitioned = applyCallTransition(transitioned, call.id, "REQUEST_APPROVAL");
+      const pendingCall = transitioned.calls.find((item) => item.id === call.id);
+      if (pendingCall?.status === "approval_pending") transitioned = applyCallTransition(transitioned, call.id, "APPROVE");
+      const approvedCall = transitioned.calls.find((item) => item.id === call.id);
+      if (approvedCall?.status !== "approved") return state;
       const approvals = [...state.approvals.filter((item) => item.callId !== action.approval.callId), action.approval];
       return touch({
-        ...state,
+        ...transitioned,
         approvals,
+        calls: transitioned.calls.map((item) => item.id === call.id ? { ...item, humanApprovedBy: action.approval.approvedBy, humanApprovedAt: action.approval.approvedAt } : item),
         auditLogs: [
-          ...state.auditLogs,
+          ...transitioned.auditLogs,
           {
             id: `audit-approval-${action.approval.callId}-${Date.now()}`,
             entityType: "call",
@@ -51,56 +94,16 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
         ],
       });
     }
-    case "CREATE_CALL":
-      return touch({
-        ...state,
-        calls: [...state.calls.filter((call) => call.id !== action.call.id), action.call],
-        auditLogs: [...state.auditLogs, {
-          id: `audit-call-created-${Date.now()}`,
-          entityType: "call",
-          entityId: action.call.id,
-          action: "call.created",
-          actorType: "system",
-          actorId: "mock-calle-adapter",
-          beforeData: null,
-          afterData: { provider: action.call.provider, scenario: action.call.scenario },
-          createdAt: new Date().toISOString(),
-          apiRequestId: `req_demo_${action.call.id}`,
-        }],
-      });
-    case "UPDATE_CALL_STATUS":
-      return touch({ ...state, calls: state.calls.map((call) => call.id === action.callId ? {
-        ...call,
-        status: action.status,
-        durationSeconds: action.durationSeconds ?? call.durationSeconds,
-        startedAt: action.status === "active" && !call.startedAt ? new Date().toISOString() : call.startedAt,
-      } : call) });
+    case "TRANSITION_CALL":
+      return applyCallTransition(state, action.callId, action.event);
+    case "ATTACH_PROVIDER_CALL":
+      return touch({ ...state, calls: state.calls.map((call) => call.id === action.callId ? { ...call, provider: action.provider, providerCallId: action.providerCallId } : call) });
+    case "SET_CALL_DURATION":
+      return touch({ ...state, calls: state.calls.map((call) => call.id === action.callId ? { ...call, durationSeconds: Math.max(call.durationSeconds, action.durationSeconds) } : call) });
+    case "SET_CALL_OUTCOME":
+      return touch({ ...state, calls: state.calls.map((call) => call.id === action.callId ? { ...call, outcome: action.outcome, aiSummary: action.summary, sentiment: action.sentiment } : call) });
     case "SET_TRANSCRIPT":
       return touch({ ...state, calls: state.calls.map((call) => call.id === action.callId ? { ...call, transcript: action.transcript } : call) });
-    case "COMPLETE_CALL":
-      return touch({
-        ...state,
-        calls: state.calls.map((call) => call.id === action.callId ? {
-          ...call,
-          status: "result_pending_review",
-          endedAt: new Date().toISOString(),
-          outcome: action.outcome,
-          aiSummary: action.summary,
-          sentiment: action.sentiment,
-        } : call),
-        auditLogs: [...state.auditLogs, {
-          id: `audit-call-completed-${Date.now()}`,
-          entityType: "call",
-          entityId: action.callId,
-          action: "call.completed",
-          actorType: "provider",
-          actorId: "mock-calle-provider",
-          beforeData: { status: "active" },
-          afterData: { status: "result_pending_review", outcome: action.outcome },
-          createdAt: new Date().toISOString(),
-          apiRequestId: `req_demo_${action.callId}`,
-        }],
-      });
     case "EDIT_RESULT":
       return touch({
         ...state,
@@ -119,12 +122,22 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       });
     case "APPROVE_RESULT": {
       const result = state.pendingResults.find((item) => item.id === action.resultId);
-      return result ? applyApprovedResult(state, result, action.actor) : state;
+      if (!result) return state;
+      const applied = applyApprovedResult(state, result, action.actor);
+      return applied === state ? state : applyCallTransition(applied, result.callId, "APPROVE_RESULT");
     }
-    case "REJECT_RESULT":
-      return rejectResult(state, action.resultId, action.actor);
-    case "HUMAN_REVIEW":
-      return markResultForReview(state, action.resultId, action.actor);
+    case "REJECT_RESULT": {
+      const result = state.pendingResults.find((item) => item.id === action.resultId);
+      if (!result) return state;
+      const rejected = rejectResult(state, action.resultId, action.actor);
+      return rejected === state ? state : applyCallTransition(rejected, result.callId, "REJECT_RESULT");
+    }
+    case "HUMAN_REVIEW": {
+      const result = state.pendingResults.find((item) => item.id === action.resultId);
+      if (!result) return state;
+      const reviewed = markResultForReview(state, action.resultId, action.actor);
+      return reviewed === state ? state : applyCallTransition(reviewed, result.callId, "MARK_HUMAN_REVIEW");
+    }
     case "SET_FAST_MODE":
       return touch({ ...state, demo: { ...state.demo, simulationSpeed: action.value ? "fast_demo" : "real_time" } });
     case "SET_SIMULATION_SPEED":

@@ -130,4 +130,17 @@ describe("judge-facing routes and documentation hygiene", () => {
     const documents = ["README.md", "docs/submission.md", "docs/demo-script.md", "docs/architecture.md", "docs/security.md"];
     for (const document of documents) expect(readFileSync(document, "utf8")).not.toMatch(/[A-Z]:[\\/]Users[\\/]/i);
   });
+
+  it("ships a secret-free main-branch CI quality gate", () => {
+    const workflow = readFileSync(".github/workflows/ci.yml", "utf8");
+    expect(workflow).toContain("contents: read");
+    for (const command of ["npm ci", "npm run typecheck", "npm run lint", "npm run test", "npm run build"]) expect(workflow).toContain(command);
+    expect(workflow).not.toMatch(/secrets\.|deploy/i);
+  });
+
+  it("documents coverage and explicit production gaps", () => {
+    const readme = readFileSync("README.md", "utf8");
+    expect(readme).toContain("npm run test:coverage");
+    expect(readme).toContain("## 15. Production gaps");
+  });
 });

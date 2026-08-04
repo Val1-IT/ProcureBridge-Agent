@@ -28,6 +28,14 @@ export function validateStructuredResult(result: StructuredResult): string[] {
 }
 
 export function applyApprovedResult(state: DemoState, result: StructuredResult, actor: string): DemoState {
+  const current = state.pendingResults.find((item) => item.id === result.id);
+  if (!current || current.reviewStatus !== "pending" || result.reviewStatus !== "pending") return state;
+  if (current.callId !== result.callId || current.customerId !== result.customerId || current.invoiceId !== result.invoiceId) return state;
+  if (result.humanReviewRequired || validateStructuredResult(result).length > 0) return state;
+  const sourceInvoice = state.invoices.find((item) => item.id === result.invoiceId && item.customerId === result.customerId);
+  if (!sourceInvoice) return state;
+  if (result.callOutcome === "promise_to_pay" && state.paymentCommitments.some((item) => item.id === `ptp-${result.id}` || item.callId === result.callId)) return state;
+  if (result.callOutcome === "dispute" && state.disputes.some((item) => item.id === `dispute-${result.id}` || item.callId === result.callId)) return state;
   const next: DemoState = {
     ...state,
     updatedAt: new Date().toISOString(),
@@ -89,7 +97,7 @@ export function applyApprovedResult(state: DemoState, result: StructuredResult, 
 
 export function rejectResult(state: DemoState, resultId: string, actor: string): DemoState {
   const result = state.pendingResults.find((item) => item.id === resultId);
-  if (!result) return state;
+  if (!result || result.reviewStatus !== "pending") return state;
   return {
     ...state,
     updatedAt: new Date().toISOString(),
@@ -100,7 +108,7 @@ export function rejectResult(state: DemoState, resultId: string, actor: string):
 
 export function markResultForReview(state: DemoState, resultId: string, actor: string): DemoState {
   const result = state.pendingResults.find((item) => item.id === resultId);
-  if (!result) return state;
+  if (!result || result.reviewStatus !== "pending") return state;
   return {
     ...state,
     updatedAt: new Date().toISOString(),

@@ -40,4 +40,30 @@ describe("structured result review", () => {
     expect(validateStructuredResult({ ...result, confidenceScore: 0.62 })).toContain("Confidence di bawah 0,80.");
     expect(validateStructuredResult({ ...result, promisedAmount: null })).toContain("Promise-to-pay harus menyebutkan nominal dan tanggal secara eksplisit.");
   });
+
+  it("applies a promise exactly once without duplicating its audit entry", () => {
+    const seed = createSeedState();
+    const first = applyApprovedResult(seed, seed.pendingResults[0], "Nadia Pratama");
+    const second = applyApprovedResult(first, first.pendingResults[0], "Nadia Pratama");
+    expect(second).toBe(first);
+    expect(second.paymentCommitments).toHaveLength(1);
+    expect(second.auditLogs.filter((log) => log.action === "structured_result.approved")).toHaveLength(1);
+  });
+
+  it("applies a dispute exactly once by result id and call id", () => {
+    const seed = createSeedState();
+    const first = applyApprovedResult(seed, seed.pendingResults[1], "Nadia Pratama");
+    const second = applyApprovedResult(first, first.pendingResults[1], "Nadia Pratama");
+    expect(second).toBe(first);
+    expect(second.disputes).toHaveLength(1);
+  });
+
+  it("refuses incomplete, low-confidence, or human-review results at the domain boundary", () => {
+    const seed = createSeedState();
+    const result = seed.pendingResults[0];
+    expect(applyApprovedResult(seed, { ...result, promisedAmount: null }, "Nadia Pratama")).toBe(seed);
+    expect(applyApprovedResult(seed, { ...result, confidenceScore: 0.5 }, "Nadia Pratama")).toBe(seed);
+    expect(applyApprovedResult(seed, { ...result, humanReviewRequired: true }, "Nadia Pratama")).toBe(seed);
+    expect(seed.paymentCommitments).toHaveLength(0);
+  });
 });

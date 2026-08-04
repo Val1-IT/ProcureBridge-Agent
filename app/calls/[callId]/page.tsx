@@ -26,7 +26,7 @@ export default function CallConsolePage() {
 
   useEffect(() => {
     if (!call || call.status !== "connecting") return;
-    const timer = window.setTimeout(() => dispatch({ type: "UPDATE_CALL_STATUS", callId: call.id, status: "active" }), 700);
+    const timer = window.setTimeout(() => dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "ACTIVATE" }), 700);
     return () => window.clearTimeout(timer);
   }, [call, dispatch]);
 
@@ -36,22 +36,26 @@ export default function CallConsolePage() {
     if (state.demo.simulationSpeed === "instant") {
       finishing.current = true;
       dispatch({ type: "SET_TRANSCRIPT", callId: call.id, transcript });
-      dispatch({ type: "UPDATE_CALL_STATUS", callId: call.id, status: "active", durationSeconds: transcript.at(-1)?.offsetSeconds ?? 0 });
-      dispatch({ type: "COMPLETE_CALL", callId: call.id, outcome: result?.callOutcome ?? "failed_contact", summary: result?.summary ?? "Instant simulated result completed.", sentiment: result?.customerSentiment ?? "neutral" });
+      dispatch({ type: "SET_CALL_DURATION", callId: call.id, durationSeconds: transcript.at(-1)?.offsetSeconds ?? 0 });
+      dispatch({ type: "SET_CALL_OUTCOME", callId: call.id, outcome: result?.callOutcome ?? "failed_contact", summary: result?.summary ?? "Instant simulated result completed.", sentiment: result?.customerSentiment ?? "neutral" });
+      dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "COMPLETE" });
+      dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "EXTRACT_RESULT" });
       setComplete(true);
       return;
     }
     const nextIndex = call.transcript.length;
     if (nextIndex >= transcript.length) {
       finishing.current = true;
-      dispatch({ type: "COMPLETE_CALL", callId: call.id, outcome: result?.callOutcome ?? "failed_contact", summary: result?.summary ?? "Call completed.", sentiment: result?.customerSentiment ?? "neutral" });
+      dispatch({ type: "SET_CALL_OUTCOME", callId: call.id, outcome: result?.callOutcome ?? "failed_contact", summary: result?.summary ?? "Call completed.", sentiment: result?.customerSentiment ?? "neutral" });
+      dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "COMPLETE" });
+      dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "EXTRACT_RESULT" });
       setComplete(true);
       return;
     }
     const timer = window.setTimeout(() => {
       const visible = transcript.slice(0, nextIndex + 1);
       dispatch({ type: "SET_TRANSCRIPT", callId: call.id, transcript: visible });
-      dispatch({ type: "UPDATE_CALL_STATUS", callId: call.id, status: "active", durationSeconds: visible.at(-1)?.offsetSeconds ?? 0 });
+      dispatch({ type: "SET_CALL_DURATION", callId: call.id, durationSeconds: visible.at(-1)?.offsetSeconds ?? 0 });
     }, getSimulationInterval(state.demo.simulationSpeed));
     return () => window.clearTimeout(timer);
   }, [call, paused, transcript, state.demo.simulationSpeed, state.pendingResults, dispatch]);
@@ -83,7 +87,9 @@ export default function CallConsolePage() {
       dispatch({ type: "SET_TRANSCRIPT", callId: call.id, transcript: call.transcript.length ? call.transcript : transcript });
       dispatch({ type: "ADD_AUDIT", audit: { id: `audit-simulated-fallback-${Date.now()}`, entityType: "call", entityId: call.id, action: "call.completed_with_simulated_result", actorType: "human", actorId: "Nadia Pratama", beforeData: { provider: "calle", status: call.status }, afterData: { provider: "mock-fallback", simulation: true }, createdAt: new Date().toISOString() } });
     }
-    dispatch({ type: "COMPLETE_CALL", callId: call.id, outcome: result?.callOutcome ?? "failed_contact", summary: result?.summary ?? "Call ended by operator.", sentiment: result?.customerSentiment ?? "neutral" });
+    dispatch({ type: "SET_CALL_OUTCOME", callId: call.id, outcome: result?.callOutcome ?? "failed_contact", summary: result?.summary ?? "Call ended by operator.", sentiment: result?.customerSentiment ?? "neutral" });
+    dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "COMPLETE" });
+    dispatch({ type: "TRANSITION_CALL", callId: call.id, event: "EXTRACT_RESULT" });
     setComplete(true);
   };
 

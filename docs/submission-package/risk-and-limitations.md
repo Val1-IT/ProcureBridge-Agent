@@ -7,12 +7,15 @@
 - No real payment reconciliation changes an accounting balance.
 - AI briefing, sentiment, intent, entity extraction, and confidence are deterministic demo outputs.
 - Supabase production persistence is not active.
+- Server authorization uses deterministic Demo Data while MockCallProvider is active; it is not a production identity or tenancy boundary.
 
 ## Production Requirements
 
 - Official CALL-E credentials and confirmation of request, event, retry, and media contracts.
 - Official webhook HMAC algorithm and canonical-body signature verification.
+- Replacement of the generic raw-body HMAC placeholder and configurable header with the confirmed CALL-E contract.
 - Production database, backups, encryption, tenant-safe authorization, and migrations.
+- Activation and integration testing of the new Supabase row mappers and durable webhook store.
 - Enterprise authentication, tenant isolation, and role permissions.
 - Durable background jobs, monitoring, retry queues, dead-letter handling, and incident response.
 - Consent evidence storage and policy ownership.

@@ -28,13 +28,13 @@ Audit Log
 | --- | --- | --- |
 | Next.js application | Implemented | Multi-page UI and server route handlers |
 | Browser Demo Store | Implemented | Versioned persistence and cross-page synchronization |
-| Approval/guardrail domain | Implemented | Pure validation and explicit policy decisions |
+| Approval/guardrail domain | Implemented | Event-only lifecycle plus browser and server policy decisions |
 | `CallProvider` interface | Implemented | Isolates UI and routes from provider details |
 | `MockCallProvider` | Simulated | Offline deterministic calls and transcripts |
 | `CalleProvider` | Integration-ready | Documented REST assumptions for real CALL-E |
-| Webhook processor | Implemented | Validation, signature boundary, deduplication, ordering, audit |
+| Webhook processor | Implemented | Store abstraction, validation, generic HMAC placeholder, deduplication, ordering, audit |
 | Result review layer | Implemented | Edit, approve, reject, or Human Review before downstream effects |
-| Supabase repository | Integration-ready | Optional server-side persistence boundary and SQL schema |
+| Supabase repository | Integration-ready | Explicit row mappers, optional durable webhook adapter, and SQL schema; inactive by default |
 | Identity, tenancy, operations | Future production requirement | Authentication, isolation, retention, monitoring, retries |
 
 ## State boundaries

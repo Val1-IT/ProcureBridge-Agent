@@ -27,10 +27,18 @@ create table if not exists public.invoices (
   original_amount numeric(18,2) not null check (original_amount >= 0),
   outstanding_amount numeric(18,2) not null check (outstanding_amount >= 0 and outstanding_amount <= original_amount),
   due_date date not null,
+  days_overdue integer not null default 0 check (days_overdue >= 0),
   status text not null check (status in ('overdue', 'partially_paid', 'paid')),
   dispute_status text not null default 'none' check (dispute_status in ('none', 'open', 'resolved')),
   last_contact_at timestamptz,
   next_action_at timestamptz,
+  contact_status text not null check (contact_status in ('ready_to_call', 'scheduled', 'promise_to_pay', 'disputed', 'human_review', 'paid', 'do_not_contact')),
+  recommended_action text not null,
+  product text not null,
+  scenario text not null check (scenario in ('promise_to_pay', 'invoice_dispute', 'failed_contact')),
+  risk_level text not null check (risk_level in ('low', 'medium', 'high')),
+  payment_history jsonb not null default '[]'::jsonb,
+  contact_history jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -50,8 +58,9 @@ create table if not exists public.calls (
   recording_url text,
   transcript jsonb not null default '[]'::jsonb,
   ai_summary text,
-  human_approved_by uuid references auth.users(id) on delete set null,
+  human_approved_by text,
   human_approved_at timestamptz,
+  scenario text not null check (scenario in ('promise_to_pay', 'invoice_dispute', 'failed_contact')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -63,8 +72,11 @@ create table if not exists public.call_approvals (
   minimum_payment numeric(18,2) not null check (minimum_payment >= 0),
   extension_allowed boolean not null default false,
   maximum_follow_up_date date not null,
-  approved_script text not null,
-  approved_by uuid not null references auth.users(id) on delete restrict,
+  language text not null,
+  call_time time not null,
+  ai_disclosure_approved boolean not null default false,
+  data_confirmed boolean not null default false,
+  approved_by text not null,
   approved_at timestamptz not null default now()
 );
 
@@ -78,6 +90,8 @@ create table if not exists public.payment_commitments (
   actual_amount numeric(18,2) not null default 0 check (actual_amount >= 0),
   status text not null check (status in ('upcoming', 'due_today', 'fulfilled', 'partially_fulfilled', 'broken_promise', 'rescheduled', 'cancelled')),
   follow_up_date date,
+  follow_up_status text not null,
+  assigned_owner text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -89,8 +103,8 @@ create table if not exists public.disputes (
   call_id uuid not null references public.calls(id) on delete restrict,
   category text not null,
   description text not null,
-  requested_evidence text,
-  assigned_to uuid references auth.users(id) on delete set null,
+  requested_evidence text not null,
+  assigned_to text not null,
   status text not null check (status in ('open', 'investigating', 'resolved')),
   due_date date not null,
   follow_up_date date,
@@ -121,6 +135,12 @@ create table if not exists public.webhook_events (
   received_at timestamptz not null default now()
 );
 
+create table if not exists public.webhook_call_state (
+  call_id text primary key,
+  latest_occurred_at timestamptz not null,
+  updated_at timestamptz not null default now()
+);
+
 create index if not exists invoices_customer_status_idx on public.invoices(customer_id, status);
 create index if not exists invoices_next_action_idx on public.invoices(next_action_at) where status = 'overdue';
 create index if not exists calls_customer_started_idx on public.calls(customer_id, started_at desc);
@@ -138,11 +158,14 @@ alter table public.payment_commitments enable row level security;
 alter table public.disputes enable row level security;
 alter table public.audit_logs enable row level security;
 alter table public.webhook_events enable row level security;
+alter table public.webhook_call_state enable row level security;
 
 -- Server-only prototype boundary: no browser role receives table access.
 revoke all on table public.customers, public.invoices, public.calls, public.call_approvals,
-  public.payment_commitments, public.disputes, public.audit_logs, public.webhook_events
+  public.payment_commitments, public.disputes, public.audit_logs, public.webhook_events,
+  public.webhook_call_state
   from anon, authenticated;
 grant all on table public.customers, public.invoices, public.calls, public.call_approvals,
-  public.payment_commitments, public.disputes, public.audit_logs, public.webhook_events
+  public.payment_commitments, public.disputes, public.audit_logs, public.webhook_events,
+  public.webhook_call_state
   to service_role;

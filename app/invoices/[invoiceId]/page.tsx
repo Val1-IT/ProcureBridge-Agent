@@ -82,6 +82,10 @@ export default function InvoiceDetailPage() {
 
   const saveApproval = () => {
     if (approvalIssues.length) return;
+    if (!state.calls.some((call) => call.id === callId)) {
+      const draftCall: CallRecord = { id: callId, customerId: customer.id, invoiceId: invoice.id, provider: "mock", providerCallId: null, status: "draft", startedAt: null, endedAt: null, durationSeconds: 0, outcome: null, sentiment: null, recordingUrl: null, transcript: [], aiSummary: null, humanApprovedBy: null, humanApprovedAt: null, scenario: invoice.scenario };
+      dispatch({ type: "REGISTER_CALL_DRAFT", call: draftCall });
+    }
     dispatch({ type: "SAVE_APPROVAL", approval: { ...approval, approvedAt: new Date().toISOString() } });
   };
 
@@ -91,11 +95,12 @@ export default function InvoiceDetailPage() {
     setStarting(true);
     setProviderFailure(null);
     try {
-      const response = await fetch(forceMock ? "/api/calls?forceMock=1" : "/api/calls", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, customerId: customer.id, invoiceId: invoice.id, phone: customer.phone, language: saved.language, scenario: invoice.scenario, disclosure: "Penelepon adalah asisten suara AI Arvanta." }) });
+      const response = await fetch(forceMock ? "/api/calls?forceMock=1" : "/api/calls", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, customerId: customer.id, invoiceId: invoice.id }) });
       if (!response.ok) throw new Error("Call provider tidak dapat membuat panggilan.");
       const created = await response.json() as { providerCallId: string; provider: "mock" | "calle" };
-      const call: CallRecord = { id: callId, customerId: customer.id, invoiceId: invoice.id, provider: created.provider, providerCallId: created.providerCallId, status: "connecting", startedAt: null, endedAt: null, durationSeconds: 0, outcome: null, sentiment: null, recordingUrl: null, transcript: [], aiSummary: null, humanApprovedBy: saved.approvedBy, humanApprovedAt: saved.approvedAt, scenario: invoice.scenario };
-      dispatch({ type: "CREATE_CALL", call });
+      dispatch({ type: "ATTACH_PROVIDER_CALL", callId, provider: created.provider, providerCallId: created.providerCallId });
+      dispatch({ type: "TRANSITION_CALL", callId, event: "CREATE_CALL" });
+      dispatch({ type: "TRANSITION_CALL", callId, event: "CONNECT" });
       router.push(`/calls/${callId}`);
     } catch {
       setProviderFailure("CALL-E could not create the call. The provider failure has not been recorded as a successful live call.");

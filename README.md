@@ -93,6 +93,7 @@ Copy `.env.example` to `.env.local` only when enabling optional services.
 | `CALLE_API_KEY` | Server-only CALL-E bearer token |
 | `CALLE_AGENT_ID` | Configured CALL-E voice-agent ID |
 | `CALLE_WEBHOOK_SECRET` | Server-only webhook verification secret |
+| `CALLE_WEBHOOK_SIGNATURE_HEADER` | Generic placeholder signature-header name until CALL-E confirms its contract |
 | `SUPABASE_URL` | Optional Supabase project URL |
 | `SUPABASE_ANON_KEY` | Reserved for an optional client integration |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only repository credential |
@@ -117,25 +118,38 @@ Update only `CalleProvider` request/response mapping when the official contract 
 
 `POST /api/calle/webhook` accepts `call.started`, `call.connected`, `transcript.updated`, `call.completed`, `call.failed`, and `analysis.completed`. Each event requires an event ID, call ID, type, timestamp, object payload, and valid signature boundary. The handler deduplicates IDs, acknowledges but ignores stale events, invokes audit callbacks, and returns safe errors without reflecting payloads or secrets.
 
-The current shared-secret comparison is a documented placeholder. Replace it with the official CALL-E HMAC and canonical-body algorithm before production.
+The current verifier is a generic `HMAC-SHA256` placeholder over the exact raw request body, using a configurable placeholder header. It uses timing-safe comparison but is **not** claimed to match CALL-E. Replace the algorithm, canonicalization, and header only after the official CALL-E signing contract is confirmed.
 
 ## 13. Supabase optional setup
 
-Apply [supabase/schema.sql](./supabase/schema.sql) through the official migration pipeline of the target Supabase project. The schema includes constraints, indexes, RLS, server-only access, append-only audit intent, and idempotent webhook event storage. The demo does not import Supabase SDK and does not require a database.
+Apply [supabase/schema.sql](./supabase/schema.sql) through the official migration pipeline of the target Supabase project. Explicit repository mappers convert domain camelCase to database snake_case, validate enums/nulls, and safely convert PostgreSQL numeric strings. The schema includes constraints, indexes, RLS, server-only access, append-only audit intent, and durable webhook event state. The demo does not import Supabase SDK and does not require a database.
 
 ## 14. Testing
 
-Automated tests cover approvals, every call guardrail, call lifecycle, all three outcomes, persistence/reset, cross-page domain synchronization, webhook validation/deduplication/ordering, provider selection/failure safety, simulation speeds, Judge Demo Mode, health output, metadata hygiene, documentation path hygiene, and masked demo reports.
+```bash
+npm run test
+npm run test:coverage
+```
 
-Tests are offline and never call the real CALL-E API.
+Automated tests cover approvals, every browser and server call guardrail, call lifecycle, idempotent result review, all three outcomes, persistence/reset, repository mapping, cross-page domain synchronization, webhook validation/deduplication/ordering, provider timeout/error safety, simulation speeds, Judge Demo Mode, health output, metadata hygiene, documentation path hygiene, and masked demo reports. Coverage thresholds are moderate and limited to critical domain, reducer, persistence, webhook, and mapper files.
 
-## 15. Security and guardrails
+GitHub Actions runs `npm ci`, typecheck, lint, tests, coverage, and the production build for pushes and pull requests to `main`. Tests are offline and never call the real CALL-E API. Live telephony, an activated Supabase project, database migrations, authentication, and multitenant integration tests remain intentionally inactive.
+
+## 15. Production gaps
+
+- The official CALL-E API request/response contract has not been confirmed.
+- The official CALL-E webhook HMAC, header, and canonical-body rules have not been confirmed.
+- Authentication, tenant isolation, and production authorization are not active.
+- Supabase mappers, repository adapters, and SQL are a foundation only; the demo does not activate them.
+- Live telephony must not be enabled until server authorization uses production customer, approval, dispute, and call-history repositories.
+
+## 16. Security and guardrails
 
 The call is blocked when approval is incomplete, consent is invalid, Do Not Contact is active, calling time is outside policy, the customer was already called today, an open dispute exists, phone/invoice data is invalid, or AI disclosure is not approved. Sensitive numeric patterns are masked. Results below confidence policy or incomplete promises require Human Review. Important financial data changes only after explicit result approval.
 
 See [docs/security.md](./docs/security.md).
 
-## 16. Simulated components
+## 17. Simulated components
 
 - telephony, voice synthesis, recording playback, and transcript streaming when mock is active;
 - sentiment, intent, entities, confidence, and pre-call intelligence;
@@ -147,7 +161,7 @@ See [docs/security.md](./docs/security.md).
 
 All simulated surfaces are labeled **Demo Data** or **Simulation**.
 
-## 17. Production roadmap
+## 18. Production roadmap
 
 1. Validate the official CALL-E request, event, signing, retry, and media contracts.
 2. Activate Supabase through reviewed migrations, tenant-safe RLS, backups, and monitoring.
