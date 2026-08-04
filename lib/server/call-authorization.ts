@@ -8,6 +8,7 @@ import type { CallApproval, Customer, Invoice } from "../domain/types";
 export interface CreateCallRequest { callId: string; customerId: string; invoiceId: string }
 
 export interface CallAuthorizationRepository {
+  readonly authorizationMode: "demo" | "production";
   getCustomer(customerId: string): Promise<Customer | null>;
   getInvoice(invoiceId: string): Promise<Invoice | null>;
   getApproval(callId: string): Promise<CallApproval | null>;
@@ -17,6 +18,7 @@ export interface CallAuthorizationRepository {
 }
 
 export class DemoCallAuthorizationRepository implements CallAuthorizationRepository {
+  readonly authorizationMode = "demo" as const;
   private readonly state = createSeedState();
 
   async getCustomer(customerId: string) { return this.state.customers.find((item) => item.id === customerId) ?? null; }
@@ -61,6 +63,12 @@ export function createCreateCallHandler(dependencies: CreateCallHandlerDependenc
 
     const forceMock = new URL(request.url).searchParams.get("forceMock") === "1";
     const providerMode = getCallProviderMode(dependencies.env, { forceMock });
+    if (providerMode === "calle" && dependencies.repository.authorizationMode !== "production") {
+      return NextResponse.json({
+        error: "Live provider requires a production authorization repository.",
+        code: "LIVE_PROVIDER_REQUIRES_PRODUCTION_REPOSITORY",
+      }, { status: 503 });
+    }
     const [customer, invoice, approval] = await Promise.all([
       dependencies.repository.getCustomer(input.customerId),
       dependencies.repository.getInvoice(input.invoiceId),

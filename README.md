@@ -102,7 +102,7 @@ Never prefix server secrets with `NEXT_PUBLIC_`.
 
 ## 11. CALL-E provider integration
 
-The contract lives in `lib/calle/types.ts`; provider selection lives in `lib/calle/client.ts`. Missing CALL-E configuration selects `MockCallProvider`. Complete configuration selects `CalleProvider`. A failed live `createCall` is shown as a real provider failure and offers an explicit **Switch to Demo Call** action. It is never relabeled as a successful live call.
+The contract lives in `lib/calle/types.ts`; provider selection lives in `lib/calle/client.ts`. The deployed demo always uses `MockCallProvider`. Missing CALL-E configuration selects mock mode, while complete configuration only requests live mode: `POST /api/calls` still fails closed unless the active server authorization repository explicitly declares production capability. Installing CALL-E credentials alone can never activate a live call while `DemoCallAuthorizationRepository` is active. A failed live `createCall` is shown as a real provider failure and offers an explicit **Switch to Demo Call** action. It is never relabeled as a successful live call.
 
 Until the official CALL-E contract is supplied, the adapter assumes:
 
@@ -141,7 +141,10 @@ GitHub Actions runs `npm ci`, typecheck, lint, tests, coverage, and the producti
 - The official CALL-E webhook HMAC, header, and canonical-body rules have not been confirmed.
 - Authentication, tenant isolation, and production authorization are not active.
 - Supabase mappers, repository adapters, and SQL are a foundation only; the demo does not activate them.
-- Live telephony must not be enabled until server authorization uses production customer, approval, dispute, and call-history repositories.
+- Live telephony is fail-closed while the demo authorization repository is active, even when all CALL-E credentials are installed.
+- A production authorization repository must provide durable customer, invoice, approval, dispute, and daily call-history lookups before live provider selection is permitted.
+- Authentication and tenant isolation remain mandatory before any production repository or live telephony activation.
+- The 4 Aug 2026 `npm audit` snapshot reports 19 dependency advisories (4 moderate, 13 high, 2 critical), including development-tooling advisories. Breaking or out-of-range automated upgrades were intentionally deferred for submission stability; do not expose development or Vitest UI servers, and reassess reachability plus safe patch versions before production activation.
 
 ## 16. Security and guardrails
 
