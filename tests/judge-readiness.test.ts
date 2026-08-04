@@ -4,6 +4,7 @@ import { GET as getHealth } from "../app/api/health/route";
 import {
   advanceJudgeDemo,
   createJudgeDemoSession,
+  createPresentationFallbackSession,
   exitJudgeDemo,
   restartJudgeDemo,
 } from "../lib/demo/judge-mode";
@@ -32,6 +33,24 @@ describe("Judge Demo Mode", () => {
   it("restarts at step one while preserving the original normal-store snapshot", () => {
     const advanced = advanceJudgeDemo(createJudgeDemoSession("normal-state"));
     expect(restartJudgeDemo(advanced)).toMatchObject({ active: true, step: 1, normalStoreSnapshot: "normal-state" });
+  });
+
+  it("starts presentation fallback on the main scenario with an instant deterministic result", () => {
+    const session = createPresentationFallbackSession("normal-state");
+    expect(session).toMatchObject({
+      active: true,
+      step: 1,
+      speed: "instant",
+      presentationFallback: true,
+      normalStoreSnapshot: "normal-state",
+    });
+
+    expect(restartJudgeDemo(advanceJudgeDemo(session))).toMatchObject({
+      step: 1,
+      speed: "instant",
+      presentationFallback: true,
+      normalStoreSnapshot: "normal-state",
+    });
   });
 });
 

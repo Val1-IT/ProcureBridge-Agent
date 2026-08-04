@@ -6,6 +6,7 @@ import { useDemoStore } from "./demo-store-provider";
 import {
   advanceJudgeDemo,
   createJudgeDemoSession,
+  createPresentationFallbackSession,
   exitJudgeDemo,
   restartJudgeDemo,
   type JudgeDemoSession,
@@ -19,6 +20,7 @@ const JUDGE_SESSION_KEY = "arvanta-procurebridge-judge-session-v1";
 interface JudgeDemoValue {
   session: JudgeDemoSession | null;
   start: () => void;
+  startFallback: () => void;
   next: () => void;
   exit: () => void;
   restart: () => void;
@@ -40,7 +42,9 @@ export function JudgeDemoProvider({ children }: { children: React.ReactNode }) {
     if (!stored) return;
     try {
       const parsed = JSON.parse(stored) as JudgeDemoSession;
-      if (parsed.active && parsed.normalStoreSnapshot) setSession(parsed);
+      if (parsed.active && parsed.normalStoreSnapshot) {
+        setSession({ ...parsed, presentationFallback: parsed.presentationFallback === true });
+      }
     } catch {
       window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
     }
@@ -64,7 +68,7 @@ export function JudgeDemoProvider({ children }: { children: React.ReactNode }) {
     if (session?.active) {
       dispatch({ type: "RESET" });
       dispatch({ type: "SET_SIMULATION_SPEED", value: "fast_demo" });
-      setSession(restartJudgeDemo(session));
+      setSession(createJudgeDemoSession(session.normalStoreSnapshot));
       router.push("/collections");
       return;
     }
@@ -72,6 +76,14 @@ export function JudgeDemoProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "RESET" });
     dispatch({ type: "SET_SIMULATION_SPEED", value: "fast_demo" });
     setSession(next);
+    router.push("/collections");
+  }, [dispatch, router, session, state]);
+
+  const startFallback = useCallback(() => {
+    const normalStoreSnapshot = session?.active ? session.normalStoreSnapshot : serializeDemoState(state);
+    dispatch({ type: "RESET" });
+    dispatch({ type: "SET_SIMULATION_SPEED", value: "instant" });
+    setSession(createPresentationFallbackSession(normalStoreSnapshot));
     router.push("/collections");
   }, [dispatch, router, session, state]);
 
@@ -87,9 +99,10 @@ export function JudgeDemoProvider({ children }: { children: React.ReactNode }) {
 
   const restart = useCallback(() => {
     if (!session) return;
+    const restarted = restartJudgeDemo(session);
     dispatch({ type: "RESET" });
-    dispatch({ type: "SET_SIMULATION_SPEED", value: "fast_demo" });
-    setSession(restartJudgeDemo(session));
+    dispatch({ type: "SET_SIMULATION_SPEED", value: restarted.speed });
+    setSession(restarted);
     router.push("/collections");
   }, [dispatch, router, session]);
 
@@ -118,7 +131,7 @@ export function JudgeDemoProvider({ children }: { children: React.ReactNode }) {
     setSession((current) => current ? { ...current, speed } : current);
   }, [dispatch]);
 
-  const value = useMemo(() => ({ session, start, next, exit, restart, setSpeed, canAdvance }), [session, start, next, exit, restart, setSpeed, canAdvance]);
+  const value = useMemo(() => ({ session, start, startFallback, next, exit, restart, setSpeed, canAdvance }), [session, start, startFallback, next, exit, restart, setSpeed, canAdvance]);
   return <JudgeDemoContext.Provider value={value}>{children}</JudgeDemoContext.Provider>;
 }
 

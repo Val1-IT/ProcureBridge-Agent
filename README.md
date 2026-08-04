@@ -155,4 +155,6 @@ All simulated surfaces are labeled **Demo Data** or **Simulation**.
 4. Integrate accounting invoices and payment reconciliation through idempotent, approval-gated commands.
 5. Add durable jobs, dead-letter handling, observability, multilingual voice, configurable policies, and production analytics.
 
-Judge materials: [submission copy](./docs/submission.md), [demo scripts](./docs/demo-script.md), [architecture](./docs/architecture.md), and [security](./docs/security.md).
+Judge materials: [final submission package](./docs/submission-package/project-summary.md), [submission copy](./docs/submission-package/submission-copy.md), [90-second script](./docs/submission-package/demo-script-90s.md), [three-minute script](./docs/submission-package/demo-script-3min.md), [recording shot list](./docs/submission-package/recording-shot-list.md), [screenshot plan](./docs/submission-package/screenshot-plan.md), [judge instructions](./docs/submission-package/judge-instructions.md), [technical proof](./docs/submission-package/technical-proof.md), and [risk register](./docs/submission-package/risk-and-limitations.md).
+
+Public judge pages: [Submission Hub](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/submission), [Architecture](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/architecture), [Technical Notes](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/technical-notes), and [Health](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/api/health).

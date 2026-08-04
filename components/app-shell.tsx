@@ -16,13 +16,14 @@ const nav = [
   ["/activity", "Call & Audit", "05"],
   ["/architecture", "Architecture", "06"],
   ["/technical-notes", "Technical Notes", "07"],
+  ["/submission", "Submission Hub", "08"],
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { state, dispatch, hydrated } = useDemoStore();
-  const { start, setSpeed } = useJudgeDemo();
+  const { session, start, startFallback, setSpeed } = useJudgeDemo();
 
   const reset = () => {
     if (!window.confirm("Reset seluruh perubahan Demo Data ke kondisi awal? Tindakan ini hanya menghapus data simulasi di browser ini.")) return;
@@ -55,6 +56,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </section>
         <div className="sidebar-actions">
           <button className="button button-full" onClick={start}>Start 2-Minute Demo</button>
+          <button className="button button-ghost button-full" onClick={startFallback}>Presentation Fallback</button>
           <label className="speed-control">
             <span>Simulation speed</span>
             <select value={state.demo.simulationSpeed} onChange={(event) => setSpeed(event.target.value as SimulationSpeed)}>
@@ -67,7 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="main-column">
         <div className="topbar">
-          <div><span className="live-dot" /> MockCallProvider active • Demo Data</div>
+          <div><span className="live-dot" /> {session?.presentationFallback ? "Presentation Fallback — Demo Data" : "MockCallProvider active • Demo Data"}</div>
           <div className="operator"><span>NP</span><div><strong>Nadia Pratama</strong><small>Collections Manager</small></div></div>
         </div>
         <main className="page-content">{children}</main>

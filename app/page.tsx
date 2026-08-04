@@ -11,7 +11,7 @@ const values = [
 ];
 
 export default function HomePage() {
-  const { start } = useJudgeDemo();
+  const { start, startFallback } = useJudgeDemo();
   return (
     <main className="landing-page">
       <nav className="landing-nav" aria-label="Landing navigation">
@@ -26,9 +26,11 @@ export default function HomePage() {
           <p>CALL-E contacts customers. AI turns each conversation into a promise-to-pay, dispute, or follow-up. Humans stay in control of every important financial decision.</p>
           <div className="hero-actions">
             <button className="button button-dark" onClick={start}>Start 2-Minute Demo</button>
+            <button className="button button-secondary" onClick={startFallback}>Presentation Fallback</button>
             <Link className="button" href="/collections">Open Collection Queue</Link>
             <Link className="text-link" href="/architecture">View Architecture →</Link>
             <Link className="text-link" href="/technical-notes">Read Technical Notes →</Link>
+            <Link className="text-link" href="/submission">Submission Hub →</Link>
           </div>
         </div>
         <aside className="demo-access-card">

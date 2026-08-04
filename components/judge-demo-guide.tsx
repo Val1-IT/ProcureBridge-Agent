@@ -18,7 +18,7 @@ export function JudgeDemoGuide() {
   if (!session?.active) return null;
   return (
     <aside className="judge-guide" aria-label="Judge Demo Mode guide">
-      <div className="judge-guide-head"><span>Judge Demo Mode</span><strong>Step {session.step} of 7</strong></div>
+      <div className="judge-guide-head"><span>{session.presentationFallback ? "Presentation Fallback — Demo Data" : "Judge Demo Mode"}</span><strong>Step {session.step} of 7</strong></div>
       <div className="judge-progress" aria-hidden="true"><span style={{ width: `${(session.step / 7) * 100}%` }} /></div>
       <p>{guidance[session.step - 1]}</p>
       {!canAdvance ? <small>{session.step === 3 ? "Save the Human Approval to unlock Next." : session.step === 4 ? "Start the call from this page." : session.step === 5 ? "Complete the simulated call first." : "Approve the structured result first."}</small> : null}
