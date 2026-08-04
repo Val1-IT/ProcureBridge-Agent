@@ -7,6 +7,7 @@ import { StatusChip } from "@/components/status-chip";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { formatCurrency, formatDate } from "@/lib/format";
 import type { ScenarioKey } from "@/lib/domain/types";
+import { useJudgeDemo } from "@/components/judge-demo-provider";
 
 const scenarioCopy: Record<ScenarioKey, { label: string; note: string; invoiceId: string }> = {
   promise_to_pay: { label: "Promise to Pay", note: "Cashflow issue → pembayaran parsial", invoiceId: "inv-sinar" },
@@ -16,6 +17,7 @@ const scenarioCopy: Record<ScenarioKey, { label: string; note: string; invoiceId
 
 export default function CollectionsPage() {
   const { state, dispatch } = useDemoStore();
+  const { session } = useJudgeDemo();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("All");
   const [risk, setRisk] = useState("All");
@@ -55,7 +57,7 @@ export default function CollectionsPage() {
           {invoices.map((invoice) => {
             const customer = state.customers.find((item) => item.id === invoice.customerId)!;
             const tone = invoice.contactStatus === "Disputed" ? "red" : invoice.contactStatus === "Promise to Pay" ? "green" : invoice.contactStatus === "Scheduled" ? "blue" : "amber";
-            return <tr key={invoice.id}><td><span className="cell-title">{customer.companyName}</span><span className="cell-sub">{customer.contactName}</span></td><td className="mono">{invoice.invoiceNumber}</td><td className="mono">{formatCurrency(invoice.outstandingAmount)}</td><td>{formatDate(invoice.dueDate)}</td><td className="mono">{invoice.daysOverdue} hari</td><td><StatusChip tone={invoice.riskLevel === "High" ? "red" : invoice.riskLevel === "Medium" ? "amber" : "green"}>{customer.riskScore} • {invoice.riskLevel}</StatusChip></td><td>{formatDate(invoice.lastContactAt)}</td><td><StatusChip tone={tone}>{invoice.contactStatus}</StatusChip></td><td>{invoice.recommendedAction}</td><td><Link className="button button-secondary" href={`/invoices/${invoice.id}`}>Review & Call</Link></td></tr>;
+            return <tr className={session?.active && invoice.id === "inv-sinar" ? "judge-highlight" : undefined} key={invoice.id}><td><span className="cell-title">{customer.companyName}</span><span className="cell-sub">{customer.contactName}</span></td><td className="mono">{invoice.invoiceNumber}</td><td className="mono">{formatCurrency(invoice.outstandingAmount)}</td><td>{formatDate(invoice.dueDate)}</td><td className="mono">{invoice.daysOverdue} hari</td><td><StatusChip tone={invoice.riskLevel === "High" ? "red" : invoice.riskLevel === "Medium" ? "amber" : "green"}>{customer.riskScore} • {invoice.riskLevel}</StatusChip></td><td>{formatDate(invoice.lastContactAt)}</td><td><StatusChip tone={tone}>{invoice.contactStatus}</StatusChip></td><td>{invoice.recommendedAction}</td><td><Link className="button button-secondary" href={`/invoices/${invoice.id}`}>Review & Call</Link></td></tr>;
           })}
         </tbody></table> : <div className="empty-state"><strong>Tidak ada invoice yang cocok.</strong><p>Ubah filter atau reset Demo Data untuk mengembalikan tiga skenario awal.</p></div>}
       </section>

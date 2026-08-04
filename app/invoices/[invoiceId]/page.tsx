@@ -71,6 +71,7 @@ export default function InvoiceDetailPage() {
     approvedAt: "",
   });
   const [starting, setStarting] = useState(false);
+  const [providerFailure, setProviderFailure] = useState<string | null>(null);
 
   const openDispute = Boolean(invoice && state.disputes.some((item) => item.invoiceId === invoice.id && item.status !== "Resolved"));
   const callsToday = invoice ? state.calls.filter((call) => call.customerId === invoice.customerId && call.startedAt && new Date(call.startedAt).toDateString() === new Date().toDateString()).length : 0;
@@ -84,19 +85,20 @@ export default function InvoiceDetailPage() {
     dispatch({ type: "SAVE_APPROVAL", approval: { ...approval, approvedAt: new Date().toISOString() } });
   };
 
-  const startCall = async () => {
+  const startCall = async (forceMock = false) => {
     if (!eligibility.allowed || !saved) return;
-    if (!window.confirm(`Mulai panggilan Demo CALL-E ke ${customer.companyName}? Disclosure AI akan dibacakan di awal panggilan.`)) return;
+    if (!forceMock && !window.confirm(`Mulai panggilan CALL-E ke ${customer.companyName}? Disclosure AI akan dibacakan di awal panggilan.`)) return;
     setStarting(true);
+    setProviderFailure(null);
     try {
-      const response = await fetch("/api/calls", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, customerId: customer.id, invoiceId: invoice.id, phone: customer.phone, language: saved.language, scenario: invoice.scenario, disclosure: "Penelepon adalah asisten suara AI Arvanta." }) });
+      const response = await fetch(forceMock ? "/api/calls?forceMock=1" : "/api/calls", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, customerId: customer.id, invoiceId: invoice.id, phone: customer.phone, language: saved.language, scenario: invoice.scenario, disclosure: "Penelepon adalah asisten suara AI Arvanta." }) });
       if (!response.ok) throw new Error("Call provider tidak dapat membuat panggilan.");
       const created = await response.json() as { providerCallId: string; provider: "mock" | "calle" };
       const call: CallRecord = { id: callId, customerId: customer.id, invoiceId: invoice.id, provider: created.provider, providerCallId: created.providerCallId, status: "connecting", startedAt: null, endedAt: null, durationSeconds: 0, outcome: null, sentiment: null, recordingUrl: null, transcript: [], aiSummary: null, humanApprovedBy: saved.approvedBy, humanApprovedAt: saved.approvedAt, scenario: invoice.scenario };
       dispatch({ type: "CREATE_CALL", call });
       router.push(`/calls/${callId}`);
     } catch {
-      window.alert("Panggilan Demo tidak dapat dimulai. Periksa adapter lalu coba lagi.");
+      setProviderFailure("CALL-E could not create the call. The provider failure has not been recorded as a successful live call.");
     } finally {
       setStarting(false);
     }
@@ -151,8 +153,9 @@ export default function InvoiceDetailPage() {
           </div>
           <div className="approval-actions">
             <button className="button button-secondary" disabled={approvalIssues.length > 0} onClick={saveApproval}>{saved ? "Update Approval" : "Approve Brief"}</button>
-            <button className="button button-dark" disabled={!eligibility.allowed || starting} onClick={startCall}>{starting ? "Connecting…" : "Start CALL-E →"}</button>
+            <button className="button button-dark" disabled={!eligibility.allowed || starting} onClick={() => startCall()}>{starting ? "Connecting…" : "Start CALL-E →"}</button>
           </div>
+          {providerFailure ? <div className="guardrail-warning fallback-panel"><strong>Live provider unavailable</strong><p>{providerFailure}</p><button className="button button-secondary button-full" disabled={starting} onClick={() => startCall(true)}>Switch to Demo Call</button><small>Clearly labeled MockCallProvider simulation.</small></div> : null}
           {!saved ? <p className="helper-copy">Start Call tetap terkunci sampai approval disimpan dan seluruh guardrail lolos.</p> : null}
         </aside>
       </div>

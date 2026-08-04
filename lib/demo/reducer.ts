@@ -1,6 +1,7 @@
 import { createSeedState } from "./seed";
 import { applyApprovedResult, markResultForReview, rejectResult } from "../domain/results";
 import type { AuditLog, CallApproval, CallLifecycle, CallRecord, DemoState, StructuredResult, TranscriptSegment } from "../domain/types";
+import type { SimulationSpeed } from "./simulation";
 
 export type DemoAction =
   | { type: "HYDRATE"; state: DemoState }
@@ -15,6 +16,7 @@ export type DemoAction =
   | { type: "REJECT_RESULT"; resultId: string; actor: string }
   | { type: "HUMAN_REVIEW"; resultId: string; actor: string }
   | { type: "SET_FAST_MODE"; value: boolean }
+  | { type: "SET_SIMULATION_SPEED"; value: SimulationSpeed }
   | { type: "SELECT_SCENARIO"; scenario: DemoState["demo"]["selectedScenario"] }
   | { type: "ADD_AUDIT"; audit: AuditLog };
 
@@ -124,7 +126,9 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
     case "HUMAN_REVIEW":
       return markResultForReview(state, action.resultId, action.actor);
     case "SET_FAST_MODE":
-      return touch({ ...state, demo: { ...state.demo, fastMode: action.value } });
+      return touch({ ...state, demo: { ...state.demo, simulationSpeed: action.value ? "fast_demo" : "real_time" } });
+    case "SET_SIMULATION_SPEED":
+      return touch({ ...state, demo: { ...state.demo, simulationSpeed: action.value } });
     case "SELECT_SCENARIO":
       return touch({ ...state, demo: { ...state.demo, selectedScenario: action.scenario } });
     case "ADD_AUDIT":

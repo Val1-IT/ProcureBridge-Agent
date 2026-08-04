@@ -8,6 +8,10 @@ export interface CalleEnvironment {
   CALLE_AGENT_ID?: string;
 }
 
+export interface ProviderOptions {
+  forceMock?: boolean;
+}
+
 export class CalleProvider implements CallProvider {
   constructor(private readonly config: Required<CalleEnvironment>) {}
 
@@ -44,8 +48,13 @@ export class CalleProvider implements CallProvider {
   }
 }
 
-export function getCallProvider(env: CalleEnvironment): CallProvider {
-  if (env.CALLE_API_URL && env.CALLE_API_KEY && env.CALLE_AGENT_ID) {
+export function getCallProviderMode(env: CalleEnvironment, options: ProviderOptions = {}): "mock" | "calle" {
+  if (!options.forceMock && env.CALLE_API_URL && env.CALLE_API_KEY && env.CALLE_AGENT_ID) return "calle";
+  return "mock";
+}
+
+export function getCallProvider(env: CalleEnvironment, options: ProviderOptions = {}): CallProvider {
+  if (getCallProviderMode(env, options) === "calle") {
     return new CalleProvider(env as Required<CalleEnvironment>);
   }
   return new MockCallProvider();

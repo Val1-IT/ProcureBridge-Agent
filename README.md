@@ -1,21 +1,79 @@
 # Arvanta ProcureBridge Recovery Agent
 
-Hackathon prototype untuk alur recovery invoice overdue melalui panggilan AI yang selalu melewati human approval dan call-policy guardrails.
+> Every customer, invoice, metric, transcript, call, and outcome in this repository is **Demo Data**. The default provider is `MockCallProvider`; no real customer is contacted.
 
-> Seluruh customer, invoice, statistik, panggilan, transcript, dan hasil pada aplikasi adalah **Demo Data**. Tidak ada data produksi atau payment gateway nyata.
+![Arvanta ProcureBridge Recovery Agent social preview](./public/og.png)
 
-## Menjalankan aplikasi
+## 1. Project overview
 
-Persyaratan: Node.js 22.13 atau lebih baru.
+Arvanta ProcureBridge Recovery Agent is a judge-ready SaaS prototype for overdue-invoice recovery. It connects a prioritized collection queue to AI pre-call intelligence, explicit human approval, call-policy guardrails, a CALL-E provider boundary, structured post-call review, synchronized promise/dispute/follow-up records, and an auditable event history.
+
+The full demo runs without API keys, a database, or external network access.
+
+## 2. Problem
+
+Receivables teams often work from fragmented queues, notes, calls, and spreadsheets. Customer conversations contain operational commitments, disputes, and callback requests, but those details are manually re-entered and are difficult to audit. Voice automation alone does not solve the risk: an autonomous call must respect consent, contact policy, disclosure requirements, negotiation limits, and human ownership of financial decisions.
+
+## 3. Solution
+
+ProcureBridge turns a collection call into a controlled workflow. It prioritizes overdue invoices, prepares a scenario-specific brief, locks the call behind approval and eight policy checks, runs a provider-isolated conversation, extracts a structured result, and requires a human disposition before any downstream recovery object is created.
+
+## 4. Core workflow
+
+`Collection Queue → Pre-call Brief → Human Approval & Guardrails → CALL-E / Mock Call → Transcript → Structured Result → Human Review → Promise / Dispute / Follow-up → Audit Log`
+
+The **Start 2-Minute Demo** guide uses PT Sinar Jaya Retail and restores the previous browser-store snapshot when Judge Demo Mode is exited.
+
+## 5. Screenshots
+
+The deployed prototype contains presentation-ready views for:
+
+- landing and judge access;
+- Collection Queue and AI pre-call briefing;
+- Human Approval and guardrail decisions;
+- simulated CALL-E transcript console;
+- structured result review and downloadable evidence;
+- Promise Tracker, Dispute Center, Dashboard, and Audit Log;
+- [architecture](./docs/architecture.md) and technical notes.
+
+The social preview above uses the same navy, cream, amber, strong-border visual language as the product.
+
+## 6. Demo scenarios
+
+| Scenario | Demo customer | Structured outcome |
+| --- | --- | --- |
+| Promise to Pay | PT Sinar Jaya Retail | Rp7,500,000 promised for 10 Aug 2026; follow-up 11 Aug |
+| Invoice Dispute | CV Maju Teknik | Quantity mismatch dispute; collection call blocked |
+| Failed Contact | PT Karya Distribusi | PIC unavailable; policy-checked follow-up scheduled |
+
+Simulation speeds are Real-time (about 30–45 seconds), Fast Demo (about 12–18 seconds), and Instant Result. Judge Demo Mode defaults to Fast Demo.
+
+## 7. Architecture
+
+The multi-page Next.js application consumes a versioned browser store. Pure domain functions own approvals, guardrails, lifecycle transitions, result review, synchronized downstream updates, and audit entries. `CallProvider` isolates the UI from `MockCallProvider` and the integration-ready `CalleProvider`. Webhooks are processed through a validation, signature, idempotency, ordering, and audit boundary. Supabase remains optional.
+
+See [docs/architecture.md](./docs/architecture.md) and the in-app `/architecture` page.
+
+## 8. Tech stack
+
+- Next.js 15 App Router / vinext
+- React 19 and TypeScript
+- Tailwind CSS plus product-specific CSS
+- Vitest
+- versioned `localStorage`
+- optional PostgreSQL/Supabase SQL and repository adapter
+- Cloudflare-compatible Sites deployment output
+
+## 9. Quick start
+
+Requirements: Node.js 22.13 or newer.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Buka URL lokal yang ditampilkan terminal. Demo berjalan penuh tanpa `.env`, CALL-E, atau Supabase.
-
-Pemeriksaan lengkap:
+Open the URL printed by the development server. No environment file is required for the complete mock demo.
 
 ```bash
 npm run typecheck
@@ -24,76 +82,77 @@ npm run test
 npm run build
 ```
 
-## Demo tercepat
+## 10. Environment variables
 
-1. Buka **Collection Queue**.
-2. Pilih salah satu kartu **Run Demo Scenario**.
-3. Lengkapi dua checkbox Human Approval dan simpan approval.
-4. Pastikan policy box berubah menjadi **8 policy checks lulus**.
-5. Mulai CALL-E dan biarkan transcript selesai. Fast Demo membuatnya selesai sekitar 8 detik; mode normal sekitar 30–45 detik.
-6. Review structured result, kemudian pilih Approve, Edit, Human Review, atau Reject.
-7. Setelah Approve, lihat perubahan pada Promise Tracker, Dispute Center, Collection Queue, Dashboard, dan Audit Log.
+Copy `.env.example` to `.env.local` only when enabling optional services.
 
-State menggunakan `localStorage` dengan schema version `1`. Semua perubahan bertahan setelah refresh dan dapat dikembalikan melalui **Reset Demo Data**.
-
-## Environment variables
-
-Salin `.env.example` menjadi `.env.local` bila ingin mengaktifkan layanan eksternal.
-
-| Variable | Penggunaan |
+| Variable | Purpose |
 | --- | --- |
-| `NEXT_PUBLIC_APP_URL` | URL absolut aplikasi untuk metadata dan social preview. |
-| `SUPABASE_URL` | URL project Supabase; hanya untuk server repository. |
-| `SUPABASE_ANON_KEY` | Disediakan untuk integrasi Supabase mendatang; demo tidak menggunakannya. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Credential server-only untuk repository operasional. Jangan pernah memakai prefix `NEXT_PUBLIC_`. |
-| `CALLE_API_URL` | Base URL REST CALL-E. |
-| `CALLE_API_KEY` | Bearer token server-only CALL-E. |
-| `CALLE_AGENT_ID` | ID voice agent yang sudah dikonfigurasi di CALL-E. |
-| `CALLE_WEBHOOK_SECRET` | Secret untuk verifikasi webhook. |
+| `NEXT_PUBLIC_APP_URL` | Canonical deployed application URL |
+| `CALLE_API_URL` | CALL-E REST base URL |
+| `CALLE_API_KEY` | Server-only CALL-E bearer token |
+| `CALLE_AGENT_ID` | Configured CALL-E voice-agent ID |
+| `CALLE_WEBHOOK_SECRET` | Server-only webhook verification secret |
+| `SUPABASE_URL` | Optional Supabase project URL |
+| `SUPABASE_ANON_KEY` | Reserved for an optional client integration |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only repository credential |
 
-Tidak ada API key di source code.
+Never prefix server secrets with `NEXT_PUBLIC_`.
 
-## Mengganti MockCallProvider dengan CALL-E asli
+## 11. CALL-E provider integration
 
-Kontrak provider berada di `lib/calle/types.ts`. Factory di `lib/calle/client.ts` otomatis memakai `MockCallProvider` bila satu dari tiga konfigurasi CALL-E tidak tersedia. Jika `CALLE_API_URL`, `CALLE_API_KEY`, dan `CALLE_AGENT_ID` lengkap, factory memilih `CalleProvider`.
+The contract lives in `lib/calle/types.ts`; provider selection lives in `lib/calle/client.ts`. Missing CALL-E configuration selects `MockCallProvider`. Complete configuration selects `CalleProvider`. A failed live `createCall` is shown as a real provider failure and offers an explicit **Switch to Demo Call** action. It is never relabeled as a successful live call.
 
-Karena dokumentasi CALL-E final belum diberikan, live adapter menggunakan asumsi berikut:
+Until the official CALL-E contract is supplied, the adapter assumes:
 
-- `POST {CALLE_API_URL}/calls` membuat panggilan dan menerima input adapter plus `agentId`.
-- `GET {CALLE_API_URL}/calls/{callId}` membaca status.
-- `POST {CALLE_API_URL}/calls/{callId}/end` mengakhiri panggilan.
-- `GET {CALLE_API_URL}/calls/{callId}/transcript` membaca transcript.
-- Autentikasi menggunakan `Authorization: Bearer {CALLE_API_KEY}`.
-- Respons error tidak meneruskan response body provider ke browser.
+- `POST /calls` creates a call;
+- `GET /calls/{id}` returns call status;
+- `POST /calls/{id}/end` ends a call;
+- `GET /calls/{id}/transcript` returns transcript segments;
+- authentication uses a server-only bearer token.
 
-Sesuaikan pemetaan request/response di `CalleProvider` setelah kontrak resmi CALL-E tersedia; komponen UI tidak perlu diubah.
+Update only `CalleProvider` request/response mapping when the official contract is available; UI components remain provider-agnostic.
 
-### Webhook
+## 12. Webhook events
 
-Endpoint `POST /api/calle/webhook` menerima event `call.started`, `call.connected`, `transcript.updated`, `call.completed`, `call.failed`, dan `analysis.completed`. Payload wajib memiliki `eventId`, `callId`, `occurredAt`, `type`, dan object `data`.
+`POST /api/calle/webhook` accepts `call.started`, `call.connected`, `transcript.updated`, `call.completed`, `call.failed`, and `analysis.completed`. Each event requires an event ID, call ID, type, timestamp, object payload, and valid signature boundary. The handler deduplicates IDs, acknowledges but ignores stale events, invokes audit callbacks, and returns safe errors without reflecting payloads or secrets.
 
-Prototype memeriksa header `x-calle-signature`. Dalam development tanpa secret, hanya nilai `demo` yang diterima. Bila `CALLE_WEBHOOK_SECRET` tersedia, implementasi saat ini membandingkan header dengan secret tersebut. Sebelum penggunaan produksi, ganti boundary ini dengan algoritme HMAC dan canonical payload yang ditentukan dokumentasi CALL-E. Domain handler sudah menangani validasi, event ID deduplication, event out-of-order, safe errors, dan audit callback.
+The current shared-secret comparison is a documented placeholder. Replace it with the official CALL-E HMAC and canonical-body algorithm before production.
 
-## Supabase opsional
+## 13. Supabase optional setup
 
-`supabase/schema.sql` menyediakan tabel, constraint, foreign key, indeks, RLS, revoke untuk `anon`/`authenticated`, serta akses server-only `service_role`. Platform Supabase terbaru tidak selalu mengekspos tabel baru ke Data API secara otomatis; pastikan pengaturan Data API dan grants sesuai kebutuhan sebelum mengaktifkan `SupabaseRecoveryRepository`.
+Apply [supabase/schema.sql](./supabase/schema.sql) through the official migration pipeline of the target Supabase project. The schema includes constraints, indexes, RLS, server-only access, append-only audit intent, and idempotent webhook event storage. The demo does not import Supabase SDK and does not require a database.
 
-Demo tidak mengimpor Supabase SDK. `lib/repository/types.ts` mendefinisikan boundary dan `lib/repository/supabase-repository.ts` menyediakan implementasi REST server-side agar Supabase tetap opsional. Jalankan schema melalui migration pipeline resmi project Supabase Anda dan validasi dengan Database Advisors sebelum pemakaian nyata.
+## 14. Testing
 
-## Fitur yang masih disimulasikan
+Automated tests cover approvals, every call guardrail, call lifecycle, all three outcomes, persistence/reset, cross-page domain synchronization, webhook validation/deduplication/ordering, provider selection/failure safety, simulation speeds, Judge Demo Mode, health output, metadata hygiene, documentation path hygiene, and masked demo reports.
 
-- Media telephony dan voice synthesis CALL-E.
-- Streaming transcript, sentiment, intent, entity extraction, dan confidence score.
-- Recording playback; tombol replay menggunakan representasi demo tanpa audio customer nyata.
-- Pre-call briefing AI dan tiga structured result template.
-- Data customer, invoice, payment history, contact history, dashboard metrics, dan audit awal.
-- Payment reconciliation dan perubahan `actual_amount`.
-- Follow-up scheduler; prototype membuat jadwal di state tetapi tidak menjalankan background job.
-- Supabase persistence dan authentication.
-- Signature HMAC spesifik CALL-E sampai kontrak resmi tersedia.
+Tests are offline and never call the real CALL-E API.
 
-## Guardrail penting
+## 15. Security and guardrails
 
-Eligibility engine memblokir approval yang belum lengkap, disclosure yang belum disetujui, consent tidak valid, Do Not Contact, jam kontak di luar policy, panggilan kedua pada hari yang sama, dispute aktif, nomor telepon tidak valid, dan invoice yang tidak dapat ditagih. Transcript dimasking untuk pola OTP/kartu. Promise-to-pay wajib memiliki nominal dan tanggal eksplisit, sedangkan confidence di bawah 0,80 wajib masuk Human Review.
+The call is blocked when approval is incomplete, consent is invalid, Do Not Contact is active, calling time is outside policy, the customer was already called today, an open dispute exists, phone/invoice data is invalid, or AI disclosure is not approved. Sensitive numeric patterns are masked. Results below confidence policy or incomplete promises require Human Review. Important financial data changes only after explicit result approval.
 
-Structured result tidak mengubah nilai invoice. Promise, dispute, atau follow-up baru dibuat setelah operator menekan **Approve result**.
+See [docs/security.md](./docs/security.md).
+
+## 16. Simulated components
+
+- telephony, voice synthesis, recording playback, and transcript streaming when mock is active;
+- sentiment, intent, entities, confidence, and pre-call intelligence;
+- seeded customer, invoice, history, activity, and dashboard metrics;
+- payment reconciliation and `actualAmount` updates;
+- background follow-up execution;
+- production authentication and multitenancy;
+- Supabase persistence until explicitly activated.
+
+All simulated surfaces are labeled **Demo Data** or **Simulation**.
+
+## 17. Production roadmap
+
+1. Validate the official CALL-E request, event, signing, retry, and media contracts.
+2. Activate Supabase through reviewed migrations, tenant-safe RLS, backups, and monitoring.
+3. Add enterprise identity, tenant isolation, retention/deletion policy, consent provenance, and secret rotation.
+4. Integrate accounting invoices and payment reconciliation through idempotent, approval-gated commands.
+5. Add durable jobs, dead-letter handling, observability, multilingual voice, configurable policies, and production analytics.
+
+Judge materials: [submission copy](./docs/submission.md), [demo scripts](./docs/demo-script.md), [architecture](./docs/architecture.md), and [security](./docs/security.md).

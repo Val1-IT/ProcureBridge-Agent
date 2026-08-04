@@ -1,3 +1,5 @@
+import type { SimulationSpeed } from "../demo/simulation";
+
 export type ScenarioKey = "promise_to_pay" | "invoice_dispute" | "failed_contact";
 export type ConsentStatus = "granted" | "missing" | "revoked";
 export type ContactStatus =
@@ -180,7 +182,7 @@ export interface DemoState {
   paymentCommitments: PaymentCommitment[];
   disputes: DisputeTicket[];
   auditLogs: AuditLog[];
-  demo: { fastMode: boolean; selectedScenario: ScenarioKey | null };
+  demo: { simulationSpeed: SimulationSpeed; selectedScenario: ScenarioKey | null };
 }
 
 export interface GuardrailInput {

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { validateStructuredResult } from "@/lib/domain/results";
+import { buildDemoReport, renderDemoReportMarkdown } from "@/lib/demo/report";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 export default function CallResultPage() {
@@ -18,25 +19,37 @@ export default function CallResultPage() {
   const customer = state.customers.find((item) => item.id === result?.customerId);
   const [editing, setEditing] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  if (!call || !result || !invoice || !customer) return <div className="empty-state"><strong>Structured result belum tersedia.</strong><p>Selesaikan simulasi panggilan terlebih dahulu.</p><button className="button" onClick={() => router.push("/collections")}>Kembali ke queue</button></div>;
+  if (!call || !result || !invoice || !customer) return <div className="empty-state"><strong>Structured result is not available.</strong><p>Complete the simulated call first.</p><button className="button" onClick={() => router.push("/collections")}>Return to queue</button></div>;
   const issues = validateStructuredResult(result);
   const reviewed = result.reviewStatus !== "pending";
   const destination = result.callOutcome === "promise_to_pay" ? "/promises" : result.callOutcome === "dispute" ? "/disputes" : "/collections";
 
   const approve = () => {
-    if (issues.length || !window.confirm("Setujui hasil ekstraksi ini? Tracker terkait dan Audit Log akan diperbarui. Nominal invoice tetap tidak berubah.")) return;
+    if (issues.length || !window.confirm("Approve this extraction? The relevant tracker and Audit Log will update. The invoice amount will not change.")) return;
     dispatch({ type: "APPROVE_RESULT", resultId: result.id, actor: "Nadia Pratama" });
   };
-  const download = () => {
-    const text = [`ARVANTA PROCUREBRIDGE — DEMO CALL SUMMARY`, `Customer: ${customer.companyName}`, `Invoice: ${invoice.invoiceNumber}`, `Outcome: ${result.callOutcome}`, `Summary: ${result.summary}`, `Human review status: ${result.reviewStatus}`].join("\n");
-    const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-    const link = document.createElement("a"); link.href = url; link.download = `${invoice.invoiceNumber}-demo-call-summary.txt`; link.click(); URL.revokeObjectURL(url);
+  const demoReport = () => buildDemoReport(state, call.id);
+  const copySummary = async () => {
+    await navigator.clipboard.writeText(renderDemoReportMarkdown(demoReport()));
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1_500);
+  };
+  const download = (format: "json" | "md") => {
+    const report = demoReport();
+    const content = format === "json" ? JSON.stringify(report, null, 2) : renderDemoReportMarkdown(report);
+    const url = URL.createObjectURL(new Blob([content], { type: format === "json" ? "application/json" : "text/markdown" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${invoice.invoiceNumber}-demo-report.${format}`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
     <>
-      <PageHeader eyebrow="Post-call extraction" title="Review before any financial update." description={`${customer.companyName} • ${invoice.invoiceNumber}. AI telah mengubah percakapan menjadi draft terstruktur; keputusan manusia tetap menjadi gate terakhir.`} actions={<StatusChip tone={reviewed ? "green" : "amber"}>{result.reviewStatus.replace("_", " ").toUpperCase()}</StatusChip>} />
+      <PageHeader eyebrow="Post-call extraction • Demo Data" title="Review before any financial update." description={`${customer.companyName} • ${invoice.invoiceNumber}. AI converted the conversation into a structured draft; the human decision remains the final gate.`} actions={<StatusChip tone={reviewed ? "green" : "amber"}>{result.reviewStatus.replace("_", " ").toUpperCase()}</StatusChip>} />
       <section className="result-layout">
         <article className="result-card result-main">
           <div className="result-hero"><div><span className="eyebrow">Call outcome</span><h2>{result.callOutcome.replaceAll("_", " ")}</h2></div><div className="confidence"><strong>{Math.round(result.confidenceScore * 100)}%</strong><span>confidence</span></div></div>
@@ -51,19 +64,24 @@ export default function CallResultPage() {
             <div><span>Sentiment</span><strong>{result.customerSentiment}</strong></div>
             <div><span>Follow-up date</span>{editing ? <input type="date" value={result.followUpDate ?? ""} onChange={(event) => dispatch({ type: "EDIT_RESULT", resultId: result.id, patch: { followUpDate: event.target.value || null } })} /> : <strong>{formatDate(result.followUpDate)}</strong>}</div>
           </div>
-          {issues.length ? <div className="guardrail-warning"><strong>Human review wajib</strong>{issues.map((issue) => <p key={issue}>{issue}</p>)}</div> : null}
+          {issues.length ? <div className="guardrail-warning"><strong>Human Review required</strong>{issues.map((issue) => <p key={issue}>{issue}</p>)}</div> : null}
           <div className="result-actions">
-            <button className="button button-secondary" disabled={reviewed} onClick={() => setEditing((value) => !value)}>{editing ? "Selesai Edit" : "Edit extracted result"}</button>
+            <button className="button button-secondary" disabled={reviewed} onClick={() => setEditing((value) => !value)}>{editing ? "Finish Edit" : "Edit extracted result"}</button>
             <button className="button" disabled={reviewed || issues.length > 0} onClick={approve}>Approve result</button>
-            <button className="button button-secondary" disabled={reviewed} onClick={() => { if (window.confirm("Kirim hasil ke Human Review tanpa memperbarui data finansial?")) dispatch({ type: "HUMAN_REVIEW", resultId: result.id, actor: "Nadia Pratama" }); }}>Human Review</button>
-            <button className="button button-danger" disabled={reviewed} onClick={() => { if (window.confirm("Tolak hasil ekstraksi? Data finansial tidak akan berubah.")) dispatch({ type: "REJECT_RESULT", resultId: result.id, actor: "Nadia Pratama" }); }}>Reject result</button>
+            <button className="button button-secondary" disabled={reviewed} onClick={() => { if (window.confirm("Send this result to Human Review without updating financial data?")) dispatch({ type: "HUMAN_REVIEW", resultId: result.id, actor: "Nadia Pratama" }); }}>Human Review</button>
+            <button className="button button-danger" disabled={reviewed} onClick={() => { if (window.confirm("Reject this extraction? Financial data will not change.")) dispatch({ type: "REJECT_RESULT", resultId: result.id, actor: "Nadia Pratama" }); }}>Reject result</button>
           </div>
-          {reviewed ? <button className="button button-dark button-full" onClick={() => router.push(destination)}>Lihat pembaruan tersinkronisasi →</button> : null}
+          {reviewed ? <button className="button button-dark button-full" onClick={() => router.push(destination)}>View synchronized update →</button> : null}
         </article>
         <aside className="call-side-stack">
-          <article className="result-card side-card"><div className="panel-title"><h3>Recording</h3><span>DEMO DATA</span></div><div className="recording-row"><button className="record-button" onClick={() => setPlaying((value) => !value)}>{playing ? "Ⅱ" : "▶"}</button><div><strong>{playing ? "Memutar simulasi…" : "call-recording-demo.wav"}</strong><span>{call.durationSeconds}s • MockCallProvider</span></div></div></article>
+          <article className="result-card side-card"><div className="panel-title"><h3>Recording</h3><span>SIMULATION • DEMO DATA</span></div><div className="recording-row"><button className="record-button" aria-label={playing ? "Pause simulated recording" : "Play simulated recording"} onClick={() => setPlaying((value) => !value)}>{playing ? "Ⅱ" : "▶"}</button><div><strong>{playing ? "Playing simulation…" : "call-recording-demo.wav"}</strong><span>{call.durationSeconds}s • MockCallProvider</span></div></div></article>
           <article className="result-card side-card"><div className="panel-title"><h3>Transcript</h3><span>{call.transcript.length} SEGMENTS</span></div><div className="mini-transcript">{call.transcript.map((item) => <p key={item.id}><strong>{item.speaker}:</strong> {item.text}</p>)}</div></article>
-          <button className="button button-secondary button-full" onClick={download}>Download call summary</button>
+          <div className="evidence-actions">
+            <button className="button button-secondary button-full" onClick={copySummary}>{copied ? "Summary copied" : "Copy Summary"}</button>
+            <button className="button button-secondary button-full" onClick={() => download("json")}>Download Demo Report (JSON)</button>
+            <button className="button button-secondary button-full" onClick={() => download("md")}>Download Demo Report (Markdown)</button>
+            <small>Demo Data • phone and email are masked</small>
+          </div>
         </aside>
       </section>
     </>

@@ -1,8 +1,8 @@
 import type { DemoState } from "../domain/types";
 import { createSeedState } from "./seed";
 
-export const DEMO_SCHEMA_VERSION = 1;
-export const DEMO_STORAGE_KEY = "arvanta-procurebridge-demo-v1";
+export const DEMO_SCHEMA_VERSION = 2;
+export const DEMO_STORAGE_KEY = "arvanta-procurebridge-demo-v2";
 
 export function serializeDemoState(state: DemoState): string {
   return JSON.stringify(state);

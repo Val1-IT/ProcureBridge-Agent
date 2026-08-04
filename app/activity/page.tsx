@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
 import { useDemoStore } from "@/components/demo-store-provider";
@@ -8,7 +9,8 @@ import { formatDateTime, formatDuration } from "@/lib/format";
 
 export default function ActivityPage() {
   const { state } = useDemoStore();
-  const [tab, setTab] = useState<"calls" | "audit">("calls");
+  const pathname = usePathname();
+  const [tab, setTab] = useState<"calls" | "audit">(pathname === "/audit" ? "audit" : "calls");
   return (
     <>
       <PageHeader eyebrow="Traceability" title="Call Activity & Audit Log" description="Panggilan, approval, perubahan hasil, operator, guardrail, dan request ID tercatat sebagai Demo Data yang dapat ditelusuri." actions={<div className="tab-switch"><button className={tab === "calls" ? "active" : ""} onClick={() => setTab("calls")}>Call activity</button><button className={tab === "audit" ? "active" : ""} onClick={() => setTab("audit")}>Audit log</button></div>} />
