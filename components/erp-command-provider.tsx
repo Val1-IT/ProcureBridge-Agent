@@ -15,7 +15,7 @@ const ErpCommandContext = createContext<ErpCommandContextValue | null>(null);
 interface ErpCommandProviderProps {
   children: React.ReactNode;
   getLatestErp: () => ErpState;
-  commitErp: (expectedRevision: number, erp: ErpState) => void;
+  commitErp: (expectedRevision: number, erp: ErpState) => boolean;
 }
 
 export function ErpCommandProvider({ children, getLatestErp, commitErp }: ErpCommandProviderProps) {
@@ -30,7 +30,13 @@ export function ErpCommandProvider({ children, getLatestErp, commitErp }: ErpCom
         error: { code: "INVALID_STATE", message: "Successful ERP commands must advance the revision exactly once." },
       };
     }
-    commitErp(before.revision, result.state);
+    if (!commitErp(before.revision, result.state)) {
+      return {
+        ok: false,
+        state: getLatestErp(),
+        error: { code: "STALE_STATE", message: "ERP state changed before the command could be committed." },
+      };
+    }
     return result;
   }, [commitErp, getLatestErp]);
   const value = useMemo(() => ({ run }), [run]);

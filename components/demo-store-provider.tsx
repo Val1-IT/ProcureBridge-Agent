@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { demoReducer, type DemoAction } from "@/lib/demo/reducer";
 import { createSeedState } from "@/lib/demo/seed";
 import { DEMO_STORAGE_KEY, deserializeDemoState, loadDemoStateFromStorage, serializeDemoState } from "@/lib/demo/persistence";
@@ -17,20 +17,26 @@ interface DemoStoreValue {
 const DemoStoreContext = createContext<DemoStoreValue | null>(null);
 
 export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, reactDispatch] = useReducer(demoReducer, undefined, createSeedState);
+  const [state, setState] = useState(createSeedState);
   const latestStateRef = useRef(state);
   const [hydrated, setHydrated] = useState(false);
   latestStateRef.current = state;
 
-  const dispatchInternal = useCallback((action: Parameters<typeof demoReducer>[1]) => {
-    latestStateRef.current = demoReducer(latestStateRef.current, action);
-    reactDispatch(action);
+  const dispatchLegacy = useCallback((action: DemoAction) => {
+    const next = demoReducer(latestStateRef.current, action);
+    latestStateRef.current = next;
+    setState(next);
   }, []);
-  const dispatch = useCallback((action: DemoAction) => dispatchInternal(action), [dispatchInternal]);
+  const dispatch = useCallback((action: DemoAction) => dispatchLegacy(action), [dispatchLegacy]);
   const getLatestErp = useCallback(() => latestStateRef.current.erp, []);
-  const commitErp = useCallback((expectedRevision: number, erp: ErpState) => {
-    dispatchInternal({ type: "ERP_COMMIT", expectedRevision, erp });
-  }, [dispatchInternal]);
+  const commitErp = useCallback((expectedRevision: number, erp: ErpState): boolean => {
+    const current = latestStateRef.current;
+    if (current.erp.revision !== expectedRevision || erp.revision !== expectedRevision + 1) return false;
+    const next = { ...current, erp, updatedAt: new Date().toISOString() };
+    latestStateRef.current = next;
+    setState(next);
+    return true;
+  }, []);
 
   useEffect(() => {
     dispatch({ type: "HYDRATE", state: loadDemoStateFromStorage(window.localStorage).state });

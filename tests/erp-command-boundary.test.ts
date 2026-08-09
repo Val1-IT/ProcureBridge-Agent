@@ -128,30 +128,26 @@ describe("ERP command boundary", () => {
     });
   });
 
-  it("persists only a commit based on the current ERP revision", () => {
+  it("does not accept raw ERP snapshot actions through the demo reducer", () => {
     const before = createSeedState();
     const command = upsertProduct(before.erp, "admin", productInput, fixedNow);
     expect(command.ok).toBe(true);
     if (!command.ok) return;
 
-    const stale = demoReducer(before, { type: "ERP_COMMIT", expectedRevision: 1, erp: command.state });
-    const committed = demoReducer(before, { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: command.state });
+    const forgedSnapshotAction = { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: command.state } as never;
+    const next = demoReducer(before, forgedSnapshotAction);
 
-    expect(stale).toBe(before);
-    expect(committed.erp).toEqual(command.state);
-    expect(committed.calls).toBe(before.calls);
+    expect(next).toBe(before);
   });
 
-  it("rejects forged current-revision commits that do not advance ERP revision exactly once", () => {
+  it("keeps ERP snapshots outside the reducer action type", () => {
     const before = createSeedState();
-    const unchangedRevision = { ...before.erp, activeRole: "warehouse" as const };
-    const skippedRevision = { ...before.erp, revision: before.erp.revision + 2, activeRole: "warehouse" as const };
+    type ReducerAction = Parameters<typeof demoReducer>[1];
 
-    const unchanged = demoReducer(before, { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: unchangedRevision });
-    const skipped = demoReducer(before, { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: skippedRevision });
+    // @ts-expect-error ERP snapshots are not reducer actions.
+    const forgedAction: ReducerAction = { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: before.erp };
 
-    expect(unchanged).toBe(before);
-    expect(skipped).toBe(before);
+    expect(forgedAction).toBeDefined();
   });
 
   it("keeps ordinary legacy actions available through the public dispatcher action type", () => {
