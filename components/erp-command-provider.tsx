@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo } from "react";
-import { useDemoStore } from "./demo-store-provider";
 import type { ErpCommandResult } from "@/lib/erp/errors";
 import type { ErpState } from "@/lib/erp/types";
 
@@ -13,10 +12,15 @@ interface ErpCommandContextValue {
 
 const ErpCommandContext = createContext<ErpCommandContextValue | null>(null);
 
-export function ErpCommandProvider({ children }: { children: React.ReactNode }) {
-  const { dispatch, getLatestState } = useDemoStore();
+interface ErpCommandProviderProps {
+  children: React.ReactNode;
+  getLatestErp: () => ErpState;
+  commitErp: (expectedRevision: number, erp: ErpState) => void;
+}
+
+export function ErpCommandProvider({ children, getLatestErp, commitErp }: ErpCommandProviderProps) {
   const run = useCallback(<T,>(command: ErpCommand<T>): ErpCommandResult<T> => {
-    const before = getLatestState().erp;
+    const before = getLatestErp();
     const result = command(before);
     if (!result.ok) return result;
     if (result.state.revision !== before.revision + 1) {
@@ -26,9 +30,9 @@ export function ErpCommandProvider({ children }: { children: React.ReactNode }) 
         error: { code: "INVALID_STATE", message: "Successful ERP commands must advance the revision exactly once." },
       };
     }
-    dispatch({ type: "ERP_COMMIT", expectedRevision: before.revision, erp: result.state });
+    commitErp(before.revision, result.state);
     return result;
-  }, [dispatch, getLatestState]);
+  }, [commitErp, getLatestErp]);
   const value = useMemo(() => ({ run }), [run]);
   return <ErpCommandContext.Provider value={value}>{children}</ErpCommandContext.Provider>;
 }

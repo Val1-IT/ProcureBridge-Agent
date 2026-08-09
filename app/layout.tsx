@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { DemoStoreProvider } from "@/components/demo-store-provider";
-import { ErpCommandProvider } from "@/components/erp-command-provider";
 import { JudgeDemoProvider } from "@/components/judge-demo-provider";
 import { AppShell } from "@/components/app-shell";
 
@@ -32,7 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <DemoStoreProvider>
-          <ErpCommandProvider><JudgeDemoProvider><AppShell>{children}</AppShell></JudgeDemoProvider></ErpCommandProvider>
+          <JudgeDemoProvider><AppShell>{children}</AppShell></JudgeDemoProvider>
         </DemoStoreProvider>
       </body>
     </html>

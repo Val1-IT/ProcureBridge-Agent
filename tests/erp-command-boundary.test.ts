@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSeedState } from "../lib/demo/seed";
-import { demoReducer } from "../lib/demo/reducer";
+import { demoReducer, type DemoAction } from "../lib/demo/reducer";
 import { createErpSeedState } from "../lib/erp/seed";
 import { authorize } from "../lib/erp/permissions";
 import {
@@ -140,5 +140,25 @@ describe("ERP command boundary", () => {
     expect(stale).toBe(before);
     expect(committed.erp).toEqual(command.state);
     expect(committed.calls).toBe(before.calls);
+  });
+
+  it("rejects forged current-revision commits that do not advance ERP revision exactly once", () => {
+    const before = createSeedState();
+    const unchangedRevision = { ...before.erp, activeRole: "warehouse" as const };
+    const skippedRevision = { ...before.erp, revision: before.erp.revision + 2, activeRole: "warehouse" as const };
+
+    const unchanged = demoReducer(before, { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: unchangedRevision });
+    const skipped = demoReducer(before, { type: "ERP_COMMIT", expectedRevision: before.erp.revision, erp: skippedRevision });
+
+    expect(unchanged).toBe(before);
+    expect(skipped).toBe(before);
+  });
+
+  it("keeps ordinary legacy actions available through the public dispatcher action type", () => {
+    const action: DemoAction = { type: "SET_FAST_MODE", value: false };
+
+    const next = demoReducer(createSeedState(), action);
+
+    expect(next.demo.simulationSpeed).toBe("real_time");
   });
 });

@@ -5,11 +5,12 @@ import { demoReducer, type DemoAction } from "@/lib/demo/reducer";
 import { createSeedState } from "@/lib/demo/seed";
 import { DEMO_STORAGE_KEY, deserializeDemoState, loadDemoStateFromStorage, serializeDemoState } from "@/lib/demo/persistence";
 import type { DemoState } from "@/lib/domain/types";
+import type { ErpState } from "@/lib/erp/types";
+import { ErpCommandProvider } from "./erp-command-provider";
 
 interface DemoStoreValue {
   state: DemoState;
   dispatch: React.Dispatch<DemoAction>;
-  getLatestState: () => DemoState;
   hydrated: boolean;
 }
 
@@ -21,12 +22,15 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   latestStateRef.current = state;
 
-  const dispatch = useCallback((action: DemoAction) => {
+  const dispatchInternal = useCallback((action: Parameters<typeof demoReducer>[1]) => {
     latestStateRef.current = demoReducer(latestStateRef.current, action);
     reactDispatch(action);
   }, []);
-
-  const getLatestState = useCallback(() => latestStateRef.current, []);
+  const dispatch = useCallback((action: DemoAction) => dispatchInternal(action), [dispatchInternal]);
+  const getLatestErp = useCallback(() => latestStateRef.current.erp, []);
+  const commitErp = useCallback((expectedRevision: number, erp: ErpState) => {
+    dispatchInternal({ type: "ERP_COMMIT", expectedRevision, erp });
+  }, [dispatchInternal]);
 
   useEffect(() => {
     dispatch({ type: "HYDRATE", state: loadDemoStateFromStorage(window.localStorage).state });
@@ -48,8 +52,8 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("storage", sync);
   }, []);
 
-  const value = useMemo(() => ({ state, dispatch, getLatestState, hydrated }), [state, dispatch, getLatestState, hydrated]);
-  return <DemoStoreContext.Provider value={value}>{children}</DemoStoreContext.Provider>;
+  const value = useMemo(() => ({ state, dispatch, hydrated }), [state, dispatch, hydrated]);
+  return <DemoStoreContext.Provider value={value}><ErpCommandProvider getLatestErp={getLatestErp} commitErp={commitErp}>{children}</ErpCommandProvider></DemoStoreContext.Provider>;
 }
 
 export function useDemoStore(): DemoStoreValue {
