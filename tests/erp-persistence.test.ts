@@ -74,4 +74,26 @@ describe("ERP persistence foundation", () => {
 
     expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
   });
+
+  it.each([
+    ["a purchase order references a missing purchase request", (state: ReturnType<typeof createSeedState>) => { state.erp.purchaseOrders[0].purchaseRequestId = "missing-request"; }],
+    ["a supplier invoice omits its required supplier link", (state: ReturnType<typeof createSeedState>) => {
+      state.erp.supplierInvoices.push({
+        id: "supplier-invoice-1", invoiceNumber: "BILL-2026-0001", purchaseOrderId: null, salesOrderId: null,
+        customerId: null, status: "unpaid", lines: [{ productId: "product-router", quantity: 1, unitPrice: 1_050_000 }], dueDate: "2026-08-20",
+        createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
+      } as never);
+    }],
+    ["a payment references an invoice that does not exist", (state: ReturnType<typeof createSeedState>) => {
+      state.erp.payments.push({
+        id: "payment-1", paymentNumber: "PAY-2026-0001", invoiceId: "missing-invoice", direction: "payable", amount: 1_000, paymentDate: "2026-08-09", status: "posted",
+        createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
+      });
+    }],
+  ])("fails closed when %s", (_case, mutate) => {
+    const malformed = createSeedState();
+    mutate(malformed);
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
 });
