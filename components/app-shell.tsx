@@ -2,32 +2,24 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useDemoStore } from "./demo-store-provider";
+import { simulationSpeedOptions, type SimulationSpeed } from "@/lib/demo/simulation";
 import { DemoBadge } from "./demo-badge";
+import { useDemoStore } from "./demo-store-provider";
+import { GroupedNav } from "./erp/grouped-nav";
+import { formatErpRole, RoleSwitcher } from "./erp/role-switcher";
 import { JudgeDemoGuide } from "./judge-demo-guide";
 import { useJudgeDemo } from "./judge-demo-provider";
-import { simulationSpeedOptions, type SimulationSpeed } from "@/lib/demo/simulation";
-
-const nav = [
-  ["/dashboard", "Dashboard", "01"],
-  ["/collections", "Collection Queue", "02"],
-  ["/promises", "Promise Tracker", "03"],
-  ["/disputes", "Dispute Center", "04"],
-  ["/activity", "Call & Audit", "05"],
-  ["/architecture", "Architecture", "06"],
-  ["/technical-notes", "Technical Notes", "07"],
-  ["/submission", "Submission Hub", "08"],
-];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { state, dispatch, hydrated } = useDemoStore();
+  const { state, dispatch, hydrated, recoveryReason, dismissRecovery } = useDemoStore();
   const { session, start, startFallback, setSpeed } = useJudgeDemo();
 
   const reset = () => {
     if (!window.confirm("Reset seluruh perubahan Demo Data ke kondisi awal? Tindakan ini hanya menghapus data simulasi di browser ini.")) return;
     dispatch({ type: "RESET" });
+    dismissRecovery();
     router.push("/dashboard");
   };
 
@@ -39,20 +31,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="sidebar">
         <Link className="brand-block" href="/">
           <div className="brand-mark">AP</div>
-          <div><span>Arvanta</span><strong>ProcureBridge</strong></div>
+          <div><span>Arvanta</span><strong>Distributor ERP</strong></div>
         </Link>
         <DemoBadge />
-        <nav aria-label="Main navigation">
-          {nav.map(([href, label, index]) => (
-            <Link key={href} href={href} className={pathname.startsWith(href) ? "nav-link active" : "nav-link"}>
-              <span className="nav-index">{index}</span><span>{label}</span>
-            </Link>
-          ))}
-        </nav>
+        <GroupedNav pathname={pathname} role={state.erp.activeRole} />
         <section className="side-policy">
-          <span className="eyebrow">Recovery policy</span>
-          <strong>Human approval required</strong>
-          <p>CALL-E activates only after all eight policy checks pass.</p>
+          <span className="eyebrow">ERP command boundary</span>
+          <strong>Role checks and audit required</strong>
+          <p>Every Demo Data mutation is validated and committed atomically.</p>
         </section>
         <div className="sidebar-actions">
           <button className="button button-full" onClick={start}>Start 2-Minute Demo</button>
@@ -70,8 +56,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="main-column">
         <div className="topbar">
           <div><span className="live-dot" /> {session?.presentationFallback ? "Presentation Fallback — Demo Data" : "MockCallProvider active • Demo Data"}</div>
-          <div className="operator"><span>NP</span><div><strong>Nadia Pratama</strong><small>Collections Manager</small></div></div>
+          <div className="topbar-role"><RoleSwitcher activeRole={state.erp.activeRole} /><div className="operator"><span>DO</span><div><strong>Demo Operator</strong><small>{formatErpRole(state.erp.activeRole)}</small></div></div></div>
         </div>
+        {recoveryReason ? <section className="recovery-banner" role="alert"><div><strong>Browser data dipulihkan ke Demo Data yang aman.</strong><p>Data tersimpan tidak valid ({recoveryReason === "INVALID_JSON" ? "format JSON rusak" : "schema tidak dikenali"}) dan tidak digunakan.</p></div><div><button className="button" type="button" onClick={reset}>Reset Demo Data</button><button className="button button-secondary" type="button" onClick={dismissRecovery} aria-label="Tutup pemberitahuan pemulihan">Tutup</button></div></section> : null}
         <main className="page-content">{children}</main>
         <JudgeDemoGuide />
       </div>

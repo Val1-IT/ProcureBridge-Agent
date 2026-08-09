@@ -14,7 +14,8 @@ export function appendErpAudit(
   event: Omit<ErpAuditEvent, "id" | "createdAt" | "updatedAt">,
   now: string,
 ): Omit<ErpState, "revision"> {
-  const { revision: _revision, ...next } = state;
+  const next = { ...state };
+  delete (next as Partial<ErpState>).revision;
   const audit: ErpAuditEvent = {
     ...event,
     id: `erp-audit-${state.revision + 1}`,

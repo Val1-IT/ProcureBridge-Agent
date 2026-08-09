@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { demoReducer, type DemoAction } from "@/lib/demo/reducer";
 import { createSeedState } from "@/lib/demo/seed";
-import { DEMO_STORAGE_KEY, deserializeDemoState, loadDemoStateFromStorage, serializeDemoState } from "@/lib/demo/persistence";
+import { DEMO_STORAGE_KEY, loadDemoState, loadDemoStateFromStorage, serializeDemoState, type DemoRecoveryReason } from "@/lib/demo/persistence";
 import type { DemoState } from "@/lib/domain/types";
 import type { ErpState } from "@/lib/erp/types";
 import { ErpCommandProvider } from "./erp-command-provider";
@@ -12,6 +12,8 @@ interface DemoStoreValue {
   state: DemoState;
   dispatch: React.Dispatch<DemoAction>;
   hydrated: boolean;
+  recoveryReason: DemoRecoveryReason;
+  dismissRecovery: () => void;
 }
 
 const DemoStoreContext = createContext<DemoStoreValue | null>(null);
@@ -20,6 +22,7 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState(createSeedState);
   const latestStateRef = useRef(state);
   const [hydrated, setHydrated] = useState(false);
+  const [recoveryReason, setRecoveryReason] = useState<DemoRecoveryReason>(null);
   latestStateRef.current = state;
 
   const dispatchLegacy = useCallback((action: DemoAction) => {
@@ -39,9 +42,11 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    dispatch({ type: "HYDRATE", state: loadDemoStateFromStorage(window.localStorage).state });
+    const loaded = loadDemoStateFromStorage(window.localStorage);
+    dispatch({ type: "HYDRATE", state: loaded.state });
+    setRecoveryReason(loaded.recoveryReason);
     setHydrated(true);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -51,14 +56,17 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const sync = (event: StorageEvent) => {
       if (event.key === DEMO_STORAGE_KEY && event.newValue) {
-        dispatch({ type: "HYDRATE", state: deserializeDemoState(event.newValue) });
+        const loaded = loadDemoState(event.newValue);
+        dispatch({ type: "HYDRATE", state: loaded.state });
+        setRecoveryReason(loaded.recoveryReason);
       }
     };
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
-  }, []);
+  }, [dispatch]);
 
-  const value = useMemo(() => ({ state, dispatch, hydrated }), [state, dispatch, hydrated]);
+  const dismissRecovery = useCallback(() => setRecoveryReason(null), []);
+  const value = useMemo(() => ({ state, dispatch, hydrated, recoveryReason, dismissRecovery }), [state, dispatch, hydrated, recoveryReason, dismissRecovery]);
   return <DemoStoreContext.Provider value={value}><ErpCommandProvider getLatestErp={getLatestErp} commitErp={commitErp}>{children}</ErpCommandProvider></DemoStoreContext.Provider>;
 }
 

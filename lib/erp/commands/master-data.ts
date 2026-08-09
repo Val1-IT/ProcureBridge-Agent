@@ -1,6 +1,6 @@
 import type { ErpCommandResult } from "../errors";
 import { authorize, type ErpPermission } from "../permissions";
-import type { ErpCustomer, ErpRole, ErpState, Product, Supplier } from "../types";
+import type { ErpCustomer, ErpRole, ErpState, Product, Supplier, Warehouse } from "../types";
 import { appendErpAudit, commitErpState, isErpRole, rejectErpCommand } from "./shared";
 
 export interface ProductInput {
@@ -35,6 +35,14 @@ export interface CustomerInput {
   email: string;
   address: string;
   creditLimit: number;
+  active: boolean;
+}
+
+export interface WarehouseInput {
+  id: string;
+  code: string;
+  name: string;
+  address: string;
   active: boolean;
 }
 
@@ -157,6 +165,24 @@ export function upsertCustomer(state: ErpState, role: ErpRole, input: CustomerIn
     detail: { code: customer.code, operation: current ? "updated" : "created" },
   }, now);
   return commitErpState(state, next, customer);
+}
+
+export function upsertWarehouse(state: ErpState, role: ErpRole, input: WarehouseInput, now: string): ErpCommandResult<Warehouse> {
+  if (!isErpRole(role)) return rejectErpCommand(state, { code: "INVALID_INPUT", message: "Active role is invalid." });
+  if (role !== "admin") return rejectErpCommand(state, { code: "FORBIDDEN", message: "Only Admin can manage the version-one warehouse." });
+  const current = state.warehouses.find((item) => item.id === input.id);
+  if (!current) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Master-data record was not found." });
+  const code = normalize(input.code);
+  const name = normalize(input.name);
+  const address = normalize(input.address);
+  if (!code || !name || !address) return invalid(state, "Warehouse code, name, and address are required.");
+  if (state.warehouses.some((item) => item.id !== input.id && item.code.toLowerCase() === code.toLowerCase())) return invalid(state, "Warehouse code must be unique.", { code });
+  const warehouse: Warehouse = { ...current, code, name, address, active: input.active, updatedAt: now };
+  const next = appendErpAudit({ ...state, warehouses: state.warehouses.map((item) => item.id === current.id ? warehouse : item) }, {
+    entityType: "warehouse", entityId: warehouse.id, action: "warehouse.updated", actorRole: role, actorId: `role:${role}`,
+    detail: { code: warehouse.code, operation: "updated" },
+  }, now);
+  return commitErpState(state, next, warehouse);
 }
 
 export function setActiveRole(state: ErpState, nextRole: ErpRole, now: string): ErpCommandResult<ErpRole> {
