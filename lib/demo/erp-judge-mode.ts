@@ -1,12 +1,15 @@
 import type { DemoState } from "../domain/types";
 import type { SimulationSpeed } from "./simulation";
 import { createErpJudgeSeedState, createSeedState } from "./seed";
+import { createDemoSessionId } from "./session";
 
 export const ERP_DEMO_IDS = {
   salesOrderId: "so-router-shortage",
   purchaseOrderId: "po-router-replenishment",
   supplierCallId: "supplier-call-po-1",
 } as const;
+export const ERP_JUDGE_DEMO_CLOCK_ISO = "2026-08-10T03:00:00.000Z";
+
 
 export type ErpJudgeStep =
   | "sales_shortage"
@@ -27,6 +30,7 @@ export interface ErpJudgeSession {
   providerMode: "mock";
   presentationFallback: boolean;
   preDemoSnapshot: DemoState;
+  demoClockIso: string;
 }
 
 export interface StartedErpJudgeSession {
@@ -46,7 +50,7 @@ function start(state: DemoState, presentationFallback: boolean): StartedErpJudge
   const seeded = createErpJudgeSeedState();
   seeded.demo.simulationSpeed = simulationSpeed;
   return {
-    session: { active: true, step: "sales_shortage", simulationSpeed, providerMode: "mock", presentationFallback, preDemoSnapshot: cloneState(state) },
+    session: { active: true, step: "sales_shortage", simulationSpeed, providerMode: "mock", presentationFallback, preDemoSnapshot: cloneState(state), demoClockIso: ERP_JUDGE_DEMO_CLOCK_ISO },
     state: seeded,
   };
 }
@@ -54,7 +58,7 @@ function start(state: DemoState, presentationFallback: boolean): StartedErpJudge
 export function startErpJudgeSession(state: DemoState): StartedErpJudgeSession { return start(state, false); }
 export function startPresentationFallback(state: DemoState): StartedErpJudgeSession { return start(state, true); }
 export function exitErpJudgeSession(session: ErpJudgeSession): DemoState { return cloneState(session.preDemoSnapshot); }
-export function resetErpDemo(state: DemoState): DemoState { void state; return createSeedState(); }
+export function resetErpDemo(state: DemoState, createSessionId: () => string = createDemoSessionId): DemoState { void state; return createSeedState(createSessionId()); }
 
 function hasShortagePurchaseRequest(state: DemoState): boolean {
   return state.erp.purchaseRequests.some((request) => request.sourceSalesOrderId === ERP_DEMO_IDS.salesOrderId && !["rejected", "cancelled"].includes(request.status));

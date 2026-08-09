@@ -7,9 +7,10 @@ import { MockSupplierCallProvider } from "../supplier-call/mock-provider";
 import type { CreateSupplierCallInput, CreateSupplierCallResult, SupplierCallProvider, SupplierCallProviderMode } from "../supplier-call/types";
 import { SupplierCallProviderError } from "../supplier-call/types";
 import { getJakartaClock } from "../supplier-call/jakarta-clock";
+import { isStrictIsoInstant } from "../erp/date-validation";
 import { isValidDemoSessionId } from "../demo/session";
 
-export interface CreateSupplierCallRequest { callId: string; supplierId: string; purchaseOrderId: string; demoSessionId: string }
+export interface CreateSupplierCallRequest { callId: string; supplierId: string; purchaseOrderId: string; demoSessionId: string; demoClockIso?: string }
 export interface SupplierCallClaimRequest extends CreateSupplierCallRequest { idempotencyKey: string; supplierLocalDate: string }
 export type SupplierCallClaimResult = { ok: true; claimId: string } | { ok: false };
 
@@ -149,11 +150,14 @@ export interface CreateSupplierCallHandlerDependencies {
 function parseRequest(input: unknown): CreateSupplierCallRequest | null {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const value = input as Record<string, unknown>;
-  const keys = ["callId", "supplierId", "purchaseOrderId", "demoSessionId"] as const;
-  if (Object.keys(value).length !== keys.length || Object.keys(value).some((key) => !keys.includes(key as typeof keys[number]))) return null;
-  if (keys.some((key) => typeof value[key] !== "string" || !String(value[key]).trim() || String(value[key]).length > 160)) return null;
+  const requiredKeys = ["callId", "supplierId", "purchaseOrderId", "demoSessionId"] as const;
+  const allowedKeys = [...requiredKeys, "demoClockIso"] as const;
+  if (Object.keys(value).some((key) => !allowedKeys.includes(key as typeof allowedKeys[number]))) return null;
+  if (requiredKeys.some((key) => typeof value[key] !== "string" || !String(value[key]).trim() || String(value[key]).length > 160)) return null;
   if (!isValidDemoSessionId(value.demoSessionId)) return null;
-  return { callId: String(value.callId), supplierId: String(value.supplierId), purchaseOrderId: String(value.purchaseOrderId), demoSessionId: String(value.demoSessionId) };
+  if (value.demoClockIso !== undefined && !isStrictIsoInstant(value.demoClockIso)) return null;
+  return { callId: String(value.callId), supplierId: String(value.supplierId), purchaseOrderId: String(value.purchaseOrderId), demoSessionId: String(value.demoSessionId),
+    ...(typeof value.demoClockIso === "string" ? { demoClockIso: value.demoClockIso } : {}) };
 }
 
 function defaultProvider(mode: SupplierCallProviderMode): SupplierCallProvider {
@@ -169,6 +173,10 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
 
     const forceMock = new URL(request.url).searchParams.get("forceMock") === "1";
     const providerMode: SupplierCallProviderMode = forceMock ? "mock" : dependencies.providerMode ?? "mock";
+    if (input.demoClockIso && (!forceMock || providerMode !== "mock" || dependencies.repository.authorizationMode !== "demo" || dependencies.repository.repositoryCapability !== "demo")) {
+      return NextResponse.json({ error: "Demo clock is not allowed for this request.", code: "DEMO_CLOCK_NOT_ALLOWED" }, { status: 400 });
+    }
+
     if (providerMode === "live" && (dependencies.repository.authorizationMode !== "production" || dependencies.repository.repositoryCapability !== "production")) {
       return NextResponse.json({ error: "Live supplier calls are not authorized.", code: "LIVE_PROVIDER_NOT_AUTHORIZED" }, { status: 409 });
     }
@@ -198,7 +206,7 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
     let callsToday: number;
     let openDispute: boolean;
     try {
-      clock = getJakartaClock(dependencies.now?.() ?? new Date());
+      clock = getJakartaClock(input.demoClockIso ? new Date(input.demoClockIso) : dependencies.now?.() ?? new Date());
       [callsToday, openDispute] = await Promise.all([
         dependencies.repository.countCallsForPurchaseOrderOnDate(purchaseOrder.id, clock.date, input.demoSessionId),
         dependencies.repository.hasOpenDispute(purchaseOrder.id, input.demoSessionId),

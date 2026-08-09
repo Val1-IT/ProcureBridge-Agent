@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ApprovalForm } from "@/components/supplier-call/approval-form";
 import { GuardrailPanel } from "@/components/supplier-call/guardrail-panel";
 import { useDemoStore } from "@/components/demo-store-provider";
+import { useJudgeDemo } from "@/components/judge-demo-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
@@ -26,6 +27,7 @@ export default function SupplierFollowUpBriefPage() {
   const { purchaseOrderId } = useParams<{ purchaseOrderId: string }>();
   const router = useRouter();
   const { state, hydrated } = useDemoStore();
+  const { session } = useJudgeDemo();
   const { run } = useErpCommands();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +38,8 @@ export default function SupplierFollowUpBriefPage() {
   const callId = callIdForPurchaseOrder(purchaseOrderId);
   const call = state.erp.supplierCalls.find((item) => item.id === callId) ?? null;
   const approval = state.erp.supplierApprovals.find((item) => item.supplierCallId === callId) ?? null;
-  const clock = getSampledJakartaClock(currentTime);
+  const demoClockIso = session?.active && typeof session.step === "string" && session.providerMode === "mock" ? session.demoClockIso : null;
+  const clock = getSampledJakartaClock(demoClockIso ? new Date(demoClockIso) : currentTime);
   const callsToday = clock ? state.erp.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === clock.date).length : 0;
   const openDispute = state.erp.disputes.some((item) => item.purchaseOrderId === purchaseOrderId && ["open", "investigating"].includes(item.status));
   const decision = useMemo(() => purchaseOrder && supplier && clock ? evaluateSupplierCallEligibility({ supplier, purchaseOrder, approval, localTime: clock.time, callsToday, openDispute }) : null, [approval, callsToday, clock, openDispute, purchaseOrder, supplier]);
@@ -51,14 +54,14 @@ export default function SupplierFollowUpBriefPage() {
   const start = async () => {
     setBusy(true); setError(null);
     try {
-      const sampled = new Date();
+      const sampled = demoClockIso ? new Date(demoClockIso) : new Date();
       const sampledClock = getSampledJakartaClock(sampled);
       if (!sampledClock) throw new Error("Unable to sample current Jakarta time.");
       setCurrentTime(sampled);
       const sampledCallsToday = state.erp.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === sampledClock.date).length;
       const sampledDecision = evaluateSupplierCallEligibility({ supplier, purchaseOrder, approval, localTime: sampledClock.time, callsToday: sampledCallsToday, openDispute });
       if (!sampledDecision.allowed) throw new Error(sampledDecision.reasons.join(" "));
-      const response = await fetch("/api/supplier-calls?forceMock=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: state.demoSessionId }) });
+      const response = await fetch("/api/supplier-calls?forceMock=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: state.demoSessionId, ...(demoClockIso ? { demoClockIso } : {}) }) });
       const payload = await response.json() as { call?: CreateSupplierCallResult; error?: string };
       if (!response.ok || !payload.call) throw new Error(payload.error ?? "Unable to start supplier simulation.");
       const recorded = run((current) => recordSupplierCallStarted(current, current.activeRole, callId, payload.call!, sampledClock.sampledAt));
@@ -71,6 +74,7 @@ export default function SupplierFollowUpBriefPage() {
   return <>
     <PageHeader eyebrow="Supplier Agent • Demo Data" title="Supplier Brief" description={`${purchaseOrder.orderNumber} • ${supplier.name}. Review the operational impact and approve exact call boundaries before the Mock provider can start.`} actions={<><StatusChip tone="amber">Simulation</StatusChip><Link className="button button-secondary" href="/purchasing/follow-up">Back to queue</Link></>} />
     <section className="result-layout">
+    {demoClockIso ? <div className="operational-note" role="status"><strong>Demo clock / guardrail simulation</strong> • {clock?.time} Jakarta • Session-scoped and accepted only by the same-origin forced-mock Demo Data API.</div> : null}
       <div className="call-side-stack">
         <article className="brief-card"><div className="panel-title"><h2>Customer impact</h2><span>DEMO DATA</span></div><div className="brief-list"><div className="brief-row"><span>Affected sales orders</span><p>{impactedOrders.length ? impactedOrders.map((order) => order.orderNumber).join(", ") : "No linked shortage detected"}</p></div><div className="brief-row"><span>PO value</span><p>{formatCurrency(total)}</p></div></div></article>
         <article className="brief-card"><div className="panel-title"><h2>Supplier history</h2><span>{state.erp.supplierCalls.filter((item) => item.supplierId === supplier.id).length} CALLS</span></div><div className="brief-list"><div className="brief-row"><span>Contact policy</span><p>{supplier.doNotContact ? "Do Not Contact" : "Contact permitted within approved hours"}</p></div><div className="brief-row"><span>Open disputes</span><p>{openDispute ? "Requires human resolution" : "None"}</p></div></div></article>

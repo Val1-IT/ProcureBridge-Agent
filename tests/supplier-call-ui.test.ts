@@ -27,6 +27,10 @@ vi.mock("@/components/demo-store-provider", () => ({
 vi.mock("@/components/erp-command-provider", () => ({
   useErpCommands: () => ({ run: () => { throw new Error("Render test must not execute commands."); } }),
 }));
+vi.mock("@/components/judge-demo-provider", () => ({
+  useJudgeDemo: () => ({ session: null }),
+}));
+
 
 function approvedDemoState(): DemoState {
   const state = createSeedState();

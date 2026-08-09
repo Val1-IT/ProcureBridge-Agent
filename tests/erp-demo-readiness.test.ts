@@ -50,7 +50,7 @@ describe("ERP judge demo session", () => {
     expect(advanceErpJudgeSession(started.session, state).step).toBe("purchase_order_approval");
   });
 
-  it("restores the exact pre-demo snapshot and resets to the deterministic initial seed", () => {
+  it("restores the exact pre-demo snapshot and resets deterministic content with a fresh session", () => {
     const before = createSeedState("demo_operator_changes_12345");
     before.erp.activeRole = "warehouse";
     before.erp.products[0].name = "Operator-adjusted router";
@@ -58,7 +58,9 @@ describe("ERP judge demo session", () => {
     started.state.erp.products[0].name = "Demo journey mutation";
 
     expect(exitErpJudgeSession(started.session)).toEqual(before);
-    expect(resetErpDemo(started.state)).toEqual(createSeedState());
+    const reset = resetErpDemo(started.state, () => "demo_readiness_reset_session_12345");
+    expect(reset.demoSessionId).toBe("demo_readiness_reset_session_12345");
+    expect({ ...reset, demoSessionId: "ignored" }).toEqual({ ...createSeedState(), demoSessionId: "ignored" });
   });
 
   it("keeps Presentation Fallback deterministic and on the mock provider", () => {

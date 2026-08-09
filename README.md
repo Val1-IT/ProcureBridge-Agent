@@ -34,7 +34,7 @@ Starting the guide preserves an exact snapshot of the current valid browser stat
 
 ## 6. Mock operation
 
-The complete demo needs no API keys, database, or network request. `MockSupplierCallProvider` returns a deterministic supplier-call identity. Transcript progression and result extraction run locally against the approved seeded scenario.
+The complete demo needs no API keys, database, or external network/service requests. Starting `MockSupplierCallProvider` makes a same-origin `POST /api/supplier-calls?forceMock=1` round trip so server-owned demo authorization and guardrails are still evaluated; that request does not contact an external provider. Transcript progression and result extraction then run locally against the approved seeded scenario.
 
 Legacy ProcureBridge receivables screens, persisted records, migration support, and their recovery guide remain available under `/collections`. They are labeled separately and are not presented as production activity.
 
