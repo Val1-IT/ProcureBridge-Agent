@@ -1,4 +1,5 @@
 import type { Customer, DemoState, Invoice, StructuredResult } from "../domain/types";
+import { createErpSeedState } from "../erp/seed";
 
 const customers: Customer[] = [
   {
@@ -176,7 +177,7 @@ const pendingResults: StructuredResult[] = [
 
 export function createSeedState(): DemoState {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     updatedAt: "2026-08-04T03:00:00.000Z",
     customers: structuredClone(customers),
     invoices: structuredClone(invoices),
@@ -199,5 +200,6 @@ export function createSeedState(): DemoState {
       },
     ],
     demo: { simulationSpeed: "fast_demo", selectedScenario: null },
+    erp: createErpSeedState(),
   };
 }

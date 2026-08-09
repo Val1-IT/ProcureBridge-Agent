@@ -1,4 +1,5 @@
 import type { SimulationSpeed } from "../demo/simulation";
+import type { ErpState } from "../erp/types";
 
 export type ScenarioKey = "promise_to_pay" | "invoice_dispute" | "failed_contact";
 export type ConsentStatus = "granted" | "missing" | "revoked";
@@ -183,6 +184,7 @@ export interface DemoState {
   disputes: DisputeTicket[];
   auditLogs: AuditLog[];
   demo: { simulationSpeed: SimulationSpeed; selectedScenario: ScenarioKey | null };
+  erp: ErpState;
 }
 
 export interface GuardrailInput {
