@@ -35,6 +35,13 @@ export interface StockCardRow {
   resultingBalance: number;
 }
 
+export interface SalesShortageLine {
+  productId: string;
+  requestedQuantity: number;
+  availableQuantity: number;
+  shortage: number;
+}
+
 export function signedMovementQuantity(movement: StockMovement): number {
   if (movement.direction === "adjustment") return movement.quantity;
   return movement.direction === "out" ? -Math.abs(movement.quantity) : Math.abs(movement.quantity);
@@ -45,13 +52,38 @@ export function selectPhysicalStock(state: ErpState, productId: string): number 
 }
 
 export function selectReservedStock(state: ErpState, productId: string): number {
-  return state.salesOrders.filter((order) => !["cancelled", "completed"].includes(order.status)).flatMap((order) => order.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.reservedQuantity - line.deliveredQuantity, 0);
+  return state.salesOrders
+    .filter((order) => order.status === "confirmed" || order.status === "partially_delivered")
+    .flatMap((order) => order.lines)
+    .filter((line) => line.productId === productId)
+    .reduce((sum, line) => sum + line.quantity - line.deliveredQuantity, 0);
 }
 
 export function selectAvailableStock(state: ErpState, productId: string): number {
   const physical = selectPhysicalStock(state, productId);
   const reserved = selectReservedStock(state, productId);
   return physical - reserved;
+}
+
+export function selectSalesShortage(state: ErpState, salesOrderId: string): SalesShortageLine[] {
+  const order = state.salesOrders.find((item) => item.id === salesOrderId);
+  if (!order || order.status !== "draft") return [];
+  return order.lines.flatMap((line) => {
+    const availableQuantity = Math.max(0, selectAvailableStock(state, line.productId));
+    const shortage = Math.max(0, line.quantity - availableQuantity);
+    return shortage > 0 ? [{ productId: line.productId, requestedQuantity: line.quantity, availableQuantity, shortage }] : [];
+  });
+}
+
+export function selectSalesOrderReservedQuantity(state: ErpState, salesOrderId: string, productId: string): number {
+  const order = state.salesOrders.find((item) => item.id === salesOrderId);
+  if (!order || (order.status !== "confirmed" && order.status !== "partially_delivered")) return 0;
+  const line = order.lines.find((item) => item.productId === productId);
+  return line ? Math.max(0, line.quantity - line.deliveredQuantity) : 0;
+}
+
+export function selectSalesOrderLineAvailability(state: ErpState, salesOrderId: string, productId: string): number {
+  return selectAvailableStock(state, productId) + selectSalesOrderReservedQuantity(state, salesOrderId, productId);
 }
 
 export function selectIncomingStock(state: ErpState, productId: string): number {

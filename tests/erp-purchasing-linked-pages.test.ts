@@ -41,8 +41,8 @@ describe("purchasing linked destination pages", () => {
 
   it("consumes purchaseRequestId and renders only the exact linked request as current", () => {
     harness.state!.erp.purchaseRequests = [
-      { id: "request-router", requestNumber: "PR-2026-0001", requesterRole: "procurement", status: "draft", lines: [{ productId: "product-router", quantity: 2, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z" },
-      { id: "request-paper", requestNumber: "PR-2026-0002", requesterRole: "procurement", status: "approved", lines: [{ productId: "product-paper", quantity: 100, unitPrice: 11_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z" },
+      { id: "request-router", requestNumber: "PR-2026-0001", requesterRole: "procurement", sourceSalesOrderId: null, status: "draft", lines: [{ productId: "product-router", quantity: 2, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z" },
+      { id: "request-paper", requestNumber: "PR-2026-0002", requesterRole: "procurement", sourceSalesOrderId: null, status: "approved", lines: [{ productId: "product-paper", quantity: 100, unitPrice: 11_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z" },
     ];
     harness.query = "purchaseRequestId=request-paper";
 

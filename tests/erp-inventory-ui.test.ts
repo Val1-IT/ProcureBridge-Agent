@@ -45,8 +45,8 @@ describe("inventory pages", () => {
     expect(html).toContain("Incoming");
     expect(html).toContain("Router Bisnis");
     expect(html).toContain(">30<");
-    expect(html).toContain(">12<");
-    expect(html).toContain(">18<");
+    expect(html).toContain(">0<");
+    expect(html).toContain(">30<");
     expect(html).toContain(">40<");
   });
 

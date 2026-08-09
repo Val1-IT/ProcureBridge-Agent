@@ -130,6 +130,7 @@ export function approveGoodsReceipt(state: ErpState, role: ErpRole, goodsReceipt
   const approvedReceipt: GoodsReceipt = { ...receipt, status: "approved", updatedAt: now };
   const movements: StockMovement[] = receipt.lines.map((line) => ({
     id: `stock-movement-${receipt.id}-${line.productId}`,
+    type: "receipt",
     productId: line.productId,
     warehouseId: receipt.warehouseId,
     quantity: line.quantity,
@@ -205,6 +206,7 @@ export function approveStockAdjustment(state: ErpState, role: ErpRole, stockAdju
   const approved: StockAdjustment = { ...adjustment, status: "approved", approvedByRole: role, approvedAt: now, updatedAt: now };
   const movement: StockMovement = {
     id: `stock-movement-${adjustment.id}`,
+    type: "adjustment",
     productId: adjustment.productId,
     warehouseId: adjustment.warehouseId,
     quantity: adjustment.quantityDelta,

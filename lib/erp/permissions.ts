@@ -5,6 +5,7 @@ export type ErpPermission =
   | "purchase.write"
   | "purchase.approve"
   | "stock.receive"
+  | "stock.deliver"
   | "stock.adjust"
   | "stock.adjust.approve"
   | "sales.write"
@@ -16,6 +17,7 @@ const allPermissions: readonly ErpPermission[] = [
   "purchase.write",
   "purchase.approve",
   "stock.receive",
+  "stock.deliver",
   "stock.adjust",
   "stock.adjust.approve",
   "sales.write",
@@ -26,7 +28,7 @@ const allPermissions: readonly ErpPermission[] = [
 export const rolePermissions: Readonly<Record<ErpRole, readonly ErpPermission[]>> = {
   admin: allPermissions,
   procurement: ["master.manage", "purchase.write"],
-  warehouse: ["stock.receive", "stock.adjust"],
+  warehouse: ["stock.receive", "stock.deliver", "stock.adjust"],
   sales: ["sales.write"],
   finance: ["finance.write"],
   approver: ["purchase.approve", "stock.adjust.approve", "call.approve"],

@@ -5,14 +5,15 @@ import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
 import { selectAvailableStock, selectIncomingStock, selectPhysicalStock } from "../lib/erp/selectors";
 import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
+import { completeDelivery, confirmSalesOrder, createDeliveryOrder } from "../lib/erp/commands/sales";
 
 function createStateWithLinkedSelectedQuotation() {
   const state = createSeedState();
   const timestamp = "2026-08-09T00:00:00.000Z";
   state.erp.warehouses.push({ ...state.erp.warehouses[0], id: "warehouse-bandung", code: "WH-BDG", name: "Gudang Bandung", active: false });
   state.erp.purchaseRequests = [
-    { id: "request-a", requestNumber: "PR-2026-0001", requesterRole: "procurement", status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
-    { id: "request-b", requestNumber: "PR-2026-0002", requesterRole: "procurement", status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
+    { id: "request-a", requestNumber: "PR-2026-0001", requesterRole: "procurement", sourceSalesOrderId: null, status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
+    { id: "request-b", requestNumber: "PR-2026-0002", requesterRole: "procurement", sourceSalesOrderId: null, status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
   ];
   state.erp.requestForQuotations = [{ id: "rfq-linked", rfqNumber: "RFQ-2026-0001", purchaseRequestId: "request-a", warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-linked", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: timestamp, updatedAt: timestamp }];
   state.erp.supplierQuotations = [{ id: "quotation-linked", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-linked", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp }];
@@ -36,13 +37,13 @@ function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
 }
 
 describe("ERP persistence foundation", () => {
-  it("migrates schema v2 recovery data into schema v5 with a deterministic ERP slice", () => {
+  it("migrates schema v2 recovery data into schema v6 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
     delete (legacy as Partial<DemoState>).erp;
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
   });
@@ -56,7 +57,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
     expect(migrated.erp.requestForQuotations).toEqual([]);
     expect(migrated.erp.supplierQuotations).toEqual([]);
     expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
@@ -69,7 +70,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
     expect(migrated.erp.stockAdjustments).toEqual([]);
   });
 
@@ -200,7 +201,7 @@ describe("ERP persistence foundation", () => {
       lines: [{ productId: "product-router", quantity: 10, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
     });
     persisted.erp.stockMovements.push({
-      id: "cancelled-partial-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 10, direction: "in", sourceType: "goods_receipt", sourceId: "cancelled-partial-gr",
+      id: "cancelled-partial-movement", type: "receipt", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 10, direction: "in", sourceType: "goods_receipt", sourceId: "cancelled-partial-gr",
       actorRole: "warehouse", actorId: "role:warehouse", reason: "Approved GR-2026-0001", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
     });
 
@@ -285,7 +286,7 @@ describe("ERP persistence foundation", () => {
   it("computes available and incoming quantities without storing derived totals", () => {
     const erp = createErpSeedState();
 
-    expect(selectAvailableStock(erp, "product-router")).toBe(18);
+    expect(selectAvailableStock(erp, "product-router")).toBe(30);
     expect(selectIncomingStock(erp, "product-router")).toBe(40);
   });
 
@@ -405,5 +406,70 @@ describe("ERP persistence foundation", () => {
     mutate(malformed);
 
     expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+});
+
+function createPostedDeliveryState() {
+  let state = createSeedState();
+  state.erp.salesOrders[0] = { ...state.erp.salesOrders[0], lines: [{ ...state.erp.salesOrders[0].lines[0], quantity: 20, deliveredQuantity: 0 }] };
+  const confirmed = confirmSalesOrder(state.erp, "sales", state.erp.salesOrders[0].id, "2026-08-09T10:00:00.000Z");
+  if (!confirmed.ok) throw new Error(confirmed.error.message);
+  const draft = createDeliveryOrder(confirmed.state, "warehouse", { salesOrderId: confirmed.value.id, lines: [{ productId: "product-router", quantity: 8 }] }, "2026-08-09T11:00:00.000Z");
+  if (!draft.ok) throw new Error(draft.error.message);
+  const posted = completeDelivery(draft.state, "warehouse", draft.value.id, "2026-08-09T12:00:00.000Z");
+  if (!posted.ok) throw new Error(posted.error.message);
+  state = { ...state, erp: posted.state };
+  return state;
+}
+
+describe("sales persistence evidence", () => {
+  it("migrates schema v5 reservation fields and movement kinds into canonical schema v6", () => {
+    const legacy = createSeedState() as DemoState & { schemaVersion: number };
+    legacy.schemaVersion = 5;
+    (legacy.erp.salesOrders[0].lines[0] as unknown as Record<string, unknown>).reservedQuantity = 12;
+    for (const movement of legacy.erp.stockMovements) delete (movement as { type?: string }).type;
+
+    const loaded = loadDemoState(JSON.stringify(legacy));
+
+    expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state.schemaVersion).toBe(6);
+    expect(loaded.state.erp.salesOrders[0].lines[0]).not.toHaveProperty("reservedQuantity");
+    expect(loaded.state.erp.stockMovements.every((movement) => movement.type === "opening")).toBe(true);
+  });
+
+  it("round trips a posted partial delivery with exact linked outbound evidence", () => {
+    const state = createPostedDeliveryState();
+
+    const loaded = loadDemoState(JSON.stringify(state));
+
+    expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state.erp.deliveryOrders[0]).toMatchObject({ status: "posted", salesOrderId: state.erp.salesOrders[0].id });
+    expect(loaded.state.erp.salesOrders[0]).toMatchObject({ status: "partially_delivered", lines: [{ deliveredQuantity: 8 }] });
+  });
+
+  it.each([
+    ["a shortage purchase request links a missing Sales Order", (state: ReturnType<typeof createSeedState>) => {
+      state.erp.purchaseRequests.push({ id: "request-shortage", requestNumber: "PR-2026-0001", requesterRole: "sales", sourceSalesOrderId: "missing-order", status: "draft", lines: [{ productId: "product-router", quantity: 5, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z" });
+    }],
+    ["a posted delivery quantity differs from its outbound movement", (state: ReturnType<typeof createPostedDeliveryState>) => { state.erp.stockMovements.at(-1)!.quantity = 7; }],
+    ["a delivery outbound movement has the wrong operational reason", (state: ReturnType<typeof createPostedDeliveryState>) => { state.erp.stockMovements.at(-1)!.reason = "Forged shipment"; }],
+    ["a delivery references a different warehouse than its Sales Order", (state: ReturnType<typeof createPostedDeliveryState>) => {
+      state.erp.warehouses.push({ ...state.erp.warehouses[0], id: "warehouse-bandung", code: "WH-BDG", active: false });
+      state.erp.deliveryOrders[0].warehouseId = "warehouse-bandung";
+      state.erp.stockMovements.at(-1)!.warehouseId = "warehouse-bandung";
+    }],
+    ["a Sales Order delivered total differs from posted delivery evidence", (state: ReturnType<typeof createPostedDeliveryState>) => { state.erp.salesOrders[0].lines[0].deliveredQuantity = 7; }],
+    ["a fully delivered Sales Order retains a stale delivery draft", (state: ReturnType<typeof createPostedDeliveryState>) => {
+      state.erp.salesOrders[0].status = "fully_delivered";
+      state.erp.salesOrders[0].lines[0].deliveredQuantity = 20;
+      state.erp.deliveryOrders[0].lines[0].quantity = 20;
+      state.erp.stockMovements.at(-1)!.quantity = 20;
+      state.erp.deliveryOrders.push({ ...state.erp.deliveryOrders[0], id: "stale-delivery", deliveryNumber: "DO-2026-0002", status: "draft", lines: [{ ...state.erp.deliveryOrders[0].lines[0], quantity: 1 }] });
+    }],
+  ])("fails closed when %s", (_label, mutate) => {
+    const state = _label.startsWith("a shortage") ? createSeedState() : createPostedDeliveryState();
+    mutate(state as never);
+
+    expect(loadDemoState(JSON.stringify(state)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 });

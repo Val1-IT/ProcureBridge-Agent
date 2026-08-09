@@ -31,6 +31,7 @@ function stateWithLinkedQuotation(): ErpState {
     id: "request-paper",
     requestNumber: "PR-2026-0001",
     requesterRole: "procurement",
+    sourceSalesOrderId: null,
     status: "approved",
     lines: [{ productId: "product-paper", quantity: 100, unitPrice: 10_500 }],
     createdAt: fixedNow,

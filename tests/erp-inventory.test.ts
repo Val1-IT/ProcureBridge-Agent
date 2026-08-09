@@ -190,7 +190,7 @@ describe("inventory selectors", () => {
     state.goodsReceipts = [receipt];
     state.stockMovements.push({ id: "movement-receipt", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 10, direction: "in", sourceType: "goods_receipt", sourceId: receipt.id, actorRole: "warehouse", actorId: "role:warehouse", reason: null, createdAt: fixedNow, updatedAt: fixedNow });
 
-    expect(selectStockOverview(state).find((row) => row.product.id === "product-router")).toMatchObject({ physical: 40, reserved: 12, available: 28, incoming: 30 });
+    expect(selectStockOverview(state).find((row) => row.product.id === "product-router")).toMatchObject({ physical: 40, reserved: 0, available: 40, incoming: 30 });
     expect(selectStockCard(state, "product-router").map((row) => ({ source: row.sourceLabel, signed: row.signedQuantity, balance: row.resultingBalance, actor: row.actorLabel }))).toEqual([
       { source: "Opening balance", signed: 30, balance: 30, actor: "System" },
       { source: "GR-2026-0001", signed: 10, balance: 40, actor: "Warehouse" },

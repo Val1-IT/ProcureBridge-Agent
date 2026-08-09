@@ -102,7 +102,7 @@ function findPurchaseOrder<T>(state: ErpState, purchaseOrderId: string): Purchas
     ?? rejectErpCommand(state, { code: "NOT_FOUND", message: "Purchase order was not found." });
 }
 
-function transition<T>(
+function transition(
   state: ErpState,
   role: ErpRole,
   purchaseOrderId: string,
@@ -135,7 +135,7 @@ export function createPurchaseRequest(state: ErpState, role: ErpRole, input: Pur
   if (lineError) return lineError;
   const requestNumber = nextDocumentNumber("PR", now, state.purchaseRequests.map((request) => request.requestNumber));
   const request: PurchaseRequest = {
-    id: documentId("purchase-request", requestNumber), requestNumber, requesterRole: role, status: "draft", lines: lineCopies(input.lines), createdAt: now, updatedAt: now,
+    id: documentId("purchase-request", requestNumber), requestNumber, requesterRole: role, sourceSalesOrderId: null, status: "draft", lines: lineCopies(input.lines), createdAt: now, updatedAt: now,
   };
   const next = appendErpAudit({ ...state, purchaseRequests: [...state.purchaseRequests, request] }, {
     entityType: "purchase_request", entityId: request.id, action: "purchase_request.created", actorRole: role, actorId: `role:${role}`,
