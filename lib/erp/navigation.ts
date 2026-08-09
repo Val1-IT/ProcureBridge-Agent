@@ -15,7 +15,7 @@ const everyRole: readonly ErpRole[] = ["admin", "procurement", "warehouse", "sal
 const operations: readonly ErpRole[] = ["admin", "procurement", "warehouse", "approver"];
 
 const navigation: readonly ErpNavigationGroup[] = [
-  { label: "Overview", items: [{ href: "/dashboard", label: "Dashboard", allowedRoles: everyRole }] },
+  { label: "Overview", items: [{ href: "/dashboard", label: "Dashboard", allowedRoles: everyRole }, { href: "/actions", label: "Action Center", allowedRoles: everyRole }] },
   {
     label: "Purchasing",
     items: [
