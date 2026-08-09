@@ -234,13 +234,12 @@ function migrateErpV3(value: unknown): ErpState | null {
 }
 
 function migrateErpV4(value: unknown): ErpState | null {
-  if (!isRecord(value)) return null;
+  if (!isRecord(value) || !hasAuthorizedLegacyReceiptEvidence(value)) return null;
   const goodsReceipts = Array.isArray(value.goodsReceipts) ? value.goodsReceipts.map((receipt) => isRecord(receipt) && receipt.status === "posted" ? { ...receipt, status: "approved" } : receipt) : value.goodsReceipts;
   const stockMovements = Array.isArray(value.stockMovements) ? value.stockMovements.map((movement) => {
     if (!isRecord(movement)) return movement;
     if (movement.sourceType === "goods_receipt") {
-      const actorRole = movement.actorRole === "admin" ? "admin" : "warehouse";
-      return { ...movement, actorRole, actorId: `role:${actorRole}`, reason: "Migrated posted goods receipt" };
+      return { ...movement, reason: "Migrated posted goods receipt" };
     }
     return {
       ...movement,
@@ -250,4 +249,18 @@ function migrateErpV4(value: unknown): ErpState | null {
     };
   }) : value.stockMovements;
   return { ...value, goodsReceipts, stockMovements, stockAdjustments: Array.isArray(value.stockAdjustments) ? value.stockAdjustments : [] } as unknown as ErpState;
+}
+
+function hasAuthorizedLegacyReceiptEvidence(value: Record<string, unknown>): boolean {
+  if (!Array.isArray(value.goodsReceipts) || !Array.isArray(value.stockMovements)) return false;
+  const receipts = value.goodsReceipts as unknown[];
+  if (!receipts.every((receipt) => isRecord(receipt) && hasString(receipt.id) && includes(["draft", "posted", "cancelled"], receipt.status))) return false;
+  const receiptById = new Map(receipts.map((receipt) => [String((receipt as Record<string, unknown>).id), receipt as Record<string, unknown>]));
+  return (value.stockMovements as unknown[]).every((movement) => {
+    if (!isRecord(movement) || movement.sourceType !== "goods_receipt") return true;
+    const receipt = hasString(movement.sourceId) ? receiptById.get(movement.sourceId) : undefined;
+    return receipt?.status === "posted"
+      && includes(["warehouse", "admin"], movement.actorRole)
+      && movement.actorId === `role:${String(movement.actorRole)}`;
+  });
 }

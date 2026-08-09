@@ -20,6 +20,21 @@ function createStateWithLinkedSelectedQuotation() {
   return state;
 }
 
+function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
+  const legacy = createSeedState();
+  legacy.schemaVersion = 4;
+  legacy.erp.purchaseOrders[0] = { ...legacy.erp.purchaseOrders[0], status: "fully_received" };
+  legacy.erp.goodsReceipts.push({
+    id: "legacy-posted-gr", receiptNumber: "GR-2025-0001", purchaseOrderId: legacy.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "posted",
+    lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }], createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
+  });
+  legacy.erp.stockMovements.push({
+    id: "legacy-posted-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 40, direction: "in", sourceType: "goods_receipt", sourceId: "legacy-posted-gr",
+    actorRole: actorRole as never, actorId, reason: null, createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
+  });
+  return legacy;
+}
+
 describe("ERP persistence foundation", () => {
   it("migrates schema v2 recovery data into schema v5 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
@@ -192,18 +207,8 @@ describe("ERP persistence foundation", () => {
     expect(loadDemoState(JSON.stringify(persisted)).recoveryReason).toBeNull();
   });
 
-  it("migrates a schema v4 posted receipt to canonical v5 evidence without changing stock", () => {
-    const legacy = createSeedState();
-    legacy.schemaVersion = 4;
-    legacy.erp.purchaseOrders[0] = { ...legacy.erp.purchaseOrders[0], status: "fully_received" };
-    legacy.erp.goodsReceipts.push({
-      id: "legacy-posted-gr", receiptNumber: "GR-2025-0001", purchaseOrderId: legacy.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "posted",
-      lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }], createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
-    });
-    legacy.erp.stockMovements.push({
-      id: "legacy-posted-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 40, direction: "in", sourceType: "goods_receipt", sourceId: "legacy-posted-gr",
-      actorRole: undefined as never, actorId: undefined as never, reason: null, createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
-    });
+  it.each(["warehouse", "admin"] as const)("migrates a canonical v4 %s receipt actor without changing stock", (actorRole) => {
+    const legacy = createLegacyPostedReceiptState(actorRole, `role:${actorRole}`);
 
     const stockBeforeMigration = selectPhysicalStock(legacy.erp, "product-router");
     const loaded = loadDemoState(JSON.stringify(legacy));
@@ -212,13 +217,26 @@ describe("ERP persistence foundation", () => {
     expect(loaded.recoveryReason).toBeNull();
     expect(loaded.state.erp.goodsReceipts.at(-1)?.status).toBe("approved");
     expect(loaded.state.erp.stockMovements.at(-1)).toMatchObject({
-      actorRole: "warehouse",
-      actorId: "role:warehouse",
+      actorRole,
+      actorId: `role:${actorRole}`,
       reason: "Migrated posted goods receipt",
     });
     expect(selectPhysicalStock(loaded.state.erp, "product-router")).toBe(stockBeforeMigration);
     expect(reloaded.recoveryReason).toBeNull();
     expect(selectPhysicalStock(reloaded.state.erp, "product-router")).toBe(stockBeforeMigration);
+  });
+
+  it.each([
+    ["finance", "role:finance"],
+    ["procurement", "role:procurement"],
+    ["approver", "role:approver"],
+    ["system", "system:migrated-v4"],
+    ["unknown", "role:unknown"],
+    ["warehouse", "role:admin"],
+  ])("rejects schema v4 receipt authority %s / %s before normalization", (actorRole, actorId) => {
+    const unauthorized = createLegacyPostedReceiptState(actorRole, actorId);
+
+    expect(loadDemoState(JSON.stringify(unauthorized)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
   it("rejects direct schema v5 receipt evidence that forges legacy system provenance", () => {
