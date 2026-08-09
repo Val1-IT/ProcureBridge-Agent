@@ -236,6 +236,7 @@ git commit -m "feat: enforce ERP command permissions"
 - Create: `components/erp/role-switcher.tsx`
 - Create: `components/erp/entity-table.tsx`
 - Create: `components/erp/entity-form.tsx`
+- Create: `lib/erp/navigation.ts`
 - Create: `app/products/page.tsx`
 - Create: `app/suppliers/page.tsx`
 - Create: `app/customers/page.tsx`
@@ -248,21 +249,19 @@ git commit -m "feat: enforce ERP command permissions"
 - Consumes: `useDemoStore()`, `useErpCommands()`, master-data commands, and `ErpRole`.
 - Produces: primary ERP navigation and usable master-data CRUD surfaces.
 
-- [ ] **Step 1: Write failing static navigation and authorization tests**
+- [ ] **Step 1: Write failing navigation-model and command-boundary tests**
 
 ```ts
-it("exposes every approved ERP navigation group", () => {
-  const source = readFileSync("components/erp/grouped-nav.tsx", "utf8");
-  for (const label of ["Overview", "Purchasing", "Inventory", "Sales", "Finance", "Master Data", "Control"]) {
-    expect(source).toContain(label);
-  }
+it("builds every approved navigation group with actionable routes", () => {
+  const groups = buildErpNavigation("admin");
+  expect(groups.map((group) => group.label)).toEqual(["Overview", "Purchasing", "Inventory", "Sales", "Finance", "Master Data", "Control"]);
+  expect(groups.flatMap((group) => group.items).every((item) => item.href.startsWith("/") && item.label.length > 0)).toBe(true);
 });
 
-it("uses domain commands instead of direct ERP collection writes", () => {
-  for (const path of ["app/products/page.tsx", "app/suppliers/page.tsx", "app/customers/page.tsx"]) {
-    expect(readFileSync(path, "utf8")).toContain("useErpCommands");
-    expect(readFileSync(path, "utf8")).not.toContain("dispatch({ type: \"ERP_COMMIT\"");
-  }
+it("rejects a rendered master-data submission when the active role lacks permission", () => {
+  const result = submitSupplierForm(createErpSeedState(), "warehouse", supplierFormFixture, fixedNow);
+  expect(result.ok).toBe(false);
+  expect(result.ok ? null : result.error.code).toBe("FORBIDDEN");
 });
 ```
 
@@ -297,7 +296,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit the shell and master data**
 
 ```bash
-git add components/erp components/app-shell.tsx app/products app/suppliers app/customers app/warehouse app/globals.css tests/erp-navigation.test.ts
+git add components/erp lib/erp/navigation.ts components/app-shell.tsx app/products app/suppliers app/customers app/warehouse app/globals.css tests/erp-navigation.test.ts
 git commit -m "feat: add ERP shell and master data"
 ```
 
@@ -381,19 +380,30 @@ git commit -m "feat: add purchase order lifecycle"
 - Create: `app/purchasing/orders/[orderId]/page.tsx`
 - Create: `app/purchasing/receipts/page.tsx`
 - Create: `app/purchasing/follow-up/page.tsx`
-- Test: `tests/erp-purchasing-ui.test.ts`
+- Test: `tests/erp-purchasing-view-model.test.ts`
 
 **Interfaces:**
 - Consumes: purchasing commands/selectors, grouped navigation, shared tables/forms.
 - Produces: usable purchase request, PO, receipt queue, and supplier follow-up surfaces.
 
-- [ ] **Step 1: Write failing route and command-wiring tests**
+- [ ] **Step 1: Write failing purchasing view-model behavior tests**
 
-Assert that all five route files exist, use `useErpCommands`, link PO detail to supplier/receipt/follow-up records, and never directly edit `state.erp.purchaseOrders`.
+```ts
+it("builds a linked PO detail model with only the actions allowed by status and role", () => {
+  const model = buildPurchaseOrderDetailModel(seedWithSentPo, "procurement", "po-1", fixedNow);
+  expect(model.links).toEqual({ supplier: "/suppliers?supplierId=supplier-utama", receipts: "/purchasing/receipts?purchaseOrderId=po-1", followUp: "/purchasing/follow-up?purchaseOrderId=po-1" });
+  expect(model.allowedActions).toEqual(["confirm"]);
+});
+
+it("shows an operational follow-up reason for an overdue unconfirmed PO", () => {
+  const [item] = buildSupplierFollowUpRows(seedWithOverduePo, fixedNow);
+  expect(item).toMatchObject({ purchaseOrderId: "po-1", priority: "high", reasonCode: "CONFIRMATION_OVERDUE" });
+});
+```
 
 - [ ] **Step 2: Run the focused test and verify it fails**
 
-Run: `npm.cmd run test -- tests/erp-purchasing-ui.test.ts`
+Run: `npm.cmd run test -- tests/erp-purchasing-view-model.test.ts`
 
 Expected: FAIL because the pages are absent.
 
@@ -411,7 +421,7 @@ The receipt page starts a goods-receipt draft against confirmed/partially receiv
 
 - [ ] **Step 6: Run UI test, typecheck, and lint**
 
-Run: `npm.cmd run test -- tests/erp-purchasing-ui.test.ts`
+Run: `npm.cmd run test -- tests/erp-purchasing-view-model.test.ts`
 
 Run: `npm.cmd run typecheck`
 
@@ -422,7 +432,7 @@ Expected: PASS.
 - [ ] **Step 7: Commit purchasing UI**
 
 ```bash
-git add components/erp app/purchasing tests/erp-purchasing-ui.test.ts
+git add components/erp app/purchasing tests/erp-purchasing-view-model.test.ts
 git commit -m "feat: add purchasing workspace"
 ```
 
@@ -868,9 +878,27 @@ git commit -m "feat: add ERP action center and dashboard"
 - Produces: one-click primary demo, Presentation Fallback, deterministic reset, updated metadata/landing page, and setup documentation.
 - Consumes: the completed primary transaction workflow and existing demo snapshot/restore pattern.
 
-- [ ] **Step 1: Write failing demo-readiness tests**
+- [ ] **Step 1: Write failing demo-session behavior tests**
 
-Assert that the guide contains every approved step from sales shortage through invoices/audit, Judge Demo selects fast mode, Presentation Fallback never activates an external provider, Reset recreates exact seed state, metadata uses Arvanta Distributor Mini ERP, and all simulated content retains labels.
+```ts
+it("starts the ERP judge session in fast mock mode and advances from authoritative state", () => {
+  const started = startErpJudgeSession(createSeedState());
+  expect(started.session).toMatchObject({ active: true, simulationSpeed: "fast_demo", providerMode: "mock", step: "sales_shortage" });
+  const advanced = advanceErpJudgeSession(started.session, seedWithApprovedPurchaseRequest);
+  expect(advanced.step).toBe("purchase_order_approval");
+});
+
+it("restores the exact pre-demo snapshot and reset returns the deterministic seed", () => {
+  const before = stateWithOperatorChanges;
+  const started = startErpJudgeSession(before);
+  expect(exitErpJudgeSession(started.session)).toEqual(before);
+  expect(resetErpDemo(started.state)).toEqual(createSeedState());
+});
+
+it("keeps Presentation Fallback on the mock provider", () => {
+  expect(startPresentationFallback(createSeedState()).session.providerMode).toBe("mock");
+});
+```
 
 - [ ] **Step 2: Run the test and verify the red state**
 
