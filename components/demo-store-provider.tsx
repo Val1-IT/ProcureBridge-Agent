@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { demoReducer, type DemoAction } from "@/lib/demo/reducer";
 import { createSeedState } from "@/lib/demo/seed";
 import { DEMO_STORAGE_KEY, deserializeDemoState, loadDemoStateFromStorage, serializeDemoState } from "@/lib/demo/persistence";
@@ -9,14 +9,24 @@ import type { DemoState } from "@/lib/domain/types";
 interface DemoStoreValue {
   state: DemoState;
   dispatch: React.Dispatch<DemoAction>;
+  getLatestState: () => DemoState;
   hydrated: boolean;
 }
 
 const DemoStoreContext = createContext<DemoStoreValue | null>(null);
 
 export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(demoReducer, undefined, createSeedState);
+  const [state, reactDispatch] = useReducer(demoReducer, undefined, createSeedState);
+  const latestStateRef = useRef(state);
   const [hydrated, setHydrated] = useState(false);
+  latestStateRef.current = state;
+
+  const dispatch = useCallback((action: DemoAction) => {
+    latestStateRef.current = demoReducer(latestStateRef.current, action);
+    reactDispatch(action);
+  }, []);
+
+  const getLatestState = useCallback(() => latestStateRef.current, []);
 
   useEffect(() => {
     dispatch({ type: "HYDRATE", state: loadDemoStateFromStorage(window.localStorage).state });
@@ -38,7 +48,7 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("storage", sync);
   }, []);
 
-  const value = useMemo(() => ({ state, dispatch, hydrated }), [state, hydrated]);
+  const value = useMemo(() => ({ state, dispatch, getLatestState, hydrated }), [state, dispatch, getLatestState, hydrated]);
   return <DemoStoreContext.Provider value={value}>{children}</DemoStoreContext.Provider>;
 }
 

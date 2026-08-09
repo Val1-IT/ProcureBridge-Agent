@@ -3,10 +3,12 @@ import { applyApprovedResult, markResultForReview, rejectResult } from "../domai
 import { transitionCall, type CallEvent } from "../domain/call-machine";
 import type { AuditLog, CallApproval, CallRecord, DemoState, StructuredResult, TranscriptSegment } from "../domain/types";
 import type { SimulationSpeed } from "./simulation";
+import type { ErpState } from "../erp/types";
 
 export type DemoAction =
   | { type: "HYDRATE"; state: DemoState }
   | { type: "RESET" }
+  | { type: "ERP_COMMIT"; expectedRevision: number; erp: ErpState }
   | { type: "REGISTER_CALL_DRAFT"; call: CallRecord }
   | { type: "SAVE_APPROVAL"; approval: CallApproval }
   | { type: "TRANSITION_CALL"; callId: string; event: CallEvent }
@@ -61,6 +63,9 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return action.state;
     case "RESET":
       return createSeedState();
+    case "ERP_COMMIT":
+      if (state.erp.revision !== action.expectedRevision) return state;
+      return touch({ ...state, erp: action.erp });
     case "REGISTER_CALL_DRAFT":
       if (action.call.status !== "draft" || state.calls.some((call) => call.id === action.call.id)) return state;
       return touch({ ...state, calls: [...state.calls, action.call] });
