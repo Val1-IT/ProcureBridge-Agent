@@ -78,8 +78,10 @@ describe("demo store reducer", () => {
     expect(next.calls[0].status).toBe(expectedStatus);
   });
 
-  it("resets every collection to deterministic seed data", () => {
+  it("resets every collection to seed data while rotating the browser session", () => {
     const changed = demoReducer(createSeedState(), { type: "APPROVE_RESULT", resultId: "result-promise", actor: "Nadia Pratama" });
-    expect(demoReducer(changed, { type: "RESET" })).toEqual(createSeedState());
+    const reset = demoReducer(changed, { type: "RESET" });
+    expect(reset.demoSessionId).not.toBe(changed.demoSessionId);
+    expect({ ...reset, demoSessionId: "session" }).toEqual({ ...createSeedState(), demoSessionId: "session" });
   });
 });

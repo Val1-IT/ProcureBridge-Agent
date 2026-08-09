@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SupplierFollowUpBriefPage from "../app/supplier-follow-up/[purchaseOrderId]/page";
 import SupplierCallPage from "../app/supplier-calls/[callId]/page";
 import SupplierCallResultPage from "../app/supplier-calls/[callId]/result/page";
@@ -19,7 +19,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/demo-store-provider", () => ({
   useDemoStore: () => {
     if (!harness.state) throw new Error("Test DemoState was not configured.");
-    return { state: harness.state };
+    return { state: harness.state, hydrated: true };
   },
 }));
 
@@ -33,7 +33,7 @@ function approvedDemoState(): DemoState {
   const approved = saveSupplierCallApproval(state.erp, "approver", {
     supplierCallId: "supplier-call-po-1", supplierId: "supplier-utama", purchaseOrderId: "po-router-replenishment", scenario: "partial_delivery",
     objective: "Confirm partial delivery dates", permittedProductIds: ["product-router"], maximumDeliveryDate: "2026-08-20",
-    partialDeliveryAllowed: true, maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", callTime: "10:00", approvedBy: "Nadia Pratama",
+    partialDeliveryAllowed: true, maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", approvedBy: "Nadia Pratama",
   }, "2026-08-09T01:00:00.000Z");
   if (!approved.ok) throw new Error(approved.error.message);
   state.erp = approved.state;
@@ -53,7 +53,8 @@ function completedDemoState(): DemoState {
 }
 
 describe("supplier call workflow UI", () => {
-  beforeEach(() => { harness.state = createSeedState(); });
+  beforeEach(() => { harness.state = createSeedState(); vi.useFakeTimers(); vi.setSystemTime(new Date("2026-08-09T03:00:00.000Z")); });
+  afterEach(() => vi.useRealTimers());
 
   it("renders the full supplier brief and keeps Start Call locked before valid approval", () => {
     const html = renderToStaticMarkup(createElement(SupplierFollowUpBriefPage));
@@ -75,6 +76,16 @@ describe("supplier call workflow UI", () => {
     expect(html).toMatch(/<button(?![^>]*disabled)[^>]*>Start Call<\/button>/);
     expect(html).toContain("Mock provider");
     expect(html).toContain("Simulation");
+    expect(html).toContain("Current Jakarta time (read-only)");
+    expect(html).not.toContain('type="time"');
+  });
+
+  it("locks Start Call when the actual current Jakarta time is outside policy hours", () => {
+    vi.setSystemTime(new Date("2026-08-09T12:00:00.000Z"));
+    harness.state = approvedDemoState();
+    const html = renderToStaticMarkup(createElement(SupplierFollowUpBriefPage));
+    expect(html).toContain("Supplier calls are permitted only from 08:00 through 18:00 local time.");
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Start Call<\/button>/);
   });
 
   it("renders the persistent mock console with explicit speed and simulation labels", () => {

@@ -6,8 +6,10 @@ import type { ErpState, PurchaseOrder, Supplier, SupplierCall, SupplierCallAppro
 import { MockSupplierCallProvider } from "../supplier-call/mock-provider";
 import type { CreateSupplierCallInput, CreateSupplierCallResult, SupplierCallProvider, SupplierCallProviderMode } from "../supplier-call/types";
 import { SupplierCallProviderError } from "../supplier-call/types";
+import { getJakartaClock } from "../supplier-call/jakarta-clock";
+import { isValidDemoSessionId } from "../demo/session";
 
-export interface CreateSupplierCallRequest { callId: string; supplierId: string; purchaseOrderId: string }
+export interface CreateSupplierCallRequest { callId: string; supplierId: string; purchaseOrderId: string; demoSessionId: string }
 export interface SupplierCallClaimRequest extends CreateSupplierCallRequest { idempotencyKey: string; supplierLocalDate: string }
 export type SupplierCallClaimResult = { ok: true; claimId: string } | { ok: false };
 
@@ -20,12 +22,12 @@ export interface SupplierCallEnvironment {
 export interface SupplierCallAuthorizationRepository {
   readonly authorizationMode: "demo" | "production";
   readonly repositoryCapability: "demo" | "production";
-  getSupplier(supplierId: string): Promise<Supplier | null>;
-  getPurchaseOrder(purchaseOrderId: string): Promise<PurchaseOrder | null>;
-  getSupplierCall(callId: string): Promise<SupplierCall | null>;
-  getApproval(callId: string): Promise<SupplierCallApproval | null>;
-  countCallsForPurchaseOrderOnDate(purchaseOrderId: string, supplierLocalDate: string): Promise<number>;
-  hasOpenDispute(purchaseOrderId: string): Promise<boolean>;
+  getSupplier(supplierId: string, demoSessionId: string): Promise<Supplier | null>;
+  getPurchaseOrder(purchaseOrderId: string, demoSessionId: string): Promise<PurchaseOrder | null>;
+  getSupplierCall(callId: string, demoSessionId: string): Promise<SupplierCall | null>;
+  getApproval(callId: string, demoSessionId: string): Promise<SupplierCallApproval | null>;
+  countCallsForPurchaseOrderOnDate(purchaseOrderId: string, supplierLocalDate: string, demoSessionId: string): Promise<number>;
+  hasOpenDispute(purchaseOrderId: string, demoSessionId: string): Promise<boolean>;
   /** Atomically reserves both idempotencyKey and supplierId/purchaseOrderId/local-date. */
   claimSupplierCall(input: SupplierCallClaimRequest): Promise<SupplierCallClaimResult>;
   /** Permanently consumes an ambiguous/failed provider attempt so it cannot be retried as a second call. */
@@ -45,32 +47,38 @@ interface DemoSupplierCallClaim {
 export class DemoSupplierCallAuthorizationRepository implements SupplierCallAuthorizationRepository {
   readonly authorizationMode = "demo" as const;
   readonly repositoryCapability = "demo" as const;
-  private state: ErpState;
+  private readonly states = new Map<string, ErpState>();
   private claimTail: Promise<void> = Promise.resolve();
   private readonly claims = new Map<string, DemoSupplierCallClaim>();
   private readonly claimsByIdempotency = new Map<string, string>();
   private readonly claimsByDailyKey = new Map<string, string>();
 
-  constructor() {
+  private createState(): ErpState {
     const seed = createErpSeedState();
     const saved = saveSupplierCallApproval(seed, "approver", {
       supplierCallId: "supplier-call-po-1", supplierId: "supplier-utama", purchaseOrderId: "po-router-replenishment", scenario: "delivery_commitment",
       objective: "Confirm delivery date", permittedProductIds: ["product-router"], maximumDeliveryDate: "2026-08-20",
-      partialDeliveryAllowed: true, maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", callTime: "10:00", approvedBy: "Demo server policy",
+      partialDeliveryAllowed: true, maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", approvedBy: "Demo server policy",
     }, "2026-08-09T01:00:00.000Z");
     if (!saved.ok) throw new Error("Unable to initialize demo supplier-call authorization.");
-    this.state = saved.state;
+    return saved.state;
   }
 
-  async getSupplier(supplierId: string) { return this.state.suppliers.find((item) => item.id === supplierId) ?? null; }
-  async getPurchaseOrder(purchaseOrderId: string) { return this.state.purchaseOrders.find((item) => item.id === purchaseOrderId) ?? null; }
-  async getSupplierCall(callId: string) { return this.state.supplierCalls.find((item) => item.id === callId) ?? null; }
-  async getApproval(callId: string) { return this.state.supplierApprovals.find((item) => item.supplierCallId === callId) ?? null; }
-  async countCallsForPurchaseOrderOnDate(purchaseOrderId: string, supplierLocalDate: string) {
-    return this.state.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === supplierLocalDate).length;
+  private stateFor(demoSessionId: string): ErpState {
+    const existing = this.states.get(demoSessionId);
+    if (existing) return existing;
+    const state = this.createState(); this.states.set(demoSessionId, state); return state;
   }
-  async hasOpenDispute(purchaseOrderId: string) {
-    return this.state.disputes.some((item) => item.purchaseOrderId === purchaseOrderId && (item.status === "open" || item.status === "investigating"));
+
+  async getSupplier(supplierId: string, session: string) { return this.stateFor(session).suppliers.find((item) => item.id === supplierId) ?? null; }
+  async getPurchaseOrder(purchaseOrderId: string, session: string) { return this.stateFor(session).purchaseOrders.find((item) => item.id === purchaseOrderId) ?? null; }
+  async getSupplierCall(callId: string, session: string) { return this.stateFor(session).supplierCalls.find((item) => item.id === callId) ?? null; }
+  async getApproval(callId: string, session: string) { return this.stateFor(session).supplierApprovals.find((item) => item.supplierCallId === callId) ?? null; }
+  async countCallsForPurchaseOrderOnDate(purchaseOrderId: string, supplierLocalDate: string, session: string) {
+    return this.stateFor(session).supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === supplierLocalDate).length;
+  }
+  async hasOpenDispute(purchaseOrderId: string, session: string) {
+    return this.stateFor(session).disputes.some((item) => item.purchaseOrderId === purchaseOrderId && (item.status === "open" || item.status === "investigating"));
   }
 
   private async withClaimLock<T>(operation: () => T | Promise<T>): Promise<T> {
@@ -83,13 +91,15 @@ export class DemoSupplierCallAuthorizationRepository implements SupplierCallAuth
 
   async claimSupplierCall(input: SupplierCallClaimRequest): Promise<SupplierCallClaimResult> {
     return this.withClaimLock(() => {
-      const dailyKey = `${input.supplierId}:${input.purchaseOrderId}:${input.supplierLocalDate}`;
-      if (this.claimsByIdempotency.has(input.idempotencyKey) || this.claimsByDailyKey.has(dailyKey)
-        || this.state.supplierCalls.some((call) => call.supplierId === input.supplierId && call.purchaseOrderId === input.purchaseOrderId && call.calledLocalDate === input.supplierLocalDate)) return { ok: false };
-      const claimId = `supplier-call-claim-${input.idempotencyKey}`;
-      const claim: DemoSupplierCallClaim = { id: claimId, idempotencyKey: input.idempotencyKey, dailyKey, callId: input.callId, status: "reserved" };
+      const state = this.stateFor(input.demoSessionId);
+      const dailyKey = `${input.demoSessionId}:${input.supplierId}:${input.purchaseOrderId}:${input.supplierLocalDate}`;
+      const scopedIdempotencyKey = `${input.demoSessionId}:${input.idempotencyKey}`;
+      if (this.claimsByIdempotency.has(scopedIdempotencyKey) || this.claimsByDailyKey.has(dailyKey)
+        || state.supplierCalls.some((call) => call.supplierId === input.supplierId && call.purchaseOrderId === input.purchaseOrderId && call.calledLocalDate === input.supplierLocalDate)) return { ok: false };
+      const claimId = `supplier-call-claim-${input.demoSessionId}-${input.idempotencyKey}`;
+      const claim: DemoSupplierCallClaim = { id: claimId, idempotencyKey: scopedIdempotencyKey, dailyKey, callId: input.callId, status: "reserved" };
       this.claims.set(claimId, claim);
-      this.claimsByIdempotency.set(input.idempotencyKey, claimId);
+      this.claimsByIdempotency.set(scopedIdempotencyKey, claimId);
       this.claimsByDailyKey.set(dailyKey, claimId);
       return { ok: true, claimId };
     });
@@ -105,22 +115,24 @@ export class DemoSupplierCallAuthorizationRepository implements SupplierCallAuth
   async recordCreatedCall(claimId: string, input: CreateSupplierCallRequest, result: CreateSupplierCallResult, supplierLocalDate: string) {
     await this.withClaimLock(() => {
       const claim = this.claims.get(claimId);
-      const expectedDailyKey = `${input.supplierId}:${input.purchaseOrderId}:${supplierLocalDate}`;
+      const state = this.stateFor(input.demoSessionId);
+      const expectedDailyKey = `${input.demoSessionId}:${input.supplierId}:${input.purchaseOrderId}:${supplierLocalDate}`;
       if (!claim || claim.status !== "reserved" || claim.callId !== input.callId || claim.dailyKey !== expectedDailyKey || result.callId !== input.callId) throw new Error("Supplier call claim does not match the created call.");
       const now = new Date().toISOString();
-      const callExists = this.state.supplierCalls.some((call) => call.id === input.callId && call.status === "draft");
+      const callExists = state.supplierCalls.some((call) => call.id === input.callId && call.status === "draft");
       if (!callExists) throw new Error("Supplier call draft is no longer eligible.");
-      this.state = {
-        ...this.state,
-        revision: this.state.revision + 1,
-        supplierCalls: this.state.supplierCalls.map((call) => call.id === input.callId ? {
+      const next: ErpState = {
+        ...state,
+        revision: state.revision + 1,
+        supplierCalls: state.supplierCalls.map((call) => call.id === input.callId ? {
           ...call, status: "active", provider: result.provider, providerCallId: result.providerCallId, calledLocalDate: supplierLocalDate, updatedAt: now,
         } : call),
-        auditLogs: [...this.state.auditLogs, {
-          id: `erp-audit-${this.state.revision + 1}`, entityType: "supplier_call", entityId: input.callId, action: "supplier_call.created",
+        auditLogs: [...state.auditLogs, {
+          id: `erp-audit-${state.revision + 1}`, entityType: "supplier_call", entityId: input.callId, action: "supplier_call.created",
           actorRole: "system", actorId: "system:supplier-call-api", detail: { supplierId: input.supplierId, purchaseOrderId: input.purchaseOrderId, provider: result.provider }, createdAt: now, updatedAt: now,
         }],
       };
+      this.states.set(input.demoSessionId, next);
       this.claims.set(claimId, { ...claim, status: "completed" });
     });
   }
@@ -137,16 +149,11 @@ export interface CreateSupplierCallHandlerDependencies {
 function parseRequest(input: unknown): CreateSupplierCallRequest | null {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const value = input as Record<string, unknown>;
-  const keys = ["callId", "supplierId", "purchaseOrderId"] as const;
+  const keys = ["callId", "supplierId", "purchaseOrderId", "demoSessionId"] as const;
   if (Object.keys(value).length !== keys.length || Object.keys(value).some((key) => !keys.includes(key as typeof keys[number]))) return null;
   if (keys.some((key) => typeof value[key] !== "string" || !String(value[key]).trim() || String(value[key]).length > 160)) return null;
-  return { callId: String(value.callId), supplierId: String(value.supplierId), purchaseOrderId: String(value.purchaseOrderId) };
-}
-
-function jakartaClock(now: Date): { time: string; date: string } {
-  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
-  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "";
-  return { time: `${part("hour")}:${part("minute")}`, date: `${part("year")}-${part("month")}-${part("day")}` };
+  if (!isValidDemoSessionId(value.demoSessionId)) return null;
+  return { callId: String(value.callId), supplierId: String(value.supplierId), purchaseOrderId: String(value.purchaseOrderId), demoSessionId: String(value.demoSessionId) };
 }
 
 function defaultProvider(mode: SupplierCallProviderMode): SupplierCallProvider {
@@ -172,10 +179,10 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
     let approval: SupplierCallApproval | null;
     try {
       [supplier, purchaseOrder, supplierCall, approval] = await Promise.all([
-        dependencies.repository.getSupplier(input.supplierId),
-        dependencies.repository.getPurchaseOrder(input.purchaseOrderId),
-        dependencies.repository.getSupplierCall(input.callId),
-        dependencies.repository.getApproval(input.callId),
+        dependencies.repository.getSupplier(input.supplierId, input.demoSessionId),
+        dependencies.repository.getPurchaseOrder(input.purchaseOrderId, input.demoSessionId),
+        dependencies.repository.getSupplierCall(input.callId, input.demoSessionId),
+        dependencies.repository.getApproval(input.callId, input.demoSessionId),
       ]);
     } catch {
       return NextResponse.json({ error: "Unable to authorize supplier call.", code: "SUPPLIER_CALL_AUTHORIZATION_FAILURE" }, { status: 502 });
@@ -191,10 +198,10 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
     let callsToday: number;
     let openDispute: boolean;
     try {
-      clock = jakartaClock(dependencies.now?.() ?? new Date());
+      clock = getJakartaClock(dependencies.now?.() ?? new Date());
       [callsToday, openDispute] = await Promise.all([
-        dependencies.repository.countCallsForPurchaseOrderOnDate(purchaseOrder.id, clock.date),
-        dependencies.repository.hasOpenDispute(purchaseOrder.id),
+        dependencies.repository.countCallsForPurchaseOrderOnDate(purchaseOrder.id, clock.date, input.demoSessionId),
+        dependencies.repository.hasOpenDispute(purchaseOrder.id, input.demoSessionId),
       ]);
     } catch {
       return NextResponse.json({ error: "Unable to authorize supplier call.", code: "SUPPLIER_CALL_AUTHORIZATION_FAILURE" }, { status: 502 });

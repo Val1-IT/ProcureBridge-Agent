@@ -25,8 +25,8 @@ describe("versioned demo persistence", () => {
   });
 
   it("fails closed to fresh seed for invalid or stale data", () => {
-    expect(deserializeDemoState("not-json")).toEqual(createSeedState());
-    expect(deserializeDemoState('{"schemaVersion":0}')).toEqual(createSeedState());
+    expect({ ...deserializeDemoState("not-json"), demoSessionId: "session" }).toEqual({ ...createSeedState(), demoSessionId: "session" });
+    expect({ ...deserializeDemoState('{"schemaVersion":0}'), demoSessionId: "session" }).toEqual({ ...createSeedState(), demoSessionId: "session" });
   });
 
   it("migrates a browser-persisted v2 recovery state when no current schema state exists", () => {

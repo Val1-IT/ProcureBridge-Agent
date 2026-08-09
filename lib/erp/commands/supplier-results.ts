@@ -1,4 +1,5 @@
 import { getSupplierScenarioTranscript } from "../../supplier-call/scripts";
+import { getJakartaClock } from "../../supplier-call/jakarta-clock";
 import type { CreateSupplierCallResult } from "../../supplier-call/types";
 import { isStrictIsoDate, isStrictIsoInstant } from "../date-validation";
 import type { ErpCommandResult } from "../errors";
@@ -81,6 +82,14 @@ function resultValidation(state: ErpState, result: SupplierCallResult, now: stri
   const supplier = state.suppliers.find((item) => item.id === result.supplierId && item.active);
   const purchaseOrder = state.purchaseOrders.find((item) => item.id === result.purchaseOrderId);
   if (!call || !approval || !supplier || !purchaseOrder || purchaseOrder.supplierId !== supplier.id) return "Supplier result context is incomplete.";
+  if (!["sent", "confirmed", "partially_received"].includes(purchaseOrder.status)) return "Purchase order is no longer eligible for supplier result approval.";
+  const seenProducts = new Set<string>();
+  if (!purchaseOrder.lines.length || purchaseOrder.lines.some((line) => {
+    const invalid = !line.productId || seenProducts.has(line.productId) || !Number.isSafeInteger(line.quantity) || line.quantity <= 0 || !Number.isSafeInteger(line.unitPrice) || line.unitPrice <= 0;
+    seenProducts.add(line.productId);
+    return invalid;
+  })) return "Purchase order data is no longer valid.";
+  if (state.disputes.some((item) => item.purchaseOrderId === purchaseOrder.id && ["open", "investigating"].includes(item.status))) return "An unresolved purchase-order dispute requires human review.";
   if (!result.summary.trim() || !["positive", "neutral", "concerned"].includes(result.sentiment)) return "Supplier result summary or sentiment is invalid.";
   const date = (value: string | null) => value === null || isStrictIsoDate(value);
   if (![result.promisedDeliveryDate, result.partialDeliveryDate, result.remainingDeliveryDate, result.followUpDate].every(date)) return "Supplier result contains an invalid date.";
@@ -97,10 +106,12 @@ function resultValidation(state: ErpState, result: SupplierCallResult, now: stri
   return null;
 }
 
-export function recordSupplierCallStarted(state: ErpState, role: ErpRole, callId: string, providerResult: CreateSupplierCallResult, supplierLocalDate: string, now: string): ErpCommandResult<SupplierCall> {
+export function recordSupplierCallStarted(state: ErpState, role: ErpRole, callId: string, providerResult: CreateSupplierCallResult, dateOrNow: string, maybeNow?: string): ErpCommandResult<SupplierCall> {
   const permission = authorizeReview<SupplierCall>(state, role);
   if (permission) return permission;
-  if (!isStrictIsoInstant(now) || !isStrictIsoDate(supplierLocalDate)) return reject(state, "INVALID_INPUT", "Supplier call start time is invalid.");
+  const now = maybeNow ?? dateOrNow;
+  if (!isStrictIsoInstant(now)) return reject(state, "INVALID_INPUT", "Supplier call start time is invalid.");
+  const clock = getJakartaClock(new Date(now));
   const call = state.supplierCalls.find((item) => item.id === callId);
   const approval = state.supplierApprovals.find((item) => item.supplierCallId === callId && item.status === "approved");
   const supplier = state.suppliers.find((item) => item.id === call?.supplierId);
@@ -111,34 +122,46 @@ export function recordSupplierCallStarted(state: ErpState, role: ErpRole, callId
     supplier,
     purchaseOrder,
     approval,
-    localTime: approval.callTime,
-    callsToday: state.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrder.id && item.calledLocalDate === supplierLocalDate).length,
+    localTime: clock.time,
+    callsToday: state.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrder.id && item.calledLocalDate === clock.date).length,
     openDispute: state.disputes.some((item) => item.purchaseOrderId === purchaseOrder.id && (item.status === "open" || item.status === "investigating")),
   });
   if (!decision.allowed) return reject(state, "INVALID_STATE", `Supplier call guardrails changed: ${decision.codes.join(", ")}.`);
-  const started: SupplierCall = { ...call, status: "active", provider: providerResult.provider, providerCallId: providerResult.providerCallId, calledLocalDate: supplierLocalDate, startedAt: now, updatedAt: now };
+  const started: SupplierCall = { ...call, status: "active", provider: providerResult.provider, providerCallId: providerResult.providerCallId, calledLocalDate: clock.date, startedAt: now, updatedAt: now };
   const staged: ErpState = { ...state, supplierCalls: state.supplierCalls.map((item) => item.id === call.id ? started : item) };
   const next = appendErpAudit(staged, { entityType: "supplier_call", entityId: call.id, action: "supplier_call.started", actorRole: role, actorId: `role:${role}`, detail: { provider: providerResult.provider, purchaseOrderId: call.purchaseOrderId } }, now);
   return commitErpState(state, next, started);
 }
 
-export function completeSupplierCallSimulation(state: ErpState, role: ErpRole, callId: string, now: string): ErpCommandResult<SupplierCallResult> {
+export interface FinishSupplierCallSimulationInput { visibleTranscript: SupplierCall["transcript"]; elapsedSeconds: number }
+
+export function completeSupplierCallSimulation(state: ErpState, role: ErpRole, callId: string, inputOrNow: FinishSupplierCallSimulationInput | string, maybeNow?: string): ErpCommandResult<SupplierCallResult> {
   const permission = authorizeReview<SupplierCallResult>(state, role);
   if (permission) return permission;
+  const now = maybeNow ?? (typeof inputOrNow === "string" ? inputOrNow : "");
   if (!isStrictIsoInstant(now)) return reject(state, "INVALID_INPUT", "Supplier call completion time is invalid.");
   const call = state.supplierCalls.find((item) => item.id === callId);
   const approval = state.supplierApprovals.find((item) => item.supplierCallId === callId && item.status === "approved");
   if (!call || !approval) return reject(state, "NOT_FOUND", "Approved supplier call was not found.");
   if (call.status !== "active" || call.provider !== "mock" || !call.providerCallId || !call.calledLocalDate || state.supplierResults.some((item) => item.supplierCallId === call.id && item.status !== "rejected")) return reject(state, "INVALID_STATE", "Supplier simulation cannot be completed from its current state.");
-  const transcript = getSupplierScenarioTranscript(call.scenario);
-  const completed: SupplierCall = { ...call, status: "completed", transcript, durationSeconds: transcript.at(-1)?.offsetSeconds ?? 0, endedAt: now, updatedAt: now };
+  const scripted = getSupplierScenarioTranscript(call.scenario);
+  const input = typeof inputOrNow === "string" ? { visibleTranscript: scripted, elapsedSeconds: scripted.at(-1)?.offsetSeconds ?? 0 } : inputOrNow;
+  const transcript = input?.visibleTranscript;
+  if (!Array.isArray(transcript) || !Number.isSafeInteger(input.elapsedSeconds) || input.elapsedSeconds < 0 || transcript.length > scripted.length
+    || transcript.some((segment, index) => JSON.stringify(segment) !== JSON.stringify(scripted[index]))
+    || input.elapsedSeconds !== (transcript.at(-1)?.offsetSeconds ?? 0)) return reject(state, "INVALID_INPUT", "Supplier simulation transcript or elapsed time is invalid.");
+  const fullyCompleted = transcript.length === scripted.length;
+  const completed: SupplierCall = { ...call, status: fullyCompleted ? "completed" : "ended_early", transcript, durationSeconds: input.elapsedSeconds, endedAt: now, updatedAt: now };
   const result: SupplierCallResult = {
-    id: `supplier-result-${call.id}`, supplierCallId: call.id, supplierId: call.supplierId, purchaseOrderId: call.purchaseOrderId, status: "pending",
+    id: `supplier-result-${call.id}`, supplierCallId: call.id, supplierId: call.supplierId, purchaseOrderId: call.purchaseOrderId, status: fullyCompleted ? "pending" : "human_review",
     sourceScenario: call.scenario, sourceProvider: call.provider, sourceProviderCallId: call.providerCallId,
-    ...scenarioDraft(call, approval.maximumDeliveryDate), createdAt: now, updatedAt: now,
+    ...(fullyCompleted ? scenarioDraft(call, approval.maximumDeliveryDate) : {
+      scenario: "failed_contact" as const, promisedDeliveryDate: null, partialDeliveryDate: null, remainingDeliveryDate: null, followUpDate: null,
+      reason: "Call ended before the complete approved script was displayed.", summary: "Incomplete supplier call requires human review; no commitment was extracted.", sentiment: "neutral" as const,
+    }), createdAt: now, updatedAt: now,
   };
   const staged: ErpState = { ...state, supplierCalls: state.supplierCalls.map((item) => item.id === call.id ? completed : item), supplierResults: [...state.supplierResults, result] };
-  const next = appendErpAudit(staged, { entityType: "supplier_call", entityId: call.id, action: "supplier_call.completed", actorRole: role, actorId: `role:${role}`, detail: { provider: "mock", scenario: call.scenario, simulation: true } }, now);
+  const next = appendErpAudit(staged, { entityType: "supplier_call", entityId: call.id, action: fullyCompleted ? "supplier_call.completed" : "supplier_call.ended_early", actorRole: role, actorId: `role:${role}`, detail: { provider: "mock", scenario: call.scenario, simulation: true, durationSeconds: input.elapsedSeconds, displayedSegments: transcript.length } }, now);
   return commitErpState(state, next, result);
 }
 

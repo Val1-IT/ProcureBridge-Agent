@@ -28,7 +28,6 @@ function stateWithResult(scenario: SupplierCallScenario = "delivery_commitment")
     partialDeliveryAllowed: true,
     maximumUnitPriceIncreasePercent: 0,
     language: "Bahasa Indonesia",
-    callTime: "10:00",
     approvedBy: "Nadia Pratama",
   }, approvedAt);
   if (!approval.ok) throw new Error(approval.error.message);
@@ -56,7 +55,7 @@ describe("supplier result review commands", () => {
     const approval = saveSupplierCallApproval(seed, "approver", {
       supplierCallId: "supplier-call-po-1", supplierId: "supplier-utama", purchaseOrderId: "po-router-replenishment", scenario: "delivery_commitment",
       objective: "Confirm delivery date", permittedProductIds: ["product-router"], maximumDeliveryDate: "2026-08-20", partialDeliveryAllowed: true,
-      maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", callTime: "10:00", approvedBy: "Nadia Pratama",
+      maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", approvedBy: "Nadia Pratama",
     }, approvedAt);
     if (!approval.ok) throw new Error(approval.error.message);
     approval.state.suppliers[0] = { ...approval.state.suppliers[0], doNotContact: true };
@@ -71,7 +70,7 @@ describe("supplier result review commands", () => {
     const approval = saveSupplierCallApproval(seed, "approver", {
       supplierCallId: "supplier-call-po-1", supplierId: "supplier-utama", purchaseOrderId: "po-router-replenishment", scenario: "delivery_commitment",
       objective: "Confirm delivery date", permittedProductIds: ["product-router"], maximumDeliveryDate: "2026-08-20", partialDeliveryAllowed: true,
-      maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", callTime: "10:00", approvedBy: "Nadia Pratama",
+      maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", approvedBy: "Nadia Pratama",
     }, approvedAt);
     if (!approval.ok) throw new Error(approval.error.message);
     const started = recordSupplierCallStarted(approval.state, "approver", "supplier-call-po-1", {

@@ -28,14 +28,14 @@ export interface SupplierCallTranscriptSegment {
   id: string; speaker: "AI" | "Supplier" | "System"; text: string; stage: number; offsetSeconds: number;
 }
 export interface SupplierCall {
-  id: string; supplierId: string; purchaseOrderId: string; status: "draft" | "active" | "completed" | "failed"; scenario: SupplierCallScenario;
+  id: string; supplierId: string; purchaseOrderId: string; status: "draft" | "active" | "completed" | "ended_early" | "failed"; scenario: SupplierCallScenario;
   provider: "mock" | "calle" | null; providerCallId: string | null; calledLocalDate: string | null;
   transcript: SupplierCallTranscriptSegment[]; durationSeconds: number; startedAt: string | null; endedAt: string | null; createdAt: string; updatedAt: string;
 }
 export interface SupplierCallApproval {
   id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected";
   objective: string; permittedProductIds: string[]; maximumDeliveryDate: string; partialDeliveryAllowed: boolean;
-  maximumUnitPriceIncreasePercent: number; language: string; callTime: string; approvedBy: string | null; createdAt: string; updatedAt: string;
+  maximumUnitPriceIncreasePercent: number; language: string; approvedBy: string | null; approvedAt: string | null; createdAt: string; updatedAt: string;
 }
 export interface SupplierCallResult {
   id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected" | "human_review";

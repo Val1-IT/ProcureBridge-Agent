@@ -8,7 +8,7 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { completeSupplierCallSimulation } from "@/lib/erp/commands/supplier-results";
+import { completeSupplierCallSimulation, type FinishSupplierCallSimulationInput } from "@/lib/erp/commands/supplier-results";
 import type { SimulationSpeed } from "@/lib/demo/simulation";
 
 export default function SupplierCallPage() {
@@ -20,9 +20,9 @@ export default function SupplierCallPage() {
   const call = state.erp.supplierCalls.find((item) => item.id === callId);
   const purchaseOrder = state.erp.purchaseOrders.find((item) => item.id === call?.purchaseOrderId);
   const supplier = state.erp.suppliers.find((item) => item.id === call?.supplierId);
-  const complete = useCallback(() => {
+  const complete = useCallback((input: FinishSupplierCallSimulationInput) => {
     if (!call || call.status !== "active") return;
-    const result = run((current) => completeSupplierCallSimulation(current, current.activeRole, call.id, new Date().toISOString()));
+    const result = run((current) => completeSupplierCallSimulation(current, current.activeRole, call.id, input, new Date().toISOString()));
     if (!result.ok) { setError(result.error.message); return; }
     router.replace(`/supplier-calls/${call.id}/result`);
   }, [call, router, run]);

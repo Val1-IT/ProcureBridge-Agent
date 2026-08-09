@@ -15,7 +15,6 @@ export interface SaveSupplierCallApprovalInput {
   partialDeliveryAllowed: boolean;
   maximumUnitPriceIncreasePercent: number;
   language: string;
-  callTime: string;
   approvedBy: string;
 }
 
@@ -23,17 +22,12 @@ function invalid<T>(state: ErpState, message: string): ErpCommandResult<T> {
   return rejectErpCommand(state, { code: "INVALID_INPUT", message });
 }
 
-function hasValidTime(value: string): boolean {
-  const match = /^(\d{2}):(\d{2})$/.exec(value);
-  return Boolean(match && Number(match[1]) <= 23 && Number(match[2]) <= 59);
-}
-
 export function saveSupplierCallApproval(state: ErpState, role: ErpRole, input: SaveSupplierCallApprovalInput, now: string): ErpCommandResult<SupplierCallApproval> {
   if (!isErpRole(role)) return invalid(state, "Active role is invalid.");
   if (!authorize(role, "call.approve")) return rejectErpCommand(state, { code: "FORBIDDEN", message: "You do not have permission to approve supplier calls." });
   if (!isStrictIsoInstant(now)) return invalid(state, "Approval time is invalid.");
   if (!input.supplierCallId.trim() || !input.objective.trim() || !input.language.trim() || !input.approvedBy.trim()) return invalid(state, "Supplier call approval is incomplete.");
-  if (!isStrictIsoDate(input.maximumDeliveryDate) || input.maximumDeliveryDate < now.slice(0, 10) || !hasValidTime(input.callTime)) return invalid(state, "Supplier call date or time boundary is invalid.");
+  if (!isStrictIsoDate(input.maximumDeliveryDate) || input.maximumDeliveryDate < now.slice(0, 10)) return invalid(state, "Supplier call date boundary is invalid.");
   if (typeof input.partialDeliveryAllowed !== "boolean" || !Number.isFinite(input.maximumUnitPriceIncreasePercent) || input.maximumUnitPriceIncreasePercent < 0 || input.maximumUnitPriceIncreasePercent > 100) return invalid(state, "Supplier call commercial boundary is invalid.");
   const supplier = state.suppliers.find((item) => item.id === input.supplierId && item.active);
   const purchaseOrder = state.purchaseOrders.find((item) => item.id === input.purchaseOrderId);
@@ -53,7 +47,7 @@ export function saveSupplierCallApproval(state: ErpState, role: ErpRole, input: 
     id: `supplier-approval-${input.supplierCallId}`, supplierCallId: call.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, status: "approved",
     objective: input.objective.trim(), permittedProductIds: [...input.permittedProductIds], maximumDeliveryDate: input.maximumDeliveryDate,
     partialDeliveryAllowed: input.partialDeliveryAllowed, maximumUnitPriceIncreasePercent: input.maximumUnitPriceIncreasePercent,
-    language: input.language.trim(), callTime: input.callTime, approvedBy: input.approvedBy.trim(), createdAt: now, updatedAt: now,
+    language: input.language.trim(), approvedBy: input.approvedBy.trim(), approvedAt: now, createdAt: now, updatedAt: now,
   };
   const staged: ErpState = {
     ...state,

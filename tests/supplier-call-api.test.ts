@@ -9,6 +9,7 @@ import type { PurchaseOrder, Supplier, SupplierCall, SupplierCallApproval } from
 import type { CreateSupplierCallInput, SupplierCallProvider } from "../lib/supplier-call/types";
 
 const seed = createErpSeedState();
+const demoSessionId = "demo_browser_session_1234567890";
 const supplier = seed.suppliers[0];
 const purchaseOrder = seed.purchaseOrders[0];
 const supplierCall: SupplierCall = {
@@ -19,7 +20,7 @@ const supplierCall: SupplierCall = {
 const approval: SupplierCallApproval = {
   id: "supplier-approval-call-po-1", supplierCallId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, status: "approved",
   objective: "Confirm delivery date", permittedProductIds: ["product-router"], maximumDeliveryDate: "2026-08-20", partialDeliveryAllowed: true,
-  maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", callTime: "10:00", approvedBy: "Nadia Pratama",
+  maximumUnitPriceIncreasePercent: 0, language: "Bahasa Indonesia", approvedBy: "Nadia Pratama", approvedAt: "2026-08-09T01:00:00.000Z",
   createdAt: "2026-08-09T01:00:00.000Z", updatedAt: "2026-08-09T01:00:00.000Z",
 };
 
@@ -70,7 +71,7 @@ function setup(options: { repository?: SupplierCallAuthorizationRepository; prov
     now: () => new Date("2026-08-09T03:00:00.000Z"),
     providerFactory: (mode) => { activeMode = mode; modes.push(mode); return provider; },
   });
-  const request = (query = "", body: unknown = { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id }) => new Request(`https://app.example/api/supplier-calls${query}`, {
+  const request = (query = "", body: unknown = { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId }) => new Request(`https://app.example/api/supplier-calls${query}`, {
     method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
   });
   return { handler, request, repository, inputs, modes };
@@ -79,7 +80,7 @@ function setup(options: { repository?: SupplierCallAuthorizationRepository; prov
 describe("POST /api/supplier-calls", () => {
   it("returns a stable 400 code for malformed or snapshot-bearing payloads", async () => {
     const context = setup();
-    const response = await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, supplier: { phone: "123", secret: "must-not-reflect" } }));
+    const response = await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId, supplier: { phone: "123", secret: "must-not-reflect" } }));
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: "Invalid supplier call request.", code: "INVALID_REQUEST" });
     expect(context.inputs).toHaveLength(0);
@@ -131,7 +132,7 @@ describe("POST /api/supplier-calls", () => {
     });
     const makeRequest = () => new Request("https://app.example/api/supplier-calls", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id }),
+      body: JSON.stringify({ callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId }),
     });
 
     const first = handler(makeRequest());
@@ -154,6 +155,23 @@ describe("POST /api/supplier-calls", () => {
     expect(duplicate.status).toBe(409);
     expect(await duplicate.json()).toEqual({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" });
     expect(context.inputs).toHaveLength(1);
+  });
+
+  it("scopes singleton demo claims and call state to the validated browser demo session", async () => {
+    const repository = new DemoSupplierCallAuthorizationRepository();
+    const context = setup({ repository });
+    expect((await context.handler(context.request())).status).toBe(201);
+    const resetSession = "demo_browser_session_0987654321";
+    expect((await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: resetSession }))).status).toBe(201);
+    expect(context.inputs).toHaveLength(2);
+  });
+
+  it("rejects missing or malformed demo session ids", async () => {
+    const context = setup();
+    for (const value of [undefined, "bad", "demo_has spaces________________"]) {
+      const response = await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, ...(value === undefined ? {} : { demoSessionId: value }) }));
+      expect(response.status).toBe(400);
+    }
   });
 
   it("returns the stable duplicate 409 when the atomic repository claim loses", async () => {

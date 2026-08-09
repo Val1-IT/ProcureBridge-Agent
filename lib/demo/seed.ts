@@ -175,9 +175,12 @@ const pendingResults: StructuredResult[] = [
   },
 ];
 
-export function createSeedState(): DemoState {
+import { INITIAL_DEMO_SESSION_ID } from "./session";
+
+export function createSeedState(demoSessionId = INITIAL_DEMO_SESSION_ID): DemoState {
   return {
-    schemaVersion: 9,
+    schemaVersion: 10,
+    demoSessionId,
     updatedAt: "2026-08-04T03:00:00.000Z",
     customers: structuredClone(customers),
     invoices: structuredClone(invoices),

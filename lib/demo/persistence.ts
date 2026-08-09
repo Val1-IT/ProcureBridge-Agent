@@ -4,10 +4,12 @@ import type { ErpState } from "../erp/types";
 import { createErpSeedState } from "../erp/seed";
 import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
 import { createSeedState } from "./seed";
+import { createDemoSessionId, isValidDemoSessionId } from "./session";
 
-export const DEMO_SCHEMA_VERSION = 9;
-export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v9";
-export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v8";
+export const DEMO_SCHEMA_VERSION = 10;
+export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v10";
+export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v9";
+export const V8_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v8";
 export const V7_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
 export const V6_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
 export const V5_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v5";
@@ -40,12 +42,6 @@ const hasRfqLine = (value: unknown): boolean => hasFields(value, ["productId"]) 
 const hasRfqLines = (value: unknown): boolean => Array.isArray(value) && value.every(hasRfqLine);
 const hasEntityDates = (value: unknown): value is Record<string, unknown> => hasFields(value, ["id", "createdAt", "updatedAt"]);
 const hasOptionalLink = (value: Record<string, unknown>, field: string, ids: Set<unknown>): boolean => Object.hasOwn(value, field) && (value[field] === null || (hasString(value[field]) && ids.has(value[field])));
-const hasClockTime = (value: unknown): value is string => {
-  if (typeof value !== "string") return false;
-  const match = /^(\d{2}):(\d{2})$/.exec(value);
-  return Boolean(match && Number(match[1]) <= 23 && Number(match[2]) <= 59);
-};
-
 function hasValidErpCollections(value: unknown): value is ErpState {
   if (!isRecord(value) || !hasNumber(value.revision) || !includes(erpRoles, value.activeRole)) return false;
   const arrays = ["products", "suppliers", "customers", "warehouses", "purchaseRequests", "requestForQuotations", "supplierQuotations", "purchaseOrders", "goodsReceipts", "salesOrders", "deliveryOrders", "supplierInvoices", "customerInvoices", "payments", "stockMovements", "stockAdjustments", "supplierCalls", "supplierApprovals", "supplierResults", "disputes", "followUps", "auditLogs"];
@@ -192,12 +188,13 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
       && hasFields(item, ["supplierId", "purchaseOrderId", "scenario"]) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId)
       && purchaseOrderById.get(item.purchaseOrderId)?.supplierId === item.supplierId
-      && includes(["draft", "active", "completed", "failed"], item.status)
+      && includes(["draft", "active", "completed", "ended_early", "failed"], item.status)
       && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario)
       && Number.isSafeInteger(item.durationSeconds) && Number(item.durationSeconds) >= 0
       && (draft ? item.provider === null && item.providerCallId === null && item.calledLocalDate === null && item.startedAt === null && item.endedAt === null && transcript.length === 0 && item.durationSeconds === 0
         : includes(["mock", "calle"], item.provider) && hasTrimmedString(item.providerCallId) && isStrictIsoDate(item.calledLocalDate) && isStrictIsoInstant(item.startedAt)
-          && (item.status === "completed" ? isStrictIsoInstant(item.endedAt) && transcript.length > 0 && item.durationSeconds === transcript.at(-1)?.offsetSeconds : item.endedAt === null));
+          && (item.status === "completed" ? isStrictIsoInstant(item.endedAt) && transcript.length > 0 && item.durationSeconds === transcript.at(-1)?.offsetSeconds
+            : item.status === "ended_early" ? isStrictIsoInstant(item.endedAt) && item.durationSeconds === (transcript.at(-1)?.offsetSeconds ?? 0) : item.endedAt === null));
   })) return false;
   const supplierCallIds = new Set(supplierCalls.map((item) => item.id));
   if (supplierCallIds.size !== supplierCalls.length) return false;
@@ -212,10 +209,10 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     if (!Array.isArray(item.permittedProductIds) || !item.permittedProductIds.every(hasString)) return false;
     const products = item.permittedProductIds as string[];
     return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
-      && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "objective", "maximumDeliveryDate", "language", "callTime"])
+      && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "objective", "maximumDeliveryDate", "language", "approvedAt"])
       && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId && purchaseOrder.supplierId === item.supplierId
       && hasTrimmedString(item.objective) && hasTrimmedString(item.language)
-      && includes(["pending", "approved", "rejected"], item.status) && isStrictIsoDate(item.maximumDeliveryDate) && hasClockTime(item.callTime)
+      && includes(["pending", "approved", "rejected"], item.status) && isStrictIsoDate(item.maximumDeliveryDate) && isStrictIsoInstant(item.approvedAt)
       && typeof item.partialDeliveryAllowed === "boolean" && hasNumber(item.maximumUnitPriceIncreasePercent) && item.maximumUnitPriceIncreasePercent >= 0 && item.maximumUnitPriceIncreasePercent <= 100
       && products.length === purchaseOrderLines.length && new Set(products).size === products.length
       && purchaseOrderLines.every((line) => hasString(line.productId) && products.includes(line.productId))
@@ -230,7 +227,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     if (!call) return false;
     return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
       && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario", "sourceScenario", "sourceProvider", "sourceProviderCallId", "summary", "sentiment"])
-      && call.status === "completed" && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId
+      && ["completed", "ended_early"].includes(String(call.status)) && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId
       && call.scenario === item.sourceScenario && call.provider === item.sourceProvider && call.providerCallId === item.sourceProviderCallId
       && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario)
       && includes(["positive", "neutral", "concerned"], item.sentiment) && hasTrimmedString(item.summary)
@@ -249,48 +246,53 @@ function hasValidErpCollections(value: unknown): value is ErpState {
 
 export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
-  if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp: createErpSeedState() };
+  const demoSessionId = isValidDemoSessionId(value.demoSessionId) ? value.demoSessionId : createDemoSessionId();
+  if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
     const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))))));
-    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 4) {
     const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp)))));
-    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 5) {
     const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(value.erp))));
-    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 6) {
     const erp = migrateErpV8(migrateErpV7(migrateErpV6(value.erp)));
-    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 7) {
     const erp = migrateErpV8(migrateErpV7(value.erp));
-    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 8) {
     const erp = migrateErpV8(value.erp);
-    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
-  if (value.schemaVersion === DEMO_SCHEMA_VERSION && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
+  if (value.schemaVersion === 9 && isRecord(value.erp) && Array.isArray(value.erp.supplierApprovals)) {
+    const erp = { ...value.erp, supplierApprovals: value.erp.supplierApprovals.map((item) => isRecord(item) ? { ...item, approvedAt: item.approvedAt ?? item.createdAt } : item) };
+    return hasValidErpCollections(erp) ? { ...(value as unknown as DemoState), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp: erp as unknown as ErpState } : null;
+  }
+  if (value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
   return null;
 }
 
 export function loadDemoState(value: string | null): { state: DemoState; recoveryReason: DemoRecoveryReason } {
-  if (!value) return { state: createSeedState(), recoveryReason: null };
+  if (!value) return { state: createSeedState(createDemoSessionId()), recoveryReason: null };
   try {
     const state = migrateDemoState(JSON.parse(value));
-    return state ? { state, recoveryReason: null } : { state: createSeedState(), recoveryReason: "INVALID_SCHEMA" };
+    return state ? { state, recoveryReason: null } : { state: createSeedState(createDemoSessionId()), recoveryReason: "INVALID_SCHEMA" };
   } catch {
-    return { state: createSeedState(), recoveryReason: "INVALID_JSON" };
+    return { state: createSeedState(createDemoSessionId()), recoveryReason: "INVALID_JSON" };
   }
 }
 
 export function loadDemoStateFromStorage(storage: Pick<Storage, "getItem">): { state: DemoState; recoveryReason: DemoRecoveryReason } {
   const current = storage.getItem(DEMO_STORAGE_KEY);
-  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V7_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V8_DEMO_STORAGE_KEY) ?? storage.getItem(V7_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
 }
 
 export function serializeDemoState(state: DemoState): string { return JSON.stringify(state); }

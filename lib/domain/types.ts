@@ -174,6 +174,7 @@ export interface AuditLog {
 
 export interface DemoState {
   schemaVersion: number;
+  demoSessionId: string;
   updatedAt: string;
   customers: Customer[];
   invoices: Invoice[];

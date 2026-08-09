@@ -53,7 +53,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(9);
+    expect(migrated.schemaVersion).toBe(10);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
   });
@@ -67,7 +67,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(9);
+    expect(migrated.schemaVersion).toBe(10);
     expect(migrated.erp.requestForQuotations).toEqual([]);
     expect(migrated.erp.supplierQuotations).toEqual([]);
     expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
@@ -80,7 +80,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(9);
+    expect(migrated.schemaVersion).toBe(10);
     expect(migrated.erp.stockAdjustments).toEqual([]);
   });
 
@@ -303,7 +303,7 @@ describe("ERP persistence foundation", () => {
   it("reports invalid stored data so the UI can offer a safe reset", () => {
     const loaded = loadDemoState("not-json");
 
-    expect(loaded.state).toEqual(createSeedState());
+    expect({ ...loaded.state, demoSessionId: "session" }).toEqual({ ...createSeedState(), demoSessionId: "session" });
     expect(loaded.recoveryReason).toBe("INVALID_JSON");
   });
 
@@ -314,7 +314,7 @@ describe("ERP persistence foundation", () => {
 
     const loaded = loadDemoState(JSON.stringify(malformed));
 
-    expect(loaded.state).toEqual(createSeedState());
+    expect({ ...loaded.state, demoSessionId: "session" }).toEqual({ ...createSeedState(), demoSessionId: "session" });
     expect(loaded.recoveryReason).toBe("INVALID_SCHEMA");
   });
 
@@ -474,7 +474,7 @@ describe("sales persistence evidence", () => {
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(9);
+    expect(loaded.state.schemaVersion).toBe(10);
     expect(loaded.state.erp.salesOrders[0].lines[0]).not.toHaveProperty("reservedQuantity");
     expect(loaded.state.erp.stockMovements.every((movement) => movement.type === "opening")).toBe(true);
   });
@@ -658,7 +658,7 @@ describe("finance persistence evidence", () => {
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(9);
+    expect(loaded.state.schemaVersion).toBe(10);
     expect(loaded.state.erp.supplierInvoices).toEqual([]);
     expect(loaded.state.erp.customerInvoices).toEqual([]);
     expect(loaded.state.erp.payments).toEqual([]);

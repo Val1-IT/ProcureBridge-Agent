@@ -19,7 +19,7 @@ const approval: SupplierCallApproval = {
   partialDeliveryAllowed: true,
   maximumUnitPriceIncreasePercent: 0,
   language: "Bahasa Indonesia",
-  callTime: "10:00",
+  approvedAt: "2026-08-09T01:00:00.000Z",
   approvedBy: "Nadia Pratama",
   createdAt: "2026-08-09T01:00:00.000Z",
   updatedAt: "2026-08-09T01:00:00.000Z",
@@ -67,7 +67,7 @@ describe("saveSupplierCallApproval", () => {
     partialDeliveryAllowed: true,
     maximumUnitPriceIncreasePercent: 0,
     language: "Bahasa Indonesia",
-    callTime: "10:00",
+    approvedAt: "2026-08-09T01:00:00.000Z",
     approvedBy: "Nadia Pratama",
   };
 

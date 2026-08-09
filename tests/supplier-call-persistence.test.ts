@@ -42,13 +42,13 @@ const result = {
   createdAt: "2026-08-09T03:01:00.000Z", updatedAt: "2026-08-09T03:01:00.000Z",
 };
 
-describe("supplier call schema v9 persistence", () => {
+describe("supplier call schema v10 persistence", () => {
   it("migrates empty schema v7 supplier call collections into schema v9", () => {
     const legacy = createSeedState();
     legacy.schemaVersion = 7;
     const loaded = loadDemoState(JSON.stringify(legacy));
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(9);
+    expect(loaded.state.schemaVersion).toBe(10);
   });
 
   it("fails closed instead of inventing v8 approval and call provenance for stored v7 call records", () => {
@@ -95,7 +95,7 @@ describe("supplier call schema v9 persistence", () => {
   });
 
   it.each([
-    ["invalid call time", { callTime: "99:99" }],
+    ["invalid approval time", { approvedAt: "not-an-instant" }],
     ["blank objective", { objective: "   " }],
     ["blank approver", { approvedBy: "   " }],
   ])("rejects persisted approval with %s", (_label, patch) => {

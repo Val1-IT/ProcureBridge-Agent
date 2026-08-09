@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApprovalForm } from "@/components/supplier-call/approval-form";
@@ -16,30 +16,30 @@ import { authorize } from "@/lib/erp/permissions";
 import { selectAvailableStock } from "@/lib/erp/selectors";
 import type { CreateSupplierCallResult } from "@/lib/supplier-call/types";
 import { formatCurrency } from "@/lib/format";
+import { getJakartaClock } from "@/lib/supplier-call/jakarta-clock";
 
 function callIdForPurchaseOrder(purchaseOrderId: string): string {
   return purchaseOrderId === "po-router-replenishment" ? "supplier-call-po-1" : `supplier-call-${purchaseOrderId}`;
 }
 
-function jakartaDate(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-}
-
 export default function SupplierFollowUpBriefPage() {
   const { purchaseOrderId } = useParams<{ purchaseOrderId: string }>();
   const router = useRouter();
-  const { state } = useDemoStore();
+  const { state, hydrated } = useDemoStore();
   const { run } = useErpCommands();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+  useEffect(() => { const timer = window.setInterval(() => setCurrentTime(new Date()), 30_000); return () => window.clearInterval(timer); }, []);
   const purchaseOrder = state.erp.purchaseOrders.find((item) => item.id === purchaseOrderId);
   const supplier = state.erp.suppliers.find((item) => item.id === purchaseOrder?.supplierId);
   const callId = callIdForPurchaseOrder(purchaseOrderId);
   const call = state.erp.supplierCalls.find((item) => item.id === callId) ?? null;
   const approval = state.erp.supplierApprovals.find((item) => item.supplierCallId === callId) ?? null;
-  const callsToday = state.erp.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === jakartaDate()).length;
+  const clock = getJakartaClock(currentTime);
+  const callsToday = state.erp.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === clock.date).length;
   const openDispute = state.erp.disputes.some((item) => item.purchaseOrderId === purchaseOrderId && ["open", "investigating"].includes(item.status));
-  const decision = useMemo(() => purchaseOrder && supplier ? evaluateSupplierCallEligibility({ supplier, purchaseOrder, approval, localTime: approval?.callTime ?? "00:00", callsToday, openDispute }) : null, [approval, callsToday, openDispute, purchaseOrder, supplier]);
+  const decision = useMemo(() => purchaseOrder && supplier ? evaluateSupplierCallEligibility({ supplier, purchaseOrder, approval, localTime: clock.time, callsToday, openDispute }) : null, [approval, callsToday, clock.time, openDispute, purchaseOrder, supplier]);
   if (!purchaseOrder || !supplier || !decision) return <div className="empty-state"><strong>Purchase Order was not found.</strong><p>Open the supplier brief from the follow-up queue.</p><Link className="button" href="/purchasing/follow-up">Return to queue</Link></div>;
 
   const impactedOrders = state.erp.salesOrders.filter((order) => order.lines.some((line) => purchaseOrder.lines.some((poLine) => poLine.productId === line.productId) && selectAvailableStock(state.erp, line.productId) < line.quantity));
@@ -50,10 +50,10 @@ export default function SupplierFollowUpBriefPage() {
   const start = async () => {
     setBusy(true); setError(null);
     try {
-      const response = await fetch("/api/supplier-calls?forceMock=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id }) });
+      const response = await fetch("/api/supplier-calls?forceMock=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: state.demoSessionId }) });
       const payload = await response.json() as { call?: CreateSupplierCallResult; error?: string };
       if (!response.ok || !payload.call) throw new Error(payload.error ?? "Unable to start supplier simulation.");
-      const recorded = run((current) => recordSupplierCallStarted(current, current.activeRole, callId, payload.call!, jakartaDate(), new Date().toISOString()));
+      const recorded = run((current) => recordSupplierCallStarted(current, current.activeRole, callId, payload.call!, new Date().toISOString()));
       if (!recorded.ok) throw new Error(recorded.error.message);
       router.push(`/supplier-calls/${callId}`);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to start supplier simulation."); }
@@ -71,7 +71,7 @@ export default function SupplierFollowUpBriefPage() {
         <article className="brief-card"><div className="panel-title"><h2>Mandatory confirmations</h2><span>BEFORE CLOSE</span></div><ol className="activity-list"><li><span className="activity-dot" /><div><strong>Confirm the exact PO and products</strong><p>No unrelated order may be discussed.</p></div></li><li><span className="activity-dot" /><div><strong>Repeat delivery dates and quantities</strong><p>Every extracted commitment remains pending human review.</p></div></li><li><span className="activity-dot" /><div><strong>Escalate discrepancies</strong><p>The agent cannot approve a price change.</p></div></li></ol></article>
         <GuardrailPanel decision={decision} />
       </div>
-      <ApprovalForm callId={callId} purchaseOrder={purchaseOrder} products={state.erp.products} approval={approval} initialScenario={call?.scenario ?? "delivery_commitment"} canApprove={authorize(state.erp.activeRole, "call.approve")} startAllowed={Boolean(call?.status === "draft" && decision.allowed && authorize(state.erp.activeRole, "call.approve"))} busy={busy} error={error} onSave={save} onStart={start} />
+      <ApprovalForm callId={callId} purchaseOrder={purchaseOrder} products={state.erp.products} approval={approval} initialScenario={call?.scenario ?? "delivery_commitment"} canApprove={authorize(state.erp.activeRole, "call.approve")} startAllowed={Boolean(hydrated && call?.status === "draft" && decision.allowed && authorize(state.erp.activeRole, "call.approve"))} busy={busy} error={error} onSave={save} onStart={start} />
     </section>
   </>;
 }

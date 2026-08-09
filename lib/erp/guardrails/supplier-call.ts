@@ -41,7 +41,7 @@ function minutes(value: string): number | null {
 function completeApproval(approval: SupplierCallApproval | null, supplier: Supplier, purchaseOrder: PurchaseOrder): boolean {
   if (!approval || approval.status !== "approved" || !approval.approvedBy?.trim() || !approval.objective.trim()) return false;
   if (approval.supplierId !== supplier.id || approval.purchaseOrderId !== purchaseOrder.id || !approval.supplierCallId.trim()) return false;
-  if (!isStrictIsoDate(approval.maximumDeliveryDate) || !validTime(approval.callTime) || !approval.language.trim()) return false;
+  if (!isStrictIsoDate(approval.maximumDeliveryDate) || !approval.approvedAt || !approval.language.trim()) return false;
   if (typeof approval.partialDeliveryAllowed !== "boolean" || !Number.isFinite(approval.maximumUnitPriceIncreasePercent) || approval.maximumUnitPriceIncreasePercent < 0) return false;
   const permitted = new Set(approval.permittedProductIds);
   return approval.permittedProductIds.length > 0
