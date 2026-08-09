@@ -226,7 +226,7 @@ describe("purchasing workspace view models", () => {
       priority: "high",
       reasonCode: "CONFIRMATION_OVERDUE",
       reason: "Supplier belum mengonfirmasi PO melewati batas konfirmasi.",
-      approvalHref: "/purchasing/follow-up?purchaseOrderId=po-router-replenishment&mode=approval",
+      approvalHref: "/supplier-follow-up/po-router-replenishment",
     });
     expect(item.startCallHref).toBeNull();
   });

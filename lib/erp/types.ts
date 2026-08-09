@@ -24,16 +24,25 @@ export interface Payment { id: string; paymentNumber: string; invoiceId: string;
 export interface StockMovement { id: string; type?: "opening" | "receipt" | "delivery" | "adjustment"; productId: string; warehouseId: string; quantity: number; direction: "in" | "out" | "adjustment"; sourceType: "seed" | "goods_receipt" | "delivery_order" | "adjustment"; sourceId: string; actorRole: ErpRole | "system"; actorId: string; reason: string | null; createdAt: string; updatedAt: string; }
 export interface StockAdjustment { id: string; adjustmentNumber: string; productId: string; warehouseId: string; quantityDelta: number; reason: string; status: "pending" | "approved" | "rejected"; proposedByRole: ErpRole; approvedByRole: ErpRole | null; approvedAt: string | null; createdAt: string; updatedAt: string; }
 export type SupplierCallScenario = "delivery_commitment" | "partial_delivery" | "stock_unavailable" | "price_discrepancy" | "failed_contact";
+export interface SupplierCallTranscriptSegment {
+  id: string; speaker: "AI" | "Supplier" | "System"; text: string; stage: number; offsetSeconds: number;
+}
 export interface SupplierCall {
   id: string; supplierId: string; purchaseOrderId: string; status: "draft" | "active" | "completed" | "failed"; scenario: SupplierCallScenario;
-  provider: "mock" | "calle" | null; providerCallId: string | null; calledLocalDate: string | null; createdAt: string; updatedAt: string;
+  provider: "mock" | "calle" | null; providerCallId: string | null; calledLocalDate: string | null;
+  transcript: SupplierCallTranscriptSegment[]; durationSeconds: number; startedAt: string | null; endedAt: string | null; createdAt: string; updatedAt: string;
 }
 export interface SupplierCallApproval {
   id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected";
   objective: string; permittedProductIds: string[]; maximumDeliveryDate: string; partialDeliveryAllowed: boolean;
   maximumUnitPriceIncreasePercent: number; language: string; callTime: string; approvedBy: string | null; createdAt: string; updatedAt: string;
 }
-export interface SupplierCallResult { id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected" | "human_review"; scenario: SupplierCallScenario; promisedDeliveryDate: string | null; createdAt: string; updatedAt: string; }
+export interface SupplierCallResult {
+  id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected" | "human_review";
+  scenario: SupplierCallScenario; sourceScenario: SupplierCallScenario; sourceProvider: "mock" | "calle"; sourceProviderCallId: string;
+  promisedDeliveryDate: string | null; partialDeliveryDate: string | null; remainingDeliveryDate: string | null; followUpDate: string | null;
+  reason: string | null; summary: string; sentiment: "positive" | "neutral" | "concerned"; createdAt: string; updatedAt: string;
+}
 export interface ErpDispute { id: string; supplierId: string | null; customerId: string | null; purchaseOrderId: string | null; salesOrderId: string | null; status: "open" | "investigating" | "resolved" | "cancelled"; reason: string; createdAt: string; updatedAt: string; }
 export interface ErpFollowUp { id: string; supplierId: string | null; customerId: string | null; purchaseOrderId: string | null; salesOrderId: string | null; dueAt: string; status: "open" | "completed" | "cancelled"; approvalStatus: "pending" | "approved"; approvedBy: string | null; reason: string; createdAt: string; updatedAt: string; }
 export interface ErpAuditEvent { id: string; entityType: string; entityId: string; action: string; actorRole: ErpRole | "system"; actorId: string; detail: Record<string, string | number | boolean | null>; createdAt: string; updatedAt: string; }

@@ -46,7 +46,8 @@ export function saveSupplierCallApproval(state: ErpState, role: ErpRole, input: 
 
   const call: SupplierCall = existingCall ?? {
     id: input.supplierCallId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, status: "draft", scenario: input.scenario,
-    provider: null, providerCallId: null, calledLocalDate: null, createdAt: now, updatedAt: now,
+    provider: null, providerCallId: null, calledLocalDate: null, transcript: [], durationSeconds: 0, startedAt: null, endedAt: null,
+    createdAt: now, updatedAt: now,
   };
   const approval: SupplierCallApproval = {
     id: `supplier-approval-${input.supplierCallId}`, supplierCallId: call.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, status: "approved",

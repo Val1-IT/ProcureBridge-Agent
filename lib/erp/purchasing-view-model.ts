@@ -257,7 +257,7 @@ export function buildSupplierFollowUpRows(state: ErpState, now: string): Supplie
       reasonCode: copy.code,
       reason: copy.reason,
       dueAt: item.dueAt,
-      approvalHref: `/purchasing/follow-up?purchaseOrderId=${item.purchaseOrder.id}&mode=approval`,
+      approvalHref: `/supplier-follow-up/${item.purchaseOrder.id}`,
       startCallHref: null,
     };
   })).sort((left, right) => priorityRank(left.priority) - priorityRank(right.priority) || left.orderNumber.localeCompare(right.orderNumber));

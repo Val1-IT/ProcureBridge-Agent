@@ -1,15 +1,9 @@
-import type { SupplierCallScenario } from "../erp/types";
+import type { SupplierCallScenario, SupplierCallTranscriptSegment } from "../erp/types";
 
 export type SupplierScenario = SupplierCallScenario;
 export type SupplierCallProviderMode = "mock" | "live";
 
-export interface SupplierTranscriptSegment {
-  id: string;
-  speaker: "AI" | "Supplier" | "System";
-  text: string;
-  stage: number;
-  offsetSeconds: number;
-}
+export type SupplierTranscriptSegment = SupplierCallTranscriptSegment;
 
 export interface CreateSupplierCallInput {
   callId: string;

@@ -13,7 +13,8 @@ const supplier = seed.suppliers[0];
 const purchaseOrder = seed.purchaseOrders[0];
 const supplierCall: SupplierCall = {
   id: "supplier-call-po-1", supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, status: "draft", scenario: "delivery_commitment",
-  provider: null, providerCallId: null, calledLocalDate: null, createdAt: "2026-08-09T01:00:00.000Z", updatedAt: "2026-08-09T01:00:00.000Z",
+  provider: null, providerCallId: null, calledLocalDate: null, transcript: [], durationSeconds: 0, startedAt: null, endedAt: null,
+  createdAt: "2026-08-09T01:00:00.000Z", updatedAt: "2026-08-09T01:00:00.000Z",
 };
 const approval: SupplierCallApproval = {
   id: "supplier-approval-call-po-1", supplierCallId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, status: "approved",

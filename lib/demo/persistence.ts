@@ -5,9 +5,10 @@ import { createErpSeedState } from "../erp/seed";
 import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
 import { createSeedState } from "./seed";
 
-export const DEMO_SCHEMA_VERSION = 8;
-export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v8";
-export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
+export const DEMO_SCHEMA_VERSION = 9;
+export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v9";
+export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v8";
+export const V7_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
 export const V6_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
 export const V5_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v5";
 export const V4_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v4";
@@ -186,13 +187,17 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const supplierCalls = value.supplierCalls as Record<string, unknown>[];
   if (!supplierCalls.every((item) => {
     const draft = item.status === "draft";
+    const transcript = item.transcript;
+    if (!Array.isArray(transcript) || !transcript.every((segment) => hasFields(segment, ["id", "speaker", "text"]) && includes(["AI", "Supplier", "System"], segment.speaker) && Number.isSafeInteger(segment.stage) && Number(segment.stage) > 0 && Number.isSafeInteger(segment.offsetSeconds) && Number(segment.offsetSeconds) >= 0)) return false;
     return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
       && hasFields(item, ["supplierId", "purchaseOrderId", "scenario"]) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId)
       && purchaseOrderById.get(item.purchaseOrderId)?.supplierId === item.supplierId
       && includes(["draft", "active", "completed", "failed"], item.status)
       && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario)
-      && (draft ? item.provider === null && item.providerCallId === null && item.calledLocalDate === null
-        : includes(["mock", "calle"], item.provider) && hasTrimmedString(item.providerCallId) && isStrictIsoDate(item.calledLocalDate));
+      && Number.isSafeInteger(item.durationSeconds) && Number(item.durationSeconds) >= 0
+      && (draft ? item.provider === null && item.providerCallId === null && item.calledLocalDate === null && item.startedAt === null && item.endedAt === null && transcript.length === 0 && item.durationSeconds === 0
+        : includes(["mock", "calle"], item.provider) && hasTrimmedString(item.providerCallId) && isStrictIsoDate(item.calledLocalDate) && isStrictIsoInstant(item.startedAt)
+          && (item.status === "completed" ? isStrictIsoInstant(item.endedAt) && transcript.length > 0 && item.durationSeconds === transcript.at(-1)?.offsetSeconds : item.endedAt === null));
   })) return false;
   const supplierCallIds = new Set(supplierCalls.map((item) => item.id));
   if (supplierCallIds.size !== supplierCalls.length) return false;
@@ -223,10 +228,15 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (!supplierResults.every((item) => {
     const call = hasString(item.supplierCallId) ? supplierCallById.get(item.supplierCallId) : undefined;
     if (!call) return false;
-    return hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario"])
-      && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId && call.scenario === item.scenario
+    return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
+      && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario", "sourceScenario", "sourceProvider", "sourceProviderCallId", "summary", "sentiment"])
+      && call.status === "completed" && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId
+      && call.scenario === item.sourceScenario && call.provider === item.sourceProvider && call.providerCallId === item.sourceProviderCallId
+      && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario)
+      && includes(["positive", "neutral", "concerned"], item.sentiment) && hasTrimmedString(item.summary)
       && includes(["pending", "approved", "rejected", "human_review"], item.status)
-      && (item.promisedDeliveryDate === null || isStrictIsoDate(item.promisedDeliveryDate));
+      && [item.promisedDeliveryDate, item.partialDeliveryDate, item.remainingDeliveryDate, item.followUpDate].every((date) => date === null || isStrictIsoDate(date))
+      && (item.reason === null || hasTrimmedString(item.reason));
   })) return false;
   // Rejected rows are immutable attempt history. A call may have at most one
   // current or accepted result across pending, human_review, and approved.
@@ -241,23 +251,27 @@ export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
-    const erp = migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp)))));
+    const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 4) {
-    const erp = migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp))));
+    const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp)))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 5) {
-    const erp = migrateErpV7(migrateErpV6(migrateErpV5(value.erp)));
+    const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(value.erp))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 6) {
-    const erp = migrateErpV7(migrateErpV6(value.erp));
+    const erp = migrateErpV8(migrateErpV7(migrateErpV6(value.erp)));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 7) {
-    const erp = migrateErpV7(value.erp);
+    const erp = migrateErpV8(migrateErpV7(value.erp));
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+  }
+  if (value.schemaVersion === 8) {
+    const erp = migrateErpV8(value.erp);
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === DEMO_SCHEMA_VERSION && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
@@ -276,7 +290,7 @@ export function loadDemoState(value: string | null): { state: DemoState; recover
 
 export function loadDemoStateFromStorage(storage: Pick<Storage, "getItem">): { state: DemoState; recoveryReason: DemoRecoveryReason } {
   const current = storage.getItem(DEMO_STORAGE_KEY);
-  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V7_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
 }
 
 export function serializeDemoState(state: DemoState): string { return JSON.stringify(state); }
@@ -516,6 +530,21 @@ function migrateErpV7(value: unknown): ErpState | null {
   // human-approved commercial scope. Existing rows cannot be upgraded safely.
   if (value.supplierCalls.length > 0 || value.supplierApprovals.length > 0 || value.supplierResults.length > 0) return null;
   return value as unknown as ErpState;
+}
+
+function migrateErpV8(value: unknown): ErpState | null {
+  if (!isRecord(value) || !Array.isArray(value.supplierCalls) || !Array.isArray(value.supplierResults)) return null;
+  // Schema v8 did not persist transcript/lifecycle evidence or immutable result
+  // provider provenance. Only untouched drafts can be upgraded without invention.
+  if (value.supplierResults.length > 0 || value.supplierCalls.some((call) => !isRecord(call) || call.status !== "draft")) return null;
+  const supplierCalls = value.supplierCalls.map((call) => ({
+    ...(call as Record<string, unknown>),
+    transcript: Array.isArray((call as Record<string, unknown>).transcript) ? (call as Record<string, unknown>).transcript : [],
+    durationSeconds: (call as Record<string, unknown>).durationSeconds ?? 0,
+    startedAt: (call as Record<string, unknown>).startedAt ?? null,
+    endedAt: (call as Record<string, unknown>).endedAt ?? null,
+  }));
+  return { ...value, supplierCalls } as unknown as ErpState;
 }
 
 function migrateLegacySalesReservations(salesOrdersValue: unknown, stockMovementsValue: unknown): Record<string, unknown>[] | null {
