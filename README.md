@@ -1,70 +1,44 @@
-# Arvanta ProcureBridge Recovery Agent
+# Arvanta Distributor Mini ERP
 
-> Every customer, invoice, metric, transcript, call, and outcome in this repository is **Demo Data**. The default provider is `MockCallProvider`; no real customer is contacted.
+> Every company, document, quantity, price, metric, transcript, call, and result in this repository is **Demo Data**. The complete demo runs with `MockSupplierCallProvider`; it does not contact a real supplier.
 
-![Arvanta ProcureBridge Recovery Agent social preview](./public/og.png)
+## 1. Product overview
 
-## 1. Project overview
+Arvanta Distributor Mini ERP is a focused browser-based ERP prototype for one distributor. It connects purchasing, goods receipt, inventory, sales, delivery, supplier/customer invoices, payments, approvals, and audit evidence in one persistent transaction state.
 
-Arvanta ProcureBridge Recovery Agent is a judge-ready SaaS prototype for overdue-invoice recovery. It connects a prioritized collection queue to AI pre-call intelligence, explicit human approval, call-policy guardrails, a CALL-E provider boundary, structured post-call review, synchronized promise/dispute/follow-up records, and an auditable event history.
+The ERP core is useful without AI. The differentiator is the **Supplier Agent**, which prioritizes an overdue or unconfirmed Purchase Order, prepares a scoped supplier brief, enforces human approval and contact guardrails, runs a deterministic mock conversation, and holds the structured result for a second human decision.
 
-The full demo runs without API keys, a database, or external network access.
+## 2. ERP core
 
-## 2. Problem
+The primary operational chain is:
 
-Receivables teams often work from fragmented queues, notes, calls, and spreadsheets. Customer conversations contain operational commitments, disputes, and callback requests, but those details are manually re-entered and are difficult to audit. Voice automation alone does not solve the risk: an autonomous call must respect consent, contact policy, disclosure requirements, negotiation limits, and human ownership of financial decisions.
+`Sales shortage → Purchase Request → approved Purchase Order → Supplier follow-up → Goods Receipt → Inventory → Delivery → Payable / Receivable → Payment → Audit`
 
-## 3. Solution
+Business mutations go through pure domain commands. Role policy, current document status, quantities, and invariants are rechecked at the command boundary. A rejected command leaves revision, documents, inventory, balances, and audit history unchanged.
 
-ProcureBridge turns a collection call into a controlled workflow. It prioritizes overdue invoices, prepares a scenario-specific brief, locks the call behind approval and eight policy checks, runs a provider-isolated conversation, extracts a structured result, and requires a human disposition before any downstream recovery object is created.
+## 3. Supplier Agent
 
-## 4. Core workflow
+The Supplier Agent is not an autonomous purchasing bot. Before a call, a human defines the permitted PO, products, delivery-date limit, partial-delivery permission, price boundary, language, and operator identity. A second review is required before an extracted commitment, follow-up, or dispute can affect ERP data.
 
-`Collection Queue → Pre-call Brief → Human Approval & Guardrails → CALL-E / Mock Call → Transcript → Structured Result → Human Review → Promise / Dispute / Follow-up → Audit Log`
+Even after approval, the result cannot directly change received stock, invoice balances, payment state, ordered quantities, or approved prices. Those remain separate ERP actions.
 
-The **Start 2-Minute Demo** guide uses PT Sinar Jaya Retail and restores the previous browser-store snapshot when Judge Demo Mode is exited.
+## 4. Primary demo
 
-## 5. Screenshots
+Choose **Start Distributor Demo** from the landing page or sidebar. The guide starts from deterministic `SO-2026-0001`, where 35 routers are requested and 30 are physically available. It then walks through the linked purchase and Supplier Agent flow, a partial receipt, confirmed reservation, delivery, both trade invoices, a partial payment, and audit evidence.
 
-The deployed prototype contains presentation-ready views for:
+Starting the guide preserves an exact snapshot of the current valid browser state. **Exit & Restore** restores that snapshot. **Restart Demo** reseeds the primary journey while retaining the original restore point.
 
-- landing and judge access;
-- Collection Queue and AI pre-call briefing;
-- Human Approval and guardrail decisions;
-- simulated CALL-E transcript console;
-- structured result review and downloadable evidence;
-- Promise Tracker, Dispute Center, Dashboard, and Audit Log;
-- [architecture](./docs/architecture.md) and technical notes.
+## 5. Presentation Fallback
 
-The social preview above uses the same navy, cream, amber, strong-border visual language as the product.
+**Presentation Fallback** uses the same seeded ERP journey and the same guardrails, but selects the instant simulation speed. Its provider mode is still `mock`; it never switches to a live service or converts a provider failure into a successful result.
 
-## 6. Demo scenarios
+## 6. Mock operation
 
-| Scenario | Demo customer | Structured outcome |
-| --- | --- | --- |
-| Promise to Pay | PT Sinar Jaya Retail | Rp7,500,000 promised for 10 Aug 2026; follow-up 11 Aug |
-| Invoice Dispute | CV Maju Teknik | Quantity mismatch dispute; collection call blocked |
-| Failed Contact | PT Karya Distribusi | PIC unavailable; policy-checked follow-up scheduled |
+The complete demo needs no API keys, database, or network request. `MockSupplierCallProvider` returns a deterministic supplier-call identity. Transcript progression and result extraction run locally against the approved seeded scenario.
 
-Simulation speeds are Real-time (about 30–45 seconds), Fast Demo (about 12–18 seconds), and Instant Result. Judge Demo Mode defaults to Fast Demo.
+Legacy ProcureBridge receivables screens, persisted records, migration support, and their recovery guide remain available under `/collections`. They are labeled separately and are not presented as production activity.
 
-## 7. Architecture
-
-The multi-page Next.js application consumes a versioned browser store. Pure domain functions own approvals, guardrails, lifecycle transitions, result review, synchronized downstream updates, and audit entries. `CallProvider` isolates the UI from `MockCallProvider` and the integration-ready `CalleProvider`. Webhooks are processed through a validation, signature, idempotency, ordering, and audit boundary. Supabase remains optional.
-
-See [docs/architecture.md](./docs/architecture.md) and the in-app `/architecture` page.
-
-## 8. Tech stack
-
-- Next.js 15 App Router / vinext
-- React 19 and TypeScript
-- Tailwind CSS plus product-specific CSS
-- Vitest
-- versioned `localStorage`
-- optional PostgreSQL/Supabase SQL and repository adapter
-- Cloudflare-compatible Sites deployment output
-
-## 9. Quick start
+## 7. Local setup
 
 Requirements: Node.js 22.13 or newer.
 
@@ -73,105 +47,90 @@ npm install
 npm run dev
 ```
 
-Open the URL printed by the development server. No environment file is required for the complete mock demo.
+Open the URL printed by the development server. No environment file is required for mock mode.
+
+## 8. Environment variables
+
+Environment variables are optional unless you are developing a replacement adapter:
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_APP_URL` | Canonical application URL used by metadata |
+| `CALLE_API_URL` | Optional legacy CALL-E adapter base URL |
+| `CALLE_API_KEY` | Server-only optional legacy CALL-E credential |
+| `CALLE_AGENT_ID` | Optional legacy voice-agent identifier |
+| `CALLE_WEBHOOK_SECRET` | Server-only optional legacy webhook verifier secret |
+| `CALLE_WEBHOOK_SIGNATURE_HEADER` | Placeholder legacy signature header name |
+| `SUPABASE_URL` | Optional repository-development project URL |
+| `SUPABASE_ANON_KEY` | Reserved optional client credential |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only optional repository credential |
+
+Never prefix server secrets with `NEXT_PUBLIC_`. Supplying credentials alone does not make the ERP demo production-ready and does not activate a live Supplier Agent call.
+
+## 9. Browser persistence
+
+The demo repository stores a versioned state in `localStorage`, synchronizes supported updates across tabs, validates stored collections on load, and migrates supported legacy recovery data. Invalid JSON or an unrecognized schema fails closed to safe seed data and displays the existing recovery notice.
+
+## 10. Reset Demo Data
+
+**Reset Demo Data** clears transaction changes in this browser, creates a new valid demo session ID, restores all deterministic seed collections, removes the active guide session, and returns to the ERP dashboard. It does not delete server or production data because the default repository is browser-only.
+
+## 11. Architecture and provider replacement
+
+Pages submit intent to the ERP command boundary; domain commands validate and produce the next state; the demo repository persists that state; provider interfaces isolate call execution. The current ERP Supplier Agent calls `POST /api/supplier-calls?forceMock=1`, and server authorization remains fail-closed.
+
+A production provider replacement must implement the provider contract and add verified authentication, tenant authorization, consent provenance, calling-hours policy, idempotency, durable repositories, safe webhook validation, retries, monitoring, and human-review evidence. Replacing the adapter alone is insufficient.
+
+## 12. Verification
 
 ```bash
 npm run typecheck
 npm run lint
 npm run test
+npm run test:coverage
 npm run build
 ```
 
-## 10. Environment variables
+Tests are offline. They cover ERP permissions and transitions, synchronization, stock safety, finance, Supplier Agent guardrails and result review, persistence/migrations/reset, the guided session, and preserved legacy recovery behavior.
 
-Copy `.env.example` to `.env.local` only when enabling optional services.
+## 13. Simulated features
 
-| Variable | Purpose |
-| --- | --- |
-| `NEXT_PUBLIC_APP_URL` | Canonical deployed application URL |
-| `CALLE_API_URL` | CALL-E REST base URL |
-| `CALLE_API_KEY` | Server-only CALL-E bearer token |
-| `CALLE_AGENT_ID` | Configured CALL-E voice-agent ID |
-| `CALLE_WEBHOOK_SECRET` | Server-only webhook verification secret |
-| `CALLE_WEBHOOK_SIGNATURE_HEADER` | Generic placeholder signature-header name until CALL-E confirms its contract |
-| `SUPABASE_URL` | Optional Supabase project URL |
-| `SUPABASE_ANON_KEY` | Reserved for an optional client integration |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only repository credential |
+- supplier telephony, voice, recording, transcript timing, sentiment, and extraction;
+- supplier commitments and scenario outcomes used in the guided journey;
+- all companies, products, documents, stock opening balances, prices, and dates;
+- dashboard totals and action counts derived from Demo Data;
+- browser persistence as a stand-in for a reviewed durable repository;
+- production authentication, tenant isolation, background jobs, and observability.
 
-Never prefix server secrets with `NEXT_PUBLIC_`.
+## 14. Deliberate scope
 
-## 11. CALL-E provider integration
-
-The contract lives in `lib/calle/types.ts`; provider selection lives in `lib/calle/client.ts`. The deployed demo always uses `MockCallProvider`. Missing CALL-E configuration selects mock mode, while complete configuration only requests live mode: `POST /api/calls` still fails closed unless the active server authorization repository explicitly declares production capability. Installing CALL-E credentials alone can never activate a live call while `DemoCallAuthorizationRepository` is active. A failed live `createCall` is shown as a real provider failure and offers an explicit **Switch to Demo Call** action. It is never relabeled as a successful live call.
-
-Until the official CALL-E contract is supplied, the adapter assumes:
-
-- `POST /calls` creates a call;
-- `GET /calls/{id}` returns call status;
-- `POST /calls/{id}/end` ends a call;
-- `GET /calls/{id}/transcript` returns transcript segments;
-- authentication uses a server-only bearer token.
-
-Update only `CalleProvider` request/response mapping when the official contract is available; UI components remain provider-agnostic.
-
-## 12. Webhook events
-
-`POST /api/calle/webhook` accepts `call.started`, `call.connected`, `transcript.updated`, `call.completed`, `call.failed`, and `analysis.completed`. Each event requires an event ID, call ID, type, timestamp, object payload, and valid signature boundary. The handler deduplicates IDs, acknowledges but ignores stale events, invokes audit callbacks, and returns safe errors without reflecting payloads or secrets.
-
-The current verifier is a generic `HMAC-SHA256` placeholder over the exact raw request body, using a configurable placeholder header. It uses timing-safe comparison but is **not** claimed to match CALL-E. Replace the algorithm, canonicalization, and header only after the official CALL-E signing contract is confirmed.
-
-## 13. Supabase optional setup
-
-Apply [supabase/schema.sql](./supabase/schema.sql) through the official migration pipeline of the target Supabase project. Explicit repository mappers convert domain camelCase to database snake_case, validate enums/nulls, and safely convert PostgreSQL numeric strings. The schema includes constraints, indexes, RLS, server-only access, append-only audit intent, and durable webhook event state. The demo does not import Supabase SDK and does not require a database.
-
-## 14. Testing
-
-```bash
-npm run test
-npm run test:coverage
-```
-
-Automated tests cover approvals, every browser and server call guardrail, call lifecycle, idempotent result review, all three outcomes, persistence/reset, repository mapping, cross-page domain synchronization, webhook validation/deduplication/ordering, provider timeout/error safety, simulation speeds, Judge Demo Mode, health output, metadata hygiene, documentation path hygiene, and masked demo reports. Coverage thresholds are moderate and limited to critical domain, reducer, persistence, webhook, and mapper files.
-
-GitHub Actions runs `npm ci`, typecheck, lint, tests, coverage, and the production build for pushes and pull requests to `main`. Tests are offline and never call the real CALL-E API. Live telephony, an activated Supabase project, database migrations, authentication, and multitenant integration tests remain intentionally inactive.
+Version one covers a single company and active warehouse. It does not include a general ledger, journal posting, tax engine, statutory reporting, bank reconciliation, payroll, manufacturing, fixed assets, multi-company consolidation, multi-currency accounting, or warehouse transfers.
 
 ## 15. Production gaps
 
-- The official CALL-E API request/response contract has not been confirmed.
-- The official CALL-E webhook HMAC, header, and canonical-body rules have not been confirmed.
-- Authentication, tenant isolation, and production authorization are not active.
-- Supabase mappers, repository adapters, and SQL are a foundation only; the demo does not activate them.
-- Live telephony is fail-closed while the demo authorization repository is active, even when all CALL-E credentials are installed.
-- A production authorization repository must provide durable customer, invoice, approval, dispute, and daily call-history lookups before live provider selection is permitted.
-- Authentication and tenant isolation remain mandatory before any production repository or live telephony activation.
-- The 4 Aug 2026 `npm audit` snapshot reports 19 dependency advisories (4 moderate, 13 high, 2 critical), including development-tooling advisories. Breaking or out-of-range automated upgrades were intentionally deferred for submission stability; do not expose development or Vitest UI servers, and reassess reachability plus safe patch versions before production activation.
+- Authentication, tenant isolation, production authorization, consent provenance, and retention controls are not active.
+- Supplier calling uses `MockSupplierCallProvider`; no official live Supplier Agent contract has been verified.
+- The optional CALL-E adapter and webhook verifier belong to the preserved legacy recovery prototype and are not claimed as an active ERP integration.
+- Supabase SQL and mappers are foundations only; the default ERP state remains browser-local.
+- Durable idempotency, queues, retries, dead-letter handling, backups, monitoring, alerting, and incident procedures are not implemented.
+- Prices, stock, invoices, payment records, histories, metrics, and outcomes are seeded or operator-created Demo Data, not production statistics.
+- Production accounting still requires a reviewed ledger/tax integration and reconciliation controls.
 
-## 16. Security and guardrails
+## 16. Security boundary
 
-The call is blocked when approval is incomplete, consent is invalid, Do Not Contact is active, calling time is outside policy, the customer was already called today, an open dispute exists, phone/invoice data is invalid, or AI disclosure is not approved. Sensitive numeric patterns are masked. Results below confidence policy or incomplete promises require Human Review. Important financial data changes only after explicit result approval.
+Supplier calls fail closed when approval is incomplete, the phone is invalid, Do Not Contact is active, local calling time is disallowed, the same PO was already called that day, the PO is ineligible, or an unresolved dispute requires review. Secrets stay server-only and provider failures are not relabeled as successful mock calls.
 
-See [docs/security.md](./docs/security.md).
+## 17. Useful routes
 
-## 17. Simulated components
+- `/dashboard` and `/actions` — ERP summary and actionable queues
+- `/sales/orders/so-router-shortage` — seeded shortage scenario
+- `/purchasing/orders/po-router-replenishment` — seeded released PO
+- `/purchasing/follow-up` — Supplier Agent queue
+- `/purchasing/receipts`, `/sales/deliveries` — stock-changing workflows
+- `/finance/payables`, `/finance/receivables`, `/finance/payments` — lightweight finance
+- `/approvals`, `/audit` — control evidence
+- `/collections` — preserved Legacy Recovery workflow
 
-- telephony, voice synthesis, recording playback, and transcript streaming when mock is active;
-- sentiment, intent, entities, confidence, and pre-call intelligence;
-- seeded customer, invoice, history, activity, and dashboard metrics;
-- payment reconciliation and `actualAmount` updates;
-- background follow-up execution;
-- production authentication and multitenancy;
-- Supabase persistence until explicitly activated.
+## 18. Truthful next steps
 
-All simulated surfaces are labeled **Demo Data** or **Simulation**.
-
-## 18. Production roadmap
-
-1. Validate the official CALL-E request, event, signing, retry, and media contracts.
-2. Activate Supabase through reviewed migrations, tenant-safe RLS, backups, and monitoring.
-3. Add enterprise identity, tenant isolation, retention/deletion policy, consent provenance, and secret rotation.
-4. Integrate accounting invoices and payment reconciliation through idempotent, approval-gated commands.
-5. Add durable jobs, dead-letter handling, observability, multilingual voice, configurable policies, and production analytics.
-
-Judge materials: [final submission package](./docs/submission-package/project-summary.md), [submission copy](./docs/submission-package/submission-copy.md), [90-second script](./docs/submission-package/demo-script-90s.md), [three-minute script](./docs/submission-package/demo-script-3min.md), [recording shot list](./docs/submission-package/recording-shot-list.md), [screenshot plan](./docs/submission-package/screenshot-plan.md), [judge instructions](./docs/submission-package/judge-instructions.md), [technical proof](./docs/submission-package/technical-proof.md), and [risk register](./docs/submission-package/risk-and-limitations.md).
-
-Public judge pages: [Submission Hub](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/submission), [Architecture](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/architecture), [Technical Notes](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/technical-notes), and [Health](https://arvanta-procurebridge-recovery.valentansuri123.chatgpt.site/api/health).
+Before production use, replace browser storage with a reviewed tenant-safe repository, add identity and authorization, verify the selected supplier-call provider contract, implement durable jobs and webhooks, connect accounting controls, and run security, migration, load, recovery, and end-to-end tests against authorized non-customer environments.

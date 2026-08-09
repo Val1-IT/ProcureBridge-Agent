@@ -15,15 +15,15 @@ const guidance = [
 
 export function JudgeDemoGuide() {
   const { session, next, exit, restart, canAdvance } = useJudgeDemo();
-  if (!session?.active) return null;
+  if (!session?.active || typeof session.step !== "number") return null;
   return (
-    <aside className="judge-guide" aria-label="Judge Demo Mode guide">
-      <div className="judge-guide-head"><span>{session.presentationFallback ? "Presentation Fallback — Demo Data" : "Judge Demo Mode"}</span><strong>Step {session.step} of 7</strong></div>
+    <aside className="judge-guide" aria-label="Legacy Recovery demo guide">
+      <div className="judge-guide-head"><span>{session.presentationFallback ? "Presentation Fallback — Demo Data" : "Legacy Recovery Demo"}</span><strong>Step {session.step} of 7</strong></div>
       <div className="judge-progress" aria-hidden="true"><span style={{ width: `${(session.step / 7) * 100}%` }} /></div>
       <p>{guidance[session.step - 1]}</p>
       {!canAdvance ? <small>{session.step === 3 ? "Save the Human Approval to unlock Next." : session.step === 4 ? "Start the call from this page." : session.step === 5 ? "Complete the simulated call first." : "Approve the structured result first."}</small> : null}
       <div className="judge-actions">
-        {session.step < 7 ? <button className="button" disabled={!canAdvance} onClick={next}>Next →</button> : <><Link className="button" href="/activity">Open Audit Log</Link><Link className="button button-secondary" href="/dashboard">Dashboard</Link></>}
+        {session.step < 7 ? <button className="button" disabled={!canAdvance} onClick={next}>Next →</button> : <><Link className="button" href="/activity">Open Legacy Audit</Link><Link className="button button-secondary" href="/dashboard">Dashboard</Link></>}
         <button className="text-button" onClick={restart}>Restart Demo</button>
         <button className="text-button" onClick={exit}>Exit Demo</button>
       </div>

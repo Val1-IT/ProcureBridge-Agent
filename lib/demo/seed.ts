@@ -175,7 +175,7 @@ const pendingResults: StructuredResult[] = [
   },
 ];
 
-import { INITIAL_DEMO_SESSION_ID } from "./session";
+import { createDemoSessionId, INITIAL_DEMO_SESSION_ID } from "./session";
 
 export function createSeedState(demoSessionId = INITIAL_DEMO_SESSION_ID): DemoState {
   return {
@@ -205,4 +205,8 @@ export function createSeedState(demoSessionId = INITIAL_DEMO_SESSION_ID): DemoSt
     demo: { simulationSpeed: "fast_demo", selectedScenario: null },
     erp: createErpSeedState(),
   };
+}
+
+export function createErpJudgeSeedState(): DemoState {
+  return createSeedState(createDemoSessionId());
 }
