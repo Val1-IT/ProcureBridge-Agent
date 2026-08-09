@@ -29,7 +29,7 @@ export const rolePermissions: Readonly<Record<ErpRole, readonly ErpPermission[]>
   warehouse: ["stock.receive", "stock.adjust"],
   sales: ["sales.write"],
   finance: ["finance.write"],
-  approver: ["purchase.approve", "stock.receive", "stock.adjust.approve", "call.approve"],
+  approver: ["purchase.approve", "stock.adjust.approve", "call.approve"],
 };
 
 export function authorize(role: ErpRole, permission: ErpPermission): boolean {

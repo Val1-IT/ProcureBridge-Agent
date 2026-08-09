@@ -22,6 +22,7 @@ const erpRoles = ["admin", "procurement", "warehouse", "sales", "finance", "appr
 const purchaseOrderStatuses = ["draft", "pending_approval", "sent", "confirmed", "partially_received", "fully_received", "completed", "rejected", "cancelled"];
 const salesOrderStatuses = ["draft", "confirmed", "partially_delivered", "fully_delivered", "invoiced", "completed", "cancelled"];
 const invoiceStatuses = ["unpaid", "partially_paid", "paid", "cancelled"];
+const trustedOpeningMovements = new Map(createErpSeedState().stockMovements.filter((movement) => movement.sourceType === "seed").map((movement) => [movement.id, movement]));
 const hasString = (value: unknown): value is string => typeof value === "string" && value.length > 0;
 const hasNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const hasFields = (value: unknown, fields: string[]): value is Record<string, unknown> => isRecord(value) && fields.every((field) => hasString(value[field]));
@@ -45,10 +46,13 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (!suppliers.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "phone", "email", "address"]) && hasNumber(item.paymentTermDays) && typeof item.doNotContact === "boolean" && typeof item.active === "boolean")) return false;
   if (!customers.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "contactName", "phone", "email", "address"]) && hasNumber(item.creditLimit) && typeof item.active === "boolean")) return false;
   if (!warehouses.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "address"]) && typeof item.active === "boolean")) return false;
+  if (warehouses.filter((item) => (item as Record<string, unknown>).active === true).length !== 1) return false;
   const productIds = new Set(products.map((item) => (item as Record<string, unknown>).id));
   const supplierIds = new Set(suppliers.map((item) => (item as Record<string, unknown>).id));
   const customerIds = new Set(customers.map((item) => (item as Record<string, unknown>).id));
   const warehouseIds = new Set(warehouses.map((item) => (item as Record<string, unknown>).id));
+  const activeProductIds = new Set(products.filter((item) => (item as Record<string, unknown>).active === true).map((item) => (item as Record<string, unknown>).id));
+  const activeWarehouseIds = new Set(warehouses.filter((item) => (item as Record<string, unknown>).active === true).map((item) => (item as Record<string, unknown>).id));
   const validLines = (lines: unknown): boolean => hasQuantityLines(lines) && (lines as Record<string, unknown>[]).every((line) => productIds.has(line.productId));
   const validRfqLines = (lines: unknown): boolean => hasRfqLines(lines) && (lines as Record<string, unknown>[]).every((line) => productIds.has(line.productId));
   if (!(value.purchaseRequests as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["requestNumber", "requesterRole"]) && includes(erpRoles, item.requesterRole) && includes(["draft", "submitted", "approved", "rejected", "cancelled"], item.status) && validLines(item.lines))) return false;
@@ -83,7 +87,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const goodsReceipts = value.goodsReceipts as Record<string, unknown>[];
   if (!goodsReceipts.every((item) => {
     const purchaseOrder = hasString(item.purchaseOrderId) ? purchaseOrderById.get(item.purchaseOrderId) : undefined;
-    return hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && warehouseIds.has(item.warehouseId) && purchaseOrder?.warehouseId === item.warehouseId && includes(["draft", "approved", "posted", "cancelled"], item.status) && validLines(item.lines) && receiptProductsBelongToOrder(purchaseOrder?.lines, item.lines);
+    return hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && activeWarehouseIds.has(item.warehouseId) && purchaseOrder?.warehouseId === item.warehouseId && includes(["draft", "approved", "posted", "cancelled"], item.status) && validLines(item.lines) && receiptLinesMatchOrder(purchaseOrder?.lines, item.lines);
   })) return false;
   const goodsReceiptById = new Map(goodsReceipts.map((item) => [item.id, item]));
   if (!(value.salesOrders as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["orderNumber", "customerId", "warehouseId"]) && customerIds.has(item.customerId) && warehouseIds.has(item.warehouseId) && includes(salesOrderStatuses, item.status) && Array.isArray(item.lines) && item.lines.every((line) => hasQuantityLine(line) && hasNumber(line.reservedQuantity) && hasNumber(line.deliveredQuantity) && productIds.has(line.productId)))) return false;
@@ -96,30 +100,38 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const customerInvoiceIds = new Set((value.customerInvoices as Record<string, unknown>[]).map((item) => item.id));
   if (!(value.payments as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["paymentNumber", "invoiceId", "paymentDate"]) && hasNumber(item.amount) && includes(["payable", "receivable"], item.direction) && (item.direction !== "payable" || supplierInvoiceIds.has(item.invoiceId)) && (item.direction !== "receivable" || customerInvoiceIds.has(item.invoiceId)) && includes(["posted", "cancelled"], item.status))) return false;
   const stockAdjustments = value.stockAdjustments as Record<string, unknown>[];
-  if (!stockAdjustments.every((item) => hasEntityDates(item) && hasFields(item, ["adjustmentNumber", "productId", "warehouseId", "reason", "proposedByRole"]) && productIds.has(item.productId) && warehouseIds.has(item.warehouseId) && includes(erpRoles, item.proposedByRole) && hasNumber(item.quantityDelta) && Number.isInteger(item.quantityDelta) && item.quantityDelta !== 0 && includes(["pending", "approved", "rejected"], item.status) && (item.approvedByRole === null || includes(erpRoles, item.approvedByRole)) && (item.approvedAt === null || hasString(item.approvedAt)) && (item.status !== "approved" || (includes(erpRoles, item.approvedByRole) && item.approvedByRole !== item.proposedByRole && hasString(item.approvedAt))))) return false;
+  if (!stockAdjustments.every((item) => hasEntityDates(item) && hasFields(item, ["adjustmentNumber", "productId", "warehouseId", "reason", "proposedByRole"]) && activeProductIds.has(item.productId) && activeWarehouseIds.has(item.warehouseId) && includes(["warehouse", "admin"], item.proposedByRole) && hasNumber(item.quantityDelta) && Number.isInteger(item.quantityDelta) && item.quantityDelta !== 0 && includes(["pending", "approved", "rejected"], item.status) && (item.approvedByRole === null || includes(["approver", "admin"], item.approvedByRole)) && (item.approvedAt === null || hasString(item.approvedAt)) && (item.status !== "approved" || (includes(["approver", "admin"], item.approvedByRole) && item.approvedByRole !== item.proposedByRole && hasString(item.approvedAt))))) return false;
   const stockAdjustmentById = new Map(stockAdjustments.map((item) => [item.id, item]));
   const deliveryOrderById = new Map((value.deliveryOrders as Record<string, unknown>[]).map((item) => [item.id, item]));
   const stockMovements = value.stockMovements as Record<string, unknown>[];
   if (new Set(stockMovements.map((item) => item.id)).size !== stockMovements.length) return false;
+  if (stockMovements.filter((item) => item.sourceType === "seed").length !== trustedOpeningMovements.size) return false;
   if (!stockMovements.every((item) => {
-    if (!(hasEntityDates(item) && hasFields(item, ["productId", "warehouseId", "sourceType", "sourceId", "actorRole", "actorId"]) && productIds.has(item.productId) && warehouseIds.has(item.warehouseId) && hasNumber(item.quantity) && item.quantity !== 0 && includes(["in", "out", "adjustment"], item.direction) && includes(["seed", "goods_receipt", "delivery_order", "adjustment"], item.sourceType) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && (item.reason === null || typeof item.reason === "string"))) return false;
-    if (item.direction !== "adjustment" && item.quantity <= 0) return false;
-    if (item.sourceType === "seed") return item.actorRole === "system";
-    if (item.sourceType === "goods_receipt") { const receipt = goodsReceiptById.get(item.sourceId); return receipt?.warehouseId === item.warehouseId && ["approved", "posted"].includes(String(receipt?.status)); }
-    if (item.sourceType === "delivery_order") { const delivery = deliveryOrderById.get(item.sourceId); return delivery?.warehouseId === item.warehouseId && delivery?.status === "posted"; }
+    if (!(hasEntityDates(item) && hasFields(item, ["productId", "warehouseId", "sourceType", "sourceId", "actorRole", "actorId"]) && activeProductIds.has(item.productId) && activeWarehouseIds.has(item.warehouseId) && hasNumber(item.quantity) && Number.isInteger(item.quantity) && item.quantity !== 0 && includes(["in", "out", "adjustment"], item.direction) && includes(["seed", "goods_receipt", "delivery_order", "adjustment"], item.sourceType) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && (item.reason === null || typeof item.reason === "string") && !Number.isNaN(new Date(String(item.createdAt)).getTime()))) return false;
+    if (item.sourceType === "seed") { const trusted = trustedOpeningMovements.get(String(item.id)); return Boolean(trusted && item.productId === trusted.productId && item.warehouseId === trusted.warehouseId && item.direction === "in" && item.quantity === trusted.quantity && item.sourceId === "seed-opening" && item.actorRole === "system" && item.actorId === "system:seed"); }
+    if (item.sourceType === "goods_receipt") { const receipt = goodsReceiptById.get(item.sourceId); return Boolean(receipt && item.direction === "in" && item.quantity > 0 && receipt.warehouseId === item.warehouseId && ["approved", "posted"].includes(String(receipt.status)) && hasValidGoodsReceiptActor(item, receipt)); }
+    if (item.sourceType === "delivery_order") { const delivery = deliveryOrderById.get(item.sourceId); return item.direction === "out" && item.quantity > 0 && delivery?.warehouseId === item.warehouseId && delivery?.status === "posted" && includes(["warehouse", "admin"], item.actorRole) && item.actorId === `role:${String(item.actorRole)}`; }
     const adjustment = stockAdjustmentById.get(item.sourceId);
-    return item.direction === "adjustment" && adjustment?.status === "approved" && adjustment.productId === item.productId && adjustment.warehouseId === item.warehouseId && adjustment.quantityDelta === item.quantity && adjustment.reason === item.reason && adjustment.approvedByRole === item.actorRole && item.actorId === `role:${String(item.actorRole)}`;
+    return item.direction === "adjustment" && includes(["approver", "admin"], item.actorRole) && adjustment?.status === "approved" && adjustment.productId === item.productId && adjustment.warehouseId === item.warehouseId && adjustment.quantityDelta === item.quantity && adjustment.reason === item.reason && adjustment.approvedByRole === item.actorRole && item.actorId === `role:${String(item.actorRole)}`;
   })) return false;
   if (!goodsReceipts.every((receipt) => {
     const postings = stockMovements.filter((movement) => movement.sourceType === "goods_receipt" && movement.sourceId === receipt.id);
     if (receipt.status !== "approved" && receipt.status !== "posted") return postings.length === 0;
     const lines = receipt.lines as Record<string, unknown>[];
-    return postings.length === lines.length && lines.every((line) => postings.filter((movement) => movement.productId === line.productId && movement.warehouseId === receipt.warehouseId && movement.direction === "in" && movement.quantity === line.quantity && ["admin", "warehouse", "approver"].includes(String(movement.actorRole)) && movement.actorId === `role:${String(movement.actorRole)}` && hasString(movement.reason)).length === 1);
+    return postings.length === lines.length && lines.every((line) => postings.filter((movement) => movement.productId === line.productId && movement.warehouseId === receipt.warehouseId && movement.direction === "in" && movement.quantity === line.quantity && hasValidGoodsReceiptActor(movement, receipt) && hasString(movement.reason)).length === 1);
   })) return false;
   if (!stockAdjustments.every((adjustment) => {
     const postings = stockMovements.filter((movement) => movement.sourceType === "adjustment" && movement.sourceId === adjustment.id);
     return adjustment.status === "approved" ? postings.length === 1 : postings.length === 0;
   })) return false;
+  if (!(value.deliveryOrders as Record<string, unknown>[]).every((delivery) => {
+    const postings = stockMovements.filter((movement) => movement.sourceType === "delivery_order" && movement.sourceId === delivery.id);
+    if (delivery.status !== "posted") return postings.length === 0;
+    const lines = delivery.lines as Record<string, unknown>[];
+    return postings.length === lines.length && lines.every((line) => postings.filter((movement) => movement.productId === line.productId && movement.warehouseId === delivery.warehouseId && movement.direction === "out" && movement.quantity === line.quantity && ["warehouse", "admin"].includes(String(movement.actorRole)) && movement.actorId === `role:${String(movement.actorRole)}`).length === 1);
+  })) return false;
+  if (!hasConsistentPurchaseReceiptTotals(purchaseOrders, goodsReceipts)) return false;
+  if (!hasNonNegativeMovementHistory(stockMovements)) return false;
   if (!(value.supplierCalls as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierId", "purchaseOrderId", "scenario"]) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["draft", "active", "completed", "failed"], item.status) && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario))) return false;
   const supplierCallIds = new Set((value.supplierCalls as Record<string, unknown>[]).map((item) => item.id));
   if (!(value.supplierApprovals as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId"]) && supplierCallIds.has(item.supplierCallId) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["pending", "approved", "rejected"], item.status) && (item.approvedBy === null || hasString(item.approvedBy)))) return false;
@@ -169,11 +181,48 @@ function validRfqQuotationLines(rfqLines: unknown, quotationLines: unknown): boo
   return rfq.length === quotations.length && rfq.every((rfqLine) => quotations.some((quotationLine) => quotationLine.productId === rfqLine.productId && quotationLine.quantity === rfqLine.quantity));
 }
 
-function receiptProductsBelongToOrder(orderLines: unknown, receiptLines: unknown): boolean {
+function receiptLinesMatchOrder(orderLines: unknown, receiptLines: unknown): boolean {
   if (!hasQuantityLines(orderLines) || !hasQuantityLines(receiptLines)) return false;
-  const orderProducts = new Set((orderLines as Array<{ productId: string }>).map((line) => line.productId));
-  const receiptProducts = (receiptLines as Array<{ productId: string }>).map((line) => line.productId);
-  return new Set(receiptProducts).size === receiptProducts.length && receiptProducts.every((productId) => orderProducts.has(productId));
+  const orders = orderLines as Array<{ productId: string; quantity: number; unitPrice: number }>;
+  const receipts = receiptLines as Array<{ productId: string; quantity: number; unitPrice: number }>;
+  const receiptProducts = receipts.map((line) => line.productId);
+  return receipts.length > 0 && new Set(receiptProducts).size === receiptProducts.length && receipts.every((line) => {
+    const orderLine = orders.find((item) => item.productId === line.productId);
+    return Boolean(orderLine && Number.isInteger(line.quantity) && line.quantity > 0 && line.unitPrice === orderLine.unitPrice);
+  });
+}
+
+function hasConsistentPurchaseReceiptTotals(purchaseOrders: Record<string, unknown>[], goodsReceipts: Record<string, unknown>[]): boolean {
+  return purchaseOrders.every((purchaseOrder) => {
+    const orderLines = purchaseOrder.lines as Array<{ productId: string; quantity: number }>;
+    if (!Array.isArray(orderLines) || orderLines.length === 0 || !orderLines.every((line) => hasNumber(line.quantity) && line.quantity > 0)) return false;
+    const totals = new Map<string, number>();
+    for (const receipt of goodsReceipts) {
+      if (receipt.purchaseOrderId !== purchaseOrder.id || (receipt.status !== "approved" && receipt.status !== "posted")) continue;
+      for (const line of receipt.lines as Array<{ productId: string; quantity: number }>) totals.set(line.productId, (totals.get(line.productId) ?? 0) + line.quantity);
+    }
+    if (orderLines.some((line) => (totals.get(line.productId) ?? 0) > line.quantity)) return false;
+    const receivedAny = orderLines.some((line) => (totals.get(line.productId) ?? 0) > 0);
+    const receivedAll = orderLines.every((line) => (totals.get(line.productId) ?? 0) === line.quantity);
+    const status = String(purchaseOrder.status);
+    if (!receivedAny) return !["partially_received", "fully_received", "completed"].includes(status);
+    if (receivedAll) return status === "fully_received" || status === "completed";
+    return status === "partially_received" || status === "cancelled";
+  });
+}
+
+function hasNonNegativeMovementHistory(stockMovements: Record<string, unknown>[]): boolean {
+  const balances = new Map<string, number>();
+  const ordered = [...stockMovements].sort((left, right) => new Date(String(left.createdAt)).getTime() - new Date(String(right.createdAt)).getTime() || String(left.id).localeCompare(String(right.id)));
+  for (const movement of ordered) {
+    const key = `${String(movement.warehouseId)}:${String(movement.productId)}`;
+    const quantity = Number(movement.quantity);
+    const delta = movement.direction === "out" ? -quantity : quantity;
+    const balance = (balances.get(key) ?? 0) + delta;
+    if (!Number.isFinite(balance) || balance < 0) return false;
+    balances.set(key, balance);
+  }
+  return true;
 }
 
 function migrateErpV3(value: unknown): ErpState | null {
@@ -188,8 +237,14 @@ function migrateErpV4(value: unknown): ErpState | null {
   const stockMovements = Array.isArray(value.stockMovements) ? value.stockMovements.map((movement) => isRecord(movement) ? {
     ...movement,
     actorRole: movement.actorRole ?? "system",
-    actorId: movement.actorId ?? "system:migrated-v4",
-    reason: movement.reason ?? null,
+    actorId: movement.actorId ?? (movement.sourceType === "seed" ? "system:seed" : "system:migrated-v4"),
+    reason: movement.reason ?? (movement.sourceType === "seed" ? "Demo opening balance" : movement.sourceType === "goods_receipt" ? "Migrated posted goods receipt" : null),
   } : movement) : value.stockMovements;
   return { ...value, stockMovements, stockAdjustments: Array.isArray(value.stockAdjustments) ? value.stockAdjustments : [] } as unknown as ErpState;
+}
+
+function hasValidGoodsReceiptActor(movement: Record<string, unknown>, receipt: Record<string, unknown>): boolean {
+  const currentActor = includes(["warehouse", "admin"], movement.actorRole) && movement.actorId === `role:${String(movement.actorRole)}`;
+  const migratedLegacyActor = receipt.status === "posted" && movement.actorRole === "system" && movement.actorId === "system:migrated-v4";
+  return currentActor || migratedLegacyActor;
 }

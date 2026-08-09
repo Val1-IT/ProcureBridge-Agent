@@ -84,6 +84,8 @@ describe("ERP command boundary", () => {
     expect(authorize("sales", "sales.write")).toBe(true);
     expect(authorize("finance", "finance.write")).toBe(true);
     expect(authorize("approver", "purchase.approve")).toBe(true);
+    expect(authorize("approver", "stock.adjust.approve")).toBe(true);
+    expect(authorize("approver", "stock.receive")).toBe(false);
     expect(authorize("warehouse", "master.manage")).toBe(false);
     expect(authorize("sales", "purchase.write")).toBe(false);
   });
@@ -101,6 +103,19 @@ describe("ERP command boundary", () => {
       expect(result.state.revision).toBe(before.revision);
       expect(result.state.auditLogs).toHaveLength(before.auditLogs.length);
     }
+  });
+
+  it("rejects deactivating a product that has inventory history without mutation", () => {
+    const before = createErpSeedState();
+    const current = before.products[0];
+
+    const result = upsertProduct(before, "admin", { ...current, active: false }, fixedNow);
+
+    expect(result).toEqual({
+      ok: false,
+      state: before,
+      error: { code: "INVALID_STATE", message: "Products with inventory records cannot be deactivated." },
+    });
   });
 
   it("switches to a valid role with one audited atomic commit", () => {

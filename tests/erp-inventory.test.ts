@@ -125,6 +125,16 @@ describe("inventory receipt commands", () => {
     expect(approveGoodsReceipt(state, "sales", state.goodsReceipts[0].id, fixedNow)).toMatchObject({ ok: false, state, error: { code: "FORBIDDEN" } });
     expect(approveGoodsReceipt(state, "warehouse", state.goodsReceipts[0].id, "invalid")).toMatchObject({ ok: false, state, error: { code: "INVALID_INPUT" } });
   });
+
+  it("allows only Warehouse or Admin to create and approve receipts", () => {
+    const state = confirmedState();
+    state.goodsReceipts = [draftReceipt(state)];
+
+    expect(createGoodsReceipt(state, "approver", { purchaseOrderId: state.purchaseOrders[0].id, lines: [{ productId: "product-router", quantity: 1 }] }, fixedNow)).toMatchObject({ ok: false, state, error: { code: "FORBIDDEN" } });
+    expect(approveGoodsReceipt(state, "approver", state.goodsReceipts[0].id, fixedNow)).toMatchObject({ ok: false, state, error: { code: "FORBIDDEN" } });
+    expect(createGoodsReceipt(state, "admin", { purchaseOrderId: state.purchaseOrders[0].id, lines: [{ productId: "product-router", quantity: 1 }] }, fixedNow)).toMatchObject({ ok: true, value: { status: "draft" } });
+    expect(approveGoodsReceipt(state, "admin", state.goodsReceipts[0].id, fixedNow)).toMatchObject({ ok: true, value: { status: "approved" } });
+  });
 });
 
 describe("controlled signed stock adjustments", () => {

@@ -118,4 +118,22 @@ describe("inventory pages", () => {
     expect(erp.purchaseOrders[0].status).toBe("partially_received");
     expect(destination).toBe(`/purchasing/receipts?goodsReceiptId=${draft.ok ? draft.value.id : "missing"}&purchaseOrderId=po-router-replenishment&status=approved`);
   });
+
+  it("does not present draft or missing receipt IDs as approved receipt context", () => {
+    harness.state!.erp.goodsReceipts = [{
+      id: "draft-gr", receiptNumber: "GR-2026-0009", purchaseOrderId: "po-router-replenishment", warehouseId: "warehouse-jakarta", status: "draft",
+      lines: [{ productId: "product-router", quantity: 2, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    }];
+    harness.query = "goodsReceiptId=draft-gr&status=approved";
+    const draftHtml = renderToStaticMarkup(createElement(GoodsReceiptsPage));
+    harness.query = "goodsReceiptId=missing-gr&status=approved";
+    const missingHtml = renderToStaticMarkup(createElement(GoodsReceiptsPage));
+
+    for (const html of [draftHtml, missingHtml]) {
+      expect(html).toContain("Goods Receipt is not approved or was not found");
+      expect(html).not.toContain("Approved Goods Receipt and linked purchase order");
+      expect(html).not.toContain(">Approved GR<");
+      expect(html).not.toContain(">Affected PO<");
+    }
+  });
 });

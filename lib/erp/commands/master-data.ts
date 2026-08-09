@@ -87,6 +87,9 @@ export function upsertProduct(state: ErpState, role: ErpRole, input: ProductInpu
   const current = input.id ? state.products.find((item) => item.id === input.id) : undefined;
   const target = ensureTarget<Product>(state, input.id, current);
   if (target) return target;
+  if (current?.active && !input.active && (state.stockMovements.some((movement) => movement.productId === current.id) || state.stockAdjustments.some((adjustment) => adjustment.productId === current.id))) {
+    return rejectErpCommand(state, { code: "INVALID_STATE", message: "Products with inventory records cannot be deactivated." });
+  }
   const sku = normalize(input.sku);
   const name = normalize(input.name);
   const unit = normalize(input.unit);

@@ -121,6 +121,128 @@ describe("ERP persistence foundation", () => {
     expect(loadDemoState(JSON.stringify(adjustmentState)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
+  it.each([
+    ["zero active warehouses in v5", 5, (state: ReturnType<typeof createSeedState>) => { state.erp.warehouses = state.erp.warehouses.map((warehouse) => ({ ...warehouse, active: false })); }],
+    ["two active warehouses in v5", 5, (state: ReturnType<typeof createSeedState>) => { state.erp.warehouses.push({ ...state.erp.warehouses[0], id: "warehouse-second", code: "WH-SECOND", active: true }); }],
+    ["zero active warehouses while migrating v4", 4, (state: ReturnType<typeof createSeedState>) => { state.erp.warehouses = state.erp.warehouses.map((warehouse) => ({ ...warehouse, active: false })); }],
+    ["two active warehouses while migrating v4", 4, (state: ReturnType<typeof createSeedState>) => { state.erp.warehouses.push({ ...state.erp.warehouses[0], id: "warehouse-second", code: "WH-SECOND", active: true }); }],
+  ])("fails closed for %s", (_label, schemaVersion, mutate) => {
+    const malformed = createSeedState();
+    malformed.schemaVersion = schemaVersion;
+    mutate(malformed);
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it.each([
+    ["an outbound seed movement", (state: ReturnType<typeof createSeedState>) => { state.erp.stockMovements[0] = { ...state.erp.stockMovements[0], direction: "out", quantity: 31 }; }],
+    ["a signed adjustment disguised as seed", (state: ReturnType<typeof createSeedState>) => { state.erp.stockMovements[0] = { ...state.erp.stockMovements[0], direction: "adjustment", quantity: -31 }; }],
+    ["an untrusted seed source", (state: ReturnType<typeof createSeedState>) => { state.erp.stockMovements[0] = { ...state.erp.stockMovements[0], sourceId: "forged-opening" }; }],
+    ["an extra positive movement disguised as trusted opening stock", (state: ReturnType<typeof createSeedState>) => { state.erp.stockMovements.push({ ...state.erp.stockMovements[0], id: "forged-positive-opening", quantity: 999 }); }],
+    ["a movement for an inactive product", (state: ReturnType<typeof createSeedState>) => { state.erp.products[0] = { ...state.erp.products[0], active: false }; }],
+  ])("rejects %s", (_label, mutate) => {
+    const malformed = createSeedState();
+    mutate(malformed);
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("rejects a movement-matched over-receipt", () => {
+    const malformed = createSeedState();
+    malformed.erp.purchaseOrders[0] = { ...malformed.erp.purchaseOrders[0], status: "fully_received" };
+    malformed.erp.goodsReceipts.push({
+      id: "over-gr", receiptNumber: "GR-2026-0001", purchaseOrderId: malformed.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "approved",
+      lines: [{ productId: "product-router", quantity: 41, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+    malformed.erp.stockMovements.push({
+      id: "over-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 41, direction: "in", sourceType: "goods_receipt", sourceId: "over-gr",
+      actorRole: "warehouse", actorId: "role:warehouse", reason: "Approved GR-2026-0001", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it.each(["confirmed", "fully_received"] as const)("rejects partial receipt totals with PO status %s", (status) => {
+    const malformed = createSeedState();
+    malformed.erp.purchaseOrders[0] = { ...malformed.erp.purchaseOrders[0], status };
+    malformed.erp.goodsReceipts.push({
+      id: "partial-gr", receiptNumber: "GR-2026-0001", purchaseOrderId: malformed.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "approved",
+      lines: [{ productId: "product-router", quantity: 10, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+    malformed.erp.stockMovements.push({
+      id: "partial-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 10, direction: "in", sourceType: "goods_receipt", sourceId: "partial-gr",
+      actorRole: "warehouse", actorId: "role:warehouse", reason: "Approved GR-2026-0001", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("accepts a cancelled PO that retains valid partial receipt history", () => {
+    const persisted = createSeedState();
+    persisted.erp.purchaseOrders[0] = { ...persisted.erp.purchaseOrders[0], status: "cancelled" };
+    persisted.erp.goodsReceipts.push({
+      id: "cancelled-partial-gr", receiptNumber: "GR-2026-0001", purchaseOrderId: persisted.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "approved",
+      lines: [{ productId: "product-router", quantity: 10, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+    persisted.erp.stockMovements.push({
+      id: "cancelled-partial-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 10, direction: "in", sourceType: "goods_receipt", sourceId: "cancelled-partial-gr",
+      actorRole: "warehouse", actorId: "role:warehouse", reason: "Approved GR-2026-0001", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+
+    expect(loadDemoState(JSON.stringify(persisted)).recoveryReason).toBeNull();
+  });
+
+  it("migrates a schema v4 posted receipt with explicit legacy provenance", () => {
+    const legacy = createSeedState();
+    legacy.schemaVersion = 4;
+    legacy.erp.purchaseOrders[0] = { ...legacy.erp.purchaseOrders[0], status: "fully_received" };
+    legacy.erp.goodsReceipts.push({
+      id: "legacy-posted-gr", receiptNumber: "GR-2025-0001", purchaseOrderId: legacy.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "posted",
+      lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }], createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
+    });
+    legacy.erp.stockMovements.push({
+      id: "legacy-posted-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 40, direction: "in", sourceType: "goods_receipt", sourceId: "legacy-posted-gr",
+      actorRole: undefined as never, actorId: undefined as never, reason: null, createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
+    });
+
+    const loaded = loadDemoState(JSON.stringify(legacy));
+
+    expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state.erp.stockMovements.at(-1)).toMatchObject({
+      actorRole: "system",
+      actorId: "system:migrated-v4",
+      reason: "Migrated posted goods receipt",
+    });
+  });
+
+  it("rejects exact adjustment evidence when chronological stock becomes negative", () => {
+    const malformed = createSeedState();
+    malformed.erp.stockAdjustments.push({
+      id: "negative-adjustment", adjustmentNumber: "SA-2026-0001", productId: "product-router", warehouseId: "warehouse-jakarta", quantityDelta: -31,
+      reason: "Forged variance", status: "approved", proposedByRole: "warehouse", approvedByRole: "approver", approvedAt: "2026-08-09T10:00:00.000Z", createdAt: "2026-08-09T09:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+    malformed.erp.stockMovements.push({
+      id: "negative-adjustment-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: -31, direction: "adjustment", sourceType: "adjustment", sourceId: "negative-adjustment",
+      actorRole: "approver", actorId: "role:approver", reason: "Forged variance", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("orders movement history by actual instant before validating non-negative stock", () => {
+    const malformed = createSeedState();
+    malformed.erp.stockAdjustments.push({
+      id: "offset-negative-adjustment", adjustmentNumber: "SA-2026-0001", productId: "product-router", warehouseId: "warehouse-jakarta", quantityDelta: -30,
+      reason: "Offset chronology", status: "approved", proposedByRole: "warehouse", approvedByRole: "approver", approvedAt: "2026-08-09T01:00:00+02:00", createdAt: "2026-08-09T00:30:00+02:00", updatedAt: "2026-08-09T01:00:00+02:00",
+    });
+    malformed.erp.stockMovements.push({
+      id: "offset-negative-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: -30, direction: "adjustment", sourceType: "adjustment", sourceId: "offset-negative-adjustment",
+      actorRole: "approver", actorId: "role:approver", reason: "Offset chronology", createdAt: "2026-08-09T01:00:00+02:00", updatedAt: "2026-08-09T01:00:00+02:00",
+    });
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
   it("computes available and incoming quantities without storing derived totals", () => {
     const erp = createErpSeedState();
 
