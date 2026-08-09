@@ -6,6 +6,7 @@ import { createErpSeedState } from "../lib/erp/seed";
 import { selectAvailableStock, selectIncomingStock, selectPhysicalStock, selectReservedStock } from "../lib/erp/selectors";
 import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
 import { completeDelivery, confirmSalesOrder, createDeliveryOrder } from "../lib/erp/commands/sales";
+import { createCustomerInvoice, recordPayment, recordSupplierInvoice } from "../lib/erp/commands/finance";
 
 function createStateWithLinkedSelectedQuotation() {
   const state = createSeedState();
@@ -46,13 +47,13 @@ function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
 }
 
 describe("ERP persistence foundation", () => {
-  it("migrates schema v2 recovery data into schema v6 with a deterministic ERP slice", () => {
+  it("migrates schema v2 recovery data into schema v7 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
     delete (legacy as Partial<DemoState>).erp;
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
   });
@@ -66,7 +67,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.erp.requestForQuotations).toEqual([]);
     expect(migrated.erp.supplierQuotations).toEqual([]);
     expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
@@ -79,7 +80,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.erp.stockAdjustments).toEqual([]);
   });
 
@@ -406,7 +407,7 @@ describe("ERP persistence foundation", () => {
     }],
     ["a payment references an invoice that does not exist", (state: ReturnType<typeof createSeedState>) => {
       state.erp.payments.push({
-        id: "payment-1", paymentNumber: "PAY-2026-0001", invoiceId: "missing-invoice", direction: "payable", amount: 1_000, paymentDate: "2026-08-09", status: "posted",
+        id: "payment-1", paymentNumber: "PAY-2026-0001", invoiceId: "missing-invoice", direction: "payable", supplierId: "supplier-utama", customerId: null, amount: 1_000, paymentDate: "2026-08-09", status: "posted",
         createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
       });
     }],
@@ -467,13 +468,13 @@ function createLegacyV5Confirmed(quantity: number, reservedQuantity: number) {
 }
 
 describe("sales persistence evidence", () => {
-  it("migrates schema v5 reservation fields and movement kinds into canonical schema v6", () => {
+  it("migrates schema v5 reservation fields and movement kinds into canonical schema v7", () => {
     const legacy = createLegacyV5Confirmed(20, 12);
 
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(6);
+    expect(loaded.state.schemaVersion).toBe(7);
     expect(loaded.state.erp.salesOrders[0].lines[0]).not.toHaveProperty("reservedQuantity");
     expect(loaded.state.erp.stockMovements.every((movement) => movement.type === "opening")).toBe(true);
   });
@@ -579,6 +580,139 @@ describe("sales persistence evidence", () => {
   ])("fails closed when %s", (_label, mutate) => {
     const state = _label.startsWith("a shortage") ? createSeedState() : createPostedDeliveryState();
     mutate(state as never);
+
+    expect(loadDemoState(JSON.stringify(state)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+});
+
+function createFinancePersistenceState() {
+  let state = createSeedState();
+  state.erp.purchaseOrders[0] = { ...state.erp.purchaseOrders[0], status: "confirmed" };
+  const receiptDraft = createGoodsReceipt(state.erp, "warehouse", {
+    purchaseOrderId: state.erp.purchaseOrders[0].id,
+    lines: [{ productId: "product-router", quantity: 10 }],
+  }, "2026-08-09T08:00:00.000Z");
+  if (!receiptDraft.ok) throw new Error(receiptDraft.error.message);
+  const receipt = approveGoodsReceipt(receiptDraft.state, "warehouse", receiptDraft.value.id, "2026-08-09T09:00:00.000Z");
+  if (!receipt.ok) throw new Error(receipt.error.message);
+
+  receipt.state.salesOrders[0] = {
+    ...receipt.state.salesOrders[0],
+    status: "confirmed",
+    lines: [{ ...receipt.state.salesOrders[0].lines[0], quantity: 20, deliveredQuantity: 0 }],
+  };
+  const deliveryDraft = createDeliveryOrder(receipt.state, "warehouse", {
+    salesOrderId: receipt.state.salesOrders[0].id,
+    lines: [{ productId: "product-router", quantity: 8 }],
+  }, "2026-08-09T10:00:00.000Z");
+  if (!deliveryDraft.ok) throw new Error(deliveryDraft.error.message);
+  const delivery = completeDelivery(deliveryDraft.state, "warehouse", deliveryDraft.value.id, "2026-08-09T11:00:00.000Z");
+  if (!delivery.ok) throw new Error(delivery.error.message);
+
+  const payable = recordSupplierInvoice(delivery.state, "finance", {
+    purchaseOrderId: delivery.state.purchaseOrders[0].id,
+    sourceDocumentIds: [receipt.value.id],
+    dueDate: "2026-09-08",
+  }, "2026-08-10T10:00:00.000Z");
+  if (!payable.ok) throw new Error(payable.error.message);
+  const receivable = createCustomerInvoice(payable.state, "finance", {
+    salesOrderId: payable.state.salesOrders[0].id,
+    sourceDocumentIds: [delivery.value.id],
+    dueDate: "2026-09-08",
+  }, "2026-08-10T11:00:00.000Z");
+  if (!receivable.ok) throw new Error(receivable.error.message);
+  const payment = recordPayment(receivable.state, "finance", {
+    invoiceId: payable.value.id,
+    direction: "payable",
+    amount: 5_000_000,
+  }, "2026-08-11T10:00:00.000Z");
+  if (!payment.ok) throw new Error(payment.error.message);
+  state = { ...state, schemaVersion: 7, erp: payment.state };
+  return state;
+}
+
+function createFullyCoveredFinancePersistenceState() {
+  const state = createSeedState();
+  state.erp.purchaseOrders[0] = { ...state.erp.purchaseOrders[0], status: "confirmed" };
+  const receiptDraft = createGoodsReceipt(state.erp, "warehouse", { purchaseOrderId: state.erp.purchaseOrders[0].id, lines: [{ productId: "product-router", quantity: 40 }] }, "2026-08-09T08:00:00.000Z");
+  if (!receiptDraft.ok) throw new Error(receiptDraft.error.message);
+  const receipt = approveGoodsReceipt(receiptDraft.state, "warehouse", receiptDraft.value.id, "2026-08-09T09:00:00.000Z");
+  if (!receipt.ok) throw new Error(receipt.error.message);
+  receipt.state.salesOrders[0] = { ...receipt.state.salesOrders[0], status: "confirmed", lines: [{ ...receipt.state.salesOrders[0].lines[0], quantity: 20, deliveredQuantity: 0 }] };
+  const deliveryDraft = createDeliveryOrder(receipt.state, "warehouse", { salesOrderId: receipt.state.salesOrders[0].id, lines: [{ productId: "product-router", quantity: 20 }] }, "2026-08-09T10:00:00.000Z");
+  if (!deliveryDraft.ok) throw new Error(deliveryDraft.error.message);
+  const delivery = completeDelivery(deliveryDraft.state, "warehouse", deliveryDraft.value.id, "2026-08-09T11:00:00.000Z");
+  if (!delivery.ok) throw new Error(delivery.error.message);
+  const payable = recordSupplierInvoice(delivery.state, "finance", { purchaseOrderId: delivery.state.purchaseOrders[0].id, sourceDocumentIds: [receipt.value.id], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
+  if (!payable.ok) throw new Error(payable.error.message);
+  const receivable = createCustomerInvoice(payable.state, "finance", { salesOrderId: payable.state.salesOrders[0].id, sourceDocumentIds: [delivery.value.id], dueDate: "2026-09-08" }, "2026-08-10T11:00:00.000Z");
+  if (!receivable.ok) throw new Error(receivable.error.message);
+  return { ...state, schemaVersion: 7, erp: receivable.state };
+}
+
+describe("finance persistence evidence", () => {
+  it("migrates an empty schema v6 finance slice into schema v7", () => {
+    const legacy = createSeedState();
+    legacy.schemaVersion = 6;
+
+    const loaded = loadDemoState(JSON.stringify(legacy));
+
+    expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state.schemaVersion).toBe(7);
+    expect(loaded.state.erp.supplierInvoices).toEqual([]);
+    expect(loaded.state.erp.customerInvoices).toEqual([]);
+    expect(loaded.state.erp.payments).toEqual([]);
+  });
+
+  it("fails closed for schema v6 finance records whose source provenance cannot be proven", () => {
+    const legacy = createSeedState();
+    legacy.schemaVersion = 6;
+    legacy.erp.supplierInvoices.push({
+      id: "legacy-invoice", invoiceNumber: "SINV-2026-0001", purchaseOrderId: legacy.erp.purchaseOrders[0].id, salesOrderId: null,
+      supplierId: legacy.erp.purchaseOrders[0].supplierId, customerId: null, status: "unpaid",
+      lines: [{ productId: "product-router", quantity: 1, unitPrice: 1_050_000 }], dueDate: "2026-09-08",
+      createdAt: "2026-08-10T10:00:00.000Z", updatedAt: "2026-08-10T10:00:00.000Z",
+    } as never);
+
+    expect(loadDemoState(JSON.stringify(legacy)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("round trips source-backed invoices, a partial payment, and scalar finance audits", () => {
+    const state = createFinancePersistenceState();
+
+    const loaded = loadDemoState(JSON.stringify(state));
+
+    expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state.erp.supplierInvoices[0]).toMatchObject({ totalAmount: 10_500_000, status: "partially_paid", sourceDocumentIds: [state.erp.goodsReceipts[0].id] });
+    expect(loaded.state.erp.customerInvoices[0]).toMatchObject({ totalAmount: 12_000_000, status: "unpaid", sourceDocumentIds: [state.erp.deliveryOrders[0].id] });
+    expect(loaded.state.erp.payments[0]).toMatchObject({ direction: "payable", supplierId: "supplier-utama", customerId: null, amount: 5_000_000 });
+    expect(loaded.state.erp.auditLogs.filter((event) => event.entityType === "trade_invoice" || event.entityType === "payment").every((event) => Object.values(event.detail).every((value) => value === null || ["string", "number", "boolean"].includes(typeof value)))).toBe(true);
+  });
+
+  it("fails closed when fully covered source lifecycles retain pre-invoice statuses", () => {
+    const payableStatus = createFullyCoveredFinancePersistenceState();
+    payableStatus.erp.purchaseOrders[0].status = "fully_received";
+    const receivableStatus = createFullyCoveredFinancePersistenceState();
+    receivableStatus.erp.salesOrders[0].status = "fully_delivered";
+
+    expect(loadDemoState(JSON.stringify(payableStatus)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(receivableStatus)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it.each([
+    ["an invoice total differs from exact source lines", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].totalAmount += 1; }],
+    ["an invoice references a missing source document", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].sourceDocumentIds = ["missing-receipt"]; }],
+    ["two active invoices cover the same source quantities", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices.push({ ...state.erp.supplierInvoices[0], id: "duplicate-source-invoice", invoiceNumber: "SINV-2026-0002", status: "unpaid" }); }],
+    ["invoice status disagrees with non-voided paid amount", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].status = "unpaid"; }],
+    ["a payment has the wrong direction for its invoice", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].direction = "receivable"; }],
+    ["a payment has the wrong counterparty for its invoice", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].supplierId = "supplier-kertas"; }],
+    ["a posted payment amount is not positive", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].amount = 0; }],
+    ["payment identifiers are not unique", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments.push({ ...state.erp.payments[0] }); }],
+    ["posted payments exceed the original invoice total", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].amount = 11_000_000; }],
+    ["a finance audit detail contains a nested value", (state: ReturnType<typeof createFinancePersistenceState>) => { (state.erp.auditLogs.at(-1)!.detail as Record<string, unknown>).nested = { unsafe: true }; }],
+  ])("fails closed when %s", (_label, mutate) => {
+    const state = createFinancePersistenceState();
+    mutate(state);
 
     expect(loadDemoState(JSON.stringify(state)).recoveryReason).toBe("INVALID_SCHEMA");
   });

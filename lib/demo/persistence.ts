@@ -4,9 +4,10 @@ import { createErpSeedState } from "../erp/seed";
 import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
 import { createSeedState } from "./seed";
 
-export const DEMO_SCHEMA_VERSION = 6;
-export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
-export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v5";
+export const DEMO_SCHEMA_VERSION = 7;
+export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
+export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
+export const V5_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v5";
 export const V4_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v4";
 export const V3_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v3";
 export const LEGACY_DEMO_STORAGE_KEY = "arvanta-procurebridge-demo-v2";
@@ -105,16 +106,44 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     const order = hasString(item.salesOrderId) ? salesOrderById.get(item.salesOrderId) : undefined;
     return hasEntityDates(item) && hasFields(item, ["deliveryNumber", "salesOrderId", "warehouseId"]) && salesOrderIds.has(item.salesOrderId) && warehouseIds.has(item.warehouseId) && order?.warehouseId === item.warehouseId && includes(["draft", "posted", "cancelled"], item.status) && deliveryLinesMatchOrder(order?.lines, item.lines);
   })) return false;
-  const hasInvoiceLinks = (item: Record<string, unknown>): boolean => hasOptionalLink(item, "purchaseOrderId", openPurchaseOrderIds) && hasOptionalLink(item, "salesOrderId", salesOrderIds) && hasOptionalLink(item, "supplierId", supplierIds) && hasOptionalLink(item, "customerId", customerIds);
-  if (!(value.supplierInvoices as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["invoiceNumber", "dueDate", "supplierId"]) && supplierIds.has(item.supplierId) && item.customerId === null && hasInvoiceLinks(item) && includes(invoiceStatuses, item.status) && validLines(item.lines))) return false;
-  if (!(value.customerInvoices as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["invoiceNumber", "dueDate", "customerId"]) && customerIds.has(item.customerId) && item.supplierId === null && hasInvoiceLinks(item) && includes(invoiceStatuses, item.status) && validLines(item.lines))) return false;
-  const supplierInvoiceIds = new Set((value.supplierInvoices as Record<string, unknown>[]).map((item) => item.id));
-  const customerInvoiceIds = new Set((value.customerInvoices as Record<string, unknown>[]).map((item) => item.id));
-  if (!(value.payments as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["paymentNumber", "invoiceId", "paymentDate"]) && hasNumber(item.amount) && includes(["payable", "receivable"], item.direction) && (item.direction !== "payable" || supplierInvoiceIds.has(item.invoiceId)) && (item.direction !== "receivable" || customerInvoiceIds.has(item.invoiceId)) && includes(["posted", "cancelled"], item.status))) return false;
+  const deliveryOrderById = new Map(deliveryOrders.map((item) => [item.id, item]));
+  const supplierInvoices = value.supplierInvoices as Record<string, unknown>[];
+  const customerInvoices = value.customerInvoices as Record<string, unknown>[];
+  const allInvoices = [...supplierInvoices, ...customerInvoices];
+  if (new Set(allInvoices.map((item) => item.id)).size !== allInvoices.length || new Set(allInvoices.map((item) => item.invoiceNumber)).size !== allInvoices.length) return false;
+  if (!supplierInvoices.every((item) => {
+    const purchaseOrder = hasString(item.purchaseOrderId) ? purchaseOrderById.get(item.purchaseOrderId) : undefined;
+    return hasEntityDates(item) && hasFields(item, ["invoiceNumber", "dueDate", "supplierId"])
+      && purchaseOrder && purchaseOrder.supplierId === item.supplierId && supplierIds.has(item.supplierId)
+      && item.salesOrderId === null && item.customerId === null
+      && hasValidInvoiceShape(item) && invoiceSourcesMatch(item, goodsReceiptById, "purchaseOrderId", "approved");
+  })) return false;
+  if (!customerInvoices.every((item) => {
+    const salesOrder = hasString(item.salesOrderId) ? salesOrderById.get(item.salesOrderId) : undefined;
+    return hasEntityDates(item) && hasFields(item, ["invoiceNumber", "dueDate", "customerId"])
+      && salesOrder && salesOrder.customerId === item.customerId && customerIds.has(item.customerId)
+      && item.purchaseOrderId === null && item.supplierId === null
+      && hasValidInvoiceShape(item) && invoiceSourcesMatch(item, deliveryOrderById, "salesOrderId", "posted");
+  })) return false;
+  const activeSupplierSources = supplierInvoices.filter((item) => item.status !== "cancelled").flatMap((item) => item.sourceDocumentIds as string[]);
+  const activeCustomerSources = customerInvoices.filter((item) => item.status !== "cancelled").flatMap((item) => item.sourceDocumentIds as string[]);
+  if (new Set(activeSupplierSources).size !== activeSupplierSources.length || new Set(activeCustomerSources).size !== activeCustomerSources.length) return false;
+  const supplierInvoiceIds = new Set(supplierInvoices.map((item) => item.id));
+  const customerInvoiceIds = new Set(customerInvoices.map((item) => item.id));
+  const invoiceById = new Map(allInvoices.map((item) => [item.id, item]));
+  const payments = value.payments as Record<string, unknown>[];
+  if (new Set(payments.map((item) => item.id)).size !== payments.length || new Set(payments.map((item) => item.paymentNumber)).size !== payments.length) return false;
+  if (!payments.every((item) => {
+    const invoice = hasString(item.invoiceId) ? invoiceById.get(item.invoiceId) : undefined;
+    if (!(hasEntityDates(item) && hasFields(item, ["paymentNumber", "invoiceId", "paymentDate"]) && invoice && Number.isSafeInteger(item.amount) && Number(item.amount) > 0 && !Number.isNaN(new Date(String(item.paymentDate)).getTime()) && includes(["payable", "receivable"], item.direction) && includes(["posted", "cancelled"], item.status))) return false;
+    if (item.direction === "payable") return supplierInvoiceIds.has(item.invoiceId) && item.supplierId === invoice.supplierId && item.customerId === null;
+    return customerInvoiceIds.has(item.invoiceId) && item.customerId === invoice.customerId && item.supplierId === null;
+  })) return false;
+  if (!hasConsistentFinanceBalances(allInvoices, payments)) return false;
+  if (!hasConsistentFinanceSourceLifecycle(purchaseOrders, goodsReceipts, supplierInvoices, salesOrders, deliveryOrders, customerInvoices)) return false;
   const stockAdjustments = value.stockAdjustments as Record<string, unknown>[];
   if (!stockAdjustments.every((item) => hasEntityDates(item) && hasFields(item, ["adjustmentNumber", "productId", "warehouseId", "reason", "proposedByRole"]) && activeProductIds.has(item.productId) && activeWarehouseIds.has(item.warehouseId) && includes(["warehouse", "admin"], item.proposedByRole) && hasNumber(item.quantityDelta) && Number.isInteger(item.quantityDelta) && item.quantityDelta !== 0 && includes(["pending", "approved", "rejected"], item.status) && (item.approvedByRole === null || includes(["approver", "admin"], item.approvedByRole)) && (item.approvedAt === null || hasString(item.approvedAt)) && (item.status !== "approved" || (includes(["approver", "admin"], item.approvedByRole) && item.approvedByRole !== item.proposedByRole && hasString(item.approvedAt))))) return false;
   const stockAdjustmentById = new Map(stockAdjustments.map((item) => [item.id, item]));
-  const deliveryOrderById = new Map(deliveryOrders.map((item) => [item.id, item]));
   const stockMovements = value.stockMovements as Record<string, unknown>[];
   if (new Set(stockMovements.map((item) => item.id)).size !== stockMovements.length) return false;
   if (stockMovements.filter((item) => item.sourceType === "seed").length !== trustedOpeningMovements.size) return false;
@@ -152,22 +181,26 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (!(value.supplierResults as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario"]) && supplierCallIds.has(item.supplierCallId) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["pending", "approved", "rejected", "human_review"], item.status) && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario) && (item.promisedDeliveryDate === null || hasString(item.promisedDeliveryDate)))) return false;
   if (!(value.disputes as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["reason"]) && includes(["open", "investigating", "resolved", "cancelled"], item.status))) return false;
   if (!(value.followUps as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["dueAt", "reason"]) && includes(["open", "completed", "cancelled"], item.status) && includes(["pending", "approved"], item.approvalStatus) && (item.approvedBy === null || hasString(item.approvedBy)) && (item.approvalStatus !== "approved" || hasString(item.approvedBy)))) return false;
-  return (value.auditLogs as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["entityType", "entityId", "action", "actorRole", "actorId"]) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && isRecord(item.detail));
+  return (value.auditLogs as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["entityType", "entityId", "action", "actorRole", "actorId"]) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && isRecord(item.detail) && Object.values(item.detail).every((detail) => detail === null || typeof detail === "string" || typeof detail === "boolean" || (typeof detail === "number" && Number.isFinite(detail))));
 }
 
 export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
-    const erp = migrateErpV5(migrateErpV4(migrateErpV3(value.erp)));
+    const erp = migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 4) {
-    const erp = migrateErpV5(migrateErpV4(value.erp));
+    const erp = migrateErpV6(migrateErpV5(migrateErpV4(value.erp)));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 5) {
-    const erp = migrateErpV5(value.erp);
+    const erp = migrateErpV6(migrateErpV5(value.erp));
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+  }
+  if (value.schemaVersion === 6) {
+    const erp = migrateErpV6(value.erp);
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === DEMO_SCHEMA_VERSION && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
@@ -186,11 +219,89 @@ export function loadDemoState(value: string | null): { state: DemoState; recover
 
 export function loadDemoStateFromStorage(storage: Pick<Storage, "getItem">): { state: DemoState; recoveryReason: DemoRecoveryReason } {
   const current = storage.getItem(DEMO_STORAGE_KEY);
-  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
 }
 
 export function serializeDemoState(state: DemoState): string { return JSON.stringify(state); }
 export function deserializeDemoState(value: string | null): DemoState { return loadDemoState(value).state; }
+
+function hasValidInvoiceShape(invoice: Record<string, unknown>): boolean {
+  if (!includes(invoiceStatuses, invoice.status) || !hasNumber(invoice.totalAmount) || !Number.isSafeInteger(invoice.totalAmount) || Number(invoice.totalAmount) <= 0) return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(invoice.dueDate))) return false;
+  const dueDate = new Date(`${String(invoice.dueDate)}T00:00:00.000Z`);
+  if (Number.isNaN(dueDate.getTime()) || dueDate.toISOString().slice(0, 10) !== invoice.dueDate) return false;
+  if (!Array.isArray(invoice.sourceDocumentIds) || invoice.sourceDocumentIds.length === 0 || !invoice.sourceDocumentIds.every(hasString) || new Set(invoice.sourceDocumentIds).size !== invoice.sourceDocumentIds.length) return false;
+  if (!Array.isArray(invoice.lines) || invoice.lines.length === 0 || !invoice.lines.every((line) => hasQuantityLine(line) && Number.isInteger(line.quantity) && line.quantity > 0 && Number.isSafeInteger(line.unitPrice) && line.unitPrice > 0)) return false;
+  const lineProducts = invoice.lines.map((line) => (line as Record<string, unknown>).productId);
+  return new Set(lineProducts).size === lineProducts.length
+    && invoice.lines.reduce((sum, line) => sum + Number((line as Record<string, unknown>).quantity) * Number((line as Record<string, unknown>).unitPrice), 0) === invoice.totalAmount;
+}
+
+function invoiceSourcesMatch(
+  invoice: Record<string, unknown>,
+  sourcesById: Map<unknown, Record<string, unknown>>,
+  parentField: "purchaseOrderId" | "salesOrderId",
+  requiredStatus: "approved" | "posted",
+): boolean {
+  if (!Array.isArray(invoice.sourceDocumentIds) || !Array.isArray(invoice.lines)) return false;
+  const sourceLines = new Map<string, { quantity: number; unitPrice: number }>();
+  for (const sourceId of invoice.sourceDocumentIds) {
+    const source = sourcesById.get(sourceId);
+    if (!source || source.status !== requiredStatus || source[parentField] !== invoice[parentField] || !hasQuantityLines(source.lines)) return false;
+    for (const line of source.lines as Array<{ productId: string; quantity: number; unitPrice: number }>) {
+      const current = sourceLines.get(line.productId);
+      if (current && current.unitPrice !== line.unitPrice) return false;
+      sourceLines.set(line.productId, { quantity: (current?.quantity ?? 0) + line.quantity, unitPrice: line.unitPrice });
+    }
+  }
+  const lines = invoice.lines as Array<{ productId: string; quantity: number; unitPrice: number }>;
+  return sourceLines.size === lines.length && lines.every((line) => {
+    const source = sourceLines.get(line.productId);
+    return source?.quantity === line.quantity && source.unitPrice === line.unitPrice;
+  });
+}
+
+function hasConsistentFinanceBalances(invoices: Record<string, unknown>[], payments: Record<string, unknown>[]): boolean {
+  return invoices.every((invoice) => {
+    const related = payments.filter((payment) => payment.invoiceId === invoice.id);
+    if (invoice.status === "cancelled") return related.every((payment) => payment.status === "cancelled");
+    const posted = related.filter((payment) => payment.status === "posted").reduce((sum, payment) => sum + Number(payment.amount), 0);
+    const totalAmount = Number(invoice.totalAmount);
+    if (!Number.isSafeInteger(posted) || posted < 0 || posted > totalAmount) return false;
+    if (posted === 0) return invoice.status === "unpaid";
+    if (posted === totalAmount) return invoice.status === "paid";
+    return invoice.status === "partially_paid";
+  });
+}
+
+function hasConsistentFinanceSourceLifecycle(
+  purchaseOrders: Record<string, unknown>[],
+  goodsReceipts: Record<string, unknown>[],
+  supplierInvoices: Record<string, unknown>[],
+  salesOrders: Record<string, unknown>[],
+  deliveryOrders: Record<string, unknown>[],
+  customerInvoices: Record<string, unknown>[],
+): boolean {
+  const payableSources = new Set(supplierInvoices.filter((invoice) => invoice.status !== "cancelled").flatMap((invoice) => invoice.sourceDocumentIds as string[]));
+  for (const order of purchaseOrders) {
+    const receipts = goodsReceipts.filter((receipt) => receipt.purchaseOrderId === order.id && receipt.status === "approved");
+    const fullyCovered = receipts.length > 0 && receipts.every((receipt) => payableSources.has(String(receipt.id)));
+    if (order.status === "completed" && !fullyCovered) return false;
+    if (order.status === "fully_received" && fullyCovered) return false;
+  }
+  const receivableSources = new Set(customerInvoices.filter((invoice) => invoice.status !== "cancelled").flatMap((invoice) => invoice.sourceDocumentIds as string[]));
+  for (const order of salesOrders) {
+    const deliveries = deliveryOrders.filter((delivery) => delivery.salesOrderId === order.id && delivery.status === "posted");
+    const fullyCovered = deliveries.length > 0 && deliveries.every((delivery) => receivableSources.has(String(delivery.id)));
+    if ((order.status === "invoiced" || order.status === "completed") && !fullyCovered) return false;
+    if (order.status === "fully_delivered" && fullyCovered) return false;
+    if (order.status === "completed") {
+      const invoices = customerInvoices.filter((invoice) => invoice.salesOrderId === order.id && invoice.status !== "cancelled");
+      if (invoices.length === 0 || !invoices.every((invoice) => invoice.status === "paid")) return false;
+    }
+  }
+  return true;
+}
 
 function validRfqQuotationLines(rfqLines: unknown, quotationLines: unknown): boolean {
   if (!hasRfqLines(rfqLines) || !hasQuantityLines(quotationLines)) return false;
@@ -334,6 +445,14 @@ function migrateErpV5(value: unknown): ErpState | null {
     return { ...movement, type };
   }) : value.stockMovements;
   return { ...value, purchaseRequests, salesOrders, stockMovements } as unknown as ErpState;
+}
+
+function migrateErpV6(value: unknown): ErpState | null {
+  if (!isRecord(value) || !Array.isArray(value.supplierInvoices) || !Array.isArray(value.customerInvoices) || !Array.isArray(value.payments)) return null;
+  // Schema v6 did not persist source-document coverage or payment counterparties.
+  // Existing finance rows therefore cannot be upgraded without inventing provenance.
+  if (value.supplierInvoices.length > 0 || value.customerInvoices.length > 0 || value.payments.length > 0) return null;
+  return value as unknown as ErpState;
 }
 
 function migrateLegacySalesReservations(salesOrdersValue: unknown, stockMovementsValue: unknown): Record<string, unknown>[] | null {
