@@ -177,7 +177,7 @@ export function upsertWarehouse(state: ErpState, role: ErpRole, input: Warehouse
   const address = normalize(input.address);
   if (!code || !name || !address) return invalid(state, "Warehouse code, name, and address are required.");
   if (state.warehouses.some((item) => item.id !== input.id && item.code.toLowerCase() === code.toLowerCase())) return invalid(state, "Warehouse code must be unique.", { code });
-  const warehouse: Warehouse = { ...current, code, name, address, active: input.active, updatedAt: now };
+  const warehouse: Warehouse = { ...current, code, name, address, active: true, updatedAt: now };
   const next = appendErpAudit({ ...state, warehouses: state.warehouses.map((item) => item.id === current.id ? warehouse : item) }, {
     entityType: "warehouse", entityId: warehouse.id, action: "warehouse.updated", actorRole: role, actorId: `role:${role}`,
     detail: { code: warehouse.code, operation: "updated" },
