@@ -165,6 +165,78 @@ describe("finance invoice eligibility", () => {
     expect(createCustomerInvoice(wrongDeliveryPrice, "finance", { salesOrderId: wrongDeliveryPrice.salesOrders[0].id, sourceDocumentIds: [customerFixture.deliveryId], dueDate: "2026-09-08" }, later)).toMatchObject({ ok: false, state: wrongDeliveryPrice, error: { code: "INVALID_STATE" } });
   });
 
+  it("rejects a movement-matched over-quantity approved receipt without mutation", () => {
+    const fixture = withApprovedReceipt();
+    const state = structuredClone(fixture.state);
+    state.goodsReceipts[0].lines[0].quantity = 41;
+    state.stockMovements.find((movement) => movement.sourceId === fixture.receiptId)!.quantity = 41;
+    state.purchaseOrders[0].status = "fully_received";
+    const auditCount = state.auditLogs.length;
+
+    const result = recordSupplierInvoice(state, "finance", { purchaseOrderId: state.purchaseOrders[0].id, sourceDocumentIds: [fixture.receiptId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
+
+    expect(result).toMatchObject({ ok: false, state, error: { code: "INVALID_STATE" } });
+    expect(result.state).toBe(state);
+    expect(result.state.supplierInvoices).toHaveLength(0);
+    expect(result.state.auditLogs).toHaveLength(auditCount);
+  });
+
+  it("rejects aggregate approved receipt overflow and inconsistent purchase-order receipt status", () => {
+    const fixture = withApprovedReceipt();
+    const overflow = structuredClone(fixture.state);
+    overflow.goodsReceipts.push({ ...overflow.goodsReceipts[0], id: "overflow-receipt", receiptNumber: "GR-2026-0002", lines: [{ ...overflow.goodsReceipts[0].lines[0], quantity: 31 }] });
+    overflow.stockMovements.push({ ...overflow.stockMovements.find((movement) => movement.sourceId === fixture.receiptId)!, id: "overflow-receipt-movement", sourceId: "overflow-receipt", quantity: 31 });
+    overflow.purchaseOrders[0].status = "fully_received";
+    const inconsistent = structuredClone(fixture.state);
+    inconsistent.purchaseOrders[0].status = "fully_received";
+
+    expect(recordSupplierInvoice(overflow, "finance", { purchaseOrderId: overflow.purchaseOrders[0].id, sourceDocumentIds: [fixture.receiptId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z")).toMatchObject({ ok: false, state: overflow, error: { code: "INVALID_STATE" } });
+    expect(recordSupplierInvoice(inconsistent, "finance", { purchaseOrderId: inconsistent.purchaseOrders[0].id, sourceDocumentIds: [fixture.receiptId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z")).toMatchObject({ ok: false, state: inconsistent, error: { code: "INVALID_STATE" } });
+  });
+
+  it("rejects a movement-matched over-quantity posted delivery without mutation", () => {
+    const fixture = withPostedDelivery();
+    const state = structuredClone(fixture.state);
+    state.deliveryOrders[0].lines[0].quantity = 21;
+    state.stockMovements.find((movement) => movement.sourceId === fixture.deliveryId)!.quantity = 21;
+    state.salesOrders[0].lines[0].deliveredQuantity = 21;
+    state.salesOrders[0].status = "fully_delivered";
+    const auditCount = state.auditLogs.length;
+
+    const result = createCustomerInvoice(state, "finance", { salesOrderId: state.salesOrders[0].id, sourceDocumentIds: [fixture.deliveryId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
+
+    expect(result).toMatchObject({ ok: false, state, error: { code: "INVALID_STATE" } });
+    expect(result.state).toBe(state);
+    expect(result.state.customerInvoices).toHaveLength(0);
+    expect(result.state.auditLogs).toHaveLength(auditCount);
+  });
+
+  it("rejects aggregate posted delivery overflow and inconsistent Sales Order delivery status", () => {
+    const fixture = withPostedDelivery();
+    const overflow = structuredClone(fixture.state);
+    overflow.deliveryOrders.push({ ...overflow.deliveryOrders[0], id: "overflow-delivery", deliveryNumber: "DO-2026-0002", lines: [{ ...overflow.deliveryOrders[0].lines[0], quantity: 13 }] });
+    overflow.stockMovements.push({ ...overflow.stockMovements.find((movement) => movement.sourceId === fixture.deliveryId)!, id: "overflow-delivery-movement", sourceId: "overflow-delivery", quantity: 13, reason: "Completed DO-2026-0002" });
+    overflow.salesOrders[0].lines[0].deliveredQuantity = 21;
+    overflow.salesOrders[0].status = "fully_delivered";
+    const inconsistent = structuredClone(fixture.state);
+    inconsistent.salesOrders[0].status = "fully_delivered";
+
+    expect(createCustomerInvoice(overflow, "finance", { salesOrderId: overflow.salesOrders[0].id, sourceDocumentIds: [fixture.deliveryId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z")).toMatchObject({ ok: false, state: overflow, error: { code: "INVALID_STATE" } });
+    expect(createCustomerInvoice(inconsistent, "finance", { salesOrderId: inconsistent.salesOrders[0].id, sourceDocumentIds: [fixture.deliveryId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z")).toMatchObject({ ok: false, state: inconsistent, error: { code: "INVALID_STATE" } });
+  });
+
+  it("rejects normalized impossible command instants for invoices and payments", () => {
+    const supplierFixture = withApprovedReceipt();
+    const impossibleInvoiceTime = recordSupplierInvoice(supplierFixture.state, "finance", { purchaseOrderId: supplierFixture.state.purchaseOrders[0].id, sourceDocumentIds: [supplierFixture.receiptId], dueDate: "2026-09-08" }, "2026-02-31T10:00:00.000Z");
+    const invoice = recordSupplierInvoice(supplierFixture.state, "finance", { purchaseOrderId: supplierFixture.state.purchaseOrders[0].id, sourceDocumentIds: [supplierFixture.receiptId], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
+    if (!invoice.ok) throw new Error(invoice.error.message);
+
+    const impossiblePaymentTime = recordPayment(invoice.state, "finance", { invoiceId: invoice.value.id, amount: 1, direction: "payable" }, "2026-02-31T10:00:00.000Z");
+
+    expect(impossibleInvoiceTime).toMatchObject({ ok: false, state: supplierFixture.state, error: { code: "INVALID_INPUT" } });
+    expect(impossiblePaymentTime).toMatchObject({ ok: false, state: invoice.state, error: { code: "INVALID_INPUT" } });
+  });
+
   it("completes fully covered source lifecycles without fabricating stock movements", () => {
     const payable = withApprovedReceipt(40);
     const payableMovementCount = payable.state.stockMovements.length;

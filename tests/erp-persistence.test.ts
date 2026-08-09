@@ -700,6 +700,12 @@ describe("finance persistence evidence", () => {
   });
 
   it.each([
+    ["an invoice created instant is an impossible normalized date", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].createdAt = "2026-02-31T10:00:00.000Z"; }],
+    ["an invoice updated instant is an impossible normalized date", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].updatedAt = "2026-02-31T10:00:00.000Z"; }],
+    ["an invoice due date is an impossible normalized date", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].dueDate = "2026-02-31"; }],
+    ["a payment date is an impossible normalized date", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].paymentDate = "2026-02-31"; }],
+    ["a payment created instant is an impossible normalized date", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].createdAt = "2026-02-31T10:00:00.000Z"; }],
+    ["a payment updated instant is an impossible normalized date", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.payments[0].updatedAt = "2026-02-31T10:00:00.000Z"; }],
     ["an invoice total differs from exact source lines", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].totalAmount += 1; }],
     ["an invoice references a missing source document", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices[0].sourceDocumentIds = ["missing-receipt"]; }],
     ["two active invoices cover the same source quantities", (state: ReturnType<typeof createFinancePersistenceState>) => { state.erp.supplierInvoices.push({ ...state.erp.supplierInvoices[0], id: "duplicate-source-invoice", invoiceNumber: "SINV-2026-0002", status: "unpaid" }); }],

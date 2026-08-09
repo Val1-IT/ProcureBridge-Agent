@@ -1,4 +1,5 @@
 import type { DemoState } from "../domain/types";
+import { isStrictIsoDate, isStrictIsoInstant } from "../erp/date-validation";
 import type { ErpState } from "../erp/types";
 import { createErpSeedState } from "../erp/seed";
 import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
@@ -135,7 +136,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (new Set(payments.map((item) => item.id)).size !== payments.length || new Set(payments.map((item) => item.paymentNumber)).size !== payments.length) return false;
   if (!payments.every((item) => {
     const invoice = hasString(item.invoiceId) ? invoiceById.get(item.invoiceId) : undefined;
-    if (!(hasEntityDates(item) && hasFields(item, ["paymentNumber", "invoiceId", "paymentDate"]) && invoice && Number.isSafeInteger(item.amount) && Number(item.amount) > 0 && !Number.isNaN(new Date(String(item.paymentDate)).getTime()) && includes(["payable", "receivable"], item.direction) && includes(["posted", "cancelled"], item.status))) return false;
+    if (!(hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt) && hasFields(item, ["paymentNumber", "invoiceId", "paymentDate"]) && isStrictIsoDate(item.paymentDate) && invoice && Number.isSafeInteger(item.amount) && Number(item.amount) > 0 && includes(["payable", "receivable"], item.direction) && includes(["posted", "cancelled"], item.status))) return false;
     if (item.direction === "payable") return supplierInvoiceIds.has(item.invoiceId) && item.supplierId === invoice.supplierId && item.customerId === null;
     return customerInvoiceIds.has(item.invoiceId) && item.customerId === invoice.customerId && item.supplierId === null;
   })) return false;
@@ -227,9 +228,7 @@ export function deserializeDemoState(value: string | null): DemoState { return l
 
 function hasValidInvoiceShape(invoice: Record<string, unknown>): boolean {
   if (!includes(invoiceStatuses, invoice.status) || !hasNumber(invoice.totalAmount) || !Number.isSafeInteger(invoice.totalAmount) || Number(invoice.totalAmount) <= 0) return false;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(invoice.dueDate))) return false;
-  const dueDate = new Date(`${String(invoice.dueDate)}T00:00:00.000Z`);
-  if (Number.isNaN(dueDate.getTime()) || dueDate.toISOString().slice(0, 10) !== invoice.dueDate) return false;
+  if (!isStrictIsoInstant(invoice.createdAt) || !isStrictIsoInstant(invoice.updatedAt) || !isStrictIsoDate(invoice.dueDate)) return false;
   if (!Array.isArray(invoice.sourceDocumentIds) || invoice.sourceDocumentIds.length === 0 || !invoice.sourceDocumentIds.every(hasString) || new Set(invoice.sourceDocumentIds).size !== invoice.sourceDocumentIds.length) return false;
   if (!Array.isArray(invoice.lines) || invoice.lines.length === 0 || !invoice.lines.every((line) => hasQuantityLine(line) && Number.isInteger(line.quantity) && line.quantity > 0 && Number.isSafeInteger(line.unitPrice) && line.unitPrice > 0)) return false;
   const lineProducts = invoice.lines.map((line) => (line as Record<string, unknown>).productId);

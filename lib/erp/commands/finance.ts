@@ -1,7 +1,9 @@
 import { nextDocumentNumber } from "../document-numbers";
+import { isStrictIsoDate, isStrictIsoInstant } from "../date-validation";
 import type { ErpCommandResult } from "../errors";
 import { authorize } from "../permissions";
 import { selectPayableBalance, selectReceivableBalance } from "../selectors-finance";
+import { selectPhysicalStock, selectReservedStock } from "../selectors";
 import type { DeliveryOrder, ErpRole, ErpState, GoodsReceipt, Payment, QuantityLine, TradeInvoice } from "../types";
 import { appendErpAudit, commitErpState, isErpRole, rejectErpCommand } from "./shared";
 
@@ -33,14 +35,11 @@ function requireFinance<T>(state: ErpState, role: ErpRole): ErpCommandResult<T> 
 }
 
 function hasValidNow(now: string): boolean {
-  return !Number.isNaN(new Date(now).getTime());
+  return isStrictIsoInstant(now);
 }
 
 function hasValidDueDate(dueDate: string, now: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return false;
-  const parsed = new Date(`${dueDate}T00:00:00.000Z`);
-  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== dueDate) return false;
-  return dueDate >= now.slice(0, 10);
+  return isStrictIsoDate(dueDate) && dueDate >= now.slice(0, 10);
 }
 
 function validateSourceIds<T>(state: ErpState, sourceDocumentIds: readonly string[]): ErpCommandResult<T> | null {
@@ -79,7 +78,7 @@ function hasExactReceiptEvidence(state: ErpState, receipt: GoodsReceipt, purchas
   if (receipt.lines.length === 0 || new Set(receipt.lines.map((line) => line.productId)).size !== receipt.lines.length) return false;
   return receipt.lines.every((line) => {
     const orderLine = purchaseOrder.lines.find((item) => item.productId === line.productId);
-    if (!orderLine || !Number.isInteger(line.quantity) || line.quantity <= 0 || line.unitPrice !== orderLine.unitPrice) return false;
+    if (!orderLine || !Number.isInteger(line.quantity) || line.quantity <= 0 || line.quantity > orderLine.quantity || line.unitPrice !== orderLine.unitPrice) return false;
     const movements = state.stockMovements.filter((movement) => movement.sourceType === "goods_receipt" && movement.sourceId === receipt.id && movement.productId === line.productId);
     return movements.length === 1 && movements[0].type === "receipt" && movements[0].warehouseId === receipt.warehouseId && movements[0].direction === "in" && movements[0].quantity === line.quantity;
   }) && state.stockMovements.filter((movement) => movement.sourceType === "goods_receipt" && movement.sourceId === receipt.id).length === receipt.lines.length;
@@ -89,10 +88,62 @@ function hasExactDeliveryEvidence(state: ErpState, delivery: DeliveryOrder, sale
   if (delivery.lines.length === 0 || new Set(delivery.lines.map((line) => line.productId)).size !== delivery.lines.length) return false;
   return delivery.lines.every((line) => {
     const orderLine = salesOrder.lines.find((item) => item.productId === line.productId);
-    if (!orderLine || !Number.isInteger(line.quantity) || line.quantity <= 0 || line.unitPrice !== orderLine.unitPrice) return false;
+    if (!orderLine || !Number.isInteger(line.quantity) || line.quantity <= 0 || line.quantity > orderLine.quantity || line.unitPrice !== orderLine.unitPrice) return false;
     const movements = state.stockMovements.filter((movement) => movement.sourceType === "delivery_order" && movement.sourceId === delivery.id && movement.productId === line.productId);
     return movements.length === 1 && movements[0].type === "delivery" && movements[0].warehouseId === delivery.warehouseId && movements[0].direction === "out" && movements[0].quantity === line.quantity;
   }) && state.stockMovements.filter((movement) => movement.sourceType === "delivery_order" && movement.sourceId === delivery.id).length === delivery.lines.length;
+}
+
+function hasValidPurchaseInvoiceSourceChain(state: ErpState, purchaseOrder: ErpState["purchaseOrders"][number]): boolean {
+  if (purchaseOrder.lines.length === 0 || new Set(purchaseOrder.lines.map((line) => line.productId)).size !== purchaseOrder.lines.length) return false;
+  const receipts = state.goodsReceipts.filter((receipt) => receipt.purchaseOrderId === purchaseOrder.id);
+  const approvedTotals = new Map<string, number>();
+  for (const receipt of receipts) {
+    if (receipt.warehouseId !== purchaseOrder.warehouseId || !["draft", "approved", "cancelled"].includes(receipt.status)) return false;
+    const postings = state.stockMovements.filter((movement) => movement.sourceType === "goods_receipt" && movement.sourceId === receipt.id);
+    if (receipt.status !== "approved") {
+      if (postings.length > 0) return false;
+      continue;
+    }
+    if (!hasExactReceiptEvidence(state, receipt, purchaseOrder)) return false;
+    for (const line of receipt.lines) approvedTotals.set(line.productId, (approvedTotals.get(line.productId) ?? 0) + line.quantity);
+  }
+  if (purchaseOrder.lines.some((line) => {
+    const received = approvedTotals.get(line.productId) ?? 0;
+    return received < 0 || received > line.quantity;
+  })) return false;
+  if ([...approvedTotals.keys()].some((productId) => !purchaseOrder.lines.some((line) => line.productId === productId))) return false;
+  const receivedAny = purchaseOrder.lines.some((line) => (approvedTotals.get(line.productId) ?? 0) > 0);
+  const receivedAll = purchaseOrder.lines.every((line) => (approvedTotals.get(line.productId) ?? 0) === line.quantity);
+  if (!receivedAny) return purchaseOrder.status === "confirmed";
+  return receivedAll ? purchaseOrder.status === "fully_received" : purchaseOrder.status === "partially_received";
+}
+
+function hasValidCustomerInvoiceSourceChain(state: ErpState, salesOrder: ErpState["salesOrders"][number]): boolean {
+  if (salesOrder.lines.length === 0 || new Set(salesOrder.lines.map((line) => line.productId)).size !== salesOrder.lines.length) return false;
+  const deliveries = state.deliveryOrders.filter((delivery) => delivery.salesOrderId === salesOrder.id);
+  const postedTotals = new Map<string, number>();
+  for (const delivery of deliveries) {
+    if (delivery.warehouseId !== salesOrder.warehouseId || !["draft", "posted", "cancelled"].includes(delivery.status)) return false;
+    const postings = state.stockMovements.filter((movement) => movement.sourceType === "delivery_order" && movement.sourceId === delivery.id);
+    if (delivery.status !== "posted") {
+      if (postings.length > 0) return false;
+      continue;
+    }
+    if (!hasExactDeliveryEvidence(state, delivery, salesOrder)) return false;
+    for (const line of delivery.lines) postedTotals.set(line.productId, (postedTotals.get(line.productId) ?? 0) + line.quantity);
+  }
+  if (salesOrder.lines.some((line) => {
+    const delivered = postedTotals.get(line.productId) ?? 0;
+    return !Number.isInteger(line.quantity) || line.quantity <= 0 || !Number.isInteger(line.deliveredQuantity) || line.deliveredQuantity < 0 || line.deliveredQuantity > line.quantity || delivered !== line.deliveredQuantity;
+  })) return false;
+  if ([...postedTotals.keys()].some((productId) => !salesOrder.lines.some((line) => line.productId === productId))) return false;
+  if (salesOrder.lines.some((line) => selectReservedStock(state, line.productId) > selectPhysicalStock(state, line.productId))) return false;
+  const deliveredAny = salesOrder.lines.some((line) => line.deliveredQuantity > 0);
+  const deliveredAll = salesOrder.lines.every((line) => line.deliveredQuantity === line.quantity);
+  if (!deliveredAny) return salesOrder.status === "confirmed";
+  if (deliveredAll) return salesOrder.status === "fully_delivered" && !deliveries.some((delivery) => delivery.status === "draft");
+  return salesOrder.status === "partially_delivered";
 }
 
 export function recordSupplierInvoice(state: ErpState, role: ErpRole, input: SupplierInvoiceInput, now: string): ErpCommandResult<TradeInvoice> {
@@ -107,6 +158,7 @@ export function recordSupplierInvoice(state: ErpState, role: ErpRole, input: Sup
   if (!["partially_received", "fully_received"].includes(purchaseOrder.status)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Supplier invoices require received purchase-order quantities." });
   const supplier = state.suppliers.find((item) => item.id === purchaseOrder.supplierId && item.active);
   if (!supplier) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Purchase order supplier is missing or inactive." });
+  if (!hasValidPurchaseInvoiceSourceChain(state, purchaseOrder)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Purchase order receipt quantities, movements, or lifecycle status are inconsistent." });
 
   const receipts: GoodsReceipt[] = [];
   for (const sourceId of input.sourceDocumentIds) {
@@ -152,6 +204,7 @@ export function createCustomerInvoice(state: ErpState, role: ErpRole, input: Cus
   if (!["partially_delivered", "fully_delivered"].includes(salesOrder.status)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Customer invoices require delivered sales-order quantities." });
   const customer = state.customers.find((item) => item.id === salesOrder.customerId && item.active);
   if (!customer) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Sales order customer is missing or inactive." });
+  if (!hasValidCustomerInvoiceSourceChain(state, salesOrder)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Sales Order delivery quantities, movements, reservations, or lifecycle status are inconsistent." });
 
   const deliveries: DeliveryOrder[] = [];
   for (const sourceId of input.sourceDocumentIds) {
