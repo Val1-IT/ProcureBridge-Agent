@@ -11,11 +11,11 @@ const guardrails: Array<{ label: string; codes: SupplierCallGuardrailCode[] }> =
   { label: "Tidak ada dispute terbuka yang memerlukan review", codes: ["OPEN_DISPUTE"] },
 ];
 
-export function GuardrailPanel({ decision }: { decision: SupplierCallGuardrailDecision }) {
+export function GuardrailPanel({ decision, pending = false }: { decision: SupplierCallGuardrailDecision; pending?: boolean }) {
   return <section className={`guardrail-box ${decision.allowed ? "allowed" : ""}`} aria-label="Supplier call guardrails">
-    <div className="panel-title"><h3>8 mandatory guardrails</h3><span>{decision.allowed ? "8/8 PASS" : "CALL LOCKED"}</span></div>
+    <div className="panel-title"><h3>8 mandatory guardrails</h3><span>{pending ? "CLOCK PENDING" : decision.allowed ? "8/8 PASS" : "CALL LOCKED"}</span></div>
     <div className="brief-list">{guardrails.map((guardrail) => {
-      const blocked = guardrail.codes.some((code) => decision.codes.includes(code));
+      const blocked = pending || guardrail.codes.some((code) => decision.codes.includes(code));
       return <div className="brief-row" data-guardrail={guardrail.codes[0]} data-guardrail-status={blocked ? "block" : "pass"} key={guardrail.label}>
         <span>{blocked ? "BLOCK" : "PASS"}</span><p>{guardrail.label}</p>
       </div>;

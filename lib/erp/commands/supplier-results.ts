@@ -22,6 +22,16 @@ export interface EditSupplierResultPatch {
 const editableFields = new Set<keyof EditSupplierResultPatch>([
   "scenario", "promisedDeliveryDate", "partialDeliveryDate", "remainingDeliveryDate", "followUpDate", "reason", "summary", "sentiment",
 ]);
+const supplierScenarios: readonly SupplierCallScenario[] = ["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"];
+const supplierSentiments: readonly SupplierCallResult["sentiment"][] = ["positive", "neutral", "concerned"];
+
+function validEditPatch(patch: Record<string, unknown>): boolean {
+  if (Object.hasOwn(patch, "scenario") && (typeof patch.scenario !== "string" || !supplierScenarios.includes(patch.scenario as SupplierCallScenario))) return false;
+  if (Object.hasOwn(patch, "sentiment") && (typeof patch.sentiment !== "string" || !supplierSentiments.includes(patch.sentiment as SupplierCallResult["sentiment"]))) return false;
+  if (Object.hasOwn(patch, "summary") && (typeof patch.summary !== "string" || !patch.summary.trim())) return false;
+  if (Object.hasOwn(patch, "reason") && patch.reason !== null && (typeof patch.reason !== "string" || !patch.reason.trim())) return false;
+  return ["promisedDeliveryDate", "partialDeliveryDate", "remainingDeliveryDate", "followUpDate"].every((field) => !Object.hasOwn(patch, field) || patch[field] === null || (typeof patch[field] === "string" && isStrictIsoDate(patch[field])));
+}
 
 function reject<T>(state: ErpState, code: "FORBIDDEN" | "INVALID_INPUT" | "INVALID_STATE" | "NOT_FOUND", message: string): ErpCommandResult<T> {
   return rejectErpCommand(state, { code, message });
@@ -39,28 +49,31 @@ function addDays(date: string, days: number): string {
   return value.toISOString().slice(0, 10);
 }
 
-function scenarioDraft(call: SupplierCall, maximumDeliveryDate: string): Omit<SupplierCallResult, "id" | "supplierCallId" | "supplierId" | "purchaseOrderId" | "status" | "sourceScenario" | "sourceProvider" | "sourceProviderCallId" | "createdAt" | "updatedAt"> {
+function scenarioDraft(call: SupplierCall, maximumDeliveryDate: string): Omit<SupplierCallResult, "id" | "supplierCallId" | "supplierId" | "purchaseOrderId" | "status" | "sourceScenario" | "sourceProvider" | "sourceProviderCallId" | "createdAt" | "updatedAt"> | null {
   const callDate = call.calledLocalDate!;
-  if (call.scenario === "delivery_commitment") return {
+  switch (call.scenario) {
+  case "delivery_commitment": return {
     scenario: call.scenario, promisedDeliveryDate: maximumDeliveryDate, partialDeliveryDate: null, remainingDeliveryDate: null,
     followUpDate: maximumDeliveryDate, reason: null, summary: `Supplier committed to deliver the complete purchase order by ${maximumDeliveryDate}.`, sentiment: "positive",
   };
-  if (call.scenario === "partial_delivery") return {
+  case "partial_delivery": return {
     scenario: call.scenario, promisedDeliveryDate: maximumDeliveryDate, partialDeliveryDate: callDate, remainingDeliveryDate: maximumDeliveryDate,
     followUpDate: maximumDeliveryDate, reason: "Part of the order is ready; the remainder needs follow-up.", summary: `Supplier committed to a partial delivery on ${callDate} and the remainder by ${maximumDeliveryDate}.`, sentiment: "neutral",
   };
-  if (call.scenario === "stock_unavailable") return {
+  case "stock_unavailable": return {
     scenario: call.scenario, promisedDeliveryDate: null, partialDeliveryDate: null, remainingDeliveryDate: null,
     followUpDate: addDays(callDate, 1), reason: "Supplier stock is unavailable.", summary: "Supplier reported unavailable stock; procurement review is required.", sentiment: "concerned",
   };
-  if (call.scenario === "price_discrepancy") return {
+  case "price_discrepancy": return {
     scenario: call.scenario, promisedDeliveryDate: null, partialDeliveryDate: null, remainingDeliveryDate: null,
     followUpDate: addDays(callDate, 1), reason: "Supplier price differs from the approved purchase order.", summary: "Supplier reported a price discrepancy; no price was changed by the call.", sentiment: "concerned",
   };
-  return {
-    scenario: call.scenario, promisedDeliveryDate: null, partialDeliveryDate: null, remainingDeliveryDate: null,
+  case "failed_contact": return {
+    scenario: "failed_contact", promisedDeliveryDate: null, partialDeliveryDate: null, remainingDeliveryDate: null,
     followUpDate: addDays(callDate, 2), reason: "Supplier contact was unsuccessful.", summary: "The supplier could not be reached and requires a policy-checked follow-up.", sentiment: "neutral",
   };
+  default: return null;
+  }
 }
 
 function findPendingResult(state: ErpState, resultId: string): { result: SupplierCallResult; call: SupplierCall } | ErpCommandResult<never> {
@@ -90,18 +103,27 @@ function resultValidation(state: ErpState, result: SupplierCallResult, now: stri
     return invalid;
   })) return "Purchase order data is no longer valid.";
   if (state.disputes.some((item) => item.purchaseOrderId === purchaseOrder.id && ["open", "investigating"].includes(item.status))) return "An unresolved purchase-order dispute requires human review.";
-  if (!result.summary.trim() || !["positive", "neutral", "concerned"].includes(result.sentiment)) return "Supplier result summary or sentiment is invalid.";
+  if (typeof result.summary !== "string" || !result.summary.trim() || !supplierSentiments.includes(result.sentiment)) return "Supplier result summary or sentiment is invalid.";
   const date = (value: string | null) => value === null || isStrictIsoDate(value);
   if (![result.promisedDeliveryDate, result.partialDeliveryDate, result.remainingDeliveryDate, result.followUpDate].every(date)) return "Supplier result contains an invalid date.";
-  if (result.scenario === "delivery_commitment") {
+  switch (result.scenario) {
+  case "delivery_commitment":
     if (!result.promisedDeliveryDate || result.promisedDeliveryDate > approval.maximumDeliveryDate || !result.followUpDate) return "Delivery commitment exceeds the approved boundary or lacks follow-up.";
-  } else if (result.scenario === "partial_delivery") {
+    break;
+  case "partial_delivery":
     if (!approval.partialDeliveryAllowed || !result.partialDeliveryDate || !result.remainingDeliveryDate || !result.followUpDate
       || result.partialDeliveryDate > result.remainingDeliveryDate || result.remainingDeliveryDate > approval.maximumDeliveryDate) return "Partial delivery is incomplete or exceeds the approved boundary.";
-  } else if (result.scenario === "stock_unavailable" || result.scenario === "price_discrepancy") {
+    break;
+  case "stock_unavailable":
+  case "price_discrepancy":
     if (!result.reason?.trim() || !result.followUpDate) return "Supplier discrepancy requires a reason and human follow-up date.";
-  } else if (!result.followUpDate || result.followUpDate <= now.slice(0, 10) || supplier.doNotContact) {
+    break;
+  case "failed_contact":
+    if (!result.followUpDate || result.followUpDate <= now.slice(0, 10) || supplier.doNotContact) {
     return "Failed contact requires a future follow-up and a contactable supplier.";
+    }
+    break;
+  default: return "Supplier result scenario is invalid.";
   }
   return null;
 }
@@ -152,10 +174,12 @@ export function completeSupplierCallSimulation(state: ErpState, role: ErpRole, c
     || input.elapsedSeconds !== (transcript.at(-1)?.offsetSeconds ?? 0)) return reject(state, "INVALID_INPUT", "Supplier simulation transcript or elapsed time is invalid.");
   const fullyCompleted = transcript.length === scripted.length;
   const completed: SupplierCall = { ...call, status: fullyCompleted ? "completed" : "ended_early", transcript, durationSeconds: input.elapsedSeconds, endedAt: now, updatedAt: now };
+  const drafted = fullyCompleted ? scenarioDraft(call, approval.maximumDeliveryDate) : null;
+  if (fullyCompleted && !drafted) return reject(state, "INVALID_STATE", "Supplier simulation scenario is invalid.");
   const result: SupplierCallResult = {
     id: `supplier-result-${call.id}`, supplierCallId: call.id, supplierId: call.supplierId, purchaseOrderId: call.purchaseOrderId, status: fullyCompleted ? "pending" : "human_review",
     sourceScenario: call.scenario, sourceProvider: call.provider, sourceProviderCallId: call.providerCallId,
-    ...(fullyCompleted ? scenarioDraft(call, approval.maximumDeliveryDate) : {
+    ...(fullyCompleted ? drafted! : {
       scenario: "failed_contact" as const, promisedDeliveryDate: null, partialDeliveryDate: null, remainingDeliveryDate: null, followUpDate: null,
       reason: "Call ended before the complete approved script was displayed.", summary: "Incomplete supplier call requires human review; no commitment was extracted.", sentiment: "neutral" as const,
     }), createdAt: now, updatedAt: now,
@@ -168,7 +192,7 @@ export function completeSupplierCallSimulation(state: ErpState, role: ErpRole, c
 export function editSupplierResult(state: ErpState, role: ErpRole, resultId: string, patch: EditSupplierResultPatch, now: string): ErpCommandResult<SupplierCallResult> {
   const permission = authorizeReview<SupplierCallResult>(state, role);
   if (permission) return permission;
-  if (!isStrictIsoInstant(now) || !patch || typeof patch !== "object" || Object.keys(patch).length === 0 || Object.keys(patch).some((key) => !editableFields.has(key as keyof EditSupplierResultPatch))) return reject(state, "INVALID_INPUT", "Supplier result edit is invalid.");
+  if (!isStrictIsoInstant(now) || !patch || typeof patch !== "object" || Object.keys(patch).length === 0 || Object.keys(patch).some((key) => !editableFields.has(key as keyof EditSupplierResultPatch)) || !validEditPatch(patch as unknown as Record<string, unknown>)) return reject(state, "INVALID_INPUT", "Supplier result edit is invalid.");
   const context = findPendingResult(state, resultId);
   if ("ok" in context) return context;
   const edited: SupplierCallResult = { ...context.result, ...patch, updatedAt: now };

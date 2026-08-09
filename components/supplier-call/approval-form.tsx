@@ -14,11 +14,12 @@ interface ApprovalFormProps {
   startAllowed: boolean;
   busy: boolean;
   error: string | null;
+  currentCallTime: string | null;
   onSave: (input: SaveSupplierCallApprovalInput) => void;
   onStart: () => void;
 }
 
-export function ApprovalForm({ callId, purchaseOrder, products, approval, initialScenario, canApprove, startAllowed, busy, error, onSave, onStart }: ApprovalFormProps) {
+export function ApprovalForm({ callId, purchaseOrder, products, approval, initialScenario, canApprove, startAllowed, busy, error, currentCallTime, onSave, onStart }: ApprovalFormProps) {
   const [scenario, setScenario] = useState<SupplierCallScenario>(initialScenario);
   const [objective, setObjective] = useState(approval?.objective ?? "Confirm delivery availability, dates, and outstanding quantities.");
   const [maximumDeliveryDate, setMaximumDeliveryDate] = useState(approval?.maximumDeliveryDate ?? "2026-08-20");
@@ -36,7 +37,7 @@ export function ApprovalForm({ callId, purchaseOrder, products, approval, initia
       <label className="field"><span>Scenario</span><select value={scenario} onChange={(event) => setScenario(event.target.value as SupplierCallScenario)}><option value="delivery_commitment">Delivery commitment</option><option value="partial_delivery">Partial delivery</option><option value="stock_unavailable">Stock unavailable</option><option value="price_discrepancy">Price discrepancy</option><option value="failed_contact">Failed contact</option></select></label>
       <label className="field"><span>Maximum delivery date</span><input type="date" value={maximumDeliveryDate} onChange={(event) => setMaximumDeliveryDate(event.target.value)} /></label>
       <label className="field"><span>Language</span><input value={language} onChange={(event) => setLanguage(event.target.value)} /></label>
-      <div className="field"><span>Calling time</span><strong>Current Jakarta time (read-only)</strong></div>
+      <div className="field"><span>Calling time</span><strong>{currentCallTime ? `${currentCallTime} Jakarta (read-only)` : "Current Jakarta time pending"}</strong></div>
       <label className="field"><span>Maximum price increase (%)</span><input min="0" max="100" type="number" value={maximumUnitPriceIncreasePercent} onChange={(event) => setMaximumUnitPriceIncreasePercent(Number(event.target.value))} /></label>
       <label className="field"><span>Approved by</span><input value={approvedBy ?? ""} onChange={(event) => setApprovedBy(event.target.value)} /></label>
     </div>

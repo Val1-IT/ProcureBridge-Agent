@@ -3,3 +3,8 @@ export function getJakartaClock(now: Date): { time: string; date: string } {
   const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "";
   return { time: `${part("hour")}:${part("minute")}`, date: `${part("year")}-${part("month")}-${part("day")}` };
 }
+
+export function getSampledJakartaClock(now: Date | null): { time: string; date: string; sampledAt: string } | null {
+  if (!now || !Number.isFinite(now.getTime())) return null;
+  return { ...getJakartaClock(now), sampledAt: now.toISOString() };
+}

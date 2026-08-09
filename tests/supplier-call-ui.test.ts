@@ -8,6 +8,7 @@ import { saveSupplierCallApproval } from "../lib/erp/commands/supplier-calls";
 import { completeSupplierCallSimulation, recordSupplierCallStarted } from "../lib/erp/commands/supplier-results";
 import { createSeedState } from "../lib/demo/seed";
 import type { DemoState } from "../lib/domain/types";
+import { getSampledJakartaClock } from "../lib/supplier-call/jakarta-clock";
 
 const harness = vi.hoisted(() => ({ callId: "supplier-call-po-1", purchaseOrderId: "po-router-replenishment", state: null as DemoState | null }));
 
@@ -69,22 +70,28 @@ describe("supplier call workflow UI", () => {
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Start Call<\/button>/);
   });
 
-  it("unlocks Start Call only when the saved approval and all eight guardrails pass", () => {
+  it("keeps Start Call locked before the mounted client clock is sampled", () => {
     harness.state = approvedDemoState();
     const html = renderToStaticMarkup(createElement(SupplierFollowUpBriefPage));
-    expect(html.match(/data-guardrail-status="pass"/g)).toHaveLength(8);
-    expect(html).toMatch(/<button(?![^>]*disabled)[^>]*>Start Call<\/button>/);
+    expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Start Call<\/button>/);
+    expect(html).toContain("Current Jakarta time pending");
     expect(html).toContain("Mock provider");
     expect(html).toContain("Simulation");
-    expect(html).toContain("Current Jakarta time (read-only)");
+    expect(html).toContain("Current Jakarta time pending");
     expect(html).not.toContain('type="time"');
   });
 
-  it("locks Start Call when the actual current Jakarta time is outside policy hours", () => {
+  it("reevaluates the Jakarta boundary from each exact mounted clock sample", () => {
+    expect(getSampledJakartaClock(null)).toBeNull();
+    expect(getSampledJakartaClock(new Date("2026-08-09T03:00:00.000Z"))).toEqual({ date: "2026-08-09", time: "10:00", sampledAt: "2026-08-09T03:00:00.000Z" });
+    expect(getSampledJakartaClock(new Date("2026-08-09T12:00:00.000Z"))).toEqual({ date: "2026-08-09", time: "19:00", sampledAt: "2026-08-09T12:00:00.000Z" });
+  });
+
+  it("does not derive an SSR guardrail decision from the server process clock", () => {
     vi.setSystemTime(new Date("2026-08-09T12:00:00.000Z"));
     harness.state = approvedDemoState();
     const html = renderToStaticMarkup(createElement(SupplierFollowUpBriefPage));
-    expect(html).toContain("Supplier calls are permitted only from 08:00 through 18:00 local time.");
+    expect(html).toContain("CLOCK PENDING");
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Start Call<\/button>/);
   });
 

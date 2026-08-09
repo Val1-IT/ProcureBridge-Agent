@@ -173,6 +173,19 @@ describe("supplier result review commands", () => {
     expect(edited.state.auditLogs.at(-1)).toMatchObject({ action: "supplier_result.edited", detail: { fromScenario: "delivery_commitment", toScenario: "price_discrepancy" } });
   });
 
+  it.each([
+    ["unknown scenario", { scenario: "forged_scenario" }],
+    ["unknown sentiment", { sentiment: "ecstatic" }],
+    ["non-string summary", { summary: 42 }],
+    ["invalid date type", { followUpDate: 123 }],
+  ])("rejects a forged runtime edit with %s unchanged and without audit", (_label, forgedPatch) => {
+    const before = stateWithResult("delivery_commitment");
+    const auditCount = before.auditLogs.length;
+    const result = editSupplierResult(before, "approver", pending(before).id, forgedPatch as never, reviewedAt);
+    expect(result).toMatchObject({ ok: false, state: before, error: { code: "INVALID_INPUT" } });
+    expect(result.state.auditLogs).toHaveLength(auditCount);
+  });
+
   it("fails closed when result provenance does not match its completed call", () => {
     const before = stateWithResult();
     const result = pending(before);

@@ -46,6 +46,15 @@ describe("supplier call review fixes", () => {
     expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
+  it("replaces a crafted valid-looking session id when migrating schema v9", () => {
+    const injected = "demo_attacker_controlled_session_12345";
+    const legacy = { ...createSeedState(injected), schemaVersion: 9 };
+    const migrated = loadDemoState(JSON.stringify(legacy));
+    expect(migrated.recoveryReason).toBeNull();
+    expect(migrated.state.demoSessionId).toMatch(/^demo_[A-Za-z0-9_-]{20,100}$/);
+    expect(migrated.state.demoSessionId).not.toBe(injected);
+  });
+
   it("persists only the displayed prefix and creates human review when ended early", () => {
     const state = approved();
     const started = recordSupplierCallStarted(state, "approver", "supplier-call-po-1", {

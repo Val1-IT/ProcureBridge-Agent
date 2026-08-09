@@ -246,7 +246,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
 
 export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
-  const demoSessionId = isValidDemoSessionId(value.demoSessionId) ? value.demoSessionId : createDemoSessionId();
+  const demoSessionId = value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) ? value.demoSessionId : createDemoSessionId();
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
     const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))))));
