@@ -196,4 +196,21 @@ describe("inventory selectors", () => {
       { source: "GR-2026-0001", signed: 10, balance: 40, actor: "Warehouse" },
     ]);
   });
+
+  it("orders stock-card balances by parsed instant and stable movement ID", () => {
+    const state = createErpSeedState();
+    state.stockAdjustments.push({
+      id: "offset-adjustment", adjustmentNumber: "SA-2026-0001", productId: "product-router", warehouseId: "warehouse-jakarta", quantityDelta: 5,
+      reason: "Earlier instant with offset", status: "approved", proposedByRole: "warehouse", approvedByRole: "approver", approvedAt: "2026-08-09T01:00:00+02:00", createdAt: "2026-08-09T00:30:00+02:00", updatedAt: "2026-08-09T01:00:00+02:00",
+    });
+    state.stockMovements.push({
+      id: "offset-adjustment-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 5, direction: "adjustment", sourceType: "adjustment", sourceId: "offset-adjustment",
+      actorRole: "approver", actorId: "role:approver", reason: "Earlier instant with offset", createdAt: "2026-08-09T01:00:00+02:00", updatedAt: "2026-08-09T01:00:00+02:00",
+    });
+
+    expect(selectStockCard(state, "product-router").map((row) => ({ id: row.movement.id, balance: row.resultingBalance }))).toEqual([
+      { id: "offset-adjustment-movement", balance: 5 },
+      { id: "stock-router-opening", balance: 35 },
+    ]);
+  });
 });

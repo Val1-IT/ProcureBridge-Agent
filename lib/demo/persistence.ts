@@ -1,6 +1,7 @@
 import type { DemoState } from "../domain/types";
 import type { ErpState } from "../erp/types";
 import { createErpSeedState } from "../erp/seed";
+import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
 import { createSeedState } from "./seed";
 
 export const DEMO_SCHEMA_VERSION = 5;
@@ -87,7 +88,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const goodsReceipts = value.goodsReceipts as Record<string, unknown>[];
   if (!goodsReceipts.every((item) => {
     const purchaseOrder = hasString(item.purchaseOrderId) ? purchaseOrderById.get(item.purchaseOrderId) : undefined;
-    return hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && activeWarehouseIds.has(item.warehouseId) && purchaseOrder?.warehouseId === item.warehouseId && includes(["draft", "approved", "posted", "cancelled"], item.status) && validLines(item.lines) && receiptLinesMatchOrder(purchaseOrder?.lines, item.lines);
+    return hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && activeWarehouseIds.has(item.warehouseId) && purchaseOrder?.warehouseId === item.warehouseId && includes(["draft", "approved", "cancelled"], item.status) && validLines(item.lines) && receiptLinesMatchOrder(purchaseOrder?.lines, item.lines);
   })) return false;
   const goodsReceiptById = new Map(goodsReceipts.map((item) => [item.id, item]));
   if (!(value.salesOrders as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["orderNumber", "customerId", "warehouseId"]) && customerIds.has(item.customerId) && warehouseIds.has(item.warehouseId) && includes(salesOrderStatuses, item.status) && Array.isArray(item.lines) && item.lines.every((line) => hasQuantityLine(line) && hasNumber(line.reservedQuantity) && hasNumber(line.deliveredQuantity) && productIds.has(line.productId)))) return false;
@@ -109,16 +110,16 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (!stockMovements.every((item) => {
     if (!(hasEntityDates(item) && hasFields(item, ["productId", "warehouseId", "sourceType", "sourceId", "actorRole", "actorId"]) && activeProductIds.has(item.productId) && activeWarehouseIds.has(item.warehouseId) && hasNumber(item.quantity) && Number.isInteger(item.quantity) && item.quantity !== 0 && includes(["in", "out", "adjustment"], item.direction) && includes(["seed", "goods_receipt", "delivery_order", "adjustment"], item.sourceType) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && (item.reason === null || typeof item.reason === "string") && !Number.isNaN(new Date(String(item.createdAt)).getTime()))) return false;
     if (item.sourceType === "seed") { const trusted = trustedOpeningMovements.get(String(item.id)); return Boolean(trusted && item.productId === trusted.productId && item.warehouseId === trusted.warehouseId && item.direction === "in" && item.quantity === trusted.quantity && item.sourceId === "seed-opening" && item.actorRole === "system" && item.actorId === "system:seed"); }
-    if (item.sourceType === "goods_receipt") { const receipt = goodsReceiptById.get(item.sourceId); return Boolean(receipt && item.direction === "in" && item.quantity > 0 && receipt.warehouseId === item.warehouseId && ["approved", "posted"].includes(String(receipt.status)) && hasValidGoodsReceiptActor(item, receipt)); }
+    if (item.sourceType === "goods_receipt") { const receipt = goodsReceiptById.get(item.sourceId); return Boolean(receipt && item.direction === "in" && item.quantity > 0 && receipt.warehouseId === item.warehouseId && receipt.status === "approved" && includes(["warehouse", "admin"], item.actorRole) && item.actorId === `role:${String(item.actorRole)}`); }
     if (item.sourceType === "delivery_order") { const delivery = deliveryOrderById.get(item.sourceId); return item.direction === "out" && item.quantity > 0 && delivery?.warehouseId === item.warehouseId && delivery?.status === "posted" && includes(["warehouse", "admin"], item.actorRole) && item.actorId === `role:${String(item.actorRole)}`; }
     const adjustment = stockAdjustmentById.get(item.sourceId);
     return item.direction === "adjustment" && includes(["approver", "admin"], item.actorRole) && adjustment?.status === "approved" && adjustment.productId === item.productId && adjustment.warehouseId === item.warehouseId && adjustment.quantityDelta === item.quantity && adjustment.reason === item.reason && adjustment.approvedByRole === item.actorRole && item.actorId === `role:${String(item.actorRole)}`;
   })) return false;
   if (!goodsReceipts.every((receipt) => {
     const postings = stockMovements.filter((movement) => movement.sourceType === "goods_receipt" && movement.sourceId === receipt.id);
-    if (receipt.status !== "approved" && receipt.status !== "posted") return postings.length === 0;
+    if (receipt.status !== "approved") return postings.length === 0;
     const lines = receipt.lines as Record<string, unknown>[];
-    return postings.length === lines.length && lines.every((line) => postings.filter((movement) => movement.productId === line.productId && movement.warehouseId === receipt.warehouseId && movement.direction === "in" && movement.quantity === line.quantity && hasValidGoodsReceiptActor(movement, receipt) && hasString(movement.reason)).length === 1);
+    return postings.length === lines.length && lines.every((line) => postings.filter((movement) => movement.productId === line.productId && movement.warehouseId === receipt.warehouseId && movement.direction === "in" && movement.quantity === line.quantity && includes(["warehouse", "admin"], movement.actorRole) && movement.actorId === `role:${String(movement.actorRole)}` && hasString(movement.reason)).length === 1);
   })) return false;
   if (!stockAdjustments.every((adjustment) => {
     const postings = stockMovements.filter((movement) => movement.sourceType === "adjustment" && movement.sourceId === adjustment.id);
@@ -198,7 +199,7 @@ function hasConsistentPurchaseReceiptTotals(purchaseOrders: Record<string, unkno
     if (!Array.isArray(orderLines) || orderLines.length === 0 || !orderLines.every((line) => hasNumber(line.quantity) && line.quantity > 0)) return false;
     const totals = new Map<string, number>();
     for (const receipt of goodsReceipts) {
-      if (receipt.purchaseOrderId !== purchaseOrder.id || (receipt.status !== "approved" && receipt.status !== "posted")) continue;
+      if (receipt.purchaseOrderId !== purchaseOrder.id || receipt.status !== "approved") continue;
       for (const line of receipt.lines as Array<{ productId: string; quantity: number }>) totals.set(line.productId, (totals.get(line.productId) ?? 0) + line.quantity);
     }
     if (orderLines.some((line) => (totals.get(line.productId) ?? 0) > line.quantity)) return false;
@@ -213,7 +214,7 @@ function hasConsistentPurchaseReceiptTotals(purchaseOrders: Record<string, unkno
 
 function hasNonNegativeMovementHistory(stockMovements: Record<string, unknown>[]): boolean {
   const balances = new Map<string, number>();
-  const ordered = [...stockMovements].sort((left, right) => new Date(String(left.createdAt)).getTime() - new Date(String(right.createdAt)).getTime() || String(left.id).localeCompare(String(right.id)));
+  const ordered = [...stockMovements].sort((left, right) => compareStockMovementChronology(left as unknown as StockMovementChronologyKey, right as unknown as StockMovementChronologyKey));
   for (const movement of ordered) {
     const key = `${String(movement.warehouseId)}:${String(movement.productId)}`;
     const quantity = Number(movement.quantity);
@@ -234,17 +235,19 @@ function migrateErpV3(value: unknown): ErpState | null {
 
 function migrateErpV4(value: unknown): ErpState | null {
   if (!isRecord(value)) return null;
-  const stockMovements = Array.isArray(value.stockMovements) ? value.stockMovements.map((movement) => isRecord(movement) ? {
-    ...movement,
-    actorRole: movement.actorRole ?? "system",
-    actorId: movement.actorId ?? (movement.sourceType === "seed" ? "system:seed" : "system:migrated-v4"),
-    reason: movement.reason ?? (movement.sourceType === "seed" ? "Demo opening balance" : movement.sourceType === "goods_receipt" ? "Migrated posted goods receipt" : null),
-  } : movement) : value.stockMovements;
-  return { ...value, stockMovements, stockAdjustments: Array.isArray(value.stockAdjustments) ? value.stockAdjustments : [] } as unknown as ErpState;
-}
-
-function hasValidGoodsReceiptActor(movement: Record<string, unknown>, receipt: Record<string, unknown>): boolean {
-  const currentActor = includes(["warehouse", "admin"], movement.actorRole) && movement.actorId === `role:${String(movement.actorRole)}`;
-  const migratedLegacyActor = receipt.status === "posted" && movement.actorRole === "system" && movement.actorId === "system:migrated-v4";
-  return currentActor || migratedLegacyActor;
+  const goodsReceipts = Array.isArray(value.goodsReceipts) ? value.goodsReceipts.map((receipt) => isRecord(receipt) && receipt.status === "posted" ? { ...receipt, status: "approved" } : receipt) : value.goodsReceipts;
+  const stockMovements = Array.isArray(value.stockMovements) ? value.stockMovements.map((movement) => {
+    if (!isRecord(movement)) return movement;
+    if (movement.sourceType === "goods_receipt") {
+      const actorRole = movement.actorRole === "admin" ? "admin" : "warehouse";
+      return { ...movement, actorRole, actorId: `role:${actorRole}`, reason: "Migrated posted goods receipt" };
+    }
+    return {
+      ...movement,
+      actorRole: movement.actorRole ?? "system",
+      actorId: movement.actorId ?? (movement.sourceType === "seed" ? "system:seed" : "system:migrated-v4"),
+      reason: movement.reason ?? (movement.sourceType === "seed" ? "Demo opening balance" : null),
+    };
+  }) : value.stockMovements;
+  return { ...value, goodsReceipts, stockMovements, stockAdjustments: Array.isArray(value.stockAdjustments) ? value.stockAdjustments : [] } as unknown as ErpState;
 }

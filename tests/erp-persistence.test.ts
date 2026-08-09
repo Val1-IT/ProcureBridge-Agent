@@ -3,7 +3,7 @@ import type { DemoState } from "../lib/domain/types";
 import { deserializeDemoState, loadDemoState } from "../lib/demo/persistence";
 import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
-import { selectAvailableStock, selectIncomingStock } from "../lib/erp/selectors";
+import { selectAvailableStock, selectIncomingStock, selectPhysicalStock } from "../lib/erp/selectors";
 import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
 
 function createStateWithLinkedSelectedQuotation() {
@@ -192,7 +192,7 @@ describe("ERP persistence foundation", () => {
     expect(loadDemoState(JSON.stringify(persisted)).recoveryReason).toBeNull();
   });
 
-  it("migrates a schema v4 posted receipt with explicit legacy provenance", () => {
+  it("migrates a schema v4 posted receipt to canonical v5 evidence without changing stock", () => {
     const legacy = createSeedState();
     legacy.schemaVersion = 4;
     legacy.erp.purchaseOrders[0] = { ...legacy.erp.purchaseOrders[0], status: "fully_received" };
@@ -205,14 +205,35 @@ describe("ERP persistence foundation", () => {
       actorRole: undefined as never, actorId: undefined as never, reason: null, createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
     });
 
+    const stockBeforeMigration = selectPhysicalStock(legacy.erp, "product-router");
     const loaded = loadDemoState(JSON.stringify(legacy));
+    const reloaded = loadDemoState(JSON.stringify(loaded.state));
 
     expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state.erp.goodsReceipts.at(-1)?.status).toBe("approved");
     expect(loaded.state.erp.stockMovements.at(-1)).toMatchObject({
-      actorRole: "system",
-      actorId: "system:migrated-v4",
+      actorRole: "warehouse",
+      actorId: "role:warehouse",
       reason: "Migrated posted goods receipt",
     });
+    expect(selectPhysicalStock(loaded.state.erp, "product-router")).toBe(stockBeforeMigration);
+    expect(reloaded.recoveryReason).toBeNull();
+    expect(selectPhysicalStock(reloaded.state.erp, "product-router")).toBe(stockBeforeMigration);
+  });
+
+  it("rejects direct schema v5 receipt evidence that forges legacy system provenance", () => {
+    const forged = createSeedState();
+    forged.erp.purchaseOrders[0] = { ...forged.erp.purchaseOrders[0], status: "fully_received" };
+    forged.erp.goodsReceipts.push({
+      id: "forged-legacy-gr", receiptNumber: "GR-2025-0001", purchaseOrderId: forged.erp.purchaseOrders[0].id, warehouseId: "warehouse-jakarta", status: "posted",
+      lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }], createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
+    });
+    forged.erp.stockMovements.push({
+      id: "forged-legacy-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 40, direction: "in", sourceType: "goods_receipt", sourceId: "forged-legacy-gr",
+      actorRole: "system", actorId: "system:migrated-v4", reason: "Migrated posted goods receipt", createdAt: "2025-12-01T10:00:00.000Z", updatedAt: "2025-12-01T10:00:00.000Z",
+    });
+
+    expect(loadDemoState(JSON.stringify(forged)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
   it("rejects exact adjustment evidence when chronological stock becomes negative", () => {

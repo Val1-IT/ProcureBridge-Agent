@@ -1,4 +1,5 @@
 import type { ErpFollowUp, ErpState, Product, PurchaseOrder, RequestForQuotation, StockMovement, Supplier, SupplierQuotation } from "./types";
+import { compareStockMovementChronology } from "./stock-movement-order";
 
 export type SupplierFollowUpReason = "confirmation_overdue" | "delivery_overdue" | "partial_receipt_outstanding" | "approved_follow_up_due";
 
@@ -75,7 +76,7 @@ export function selectStockCard(state: ErpState, productId: string): StockCardRo
   let balance = 0;
   return state.stockMovements
     .filter((movement) => movement.productId === productId)
-    .sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id))
+    .sort(compareStockMovementChronology)
     .map((movement) => {
       const signedQuantity = signedMovementQuantity(movement);
       balance += signedQuantity;
