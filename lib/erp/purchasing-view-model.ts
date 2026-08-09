@@ -54,9 +54,17 @@ export interface ReceiptPreparationRow {
   orderedQuantity: number;
   receivedQuantity: number;
   outstandingQuantity: number;
+  lines: ReceiptPreparationLine[];
   prepareHref: string;
   postingEnabled: false;
   disabledReason: string;
+}
+
+export interface ReceiptPreparationLine {
+  productId: string;
+  orderedQuantity: number;
+  receivedQuantity: number;
+  outstandingQuantity: number;
 }
 
 export type SupplierFollowUpReasonCode = "CONFIRMATION_OVERDUE" | "DELIVERY_OVERDUE" | "PARTIAL_RECEIPT_OUTSTANDING" | "APPROVED_FOLLOW_UP_DUE";
@@ -176,7 +184,7 @@ export function buildPurchaseOrderDetailModel(state: ErpState, role: ErpRole, pu
   const links: { supplier: string; request?: string; receipts: string; followUp: string } = {
     supplier: `/suppliers?supplierId=${supplier.id}`,
     ...(purchaseOrder.purchaseRequestId ? { request: `/purchasing/requests?purchaseRequestId=${purchaseOrder.purchaseRequestId}` } : {}),
-    receipts: `/purchasing/receipts?purchaseOrderId=${purchaseOrder.id}`,
+    receipts: `/purchasing/receipts?purchaseOrderId=${purchaseOrder.id}&mode=prepare`,
     followUp: `/purchasing/follow-up?purchaseOrderId=${purchaseOrder.id}`,
   };
   return {
@@ -185,12 +193,10 @@ export function buildPurchaseOrderDetailModel(state: ErpState, role: ErpRole, pu
     row,
     links,
     allowedActions: allowedActions(purchaseOrder.status, role),
-    lines: purchaseOrder.lines.map((line) => ({
-      ...line,
-      product: state.products.find((item) => item.id === line.productId) ?? null,
-      receivedQuantity: receivedForProduct(state, purchaseOrder.id, line.productId),
-      lineTotal: line.quantity * line.unitPrice,
-    })),
+    lines: purchaseOrder.lines.map((line) => {
+      const quantities = receiptLineQuantities(state, purchaseOrder.id, line);
+      return { ...line, product: state.products.find((item) => item.id === line.productId) ?? null, receivedQuantity: quantities.receivedQuantity, outstandingQuantity: quantities.outstandingQuantity, lineTotal: line.quantity * line.unitPrice };
+    }),
     totalAmount: total(purchaseOrder.lines),
     receipts: state.goodsReceipts.filter((item) => item.purchaseOrderId === purchaseOrder.id),
     calls: state.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrder.id),
@@ -211,8 +217,10 @@ export function buildReceiptPreparationRows(state: ErpState): ReceiptPreparation
     if (purchaseOrder.status !== "confirmed" && purchaseOrder.status !== "partially_received") return [];
     const supplier = state.suppliers.find((item) => item.id === purchaseOrder.supplierId);
     if (!supplier) return [];
-    const orderedQuantity = sumQuantities(purchaseOrder.lines);
-    const receivedQuantity = receivedForOrder(state, purchaseOrder.id);
+    const lines = purchaseOrder.lines.map((line) => receiptLineQuantities(state, purchaseOrder.id, line));
+    const orderedQuantity = lines.reduce((sum, line) => sum + line.orderedQuantity, 0);
+    const receivedQuantity = lines.reduce((sum, line) => sum + line.receivedQuantity, 0);
+    const outstandingQuantity = lines.reduce((sum, line) => sum + line.outstandingQuantity, 0);
     return [{
       purchaseOrderId: purchaseOrder.id,
       orderNumber: purchaseOrder.orderNumber,
@@ -220,12 +228,19 @@ export function buildReceiptPreparationRows(state: ErpState): ReceiptPreparation
       status: purchaseOrder.status,
       orderedQuantity,
       receivedQuantity,
-      outstandingQuantity: Math.max(0, orderedQuantity - receivedQuantity),
+      outstandingQuantity,
+      lines,
       prepareHref: `/purchasing/receipts?purchaseOrderId=${purchaseOrder.id}&mode=prepare`,
       postingEnabled: false as const,
       disabledReason: "Pencatatan stok akan diaktifkan melalui command Goods Receipt pada Task 6.",
     }];
   }).sort((left, right) => left.orderNumber.localeCompare(right.orderNumber));
+}
+
+export function selectReceiptPreparationFromSearchParams(rows: readonly ReceiptPreparationRow[], searchParams: Pick<URLSearchParams, "get">): ReceiptPreparationRow | null {
+  if (searchParams.get("mode") !== "prepare") return null;
+  const purchaseOrderId = searchParams.get("purchaseOrderId");
+  return rows.find((row) => row.purchaseOrderId === purchaseOrderId) ?? null;
 }
 
 export function buildSupplierFollowUpRows(state: ErpState, now: string): SupplierFollowUpRow[] {
@@ -280,6 +295,11 @@ function receivedForOrder(state: ErpState, purchaseOrderId: string): number {
 
 function receivedForProduct(state: ErpState, purchaseOrderId: string, productId: string): number {
   return state.goodsReceipts.filter((item) => item.purchaseOrderId === purchaseOrderId && item.status === "posted").flatMap((item) => item.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
+}
+
+function receiptLineQuantities(state: ErpState, purchaseOrderId: string, line: QuantityLine): ReceiptPreparationLine {
+  const receivedQuantity = receivedForProduct(state, purchaseOrderId, line.productId);
+  return { productId: line.productId, orderedQuantity: line.quantity, receivedQuantity, outstandingQuantity: Math.max(0, line.quantity - receivedQuantity) };
 }
 
 function sumQuantities(lines: readonly QuantityLine[]): number {

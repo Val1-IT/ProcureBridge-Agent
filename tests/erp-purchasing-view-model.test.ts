@@ -9,6 +9,7 @@ import {
   buildPurchaseOrderRows,
   buildPurchaseRequestRows,
   buildReceiptPreparationRows,
+  selectReceiptPreparationFromSearchParams,
   buildSupplierFollowUpRows,
   executePurchaseOrderAction,
   filterPurchaseOrderRows,
@@ -94,7 +95,7 @@ describe("purchasing workspace view models", () => {
     expect(model?.links).toEqual({
       supplier: "/suppliers?supplierId=supplier-kertas",
       request: "/purchasing/requests?purchaseRequestId=request-paper",
-      receipts: "/purchasing/receipts?purchaseOrderId=po-paper",
+      receipts: "/purchasing/receipts?purchaseOrderId=po-paper&mode=prepare",
       followUp: "/purchasing/follow-up?purchaseOrderId=po-paper",
     });
     expect(model?.allowedActions).toEqual(["confirm"]);
@@ -175,6 +176,45 @@ describe("purchasing workspace view models", () => {
       { id: "po-confirmed", href: "/purchasing/receipts?purchaseOrderId=po-confirmed&mode=prepare", postingEnabled: false },
       { id: "po-partial", href: "/purchasing/receipts?purchaseOrderId=po-partial&mode=prepare", postingEnabled: false },
     ]);
+  });
+
+  it("round-trips the PO detail receipt URL into the matching preparation panel", () => {
+    const state = stateWithLinkedQuotation();
+    state.purchaseOrders[0] = { ...state.purchaseOrders[0], status: "confirmed" };
+    const detail = buildPurchaseOrderDetailModel(state, "warehouse", "po-paper", fixedNow);
+    const searchParams = new URL(detail!.links.receipts, "https://demo.invalid").searchParams;
+
+    const selection = selectReceiptPreparationFromSearchParams(buildReceiptPreparationRows(state), searchParams);
+
+    expect(selection?.purchaseOrderId).toBe("po-paper");
+    expect(selection?.prepareHref).toBe(detail?.links.receipts);
+  });
+
+  it("derives per-product outstanding receipt quantities from every posted receipt and clamps at zero", () => {
+    const state = createErpSeedState();
+    state.purchaseOrders = [order({
+      id: "po-partial-lines",
+      status: "partially_received",
+      lines: [
+        { productId: "product-router", quantity: 40, unitPrice: 1_050_000 },
+        { productId: "product-paper", quantity: 100, unitPrice: 11_000 },
+      ],
+    })];
+    state.goodsReceipts = [
+      { id: "gr-posted-a", receiptNumber: "GR-2026-0001", purchaseOrderId: "po-partial-lines", warehouseId: "warehouse-jakarta", status: "posted", lines: [{ productId: "product-router", quantity: 10, unitPrice: 1_050_000 }, { productId: "product-paper", quantity: 20, unitPrice: 11_000 }], createdAt: fixedNow, updatedAt: fixedNow },
+      { id: "gr-posted-b", receiptNumber: "GR-2026-0002", purchaseOrderId: "po-partial-lines", warehouseId: "warehouse-jakarta", status: "posted", lines: [{ productId: "product-router", quantity: 5, unitPrice: 1_050_000 }, { productId: "product-paper", quantity: 120, unitPrice: 11_000 }], createdAt: fixedNow, updatedAt: fixedNow },
+      { id: "gr-draft", receiptNumber: "GR-2026-0003", purchaseOrderId: "po-partial-lines", warehouseId: "warehouse-jakarta", status: "draft", lines: [{ productId: "product-router", quantity: 20, unitPrice: 1_050_000 }], createdAt: fixedNow, updatedAt: fixedNow },
+    ];
+
+    const [queueRow] = buildReceiptPreparationRows(state);
+    const selection = selectReceiptPreparationFromSearchParams([queueRow], new URLSearchParams("purchaseOrderId=po-partial-lines&mode=prepare"));
+
+    expect(queueRow).toMatchObject({ orderedQuantity: 140, receivedQuantity: 155, outstandingQuantity: 25 });
+    expect(queueRow.lines).toEqual([
+      { productId: "product-router", orderedQuantity: 40, receivedQuantity: 15, outstandingQuantity: 25 },
+      { productId: "product-paper", orderedQuantity: 100, receivedQuantity: 140, outstandingQuantity: 0 },
+    ]);
+    expect(selection?.lines).toEqual(queueRow.lines);
   });
 
   it("shows an explicit real follow-up reason and routes to Supplier Agent approval", () => {

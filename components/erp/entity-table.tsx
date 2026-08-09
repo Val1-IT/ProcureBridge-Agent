@@ -15,6 +15,7 @@ export function EntityTable<T extends { id: string }>({
   emptyTitle,
   emptyDescription,
   onEdit,
+  selectedRowId,
 }: {
   rows: readonly T[];
   columns: readonly EntityColumn<T>[];
@@ -22,6 +23,7 @@ export function EntityTable<T extends { id: string }>({
   emptyTitle: string;
   emptyDescription: string;
   onEdit?: (row: T) => void;
+  selectedRowId?: string | null;
 }) {
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => {
@@ -43,7 +45,7 @@ export function EntityTable<T extends { id: string }>({
         {filtered.length ? (
           <table className="data-table">
             <thead><tr>{columns.map((column) => <th key={column.label}>{column.label}</th>)}{onEdit ? <th>Aksi</th> : null}</tr></thead>
-            <tbody>{filtered.map((row) => <tr key={row.id}>{columns.map((column) => <td key={column.label}>{column.render(row)}</td>)}{onEdit ? <td><button className="button button-secondary entity-edit-button" type="button" onClick={() => onEdit(row)}>Edit</button></td> : null}</tr>)}</tbody>
+            <tbody>{filtered.map((row) => <tr className={row.id === selectedRowId ? "query-highlight" : undefined} aria-current={row.id === selectedRowId ? "true" : undefined} key={row.id}>{columns.map((column) => <td key={column.label}>{column.render(row)}</td>)}{onEdit ? <td><button className="button button-secondary entity-edit-button" type="button" onClick={() => onEdit(row)}>Edit</button></td> : null}</tr>)}</tbody>
           </table>
         ) : <div className="empty-state"><strong>{emptyTitle}</strong><p>{emptyDescription}</p></div>}
       </div>

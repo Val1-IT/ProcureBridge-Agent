@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { EntityForm, submitSupplierForm, type EntityFormValue } from "@/components/erp/entity-form";
@@ -15,10 +16,12 @@ const blankSupplier: SupplierInput = { code: "", name: "", phone: "", email: "",
 
 export default function SuppliersPage() {
   const { state } = useDemoStore(); const { run } = useErpCommands(); const [editing, setEditing] = useState<Supplier | null>(null);
+  const selectedSupplierId = useSearchParams().get("supplierId");
+  const visibleSuppliers = selectedSupplierId ? state.erp.suppliers.filter((supplier) => supplier.id === selectedSupplierId) : state.erp.suppliers;
   const canManage = authorize(state.erp.activeRole, "master.manage"); const initial = editing ?? blankSupplier;
   const submit = (values: Record<string, EntityFormValue>) => { const input: SupplierInput = { ...(editing ? { id: editing.id } : {}), code: String(values.code), name: String(values.name), phone: String(values.phone), email: String(values.email), address: String(values.address), paymentTermDays: Number(values.paymentTermDays), doNotContact: Boolean(values.doNotContact), active: Boolean(values.active) }; const result = run((erp) => submitSupplierForm(erp, state.erp.activeRole, input, new Date().toISOString())); if (!result.ok) return result.error.message; setEditing(null); return null; };
   return <><PageHeader eyebrow="Master Data • Demo Data" title="Suppliers" description="Kelola identitas pemasok, kontak operasional, termin pembayaran, dan kebijakan do-not-contact." /><div className="document-grid">
-    <EntityTable rows={state.erp.suppliers} searchLabel="Filter supplier" emptyTitle="Supplier tidak ditemukan." emptyDescription="Ubah kata pencarian atau tambahkan supplier baru jika role Anda diizinkan." onEdit={canManage ? setEditing : undefined} columns={[
+    <EntityTable rows={visibleSuppliers} selectedRowId={selectedSupplierId} searchLabel="Filter supplier" emptyTitle="Supplier tidak ditemukan." emptyDescription="Ubah kata pencarian atau kembali ke daftar supplier." onEdit={canManage ? setEditing : undefined} columns={[
       { label: "Supplier", searchValue: (row) => `${row.code} ${row.name}`, render: (row) => <><span className="cell-title">{row.name}</span><span className="cell-sub mono">{row.code}</span></> },
       { label: "Kontak", searchValue: (row) => `${row.phone} ${row.email}`, render: (row) => <><span className="cell-title">{row.phone}</span><span className="cell-sub">{row.email}</span></> }, { label: "Alamat", searchValue: (row) => row.address, render: (row) => row.address || "—" },
       { label: "Termin", render: (row) => `${row.paymentTermDays} hari` }, { label: "Kontak AI", searchValue: (row) => row.doNotContact ? "dilarang" : "diizinkan", render: (row) => <StatusChip tone={row.doNotContact ? "red" : "blue"}>{row.doNotContact ? "Do not contact" : "Diizinkan"}</StatusChip> },
