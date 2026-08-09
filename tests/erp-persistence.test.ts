@@ -3,7 +3,7 @@ import type { DemoState } from "../lib/domain/types";
 import { deserializeDemoState, loadDemoState } from "../lib/demo/persistence";
 import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
-import { selectAvailableStock, selectIncomingStock, selectPhysicalStock } from "../lib/erp/selectors";
+import { selectAvailableStock, selectIncomingStock, selectPhysicalStock, selectReservedStock } from "../lib/erp/selectors";
 import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
 import { completeDelivery, confirmSalesOrder, createDeliveryOrder } from "../lib/erp/commands/sales";
 
@@ -21,8 +21,17 @@ function createStateWithLinkedSelectedQuotation() {
   return state;
 }
 
+function addLegacySalesReservations(state: ReturnType<typeof createSeedState>) {
+  for (const order of state.erp.salesOrders) {
+    for (const line of order.lines) {
+      (line as unknown as Record<string, unknown>).reservedQuantity = line.deliveredQuantity;
+    }
+  }
+  return state;
+}
+
 function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
-  const legacy = createSeedState();
+  const legacy = addLegacySalesReservations(createSeedState());
   legacy.schemaVersion = 4;
   legacy.erp.purchaseOrders[0] = { ...legacy.erp.purchaseOrders[0], status: "fully_received" };
   legacy.erp.goodsReceipts.push({
@@ -49,7 +58,7 @@ describe("ERP persistence foundation", () => {
   });
 
   it("migrates stored schema v3 ERP data with safe RFQ and follow-up approval defaults", () => {
-    const legacy = createSeedState();
+    const legacy = addLegacySalesReservations(createSeedState());
     legacy.schemaVersion = 3;
     delete (legacy.erp as { requestForQuotations?: unknown }).requestForQuotations;
     delete (legacy.erp as { supplierQuotations?: unknown }).supplierQuotations;
@@ -64,7 +73,7 @@ describe("ERP persistence foundation", () => {
   });
 
   it("migrates schema v4 ERP data with an empty adjustment proposal collection", () => {
-    const legacy = createSeedState();
+    const legacy = addLegacySalesReservations(createSeedState());
     legacy.schemaVersion = 4;
     delete (legacy.erp as { stockAdjustments?: unknown }).stockAdjustments;
 
@@ -422,12 +431,44 @@ function createPostedDeliveryState() {
   return state;
 }
 
+function removeV6OnlyEvidence(state: ReturnType<typeof createSeedState>) {
+  state.schemaVersion = 5;
+  for (const movement of state.erp.stockMovements) delete (movement as { type?: string }).type;
+  for (const request of state.erp.purchaseRequests) delete (request as unknown as { sourceSalesOrderId?: string | null }).sourceSalesOrderId;
+  return state;
+}
+
+function createLegacyV5PartialDelivery(quantity: number, reservedQuantity: number) {
+  const state = removeV6OnlyEvidence(createSeedState());
+  state.erp.salesOrders[0] = {
+    ...state.erp.salesOrders[0],
+    status: "partially_delivered",
+    lines: [{ productId: "product-router", quantity, unitPrice: 1_500_000, deliveredQuantity: 8, reservedQuantity } as never],
+  };
+  state.erp.deliveryOrders = [{
+    id: "legacy-delivery", deliveryNumber: "DO-2026-0001", salesOrderId: state.erp.salesOrders[0].id, warehouseId: "warehouse-jakarta", status: "posted",
+    lines: [{ productId: "product-router", quantity: 8, unitPrice: 1_500_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+  }];
+  state.erp.stockMovements.push({
+    id: "legacy-delivery-movement", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 8, direction: "out", sourceType: "delivery_order", sourceId: "legacy-delivery",
+    actorRole: "warehouse", actorId: "role:warehouse", reason: "Completed DO-2026-0001", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+  });
+  return state;
+}
+
+function createLegacyV5Confirmed(quantity: number, reservedQuantity: number) {
+  const state = removeV6OnlyEvidence(createSeedState());
+  state.erp.salesOrders[0] = {
+    ...state.erp.salesOrders[0],
+    status: "confirmed",
+    lines: [{ productId: "product-router", quantity, unitPrice: 1_500_000, deliveredQuantity: 0, reservedQuantity } as never],
+  };
+  return state;
+}
+
 describe("sales persistence evidence", () => {
   it("migrates schema v5 reservation fields and movement kinds into canonical schema v6", () => {
-    const legacy = createSeedState() as DemoState & { schemaVersion: number };
-    legacy.schemaVersion = 5;
-    (legacy.erp.salesOrders[0].lines[0] as unknown as Record<string, unknown>).reservedQuantity = 12;
-    for (const movement of legacy.erp.stockMovements) delete (movement as { type?: string }).type;
+    const legacy = createLegacyV5Confirmed(20, 12);
 
     const loaded = loadDemoState(JSON.stringify(legacy));
 
@@ -445,6 +486,75 @@ describe("sales persistence evidence", () => {
     expect(loaded.recoveryReason).toBeNull();
     expect(loaded.state.erp.deliveryOrders[0]).toMatchObject({ status: "posted", salesOrderId: state.erp.salesOrders[0].id });
     expect(loaded.state.erp.salesOrders[0]).toMatchObject({ status: "partially_delivered", lines: [{ deliveredQuantity: 8 }] });
+  });
+
+  it("fails closed for duplicate active shortage requests while retaining cancelled history", () => {
+    const duplicate = createSeedState();
+    const base = { id: "request-shortage-a", requestNumber: "PR-2026-0001", requesterRole: "sales" as const, sourceSalesOrderId: duplicate.erp.salesOrders[0].id, status: "draft" as const, lines: [{ productId: "product-router", quantity: 5, unitPrice: 1_050_000 }], createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z" };
+    duplicate.erp.purchaseRequests = [base, { ...base, id: "request-shortage-b", requestNumber: "PR-2026-0002", status: "submitted" }];
+    const withCancelledHistory = structuredClone(duplicate);
+    withCancelledHistory.erp.purchaseRequests[0].status = "cancelled";
+
+    expect(loadDemoState(JSON.stringify(duplicate)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(withCancelledHistory)).recoveryReason).toBeNull();
+  });
+
+  it("rejects a cancelled Sales Order whose delivery evidence proves every line was delivered", () => {
+    const partiallyDelivered = createPostedDeliveryState();
+    partiallyDelivered.erp.salesOrders[0].status = "cancelled";
+    const state = createPostedDeliveryState();
+    state.erp.salesOrders[0].status = "cancelled";
+    state.erp.salesOrders[0].lines[0].deliveredQuantity = 20;
+    state.erp.deliveryOrders[0].lines[0].quantity = 20;
+    state.erp.stockMovements.at(-1)!.quantity = 20;
+
+    const partialLoaded = loadDemoState(JSON.stringify(partiallyDelivered));
+    expect(partialLoaded.recoveryReason).toBeNull();
+    expect(selectReservedStock(partialLoaded.state.erp, "product-router")).toBe(0);
+    expect(loadDemoState(JSON.stringify(state)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("migrates a genuine v5 partial delivery without changing physical stock or delivery evidence", () => {
+    const covered = createLegacyV5PartialDelivery(20, 10);
+    const uncovered = createLegacyV5PartialDelivery(35, 12);
+    const coveredPhysical = selectPhysicalStock(covered.erp, "product-router");
+    const uncoveredPhysical = selectPhysicalStock(uncovered.erp, "product-router");
+
+    const coveredLoaded = loadDemoState(JSON.stringify(covered));
+    const uncoveredLoaded = loadDemoState(JSON.stringify(uncovered));
+
+    expect(coveredLoaded.recoveryReason).toBeNull();
+    expect(coveredLoaded.state.erp.salesOrders[0]).toMatchObject({ status: "partially_delivered", lines: [{ quantity: 20, deliveredQuantity: 8 }] });
+    expect(selectPhysicalStock(coveredLoaded.state.erp, "product-router")).toBe(coveredPhysical);
+    expect(coveredLoaded.state.erp.deliveryOrders).toEqual(covered.erp.deliveryOrders);
+    expect(coveredLoaded.state.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order"))
+      .toEqual(covered.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order").map((movement) => ({ ...movement, type: "delivery" })));
+    expect(uncoveredLoaded.recoveryReason).toBeNull();
+    expect(uncoveredLoaded.state.erp.salesOrders[0]).toMatchObject({ status: "cancelled", lines: [{ quantity: 35, deliveredQuantity: 8 }] });
+    expect(selectPhysicalStock(uncoveredLoaded.state.erp, "product-router")).toBe(uncoveredPhysical);
+    expect(uncoveredLoaded.state.erp.deliveryOrders).toEqual(uncovered.erp.deliveryOrders);
+    expect(uncoveredLoaded.state.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order"))
+      .toEqual(uncovered.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order").map((movement) => ({ ...movement, type: "delivery" })));
+  });
+
+  it("keeps or releases genuine v5 confirmed reservations according to v6 coverage", () => {
+    const covered = loadDemoState(JSON.stringify(createLegacyV5Confirmed(20, 12)));
+    const uncovered = loadDemoState(JSON.stringify(createLegacyV5Confirmed(35, 12)));
+
+    expect(covered.recoveryReason).toBeNull();
+    expect(covered.state.erp.salesOrders[0]).toMatchObject({ status: "confirmed", lines: [{ quantity: 20, deliveredQuantity: 0 }] });
+    expect(uncovered.recoveryReason).toBeNull();
+    expect(uncovered.state.erp.salesOrders[0]).toMatchObject({ status: "draft", lines: [{ quantity: 35, deliveredQuantity: 0 }] });
+  });
+
+  it("rejects impossible v5 reservation and delivery evidence instead of fabricating fulfillment", () => {
+    const negativeReservation = createLegacyV5PartialDelivery(20, 7);
+    const missingDelivery = createLegacyV5PartialDelivery(20, 10);
+    missingDelivery.erp.deliveryOrders = [];
+    missingDelivery.erp.stockMovements = missingDelivery.erp.stockMovements.filter((movement) => movement.sourceType !== "delivery_order");
+
+    expect(loadDemoState(JSON.stringify(negativeReservation)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(missingDelivery)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
   it.each([

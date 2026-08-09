@@ -97,6 +97,8 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (!salesOrders.every((item) => hasEntityDates(item) && hasFields(item, ["orderNumber", "customerId", "warehouseId"]) && customerIds.has(item.customerId) && warehouseIds.has(item.warehouseId) && includes(salesOrderStatuses, item.status) && validSalesOrderLines(item.lines))) return false;
   const salesOrderIds = new Set(salesOrders.map((item) => item.id));
   if (!purchaseRequests.every((request) => request.sourceSalesOrderId === null || salesOrderIds.has(request.sourceSalesOrderId))) return false;
+  const activeShortageSources = purchaseRequests.filter((request) => request.sourceSalesOrderId !== null && request.status !== "cancelled").map((request) => request.sourceSalesOrderId);
+  if (new Set(activeShortageSources).size !== activeShortageSources.length) return false;
   const salesOrderById = new Map(salesOrders.map((item) => [item.id, item]));
   const deliveryOrders = value.deliveryOrders as Record<string, unknown>[];
   if (!deliveryOrders.every((item) => {
@@ -263,7 +265,7 @@ function hasConsistentSalesDeliveryTotals(salesOrders: Record<string, unknown>[]
     if (status === "draft" || status === "confirmed") return !deliveredAny;
     if (status === "partially_delivered") return deliveredAny && !deliveredAll;
     if (["fully_delivered", "invoiced", "completed"].includes(status)) return deliveredAll;
-    return status === "cancelled";
+    return status === "cancelled" && !deliveredAll;
   });
 }
 
@@ -324,23 +326,70 @@ function migrateErpV4(value: unknown): ErpState | null {
 function migrateErpV5(value: unknown): ErpState | null {
   if (!isRecord(value)) return null;
   const purchaseRequests = Array.isArray(value.purchaseRequests) ? value.purchaseRequests.map((request) => isRecord(request) ? { ...request, sourceSalesOrderId: request.sourceSalesOrderId ?? null } : request) : value.purchaseRequests;
-  const salesOrders = Array.isArray(value.salesOrders) ? value.salesOrders.map((order) => {
-    if (!isRecord(order) || !Array.isArray(order.lines)) return order;
-    const lines = order.lines.map((line) => {
-      if (!isRecord(line)) return line;
-      const next = { ...line };
-      delete next.reservedQuantity;
-      return next;
-    });
-    const hasPartialConfirmedReservation = order.status === "confirmed" && order.lines.some((line) => isRecord(line) && hasNumber(line.reservedQuantity) && line.reservedQuantity !== line.quantity);
-    return { ...order, status: hasPartialConfirmedReservation ? "draft" : order.status, lines };
-  }) : value.salesOrders;
+  const salesOrders = migrateLegacySalesReservations(value.salesOrders, value.stockMovements);
+  if (!salesOrders) return null;
   const stockMovements = Array.isArray(value.stockMovements) ? value.stockMovements.map((movement) => {
     if (!isRecord(movement)) return movement;
     const type = movement.sourceType === "seed" ? "opening" : movement.sourceType === "goods_receipt" ? "receipt" : movement.sourceType === "delivery_order" ? "delivery" : "adjustment";
     return { ...movement, type };
   }) : value.stockMovements;
   return { ...value, purchaseRequests, salesOrders, stockMovements } as unknown as ErpState;
+}
+
+function migrateLegacySalesReservations(salesOrdersValue: unknown, stockMovementsValue: unknown): Record<string, unknown>[] | null {
+  if (!Array.isArray(salesOrdersValue) || !Array.isArray(stockMovementsValue)) return null;
+  const physical = new Map<string, number>();
+  for (const movement of stockMovementsValue) {
+    if (!isRecord(movement) || !hasString(movement.productId) || !hasNumber(movement.quantity) || !includes(["in", "out", "adjustment"], movement.direction)) return null;
+    const delta = movement.direction === "out" ? -Math.abs(movement.quantity) : movement.direction === "in" ? Math.abs(movement.quantity) : movement.quantity;
+    physical.set(movement.productId, (physical.get(movement.productId) ?? 0) + delta);
+  }
+
+  const normalized: Record<string, unknown>[] = [];
+  const active: Array<{ index: number; fullyReserved: boolean; createdAt: string; id: string; lines: Array<{ productId: string; quantity: number; deliveredQuantity: number }> }> = [];
+  for (const [index, orderValue] of salesOrdersValue.entries()) {
+    if (!isRecord(orderValue) || !hasString(orderValue.id) || !hasString(orderValue.createdAt) || !includes(salesOrderStatuses, orderValue.status) || !Array.isArray(orderValue.lines) || orderValue.lines.length === 0) return null;
+    const productIds = new Set<string>();
+    let deliveredAny = false;
+    let deliveredAll = true;
+    let fullyReserved = true;
+    const lines: Record<string, unknown>[] = [];
+    const activeLines: Array<{ productId: string; quantity: number; deliveredQuantity: number }> = [];
+    for (const lineValue of orderValue.lines) {
+      if (!isRecord(lineValue) || !hasString(lineValue.productId) || productIds.has(lineValue.productId)
+        || !hasNumber(lineValue.quantity) || !Number.isInteger(lineValue.quantity) || lineValue.quantity <= 0
+        || !hasNumber(lineValue.deliveredQuantity) || !Number.isInteger(lineValue.deliveredQuantity) || lineValue.deliveredQuantity < 0 || lineValue.deliveredQuantity > lineValue.quantity
+        || !hasNumber(lineValue.reservedQuantity) || !Number.isInteger(lineValue.reservedQuantity) || lineValue.reservedQuantity < lineValue.deliveredQuantity || lineValue.reservedQuantity > lineValue.quantity) return null;
+      deliveredAny ||= lineValue.deliveredQuantity > 0;
+      deliveredAll &&= lineValue.deliveredQuantity === lineValue.quantity;
+      fullyReserved &&= lineValue.reservedQuantity === lineValue.quantity;
+      productIds.add(lineValue.productId);
+      const line = { ...lineValue };
+      delete line.reservedQuantity;
+      lines.push(line);
+      activeLines.push({ productId: lineValue.productId, quantity: lineValue.quantity, deliveredQuantity: lineValue.deliveredQuantity });
+    }
+    const status = String(orderValue.status);
+    if ((status === "draft" || status === "confirmed") && deliveredAny) return null;
+    if (status === "partially_delivered" && (!deliveredAny || deliveredAll)) return null;
+    if (["fully_delivered", "invoiced", "completed"].includes(status) && !deliveredAll) return null;
+    if (status === "cancelled" && deliveredAll) return null;
+    normalized.push({ ...orderValue, lines });
+    if (status === "confirmed" || status === "partially_delivered") active.push({ index, fullyReserved, createdAt: orderValue.createdAt, id: orderValue.id, lines: activeLines });
+  }
+
+  const allocated = new Map<string, number>();
+  active.sort((left, right) => Number(right.fullyReserved) - Number(left.fullyReserved) || left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id));
+  for (const candidate of active) {
+    const covered = candidate.lines.every((line) => (allocated.get(line.productId) ?? 0) + line.quantity - line.deliveredQuantity <= (physical.get(line.productId) ?? 0));
+    if (covered) {
+      for (const line of candidate.lines) allocated.set(line.productId, (allocated.get(line.productId) ?? 0) + line.quantity - line.deliveredQuantity);
+      continue;
+    }
+    const current = normalized[candidate.index];
+    normalized[candidate.index] = { ...current, status: String(current.status) === "confirmed" ? "draft" : "cancelled" };
+  }
+  return normalized;
 }
 
 function hasAuthorizedLegacyReceiptEvidence(value: Record<string, unknown>): boolean {
