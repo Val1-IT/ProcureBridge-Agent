@@ -5,6 +5,20 @@ import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
 import { selectAvailableStock, selectIncomingStock } from "../lib/erp/selectors";
 
+function createStateWithLinkedSelectedQuotation() {
+  const state = createSeedState();
+  const timestamp = "2026-08-09T00:00:00.000Z";
+  state.erp.warehouses.push({ ...state.erp.warehouses[0], id: "warehouse-bandung", code: "WH-BDG", name: "Gudang Bandung", active: false });
+  state.erp.purchaseRequests = [
+    { id: "request-a", requestNumber: "PR-2026-0001", requesterRole: "procurement", status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
+    { id: "request-b", requestNumber: "PR-2026-0002", requesterRole: "procurement", status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
+  ];
+  state.erp.requestForQuotations = [{ id: "rfq-linked", rfqNumber: "RFQ-2026-0001", purchaseRequestId: "request-a", warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-linked", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: timestamp, updatedAt: timestamp }];
+  state.erp.supplierQuotations = [{ id: "quotation-linked", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-linked", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp }];
+  state.erp.purchaseOrders[0] = { ...state.erp.purchaseOrders[0], supplierId: "supplier-kertas", purchaseRequestId: "request-a", supplierQuotationId: "quotation-linked", warehouseId: "warehouse-jakarta", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }] };
+  return state;
+}
+
 describe("ERP persistence foundation", () => {
   it("migrates schema v2 recovery data into schema v4 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
@@ -99,6 +113,38 @@ describe("ERP persistence foundation", () => {
       id: "quotation-kertas", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-router", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
     }];
     malformed.erp.purchaseOrders[0].supplierQuotationId = "quotation-kertas";
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it.each([
+    ["a selected RFQ has no selected quotation", (state: ReturnType<typeof createSeedState>) => {
+      state.erp.requestForQuotations = [{ id: "rfq-empty", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-utama"], selectedQuotationId: null, status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
+    }],
+    ["a selected RFQ points at a selected quotation owned by another RFQ", (state: ReturnType<typeof createSeedState>) => {
+      state.erp.requestForQuotations = [
+        { id: "rfq-a", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-utama"], selectedQuotationId: "quotation-b", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" },
+        { id: "rfq-b", rfqNumber: "RFQ-2026-0002", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-b", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" },
+      ];
+      state.erp.supplierQuotations = [{ id: "quotation-b", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-b", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
+    }],
+    ["a selected RFQ points at a quotation that is not selected", (state: ReturnType<typeof createSeedState>) => {
+      state.erp.requestForQuotations = [{ id: "rfq-submitted", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-utama"], selectedQuotationId: "quotation-submitted", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
+      state.erp.supplierQuotations = [{ id: "quotation-submitted", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-submitted", supplierId: "supplier-utama", status: "submitted", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
+    }],
+  ])("fails closed when %s", (_case, mutate) => {
+    const malformed = createSeedState();
+    mutate(malformed);
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it.each([
+    ["the purchase request differs from the selected quotation RFQ", (state: ReturnType<typeof createStateWithLinkedSelectedQuotation>) => { state.erp.purchaseOrders[0].purchaseRequestId = "request-b"; }],
+    ["the warehouse differs from the selected quotation RFQ", (state: ReturnType<typeof createStateWithLinkedSelectedQuotation>) => { state.erp.requestForQuotations[0].warehouseId = "warehouse-bandung"; }],
+  ])("fails closed when %s", (_case, mutate) => {
+    const malformed = createStateWithLinkedSelectedQuotation();
+    mutate(malformed);
 
     expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
   });

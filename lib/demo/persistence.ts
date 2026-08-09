@@ -62,15 +62,20 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     return hasEntityDates(item) && hasFields(item, ["quotationNumber", "requestForQuotationId", "supplierId", "validUntil"]) && rfqIds.has(item.requestForQuotationId) && supplierIds.has(item.supplierId) && Array.isArray(rfq?.requestedSupplierIds) && rfq.requestedSupplierIds.includes(item.supplierId) && includes(["submitted", "selected", "rejected"], item.status) && validLines(item.lines) && validRfqQuotationLines(rfq?.lines, item.lines);
   })) return false;
   const quotationIds = new Set(supplierQuotations.map((item) => item.id));
-  if (!requestForQuotations.every((item) => (item.status !== "selected" || hasOptionalLink(item, "selectedQuotationId", quotationIds)) && (item.status === "selected" || item.selectedQuotationId === null))) return false;
-  if (!supplierQuotations.every((item) => item.status !== "selected" || (rfqById.get(item.requestForQuotationId)?.selectedQuotationId === item.id))) return false;
+  const quotationById = new Map(supplierQuotations.map((item) => [item.id, item]));
+  if (!requestForQuotations.every((item) => {
+    if (item.status !== "selected") return item.selectedQuotationId === null;
+    const selectedQuotation = hasString(item.selectedQuotationId) ? quotationById.get(item.selectedQuotationId) : undefined;
+    return selectedQuotation?.status === "selected" && selectedQuotation.requestForQuotationId === item.id;
+  })) return false;
+  if (!supplierQuotations.every((item) => item.status !== "selected" || (rfqById.get(item.requestForQuotationId)?.status === "selected" && rfqById.get(item.requestForQuotationId)?.selectedQuotationId === item.id))) return false;
   const purchaseOrders = value.purchaseOrders as Record<string, unknown>[];
   if (!purchaseOrders.every((item) => hasEntityDates(item) && hasFields(item, ["orderNumber", "supplierId", "warehouseId"]) && supplierIds.has(item.supplierId) && warehouseIds.has(item.warehouseId) && includes(purchaseOrderStatuses, item.status) && hasOptionalLink(item, "purchaseRequestId", purchaseRequestIds) && hasOptionalLink(item, "supplierQuotationId", quotationIds) && (item.confirmationDueAt === null || hasString(item.confirmationDueAt)) && (item.promisedDeliveryDate === null || hasString(item.promisedDeliveryDate)) && validLines(item.lines))) return false;
-  const quotationById = new Map(supplierQuotations.map((item) => [item.id, item]));
   if (!purchaseOrders.every((purchaseOrder) => {
     if (purchaseOrder.supplierQuotationId === null) return true;
     const quotation = hasString(purchaseOrder.supplierQuotationId) ? quotationById.get(purchaseOrder.supplierQuotationId) : undefined;
-    return quotation?.status === "selected" && quotation.supplierId === purchaseOrder.supplierId && validRfqQuotationLines(purchaseOrder.lines, quotation.lines);
+    const rfq = quotation ? rfqById.get(quotation.requestForQuotationId) : undefined;
+    return quotation?.status === "selected" && rfq?.status === "selected" && rfq.selectedQuotationId === quotation.id && quotation.supplierId === purchaseOrder.supplierId && rfq.purchaseRequestId === purchaseOrder.purchaseRequestId && rfq.warehouseId === purchaseOrder.warehouseId && validRfqQuotationLines(purchaseOrder.lines, quotation.lines);
   })) return false;
   const openPurchaseOrderIds = new Set(purchaseOrders.map((item) => item.id));
   if (!(value.goodsReceipts as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && warehouseIds.has(item.warehouseId) && includes(["draft", "posted", "cancelled"], item.status) && validLines(item.lines))) return false;

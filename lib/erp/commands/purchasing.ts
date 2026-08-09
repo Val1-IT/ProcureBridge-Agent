@@ -113,6 +113,7 @@ function transition<T>(
 ): ErpCommandResult<PurchaseOrder> {
   const authorization = requirePurchasePermission<PurchaseOrder>(state, role, permission);
   if (authorization) return authorization;
+  if (!hasValidNow(now)) return invalid(state, "Command time is invalid.");
   const found = findPurchaseOrder<PurchaseOrder>(state, purchaseOrderId);
   if ("ok" in found) return found;
   if (!canTransitionPurchaseOrder(found.status, targetStatus)) {
@@ -154,6 +155,10 @@ export function createPurchaseOrder(state: ErpState, role: ErpRole, input: Purch
   if (input.purchaseRequestId && !state.purchaseRequests.some((request) => request.id === input.purchaseRequestId)) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Purchase request was not found." });
   const quotation = input.supplierQuotationId ? state.supplierQuotations.find((item) => item.id === input.supplierQuotationId && item.status === "selected") : null;
   if (input.supplierQuotationId && !quotation) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Selected supplier quotation was not found." });
+  const requestForQuotation = quotation ? state.requestForQuotations.find((item) => item.id === quotation.requestForQuotationId) : null;
+  if (quotation && (!requestForQuotation || requestForQuotation.status !== "selected" || requestForQuotation.selectedQuotationId !== quotation.id)) return invalid(state, "Selected supplier quotation is not selected by its RFQ.");
+  if (quotation && (input.purchaseRequestId ?? null) !== requestForQuotation!.purchaseRequestId) return invalid(state, "Purchase order request must match its selected quotation RFQ.");
+  if (quotation && warehouse.id !== requestForQuotation!.warehouseId) return invalid(state, "Purchase order warehouse must match its selected quotation RFQ.");
   if (quotation && quotation.supplierId !== supplier.id) return invalid(state, "Purchase order supplier must match its selected quotation.");
   if (quotation && !sameLines(quotation.lines, input.lines)) return invalid(state, "Purchase order lines must match its selected quotation.");
   if (!hasValidDate(input.confirmationDueAt) || !hasValidDate(input.promisedDeliveryDate)) return invalid(state, "Purchase order dates are invalid.");
@@ -284,6 +289,7 @@ export function approvePurchaseOrder(state: ErpState, role: ErpRole, purchaseOrd
 export function sendPurchaseOrder(state: ErpState, role: ErpRole, purchaseOrderId: string, now: string): ErpCommandResult<PurchaseOrder> {
   const authorization = requirePurchasePermission<PurchaseOrder>(state, role, "purchase.write");
   if (authorization) return authorization;
+  if (!hasValidNow(now)) return invalid(state, "Command time is invalid.");
   const found = findPurchaseOrder<PurchaseOrder>(state, purchaseOrderId);
   if ("ok" in found) return found;
   if (found.status !== "sent") return rejectErpCommand(state, { code: "INVALID_STATE", message: "Only an approved purchase order can be sent." });
