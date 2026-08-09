@@ -42,8 +42,9 @@ export default function GoodsReceiptsPage() {
   const selectedOrder = selected ? state.erp.purchaseOrders.find((item) => item.id === selected.purchaseOrderId) ?? null : null;
   const linkedReceiptId = searchParams.get("goodsReceiptId");
   const linkedReceipt = linkedReceiptId ? state.erp.goodsReceipts.find((receipt) => receipt.id === linkedReceiptId && (receipt.status === "approved" || receipt.status === "posted")) ?? null : null;
-  const invalidLinkedReceipt = Boolean(linkedReceiptId && !linkedReceipt);
-  const currentDraft = draftId ? state.erp.goodsReceipts.find((receipt) => receipt.id === draftId) ?? null : null;
+  const linkedDraft = linkedReceiptId && searchParams.get("mode") === "prepare" ? state.erp.goodsReceipts.find((receipt) => receipt.id === linkedReceiptId && receipt.purchaseOrderId === searchParams.get("purchaseOrderId") && receipt.status === "draft") ?? null : null;
+  const invalidLinkedReceipt = Boolean(linkedReceiptId && !linkedReceipt && !linkedDraft);
+  const currentDraft = linkedDraft ?? (draftId ? state.erp.goodsReceipts.find((receipt) => receipt.id === draftId && receipt.status === "draft") ?? null : null);
   const mayReceive = authorize(state.erp.activeRole, "stock.receive");
 
   function createDraft() {
@@ -56,9 +57,9 @@ export default function GoodsReceiptsPage() {
   }
 
   function approveDraft() {
-    if (!draftId) return;
+    if (!currentDraft) return;
     setError(null);
-    const result = executeReceiptApproval(run, draftId, new Date().toISOString(), (href) => router.replace(href));
+    const result = executeReceiptApproval(run, currentDraft.id, new Date().toISOString(), (href) => router.replace(href));
     if (!result.ok) { setError(result.error.message); return; }
     setDraftId(null);
   }

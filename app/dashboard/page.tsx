@@ -7,10 +7,11 @@ import { StatusChip } from "@/components/status-chip";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { buildActionItems, buildDashboardMetrics, buildUnifiedAuditEntries } from "@/lib/erp/dashboard";
 import { formatDateTime } from "@/lib/format";
+import { useDashboardClock } from "@/components/erp/use-dashboard-clock";
+import { sampleDashboardNow } from "@/lib/erp/dashboard-clock";
+import type { DemoState } from "@/lib/domain/types";
 
-export default function DashboardPage() {
-  const { state } = useDemoStore();
-  const now = new Date().toISOString();
+export function DashboardContent({ state, now }: { state: DemoState; now: string }) {
   const metrics = buildDashboardMetrics(state.erp, now);
   const actions = buildActionItems(state.erp, now).slice(0, 8);
   const activity = buildUnifiedAuditEntries(state.erp, state.auditLogs).slice(0, 6);
@@ -35,4 +36,17 @@ export default function DashboardPage() {
       </article>
     </section>
   </>;
+}
+function DashboardClockSkeleton() {
+  return <><PageHeader eyebrow="Overview • Demo Data" title="ERP Dashboard" description="Operational totals will appear after Demo Data and the current date are synchronized." /><section className="panel" aria-busy="true"><div className="empty-state"><strong>Synchronizing current date…</strong><p>Derived action and metric state is locked until the client clock is mounted.</p></div></section></>;
+}
+
+export function HydrationSafeDashboard({ state, hydrated, sampleNow = sampleDashboardNow }: { state: DemoState; hydrated: boolean; sampleNow?: () => string }) {
+  const now = useDashboardClock(hydrated, sampleNow);
+  return hydrated && now ? <DashboardContent state={state} now={now} /> : <DashboardClockSkeleton />;
+}
+
+export default function DashboardPage() {
+  const { state, hydrated } = useDemoStore();
+  return <HydrationSafeDashboard state={state} hydrated={hydrated} />;
 }

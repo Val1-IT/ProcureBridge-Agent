@@ -1,10 +1,10 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import ActionCenterPage from "../app/actions/page";
+import { ActionCenterContent } from "../app/actions/page";
 import ApprovalInboxPage from "../app/approvals/page";
 import AuditPage from "../app/audit/page";
-import DashboardPage from "../app/dashboard/page";
+import { DashboardContent } from "../app/dashboard/page";
 import { createSeedState } from "../lib/demo/seed";
 import type { DemoState } from "../lib/domain/types";
 import { buildActionItems, buildApprovalItems, buildDashboardMetrics, buildUnifiedAuditEntries, filterUnifiedAuditEntries } from "../lib/erp/dashboard";
@@ -50,9 +50,16 @@ describe("ERP dashboard models", () => {
     expect(items).toEqual(expect.arrayContaining([
       expect.objectContaining({ kind: "unconfirmed_purchase_order", ownerRole: "procurement", urgency: "high", href: "/purchasing/orders/po-router-replenishment" }),
       expect.objectContaining({ kind: "blocked_sales_order", ownerRole: "sales", href: "/sales/orders/so-router-shortage" }),
-      expect.objectContaining({ kind: "supplier_follow_up", ownerRole: "procurement", href: "/purchasing/follow-up?purchaseOrderId=po-router-replenishment" }),
+      expect.objectContaining({ kind: "supplier_follow_up", ownerRole: "procurement", href: "/purchasing/follow-up?purchaseOrderId=po-router-replenishment&mode=approval" }),
     ]));
     expect(items.every((item) => item.id.length > 0 && item.href.startsWith("/") && item.documentNumber.length > 0)).toBe(true);
+  });
+  it("excludes cancelled invoices from due actions even when their balance is nonzero", () => {
+    const state = createSeedState().erp;
+    state.supplierInvoices = [{ id: "cancelled-payable", invoiceNumber: "SINV-CANCELLED", purchaseOrderId: "po-router-replenishment", salesOrderId: null, supplierId: "supplier-utama", customerId: null, sourceDocumentIds: ["receipt-cancelled"], status: "cancelled", lines: [{ productId: "product-router", quantity: 1, unitPrice: 1_000_000 }], totalAmount: 1_000_000, dueDate: "2026-08-09", createdAt: "2026-08-01T00:00:00.000Z", updatedAt: "2026-08-01T00:00:00.000Z" }];
+    state.customerInvoices = [{ id: "cancelled-receivable", invoiceNumber: "CINV-CANCELLED", purchaseOrderId: null, salesOrderId: "so-router-shortage", supplierId: null, customerId: "erp-customer-sinar", sourceDocumentIds: ["delivery-cancelled"], status: "cancelled", lines: [{ productId: "product-router", quantity: 1, unitPrice: 1_000_000 }], totalAmount: 1_000_000, dueDate: "2026-08-09", createdAt: "2026-08-01T00:00:00.000Z", updatedAt: "2026-08-01T00:00:00.000Z" }];
+
+    expect(buildActionItems(state, "2026-08-09T10:00:00.000Z").filter((item) => item.kind === "due_payable" || item.kind === "due_receivable")).toEqual([]);
   });
   it("groups purchase-order, stock-adjustment, and Supplier Agent result approvals", () => {
     const approvals = buildApprovalItems(stateWithAllApprovalKinds().erp, "2026-08-09T10:00:00.000Z");
@@ -70,6 +77,21 @@ describe("unified audit filtering", () => {
     const demo = stateWithAllApprovalKinds();
     const entries = buildUnifiedAuditEntries(demo.erp, demo.auditLogs);
     expect(filterUnifiedAuditEntries(entries, { actor: "procurement", module: "purchasing", action: "submitted", date: "2026-08-09", documentNumber: "PO-2026-0002" })).toEqual([expect.objectContaining({ source: "erp", action: "purchase_order.submitted", documentNumber: "PO-2026-0002" })]);
+  });
+  it("resolves every Supplier Agent call lifecycle event to its Purchase Order number", () => {
+    const demo = stateWithAllApprovalKinds();
+    const resultId = demo.erp.supplierResults.find((result) => result.status === "pending")?.id;
+    if (!resultId) throw new Error("Expected pending Supplier Agent result.");
+    const approved = expectSuccess(run(demo.erp, (state) => approveSupplierResult(state, "approver", resultId, "2026-08-09T04:05:00.000Z")));
+
+    const entries = filterUnifiedAuditEntries(buildUnifiedAuditEntries(approved.state, demo.auditLogs), { module: "supplier_agent", documentNumber: "PO-2026-0001" });
+    expect(entries.map((entry) => entry.action)).toEqual([
+      "supplier_result.approved",
+      "supplier_call.completed",
+      "supplier_call.started",
+      "supplier_call.approved",
+    ]);
+    expect(entries.every((entry) => entry.documentNumber === "PO-2026-0001")).toBe(true);
   });
   it("classifies approved Supplier Agent results under the Supplier Agent module", () => {
     const demo = stateWithAllApprovalKinds();
@@ -91,11 +113,11 @@ describe("Task 11 control surfaces", () => {
   beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date("2026-08-09T10:00:00.000Z")); harness.state = stateWithAllApprovalKinds(); });
   afterEach(() => { vi.useRealTimers(); harness.state = null; });
   it("renders the ERP Dashboard as Demo Data with operational cards and stable work links", () => {
-    const html = renderToStaticMarkup(createElement(DashboardPage));
+    const html = renderToStaticMarkup(createElement(DashboardContent, { state: harness.state!, now: "2026-08-09T10:00:00.000Z" }));
     expect(html).toContain("ERP Dashboard"); expect(html).toContain("Demo Data"); expect(html).toContain("Purchase Orders waiting approval"); expect(html).toContain('href="/actions"'); expect(html).not.toContain("Recovery command center");
   });
   it("renders Action Center grouped by owner role and urgency without notification fiction", () => {
-    const html = renderToStaticMarkup(createElement(ActionCenterPage));
+    const html = renderToStaticMarkup(createElement(ActionCenterContent, { state: harness.state!, now: "2026-08-09T10:00:00.000Z" }));
     expect(html).toContain("Action Center"); expect(html).toContain("Procurement"); expect(html).toContain("Approver"); expect(html).toContain("High urgency"); expect(html).not.toContain("notification");
   });
   it("renders Approval Inbox groups and routes decisions to existing command-backed pages", () => {

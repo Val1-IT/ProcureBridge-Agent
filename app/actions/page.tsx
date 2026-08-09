@@ -7,14 +7,16 @@ import { StatusChip } from "@/components/status-chip";
 import { buildActionItems, type ActionUrgency } from "@/lib/erp/dashboard";
 import type { ErpRole } from "@/lib/erp/types";
 import { formatDateTime } from "@/lib/format";
+import { useDashboardClock } from "@/components/erp/use-dashboard-clock";
+import { sampleDashboardNow } from "@/lib/erp/dashboard-clock";
+import type { DemoState } from "@/lib/domain/types";
 
 const roles: readonly ErpRole[] = ["approver", "procurement", "warehouse", "sales", "finance", "admin"];
 const urgencyLabels: Record<ActionUrgency, string> = { high: "High urgency", medium: "Medium urgency", low: "Low urgency" };
 const roleLabel = (role: ErpRole) => `${role.charAt(0).toUpperCase()}${role.slice(1)}`;
 
-export default function ActionCenterPage() {
-  const { state } = useDemoStore();
-  const items = buildActionItems(state.erp, new Date().toISOString());
+export function ActionCenterContent({ state, now }: { state: DemoState; now: string }) {
+  const items = buildActionItems(state.erp, now);
   return <>
     <PageHeader eyebrow="Overview • Demo Data" title="Action Center" description="A derived work queue grouped by accountable ERP role and urgency. Items disappear when their source transactions are resolved." />
     {roles.map((role) => {
@@ -26,4 +28,17 @@ export default function ActionCenterPage() {
     })}
     {items.length === 0 ? <section className="panel"><div className="empty-state"><strong>No current action items.</strong><p>All source transactions are on track.</p></div></section> : null}
   </>;
+}
+function ActionCenterClockSkeleton() {
+  return <><PageHeader eyebrow="Overview • Demo Data" title="Action Center" description="Derived work will appear after Demo Data and the current date are synchronized." /><section className="panel" aria-busy="true"><div className="empty-state"><strong>Synchronizing current date…</strong><p>The work queue is locked until the client clock is mounted.</p></div></section></>;
+}
+
+export function HydrationSafeActionCenter({ state, hydrated, sampleNow = sampleDashboardNow }: { state: DemoState; hydrated: boolean; sampleNow?: () => string }) {
+  const now = useDashboardClock(hydrated, sampleNow);
+  return hydrated && now ? <ActionCenterContent state={state} now={now} /> : <ActionCenterClockSkeleton />;
+}
+
+export default function ActionCenterPage() {
+  const { state, hydrated } = useDemoStore();
+  return <HydrationSafeActionCenter state={state} hydrated={hydrated} />;
 }
