@@ -7,11 +7,16 @@ import {
   confirmPurchaseOrder,
   createPurchaseOrder,
   createPurchaseRequest,
+  createRequestForQuotation,
+  createSupplierQuotation,
+  compareSupplierQuotations,
+  selectSupplierQuotation,
+  approveSupplierFollowUp,
   sendPurchaseOrder,
   submitPurchaseOrder,
   type PurchaseOrderInput,
 } from "../lib/erp/commands/purchasing";
-import { selectSupplierFollowUpQueue } from "../lib/erp/selectors";
+import { selectSupplierFollowUpQueue, selectSupplierQuotationComparison } from "../lib/erp/selectors";
 
 const fixedNow = "2026-08-09T10:00:00.000Z";
 
@@ -115,7 +120,7 @@ describe("ERP purchasing commands", () => {
         { ...seed.purchaseOrders[0], id: "po-partial", orderNumber: "PO-2026-0003", status: "partially_received" as const, confirmationDueAt: null, promisedDeliveryDate: "2026-08-12T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }] },
       ],
       goodsReceipts: [{ id: "receipt-partial", receiptNumber: "GR-2026-0001", purchaseOrderId: "po-partial", warehouseId: "warehouse-jakarta", status: "posted" as const, lines: [{ productId: "product-router", quantity: 12, unitPrice: 1_050_000 }], createdAt: fixedNow, updatedAt: fixedNow }],
-      followUps: [{ id: "follow-up-1", supplierId: "supplier-utama", customerId: null, purchaseOrderId: "po-promised", salesOrderId: null, dueAt: "2026-08-09T09:00:00.000Z", status: "open" as const, reason: "approved supplier contact", createdAt: fixedNow, updatedAt: fixedNow }],
+      followUps: [{ id: "follow-up-1", supplierId: "supplier-utama", customerId: null, purchaseOrderId: "po-promised", salesOrderId: null, dueAt: "2026-08-09T09:00:00.000Z", status: "open" as const, approvalStatus: "approved" as const, approvedBy: "role:approver", reason: "approved supplier contact", createdAt: fixedNow, updatedAt: fixedNow }],
     };
 
     expect(selectSupplierFollowUpQueue(state, fixedNow).map((item) => ({ orderNumber: item.purchaseOrder.orderNumber, reasons: item.reasons }))).toEqual([
@@ -123,5 +128,73 @@ describe("ERP purchasing commands", () => {
       { orderNumber: "PO-2026-0002", reasons: ["delivery_overdue", "approved_follow_up_due"] },
       { orderNumber: "PO-2026-0003", reasons: ["partial_receipt_outstanding"] },
     ]);
+  });
+
+  it("compares competing supplier quotations deterministically and records an approved selection", () => {
+    const seed = createErpSeedState();
+    const rfq = createRequestForQuotation(seed, "procurement", {
+      supplierIds: ["supplier-utama", "supplier-kertas"],
+      lines: [{ productId: "product-paper", quantity: 100 }],
+    }, fixedNow);
+    expect(rfq.ok).toBe(true);
+    if (!rfq.ok) return;
+    const firstQuote = createSupplierQuotation(rfq.state, "procurement", {
+      requestForQuotationId: rfq.value.id,
+      supplierId: "supplier-utama",
+      lines: [{ productId: "product-paper", quantity: 100, unitPrice: 11_000 }],
+      validUntil: "2026-08-20T00:00:00.000Z",
+    }, fixedNow);
+    expect(firstQuote.ok).toBe(true);
+    if (!firstQuote.ok) return;
+    const lowerQuote = createSupplierQuotation(firstQuote.state, "procurement", {
+      requestForQuotationId: rfq.value.id,
+      supplierId: "supplier-kertas",
+      lines: [{ productId: "product-paper", quantity: 100, unitPrice: 10_500 }],
+      validUntil: "2026-08-19T00:00:00.000Z",
+    }, fixedNow);
+    expect(lowerQuote.ok).toBe(true);
+    if (!lowerQuote.ok) return;
+
+    const compared = compareSupplierQuotations(lowerQuote.state, "procurement", rfq.value.id, fixedNow);
+    expect(compared.ok && compared.value.map((item) => ({ supplierCode: item.supplier.code, totalAmount: item.totalAmount }))).toEqual([
+      { supplierCode: "SUP-KERTAS", totalAmount: 1_050_000 },
+      { supplierCode: "SUP-UTAMA", totalAmount: 1_100_000 },
+    ]);
+    if (!compared.ok) return;
+    expect(selectSupplierQuotationComparison(compared.state, rfq.value.id).map((item) => item.rank)).toEqual([1, 2]);
+
+    const selected = selectSupplierQuotation(compared.state, "approver", lowerQuote.value.id, fixedNow);
+    expect(selected.ok && selected.state.requestForQuotations[0]).toMatchObject({ status: "selected", selectedQuotationId: lowerQuote.value.id });
+    expect(selected.ok && selected.state.supplierQuotations.map((item) => item.status)).toEqual(["rejected", "selected"]);
+    expect(selected.ok && selected.state.auditLogs.map((event) => event.action)).toEqual([
+      "request_for_quotation.created",
+      "supplier_quotation.created",
+      "supplier_quotation.created",
+      "request_for_quotation.compared",
+      "supplier_quotation.selected",
+    ]);
+  });
+
+  it("adds due approved follow-up work only after an approver explicitly approves it", () => {
+    const seed = createErpSeedState();
+    const withPendingFollowUp = {
+      ...seed,
+      followUps: [{ id: "follow-up-pending", supplierId: "supplier-utama", customerId: null, purchaseOrderId: "po-router-replenishment", salesOrderId: null, dueAt: "2026-08-09T09:00:00.000Z", status: "open" as const, approvalStatus: "pending" as const, approvedBy: null, reason: "contact supplier", createdAt: fixedNow, updatedAt: fixedNow }],
+    };
+
+    expect(selectSupplierFollowUpQueue(withPendingFollowUp, fixedNow)[0].reasons).toEqual(["confirmation_overdue"]);
+    const approved = approveSupplierFollowUp(withPendingFollowUp, "approver", "follow-up-pending", fixedNow);
+    expect(approved.ok && approved.value).toMatchObject({ approvalStatus: "approved", approvedBy: "role:approver" });
+    expect(approved.ok && selectSupplierFollowUpQueue(approved.state, fixedNow)[0].reasons).toEqual(["confirmation_overdue", "approved_follow_up_due"]);
+    expect(approved.ok && approved.state.auditLogs).toMatchObject([{ action: "supplier_follow_up.approved", entityId: "follow-up-pending" }]);
+  });
+
+  it("rejects invalid command timestamps without mutation instead of throwing", () => {
+    const seed = createErpSeedState();
+
+    expect(() => createPurchaseRequest(seed, "procurement", { lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, "not-a-date")).not.toThrow();
+    expect(createPurchaseRequest(seed, "procurement", { lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
+    expect(createPurchaseOrder(seed, "procurement", purchaseOrderInput, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
+    expect(createRequestForQuotation(seed, "procurement", { supplierIds: ["supplier-utama"], lines: [{ productId: "product-paper", quantity: 1 }] }, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
   });
 });

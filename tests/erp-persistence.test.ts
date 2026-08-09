@@ -6,15 +6,30 @@ import { createErpSeedState } from "../lib/erp/seed";
 import { selectAvailableStock, selectIncomingStock } from "../lib/erp/selectors";
 
 describe("ERP persistence foundation", () => {
-  it("migrates schema v2 recovery data into schema v3 with a deterministic ERP slice", () => {
+  it("migrates schema v2 recovery data into schema v4 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
     delete (legacy as Partial<DemoState>).erp;
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(3);
+    expect(migrated.schemaVersion).toBe(4);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
+  });
+
+  it("migrates stored schema v3 ERP data with safe RFQ and follow-up approval defaults", () => {
+    const legacy = createSeedState();
+    legacy.schemaVersion = 3;
+    delete (legacy.erp as { requestForQuotations?: unknown }).requestForQuotations;
+    delete (legacy.erp as { supplierQuotations?: unknown }).supplierQuotations;
+    delete (legacy.erp.purchaseOrders[0] as { supplierQuotationId?: unknown }).supplierQuotationId;
+
+    const migrated = deserializeDemoState(JSON.stringify(legacy));
+
+    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.erp.requestForQuotations).toEqual([]);
+    expect(migrated.erp.supplierQuotations).toEqual([]);
+    expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
   });
 
   it("computes available and incoming quantities without storing derived totals", () => {
@@ -71,6 +86,19 @@ describe("ERP persistence foundation", () => {
       createdAt: "2026-08-09T00:00:00.000Z",
       updatedAt: "2026-08-09T00:00:00.000Z",
     } as never];
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("fails closed when a purchase order links a selected quotation from a different supplier", () => {
+    const malformed = createSeedState();
+    malformed.erp.requestForQuotations = [{
+      id: "rfq-router", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-kertas", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
+    }];
+    malformed.erp.supplierQuotations = [{
+      id: "quotation-kertas", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-router", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
+    }];
+    malformed.erp.purchaseOrders[0].supplierQuotationId = "quotation-kertas";
 
     expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
   });

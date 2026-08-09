@@ -1,4 +1,4 @@
-import type { ErpFollowUp, ErpState, PurchaseOrder, Supplier } from "./types";
+import type { ErpFollowUp, ErpState, PurchaseOrder, RequestForQuotation, Supplier, SupplierQuotation } from "./types";
 
 export type SupplierFollowUpReason = "confirmation_overdue" | "delivery_overdue" | "partial_receipt_outstanding" | "approved_follow_up_due";
 
@@ -7,6 +7,14 @@ export interface SupplierFollowUpQueueItem {
   supplier: Supplier;
   reasons: SupplierFollowUpReason[];
   dueAt: string | null;
+}
+
+export interface SupplierQuotationComparisonItem {
+  requestForQuotation: RequestForQuotation;
+  quotation: SupplierQuotation;
+  supplier: Supplier;
+  totalAmount: number;
+  rank: number;
 }
 
 export function selectPhysicalStock(state: ErpState, productId: string): number {
@@ -31,7 +39,7 @@ export function selectSupplierFollowUpQueue(state: ErpState, now: string): Suppl
   if (Number.isNaN(nowTime)) return [];
   const dueOpenFollowUps = new Map<string, ErpFollowUp[]>();
   for (const followUp of state.followUps) {
-    if (followUp.status !== "open" || !followUp.purchaseOrderId || new Date(followUp.dueAt).getTime() > nowTime) continue;
+    if (followUp.status !== "open" || followUp.approvalStatus !== "approved" || !followUp.purchaseOrderId || new Date(followUp.dueAt).getTime() > nowTime) continue;
     dueOpenFollowUps.set(followUp.purchaseOrderId, [...(dueOpenFollowUps.get(followUp.purchaseOrderId) ?? []), followUp]);
   }
 
@@ -61,6 +69,19 @@ export function selectSupplierFollowUpQueue(state: ErpState, now: string): Suppl
     if (reasons.length === 0) return [];
     return [{ purchaseOrder, supplier, reasons, dueAt: dueDates.sort()[0] ?? null }];
   }).sort((left, right) => left.purchaseOrder.orderNumber.localeCompare(right.purchaseOrder.orderNumber));
+}
+
+export function selectSupplierQuotationComparison(state: ErpState, requestForQuotationId: string): SupplierQuotationComparisonItem[] {
+  const requestForQuotation = state.requestForQuotations.find((item) => item.id === requestForQuotationId);
+  if (!requestForQuotation) return [];
+  return state.supplierQuotations
+    .filter((quotation) => quotation.requestForQuotationId === requestForQuotationId && ["submitted", "selected"].includes(quotation.status))
+    .flatMap((quotation) => {
+      const supplier = state.suppliers.find((item) => item.id === quotation.supplierId);
+      return supplier ? [{ requestForQuotation, quotation, supplier, totalAmount: quotation.lines.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0), rank: 0 }] : [];
+    })
+    .sort((left, right) => left.totalAmount - right.totalAmount || left.quotation.validUntil.localeCompare(right.quotation.validUntil) || left.supplier.code.localeCompare(right.supplier.code) || left.quotation.quotationNumber.localeCompare(right.quotation.quotationNumber))
+    .map((item, index) => ({ ...item, rank: index + 1 }));
 }
 
 function receivedQuantity(state: ErpState, purchaseOrderId: string, productId: string): number {

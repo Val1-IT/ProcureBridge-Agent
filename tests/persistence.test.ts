@@ -29,14 +29,14 @@ describe("versioned demo persistence", () => {
     expect(deserializeDemoState('{"schemaVersion":0}')).toEqual(createSeedState());
   });
 
-  it("migrates a browser-persisted v2 recovery state when no v3 state exists", () => {
+  it("migrates a browser-persisted v2 recovery state when no current schema state exists", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as Record<string, unknown>;
     delete legacy.erp;
     const values = new Map<string, string>([["arvanta-procurebridge-demo-v2", JSON.stringify(legacy)]]);
 
     const loaded = loadDemoStateFromStorage({ getItem: (key) => values.get(key) ?? null });
 
-    expect(loaded.state.schemaVersion).toBe(3);
+    expect(loaded.state.schemaVersion).toBe(DEMO_SCHEMA_VERSION);
     expect(loaded.state.erp.revision).toBe(0);
     expect(loaded.recoveryReason).toBeNull();
   });

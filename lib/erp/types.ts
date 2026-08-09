@@ -1,15 +1,20 @@
 export type ErpRole = "admin" | "procurement" | "warehouse" | "sales" | "finance" | "approver";
 export type PurchaseOrderStatus = "draft" | "pending_approval" | "sent" | "confirmed" | "partially_received" | "fully_received" | "completed" | "rejected" | "cancelled";
+export type RequestForQuotationStatus = "open" | "compared" | "selected" | "cancelled";
+export type SupplierQuotationStatus = "submitted" | "selected" | "rejected";
 export type SalesOrderStatus = "draft" | "confirmed" | "partially_delivered" | "fully_delivered" | "invoiced" | "completed" | "cancelled";
 export type InvoiceStatus = "unpaid" | "partially_paid" | "paid" | "cancelled";
 
 export interface QuantityLine { productId: string; quantity: number; unitPrice: number; }
+export interface RfqLine { productId: string; quantity: number; }
 export interface Product { id: string; sku: string; name: string; unit: string; salePrice: number; purchasePrice: number; reorderPoint: number; active: boolean; createdAt: string; updatedAt: string; }
 export interface Supplier { id: string; code: string; name: string; phone: string; email: string; address: string; paymentTermDays: number; doNotContact: boolean; active: boolean; createdAt: string; updatedAt: string; }
 export interface ErpCustomer { id: string; code: string; name: string; contactName: string; phone: string; email: string; address: string; creditLimit: number; active: boolean; createdAt: string; updatedAt: string; }
 export interface Warehouse { id: string; code: string; name: string; address: string; active: boolean; createdAt: string; updatedAt: string; }
 export interface PurchaseRequest { id: string; requestNumber: string; requesterRole: ErpRole; status: "draft" | "submitted" | "approved" | "rejected" | "cancelled"; lines: QuantityLine[]; createdAt: string; updatedAt: string; }
-export interface PurchaseOrder { id: string; orderNumber: string; supplierId: string; purchaseRequestId: string | null; warehouseId: string; status: PurchaseOrderStatus; lines: QuantityLine[]; confirmationDueAt: string | null; promisedDeliveryDate: string | null; createdAt: string; updatedAt: string; }
+export interface RequestForQuotation { id: string; rfqNumber: string; purchaseRequestId: string | null; warehouseId: string; requestedSupplierIds: string[]; selectedQuotationId: string | null; status: RequestForQuotationStatus; quoteDueAt: string; lines: RfqLine[]; createdAt: string; updatedAt: string; }
+export interface SupplierQuotation { id: string; quotationNumber: string; requestForQuotationId: string; supplierId: string; status: SupplierQuotationStatus; validUntil: string; lines: QuantityLine[]; createdAt: string; updatedAt: string; }
+export interface PurchaseOrder { id: string; orderNumber: string; supplierId: string; purchaseRequestId: string | null; supplierQuotationId: string | null; warehouseId: string; status: PurchaseOrderStatus; lines: QuantityLine[]; confirmationDueAt: string | null; promisedDeliveryDate: string | null; createdAt: string; updatedAt: string; }
 export interface GoodsReceipt { id: string; receiptNumber: string; purchaseOrderId: string; warehouseId: string; status: "draft" | "posted" | "cancelled"; lines: QuantityLine[]; createdAt: string; updatedAt: string; }
 export interface SalesOrderLine extends QuantityLine { reservedQuantity: number; deliveredQuantity: number; }
 export interface SalesOrder { id: string; orderNumber: string; customerId: string; warehouseId: string; status: SalesOrderStatus; lines: SalesOrderLine[]; createdAt: string; updatedAt: string; }
@@ -22,12 +27,12 @@ export interface SupplierCall { id: string; supplierId: string; purchaseOrderId:
 export interface SupplierCallApproval { id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected"; approvedBy: string | null; createdAt: string; updatedAt: string; }
 export interface SupplierCallResult { id: string; supplierCallId: string; supplierId: string; purchaseOrderId: string; status: "pending" | "approved" | "rejected" | "human_review"; scenario: SupplierCallScenario; promisedDeliveryDate: string | null; createdAt: string; updatedAt: string; }
 export interface ErpDispute { id: string; supplierId: string | null; customerId: string | null; purchaseOrderId: string | null; salesOrderId: string | null; status: "open" | "investigating" | "resolved" | "cancelled"; reason: string; createdAt: string; updatedAt: string; }
-export interface ErpFollowUp { id: string; supplierId: string | null; customerId: string | null; purchaseOrderId: string | null; salesOrderId: string | null; dueAt: string; status: "open" | "completed" | "cancelled"; reason: string; createdAt: string; updatedAt: string; }
+export interface ErpFollowUp { id: string; supplierId: string | null; customerId: string | null; purchaseOrderId: string | null; salesOrderId: string | null; dueAt: string; status: "open" | "completed" | "cancelled"; approvalStatus: "pending" | "approved"; approvedBy: string | null; reason: string; createdAt: string; updatedAt: string; }
 export interface ErpAuditEvent { id: string; entityType: string; entityId: string; action: string; actorRole: ErpRole | "system"; actorId: string; detail: Record<string, string | number | boolean | null>; createdAt: string; updatedAt: string; }
 
 export interface ErpState {
   revision: number; activeRole: ErpRole; products: Product[]; suppliers: Supplier[]; customers: ErpCustomer[]; warehouses: Warehouse[];
-  purchaseRequests: PurchaseRequest[]; purchaseOrders: PurchaseOrder[]; goodsReceipts: GoodsReceipt[]; salesOrders: SalesOrder[]; deliveryOrders: DeliveryOrder[];
+  purchaseRequests: PurchaseRequest[]; requestForQuotations: RequestForQuotation[]; supplierQuotations: SupplierQuotation[]; purchaseOrders: PurchaseOrder[]; goodsReceipts: GoodsReceipt[]; salesOrders: SalesOrder[]; deliveryOrders: DeliveryOrder[];
   supplierInvoices: TradeInvoice[]; customerInvoices: TradeInvoice[]; payments: Payment[]; stockMovements: StockMovement[]; supplierCalls: SupplierCall[];
   supplierApprovals: SupplierCallApproval[]; supplierResults: SupplierCallResult[]; disputes: ErpDispute[]; followUps: ErpFollowUp[]; auditLogs: ErpAuditEvent[];
 }
