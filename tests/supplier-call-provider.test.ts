@@ -46,6 +46,18 @@ describe("supplier call provider boundary", () => {
     expect(maskSensitiveNumericPatterns("OTP 123456 dan rekening 1234567890123")).toBe("OTP [MASKED] dan rekening [MASKED]");
   });
 
+  it("masks common formatted phone, account, and order sequences from seven through nineteen digits", () => {
+    expect(maskSensitiveNumericPatterns("Telepon +62 811-1000-2000, rekening 1234 5678 90, order 2026000123."))
+      .toBe("Telepon [MASKED], rekening [MASKED], order [MASKED].");
+    expect(maskSensitiveNumericPatterns("Referensi 123-4567 dan akun 1234.5678.9012"))
+      .toBe("Referensi [MASKED] dan akun [MASKED]");
+  });
+
+  it("does not overmask small quantities or calendar dates", () => {
+    expect(maskSensitiveNumericPatterns("Kirim 40 unit pada 2026-08-20, tindak lanjut 20-08-2026."))
+      .toBe("Kirim 40 unit pada 2026-08-20, tindak lanjut 20-08-2026.");
+  });
+
   it("ends only calls created by the same provider instance", async () => {
     const provider = new MockSupplierCallProvider();
     await provider.createCall(input);

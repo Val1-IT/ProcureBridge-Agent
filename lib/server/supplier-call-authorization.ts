@@ -8,6 +8,8 @@ import type { CreateSupplierCallInput, CreateSupplierCallResult, SupplierCallPro
 import { SupplierCallProviderError } from "../supplier-call/types";
 
 export interface CreateSupplierCallRequest { callId: string; supplierId: string; purchaseOrderId: string }
+export interface SupplierCallClaimRequest extends CreateSupplierCallRequest { idempotencyKey: string; supplierLocalDate: string }
+export type SupplierCallClaimResult = { ok: true; claimId: string } | { ok: false };
 
 export interface SupplierCallEnvironment {
   CALLE_API_URL?: string;
@@ -24,13 +26,30 @@ export interface SupplierCallAuthorizationRepository {
   getApproval(callId: string): Promise<SupplierCallApproval | null>;
   countCallsForPurchaseOrderOnDate(purchaseOrderId: string, supplierLocalDate: string): Promise<number>;
   hasOpenDispute(purchaseOrderId: string): Promise<boolean>;
-  recordCreatedCall(input: CreateSupplierCallRequest, result: CreateSupplierCallResult, supplierLocalDate: string): Promise<void>;
+  /** Atomically reserves both idempotencyKey and supplierId/purchaseOrderId/local-date. */
+  claimSupplierCall(input: SupplierCallClaimRequest): Promise<SupplierCallClaimResult>;
+  /** Permanently consumes an ambiguous/failed provider attempt so it cannot be retried as a second call. */
+  recordFailedCallClaim(claimId: string): Promise<void>;
+  /** Atomically persists the created call and finalizes its matching reserved claim. */
+  recordCreatedCall(claimId: string, input: CreateSupplierCallRequest, result: CreateSupplierCallResult, supplierLocalDate: string): Promise<void>;
+}
+
+interface DemoSupplierCallClaim {
+  id: string;
+  idempotencyKey: string;
+  dailyKey: string;
+  callId: string;
+  status: "reserved" | "failed" | "completed";
 }
 
 export class DemoSupplierCallAuthorizationRepository implements SupplierCallAuthorizationRepository {
   readonly authorizationMode = "demo" as const;
   readonly repositoryCapability = "demo" as const;
   private state: ErpState;
+  private claimTail: Promise<void> = Promise.resolve();
+  private readonly claims = new Map<string, DemoSupplierCallClaim>();
+  private readonly claimsByIdempotency = new Map<string, string>();
+  private readonly claimsByDailyKey = new Map<string, string>();
 
   constructor() {
     const seed = createErpSeedState();
@@ -53,14 +72,57 @@ export class DemoSupplierCallAuthorizationRepository implements SupplierCallAuth
   async hasOpenDispute(purchaseOrderId: string) {
     return this.state.disputes.some((item) => item.purchaseOrderId === purchaseOrderId && (item.status === "open" || item.status === "investigating"));
   }
-  async recordCreatedCall(input: CreateSupplierCallRequest, result: CreateSupplierCallResult, supplierLocalDate: string) {
-    this.state = {
-      ...this.state,
-      revision: this.state.revision + 1,
-      supplierCalls: this.state.supplierCalls.map((call) => call.id === input.callId ? {
-        ...call, status: "active", provider: result.provider, providerCallId: result.providerCallId, calledLocalDate: supplierLocalDate, updatedAt: new Date().toISOString(),
-      } : call),
-    };
+
+  private async withClaimLock<T>(operation: () => T | Promise<T>): Promise<T> {
+    let release!: () => void;
+    const previous = this.claimTail;
+    this.claimTail = new Promise<void>((resolve) => { release = resolve; });
+    await previous;
+    try { return await operation(); } finally { release(); }
+  }
+
+  async claimSupplierCall(input: SupplierCallClaimRequest): Promise<SupplierCallClaimResult> {
+    return this.withClaimLock(() => {
+      const dailyKey = `${input.supplierId}:${input.purchaseOrderId}:${input.supplierLocalDate}`;
+      if (this.claimsByIdempotency.has(input.idempotencyKey) || this.claimsByDailyKey.has(dailyKey)
+        || this.state.supplierCalls.some((call) => call.supplierId === input.supplierId && call.purchaseOrderId === input.purchaseOrderId && call.calledLocalDate === input.supplierLocalDate)) return { ok: false };
+      const claimId = `supplier-call-claim-${input.idempotencyKey}`;
+      const claim: DemoSupplierCallClaim = { id: claimId, idempotencyKey: input.idempotencyKey, dailyKey, callId: input.callId, status: "reserved" };
+      this.claims.set(claimId, claim);
+      this.claimsByIdempotency.set(input.idempotencyKey, claimId);
+      this.claimsByDailyKey.set(dailyKey, claimId);
+      return { ok: true, claimId };
+    });
+  }
+
+  async recordFailedCallClaim(claimId: string): Promise<void> {
+    await this.withClaimLock(() => {
+      const claim = this.claims.get(claimId);
+      if (claim?.status === "reserved") this.claims.set(claimId, { ...claim, status: "failed" });
+    });
+  }
+
+  async recordCreatedCall(claimId: string, input: CreateSupplierCallRequest, result: CreateSupplierCallResult, supplierLocalDate: string) {
+    await this.withClaimLock(() => {
+      const claim = this.claims.get(claimId);
+      const expectedDailyKey = `${input.supplierId}:${input.purchaseOrderId}:${supplierLocalDate}`;
+      if (!claim || claim.status !== "reserved" || claim.callId !== input.callId || claim.dailyKey !== expectedDailyKey || result.callId !== input.callId) throw new Error("Supplier call claim does not match the created call.");
+      const now = new Date().toISOString();
+      const callExists = this.state.supplierCalls.some((call) => call.id === input.callId && call.status === "draft");
+      if (!callExists) throw new Error("Supplier call draft is no longer eligible.");
+      this.state = {
+        ...this.state,
+        revision: this.state.revision + 1,
+        supplierCalls: this.state.supplierCalls.map((call) => call.id === input.callId ? {
+          ...call, status: "active", provider: result.provider, providerCallId: result.providerCallId, calledLocalDate: supplierLocalDate, updatedAt: now,
+        } : call),
+        auditLogs: [...this.state.auditLogs, {
+          id: `erp-audit-${this.state.revision + 1}`, entityType: "supplier_call", entityId: input.callId, action: "supplier_call.created",
+          actorRole: "system", actorId: "system:supplier-call-api", detail: { supplierId: input.supplierId, purchaseOrderId: input.purchaseOrderId, provider: result.provider }, createdAt: now, updatedAt: now,
+        }],
+      };
+      this.claims.set(claimId, { ...claim, status: "completed" });
+    });
   }
 }
 
@@ -119,10 +181,11 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
       return NextResponse.json({ error: "Unable to authorize supplier call.", code: "SUPPLIER_CALL_AUTHORIZATION_FAILURE" }, { status: 502 });
     }
     if (!supplier || !purchaseOrder || !supplierCall || purchaseOrder.supplierId !== supplier.id
-      || supplierCall.supplierId !== supplier.id || supplierCall.purchaseOrderId !== purchaseOrder.id || supplierCall.status !== "draft"
+      || supplierCall.supplierId !== supplier.id || supplierCall.purchaseOrderId !== purchaseOrder.id
       || approval?.supplierId !== supplier.id || approval.purchaseOrderId !== purchaseOrder.id || approval.supplierCallId !== supplierCall.id) {
       return NextResponse.json({ error: "Supplier call is not eligible.", code: "INVALID_SERVER_STATE" }, { status: 409 });
     }
+    if (supplierCall.status !== "draft") return NextResponse.json({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" }, { status: 409 });
 
     let clock: { time: string; date: string };
     let callsToday: number;
@@ -139,6 +202,14 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
     const decision = evaluateSupplierCallEligibility({ supplier, purchaseOrder, approval, localTime: clock.time, callsToday, openDispute });
     if (!decision.allowed) return NextResponse.json({ error: "Supplier call is not eligible.", code: "SUPPLIER_CALL_INELIGIBLE", codes: decision.codes }, { status: 409 });
 
+    let claim: SupplierCallClaimResult;
+    try {
+      claim = await dependencies.repository.claimSupplierCall({ ...input, idempotencyKey: input.callId, supplierLocalDate: clock.date });
+    } catch {
+      return NextResponse.json({ error: "Unable to authorize supplier call.", code: "SUPPLIER_CALL_AUTHORIZATION_FAILURE" }, { status: 502 });
+    }
+    if (!claim.ok) return NextResponse.json({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" }, { status: 409 });
+
     const providerInput: CreateSupplierCallInput = {
       callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, phone: supplier.phone,
       language: approval.language, scenario: supplierCall.scenario, disclosure: "Penelepon adalah asisten suara AI Arvanta.",
@@ -150,9 +221,10 @@ export function createCreateSupplierCallHandler(dependencies: CreateSupplierCall
       if (result.callId !== supplierCall.id || result.provider !== expectedProvider || !result.providerCallId.trim() || result.providerCallId.length > 200 || !["creating", "connecting"].includes(result.status)) {
         throw new SupplierCallProviderError("Supplier-call provider returned an invalid result.", "INVALID_PROVIDER_RESULT");
       }
-      await dependencies.repository.recordCreatedCall(input, result, clock.date);
+      await dependencies.repository.recordCreatedCall(claim.claimId, input, result, clock.date);
       return NextResponse.json({ code: "SUPPLIER_CALL_CREATED", call: result }, { status: 201 });
     } catch {
+      try { await dependencies.repository.recordFailedCallClaim(claim.claimId); } catch { /* Keep the original safe provider failure response; an unresolved claim remains fail-closed. */ }
       return NextResponse.json({ error: "Unable to create supplier call.", code: "SUPPLIER_CALL_PROVIDER_FAILURE" }, { status: 502 });
     }
   };

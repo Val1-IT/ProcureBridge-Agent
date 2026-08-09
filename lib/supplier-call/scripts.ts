@@ -38,7 +38,11 @@ const scripts: Readonly<Record<SupplierScenario, readonly ScriptLine[]>> = {
 };
 
 export function maskSensitiveNumericPatterns(text: string): string {
-  return text.replace(/\b\d{6}\b/g, "[MASKED]").replace(/\b\d{13,19}\b/g, "[MASKED]");
+  const sequence = /(?<!\d)\+?\d(?:[\s.-]?\d){6,18}(?!\d)/g;
+  const calendarDate = /^(?:\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})$/;
+  return text
+    .replace(sequence, (candidate) => calendarDate.test(candidate) ? candidate : "[MASKED]")
+    .replace(/\b\d{6}\b/g, "[MASKED]");
 }
 
 export function getSupplierScenarioTranscript(scenario: SupplierScenario): SupplierTranscriptSegment[] {

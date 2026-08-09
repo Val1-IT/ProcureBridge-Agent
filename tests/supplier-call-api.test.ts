@@ -32,6 +32,9 @@ class FakeRepository implements SupplierCallAuthorizationRepository {
   callsToday = 0;
   openDispute = false;
   failLoad = false;
+  claimAllowed = true;
+  claims = 0;
+  failedClaims = 0;
   recorded = 0;
   async getSupplier() { if (this.failLoad) throw new Error("secret repository connection"); return this.supplier; }
   async getPurchaseOrder() { return this.purchaseOrder; }
@@ -39,6 +42,8 @@ class FakeRepository implements SupplierCallAuthorizationRepository {
   async getApproval() { return this.approval; }
   async countCallsForPurchaseOrderOnDate() { return this.callsToday; }
   async hasOpenDispute() { return this.openDispute; }
+  async claimSupplierCall() { this.claims += 1; return this.claimAllowed ? { ok: true as const, claimId: `claim-${this.claims}` } : { ok: false as const }; }
+  async recordFailedCallClaim() { this.failedClaims += 1; }
   async recordCreatedCall() { this.recorded += 1; }
 }
 
@@ -100,6 +105,64 @@ describe("POST /api/supplier-calls", () => {
     const response = await context.handler(context.request());
     expect(response.status).toBe(201);
     expect(context.modes).toEqual(["mock"]);
+  });
+
+  it("atomically allows only one concurrent provider invocation for the same supplier PO and local date", async () => {
+    const repository = new DemoSupplierCallAuthorizationRepository();
+    let invocations = 0;
+    let releaseProvider!: () => void;
+    let markProviderStarted!: () => void;
+    const providerGate = new Promise<void>((resolve) => { releaseProvider = resolve; });
+    const providerStarted = new Promise<void>((resolve) => { markProviderStarted = resolve; });
+    const handler = createCreateSupplierCallHandler({
+      repository,
+      now: () => new Date("2026-08-09T03:00:00.000Z"),
+      providerFactory: () => ({
+        async createCall(value) {
+          invocations += 1;
+          markProviderStarted();
+          await providerGate;
+          return { callId: value.callId, providerCallId: `supplier_mock_${value.callId}`, status: "connecting", provider: "mock" };
+        },
+        async getCall(callId) { return { callId, status: "active", durationSeconds: 0 }; },
+        async endCall() {}, async getTranscript() { return []; },
+      }),
+    });
+    const makeRequest = () => new Request("https://app.example/api/supplier-calls", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id }),
+    });
+
+    const first = handler(makeRequest());
+    await providerStarted;
+    const second = await handler(makeRequest());
+    releaseProvider();
+    const firstResponse = await first;
+
+    expect(invocations).toBe(1);
+    expect(firstResponse.status).toBe(201);
+    expect(second.status).toBe(409);
+    expect(await second.json()).toEqual({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" });
+  });
+
+  it("returns the same stable duplicate 409 after the first request has finalized", async () => {
+    const repository = new DemoSupplierCallAuthorizationRepository();
+    const context = setup({ repository });
+    expect((await context.handler(context.request())).status).toBe(201);
+    const duplicate = await context.handler(context.request());
+    expect(duplicate.status).toBe(409);
+    expect(await duplicate.json()).toEqual({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" });
+    expect(context.inputs).toHaveLength(1);
+  });
+
+  it("returns the stable duplicate 409 when the atomic repository claim loses", async () => {
+    const repository = new FakeRepository();
+    repository.claimAllowed = false;
+    const context = setup({ repository });
+    const response = await context.handler(context.request());
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" });
+    expect(context.inputs).toHaveLength(0);
   });
 
   it("forces mock even when live mode was explicitly configured", async () => {
@@ -182,6 +245,7 @@ describe("POST /api/supplier-calls", () => {
     expect(body).toEqual({ error: "Unable to create supplier call.", code: "SUPPLIER_CALL_PROVIDER_FAILURE" });
     expect(JSON.stringify(body)).not.toMatch(/secret-key|must-not-leak/);
     expect(repository.recorded).toBe(0);
+    expect(repository.failedClaims).toBe(1);
   });
 
   it("contains repository failures in a safe stable 502 response", async () => {

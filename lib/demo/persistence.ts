@@ -218,7 +218,20 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   })) return false;
   const approvedCallIds = new Set(supplierApprovals.filter((item) => item.status === "approved").map((item) => item.supplierCallId));
   if (supplierCalls.some((item) => item.status !== "draft" && !approvedCallIds.has(item.id))) return false;
-  if (!(value.supplierResults as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario"]) && supplierCallIds.has(item.supplierCallId) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["pending", "approved", "rejected", "human_review"], item.status) && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario) && (item.promisedDeliveryDate === null || hasString(item.promisedDeliveryDate)))) return false;
+  const supplierResults = value.supplierResults as Record<string, unknown>[];
+  if (new Set(supplierResults.map((item) => item.id)).size !== supplierResults.length) return false;
+  if (!supplierResults.every((item) => {
+    const call = hasString(item.supplierCallId) ? supplierCallById.get(item.supplierCallId) : undefined;
+    if (!call) return false;
+    return hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario"])
+      && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId && call.scenario === item.scenario
+      && includes(["pending", "approved", "rejected", "human_review"], item.status)
+      && (item.promisedDeliveryDate === null || isStrictIsoDate(item.promisedDeliveryDate));
+  })) return false;
+  // Rejected rows are immutable attempt history. A call may have at most one
+  // current or accepted result across pending, human_review, and approved.
+  const currentResultCallIds = supplierResults.filter((item) => item.status !== "rejected").map((item) => item.supplierCallId);
+  if (new Set(currentResultCallIds).size !== currentResultCallIds.length) return false;
   if (!(value.disputes as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["reason"]) && includes(["open", "investigating", "resolved", "cancelled"], item.status))) return false;
   if (!(value.followUps as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["dueAt", "reason"]) && includes(["open", "completed", "cancelled"], item.status) && includes(["pending", "approved"], item.approvalStatus) && (item.approvedBy === null || hasString(item.approvedBy)) && (item.approvalStatus !== "approved" || hasString(item.approvedBy)))) return false;
   return (value.auditLogs as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["entityType", "entityId", "action", "actorRole", "actorId"]) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && isRecord(item.detail) && Object.values(item.detail).every((detail) => detail === null || typeof detail === "string" || typeof detail === "boolean" || (typeof detail === "number" && Number.isFinite(detail))));
