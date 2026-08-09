@@ -47,13 +47,13 @@ function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
 }
 
 describe("ERP persistence foundation", () => {
-  it("migrates schema v2 recovery data into schema v7 with a deterministic ERP slice", () => {
+  it("migrates schema v2 recovery data into schema v8 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
     delete (legacy as Partial<DemoState>).erp;
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(7);
+    expect(migrated.schemaVersion).toBe(8);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
   });
@@ -67,7 +67,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(7);
+    expect(migrated.schemaVersion).toBe(8);
     expect(migrated.erp.requestForQuotations).toEqual([]);
     expect(migrated.erp.supplierQuotations).toEqual([]);
     expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
@@ -80,7 +80,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(7);
+    expect(migrated.schemaVersion).toBe(8);
     expect(migrated.erp.stockAdjustments).toEqual([]);
   });
 
@@ -468,13 +468,13 @@ function createLegacyV5Confirmed(quantity: number, reservedQuantity: number) {
 }
 
 describe("sales persistence evidence", () => {
-  it("migrates schema v5 reservation fields and movement kinds into canonical schema v7", () => {
+  it("migrates schema v5 reservation fields and movement kinds into canonical schema v8", () => {
     const legacy = createLegacyV5Confirmed(20, 12);
 
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(7);
+    expect(loaded.state.schemaVersion).toBe(8);
     expect(loaded.state.erp.salesOrders[0].lines[0]).not.toHaveProperty("reservedQuantity");
     expect(loaded.state.erp.stockMovements.every((movement) => movement.type === "opening")).toBe(true);
   });
@@ -651,14 +651,14 @@ function createFullyCoveredFinancePersistenceState() {
 }
 
 describe("finance persistence evidence", () => {
-  it("migrates an empty schema v6 finance slice into schema v7", () => {
+  it("migrates an empty schema v6 finance slice into schema v8", () => {
     const legacy = createSeedState();
     legacy.schemaVersion = 6;
 
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(7);
+    expect(loaded.state.schemaVersion).toBe(8);
     expect(loaded.state.erp.supplierInvoices).toEqual([]);
     expect(loaded.state.erp.customerInvoices).toEqual([]);
     expect(loaded.state.erp.payments).toEqual([]);

@@ -5,9 +5,10 @@ import { createErpSeedState } from "../erp/seed";
 import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
 import { createSeedState } from "./seed";
 
-export const DEMO_SCHEMA_VERSION = 7;
-export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
-export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
+export const DEMO_SCHEMA_VERSION = 8;
+export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v8";
+export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
+export const V6_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
 export const V5_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v5";
 export const V4_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v4";
 export const V3_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v3";
@@ -28,6 +29,7 @@ const salesOrderStatuses = ["draft", "confirmed", "partially_delivered", "fully_
 const invoiceStatuses = ["unpaid", "partially_paid", "paid", "cancelled"];
 const trustedOpeningMovements = new Map(createErpSeedState().stockMovements.filter((movement) => movement.sourceType === "seed").map((movement) => [movement.id, movement]));
 const hasString = (value: unknown): value is string => typeof value === "string" && value.length > 0;
+const hasTrimmedString = (value: unknown): value is string => hasString(value) && value.trim().length > 0;
 const hasNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const hasFields = (value: unknown, fields: string[]): value is Record<string, unknown> => isRecord(value) && fields.every((field) => hasString(value[field]));
 const includes = (values: string[], value: unknown): boolean => typeof value === "string" && values.includes(value);
@@ -37,6 +39,11 @@ const hasRfqLine = (value: unknown): boolean => hasFields(value, ["productId"]) 
 const hasRfqLines = (value: unknown): boolean => Array.isArray(value) && value.every(hasRfqLine);
 const hasEntityDates = (value: unknown): value is Record<string, unknown> => hasFields(value, ["id", "createdAt", "updatedAt"]);
 const hasOptionalLink = (value: Record<string, unknown>, field: string, ids: Set<unknown>): boolean => Object.hasOwn(value, field) && (value[field] === null || (hasString(value[field]) && ids.has(value[field])));
+const hasClockTime = (value: unknown): value is string => {
+  if (typeof value !== "string") return false;
+  const match = /^(\d{2}):(\d{2})$/.exec(value);
+  return Boolean(match && Number(match[1]) <= 23 && Number(match[2]) <= 59);
+};
 
 function hasValidErpCollections(value: unknown): value is ErpState {
   if (!isRecord(value) || !hasNumber(value.revision) || !includes(erpRoles, value.activeRole)) return false;
@@ -176,9 +183,41 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (!hasConsistentSalesDeliveryTotals(salesOrders, deliveryOrders)) return false;
   if (!hasNonNegativeMovementHistory(stockMovements)) return false;
   if (!hasCoveredReservations(salesOrders, stockMovements)) return false;
-  if (!(value.supplierCalls as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierId", "purchaseOrderId", "scenario"]) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["draft", "active", "completed", "failed"], item.status) && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario))) return false;
-  const supplierCallIds = new Set((value.supplierCalls as Record<string, unknown>[]).map((item) => item.id));
-  if (!(value.supplierApprovals as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId"]) && supplierCallIds.has(item.supplierCallId) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["pending", "approved", "rejected"], item.status) && (item.approvedBy === null || hasString(item.approvedBy)))) return false;
+  const supplierCalls = value.supplierCalls as Record<string, unknown>[];
+  if (!supplierCalls.every((item) => {
+    const draft = item.status === "draft";
+    return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
+      && hasFields(item, ["supplierId", "purchaseOrderId", "scenario"]) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId)
+      && purchaseOrderById.get(item.purchaseOrderId)?.supplierId === item.supplierId
+      && includes(["draft", "active", "completed", "failed"], item.status)
+      && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario)
+      && (draft ? item.provider === null && item.providerCallId === null && item.calledLocalDate === null
+        : includes(["mock", "calle"], item.provider) && hasTrimmedString(item.providerCallId) && isStrictIsoDate(item.calledLocalDate));
+  })) return false;
+  const supplierCallIds = new Set(supplierCalls.map((item) => item.id));
+  if (supplierCallIds.size !== supplierCalls.length) return false;
+  const supplierCallById = new Map(supplierCalls.map((item) => [item.id, item]));
+  const supplierApprovals = value.supplierApprovals as Record<string, unknown>[];
+  if (new Set(supplierApprovals.map((item) => item.supplierCallId)).size !== supplierApprovals.length) return false;
+  if (!supplierApprovals.every((item) => {
+    const call = hasString(item.supplierCallId) ? supplierCallById.get(item.supplierCallId) : undefined;
+    const purchaseOrder = hasString(item.purchaseOrderId) ? purchaseOrderById.get(item.purchaseOrderId) : undefined;
+    if (!call || !purchaseOrder) return false;
+    const purchaseOrderLines = purchaseOrder.lines as Record<string, unknown>[];
+    if (!Array.isArray(item.permittedProductIds) || !item.permittedProductIds.every(hasString)) return false;
+    const products = item.permittedProductIds as string[];
+    return hasEntityDates(item) && isStrictIsoInstant(item.createdAt) && isStrictIsoInstant(item.updatedAt)
+      && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "objective", "maximumDeliveryDate", "language", "callTime"])
+      && call.supplierId === item.supplierId && call.purchaseOrderId === item.purchaseOrderId && purchaseOrder.supplierId === item.supplierId
+      && hasTrimmedString(item.objective) && hasTrimmedString(item.language)
+      && includes(["pending", "approved", "rejected"], item.status) && isStrictIsoDate(item.maximumDeliveryDate) && hasClockTime(item.callTime)
+      && typeof item.partialDeliveryAllowed === "boolean" && hasNumber(item.maximumUnitPriceIncreasePercent) && item.maximumUnitPriceIncreasePercent >= 0 && item.maximumUnitPriceIncreasePercent <= 100
+      && products.length === purchaseOrderLines.length && new Set(products).size === products.length
+      && purchaseOrderLines.every((line) => hasString(line.productId) && products.includes(line.productId))
+      && (item.approvedBy === null || hasTrimmedString(item.approvedBy)) && (item.status !== "approved" || hasTrimmedString(item.approvedBy));
+  })) return false;
+  const approvedCallIds = new Set(supplierApprovals.filter((item) => item.status === "approved").map((item) => item.supplierCallId));
+  if (supplierCalls.some((item) => item.status !== "draft" && !approvedCallIds.has(item.id))) return false;
   if (!(value.supplierResults as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId", "scenario"]) && supplierCallIds.has(item.supplierCallId) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["pending", "approved", "rejected", "human_review"], item.status) && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario) && (item.promisedDeliveryDate === null || hasString(item.promisedDeliveryDate)))) return false;
   if (!(value.disputes as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["reason"]) && includes(["open", "investigating", "resolved", "cancelled"], item.status))) return false;
   if (!(value.followUps as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["dueAt", "reason"]) && includes(["open", "completed", "cancelled"], item.status) && includes(["pending", "approved"], item.approvalStatus) && (item.approvedBy === null || hasString(item.approvedBy)) && (item.approvalStatus !== "approved" || hasString(item.approvedBy)))) return false;
@@ -189,19 +228,23 @@ export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
-    const erp = migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))));
+    const erp = migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp)))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 4) {
-    const erp = migrateErpV6(migrateErpV5(migrateErpV4(value.erp)));
+    const erp = migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 5) {
-    const erp = migrateErpV6(migrateErpV5(value.erp));
+    const erp = migrateErpV7(migrateErpV6(migrateErpV5(value.erp)));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === 6) {
-    const erp = migrateErpV6(value.erp);
+    const erp = migrateErpV7(migrateErpV6(value.erp));
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+  }
+  if (value.schemaVersion === 7) {
+    const erp = migrateErpV7(value.erp);
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === DEMO_SCHEMA_VERSION && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
@@ -220,7 +263,7 @@ export function loadDemoState(value: string | null): { state: DemoState; recover
 
 export function loadDemoStateFromStorage(storage: Pick<Storage, "getItem">): { state: DemoState; recoveryReason: DemoRecoveryReason } {
   const current = storage.getItem(DEMO_STORAGE_KEY);
-  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
 }
 
 export function serializeDemoState(state: DemoState): string { return JSON.stringify(state); }
@@ -451,6 +494,14 @@ function migrateErpV6(value: unknown): ErpState | null {
   // Schema v6 did not persist source-document coverage or payment counterparties.
   // Existing finance rows therefore cannot be upgraded without inventing provenance.
   if (value.supplierInvoices.length > 0 || value.customerInvoices.length > 0 || value.payments.length > 0) return null;
+  return value as unknown as ErpState;
+}
+
+function migrateErpV7(value: unknown): ErpState | null {
+  if (!isRecord(value) || !Array.isArray(value.supplierCalls) || !Array.isArray(value.supplierApprovals) || !Array.isArray(value.supplierResults)) return null;
+  // Schema v7 did not persist provider identity, call date, or the complete
+  // human-approved commercial scope. Existing rows cannot be upgraded safely.
+  if (value.supplierCalls.length > 0 || value.supplierApprovals.length > 0 || value.supplierResults.length > 0) return null;
   return value as unknown as ErpState;
 }
 

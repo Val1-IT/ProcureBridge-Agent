@@ -177,7 +177,7 @@ const pendingResults: StructuredResult[] = [
 
 export function createSeedState(): DemoState {
   return {
-    schemaVersion: 7,
+    schemaVersion: 8,
     updatedAt: "2026-08-04T03:00:00.000Z",
     customers: structuredClone(customers),
     invoices: structuredClone(invoices),
