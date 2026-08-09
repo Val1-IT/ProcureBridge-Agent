@@ -4,6 +4,7 @@ import { deserializeDemoState, loadDemoState } from "../lib/demo/persistence";
 import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
 import { selectAvailableStock, selectIncomingStock } from "../lib/erp/selectors";
+import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
 
 function createStateWithLinkedSelectedQuotation() {
   const state = createSeedState();
@@ -20,13 +21,13 @@ function createStateWithLinkedSelectedQuotation() {
 }
 
 describe("ERP persistence foundation", () => {
-  it("migrates schema v2 recovery data into schema v4 with a deterministic ERP slice", () => {
+  it("migrates schema v2 recovery data into schema v5 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
     delete (legacy as Partial<DemoState>).erp;
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.schemaVersion).toBe(5);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
   });
@@ -40,10 +41,84 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.schemaVersion).toBe(5);
     expect(migrated.erp.requestForQuotations).toEqual([]);
     expect(migrated.erp.supplierQuotations).toEqual([]);
     expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
+  });
+
+  it("migrates schema v4 ERP data with an empty adjustment proposal collection", () => {
+    const legacy = createSeedState();
+    legacy.schemaVersion = 4;
+    delete (legacy.erp as { stockAdjustments?: unknown }).stockAdjustments;
+
+    const migrated = deserializeDemoState(JSON.stringify(legacy));
+
+    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.erp.stockAdjustments).toEqual([]);
+  });
+
+  it("fails closed when an adjustment or movement has invalid inventory references", () => {
+    const malformedAdjustment = createSeedState();
+    malformedAdjustment.erp.stockAdjustments.push({
+      id: "stock-adjustment-sa-2026-0001", adjustmentNumber: "SA-2026-0001", warehouseId: "missing-warehouse", productId: "product-router", quantityDelta: -2,
+      reason: "Cycle count", status: "pending", proposedByRole: "warehouse", approvedByRole: null, approvedAt: null,
+      createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+    const malformedMovement = createSeedState();
+    malformedMovement.erp.stockMovements[0] = { ...malformedMovement.erp.stockMovements[0], sourceType: "goods_receipt", sourceId: "missing-receipt" };
+
+    expect(loadDemoState(JSON.stringify(malformedAdjustment)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(malformedMovement)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("fails closed when an approved inventory document is missing its matching movement", () => {
+    const receiptWithoutMovement = createSeedState();
+    receiptWithoutMovement.erp.purchaseOrders[0] = { ...receiptWithoutMovement.erp.purchaseOrders[0], status: "partially_received" };
+    receiptWithoutMovement.erp.goodsReceipts.push({
+      id: "goods-receipt-gr-2026-0001", receiptNumber: "GR-2026-0001", purchaseOrderId: receiptWithoutMovement.erp.purchaseOrders[0].id,
+      warehouseId: "warehouse-jakarta", status: "approved", lines: [{ productId: "product-router", quantity: 2, unitPrice: 1_050_000 }],
+      createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
+    });
+    const adjustmentWithoutMovement = createSeedState();
+    adjustmentWithoutMovement.erp.stockAdjustments.push({
+      id: "stock-adjustment-sa-2026-0001", adjustmentNumber: "SA-2026-0001", warehouseId: "warehouse-jakarta", productId: "product-router", quantityDelta: -2,
+      reason: "Cycle count", status: "approved", proposedByRole: "warehouse", approvedByRole: "approver", approvedAt: "2026-08-09T11:00:00.000Z",
+      createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T11:00:00.000Z",
+    });
+
+    expect(loadDemoState(JSON.stringify(receiptWithoutMovement)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(adjustmentWithoutMovement)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("fails closed on mismatched or duplicate receipt and adjustment posting evidence", () => {
+    const receiptState = createSeedState();
+    receiptState.erp.purchaseOrders[0] = { ...receiptState.erp.purchaseOrders[0], status: "confirmed" };
+    const draft = createGoodsReceipt(receiptState.erp, "warehouse", { purchaseOrderId: receiptState.erp.purchaseOrders[0].id, lines: [{ productId: "product-router", quantity: 2 }] }, "2026-08-09T10:00:00.000Z");
+    expect(draft.ok).toBe(true);
+    if (!draft.ok) return;
+    const posted = approveGoodsReceipt(draft.state, "warehouse", draft.value.id, "2026-08-09T11:00:00.000Z");
+    expect(posted.ok).toBe(true);
+    if (!posted.ok) return;
+    receiptState.erp = posted.state;
+    const wrongQuantity = structuredClone(receiptState);
+    wrongQuantity.erp.stockMovements.at(-1)!.quantity = 99;
+    const duplicatePosting = structuredClone(receiptState);
+    duplicatePosting.erp.stockMovements.push({ ...duplicatePosting.erp.stockMovements.at(-1)!, id: "duplicate-receipt-posting" });
+
+    const adjustmentState = createSeedState();
+    const proposed = proposeStockAdjustment(adjustmentState.erp, "warehouse", { productId: "product-router", quantityDelta: -2, reason: "Cycle count" }, "2026-08-09T10:00:00.000Z");
+    expect(proposed.ok).toBe(true);
+    if (!proposed.ok) return;
+    const adjusted = approveStockAdjustment(proposed.state, "approver", proposed.value.id, "2026-08-09T11:00:00.000Z");
+    expect(adjusted.ok).toBe(true);
+    if (!adjusted.ok) return;
+    adjustmentState.erp = adjusted.state;
+    adjustmentState.erp.stockMovements.at(-1)!.reason = "Tampered reason";
+
+    expect(loadDemoState(JSON.stringify(wrongQuantity)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(duplicatePosting)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoState(JSON.stringify(adjustmentState)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
   it("computes available and incoming quantities without storing derived totals", () => {

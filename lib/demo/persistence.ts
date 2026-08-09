@@ -3,9 +3,10 @@ import type { ErpState } from "../erp/types";
 import { createErpSeedState } from "../erp/seed";
 import { createSeedState } from "./seed";
 
-export const DEMO_SCHEMA_VERSION = 4;
-export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v4";
-export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v3";
+export const DEMO_SCHEMA_VERSION = 5;
+export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v5";
+export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v4";
+export const V3_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v3";
 export const LEGACY_DEMO_STORAGE_KEY = "arvanta-procurebridge-demo-v2";
 export type DemoRecoveryReason = "INVALID_JSON" | "INVALID_SCHEMA" | null;
 
@@ -34,7 +35,7 @@ const hasOptionalLink = (value: Record<string, unknown>, field: string, ids: Set
 
 function hasValidErpCollections(value: unknown): value is ErpState {
   if (!isRecord(value) || !hasNumber(value.revision) || !includes(erpRoles, value.activeRole)) return false;
-  const arrays = ["products", "suppliers", "customers", "warehouses", "purchaseRequests", "requestForQuotations", "supplierQuotations", "purchaseOrders", "goodsReceipts", "salesOrders", "deliveryOrders", "supplierInvoices", "customerInvoices", "payments", "stockMovements", "supplierCalls", "supplierApprovals", "supplierResults", "disputes", "followUps", "auditLogs"];
+  const arrays = ["products", "suppliers", "customers", "warehouses", "purchaseRequests", "requestForQuotations", "supplierQuotations", "purchaseOrders", "goodsReceipts", "salesOrders", "deliveryOrders", "supplierInvoices", "customerInvoices", "payments", "stockMovements", "stockAdjustments", "supplierCalls", "supplierApprovals", "supplierResults", "disputes", "followUps", "auditLogs"];
   if (!arrays.every((field) => isArrayField(value, field))) return false;
   const products = value.products as unknown[];
   const suppliers = value.suppliers as unknown[];
@@ -78,7 +79,13 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     return quotation?.status === "selected" && rfq?.status === "selected" && rfq.selectedQuotationId === quotation.id && quotation.supplierId === purchaseOrder.supplierId && rfq.purchaseRequestId === purchaseOrder.purchaseRequestId && rfq.warehouseId === purchaseOrder.warehouseId && validRfqQuotationLines(purchaseOrder.lines, quotation.lines);
   })) return false;
   const openPurchaseOrderIds = new Set(purchaseOrders.map((item) => item.id));
-  if (!(value.goodsReceipts as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && warehouseIds.has(item.warehouseId) && includes(["draft", "posted", "cancelled"], item.status) && validLines(item.lines))) return false;
+  const purchaseOrderById = new Map(purchaseOrders.map((item) => [item.id, item]));
+  const goodsReceipts = value.goodsReceipts as Record<string, unknown>[];
+  if (!goodsReceipts.every((item) => {
+    const purchaseOrder = hasString(item.purchaseOrderId) ? purchaseOrderById.get(item.purchaseOrderId) : undefined;
+    return hasEntityDates(item) && hasFields(item, ["receiptNumber", "purchaseOrderId", "warehouseId"]) && openPurchaseOrderIds.has(item.purchaseOrderId) && warehouseIds.has(item.warehouseId) && purchaseOrder?.warehouseId === item.warehouseId && includes(["draft", "approved", "posted", "cancelled"], item.status) && validLines(item.lines) && receiptProductsBelongToOrder(purchaseOrder?.lines, item.lines);
+  })) return false;
+  const goodsReceiptById = new Map(goodsReceipts.map((item) => [item.id, item]));
   if (!(value.salesOrders as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["orderNumber", "customerId", "warehouseId"]) && customerIds.has(item.customerId) && warehouseIds.has(item.warehouseId) && includes(salesOrderStatuses, item.status) && Array.isArray(item.lines) && item.lines.every((line) => hasQuantityLine(line) && hasNumber(line.reservedQuantity) && hasNumber(line.deliveredQuantity) && productIds.has(line.productId)))) return false;
   const salesOrderIds = new Set((value.salesOrders as Record<string, unknown>[]).map((item) => item.id));
   if (!(value.deliveryOrders as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["deliveryNumber", "salesOrderId", "warehouseId"]) && salesOrderIds.has(item.salesOrderId) && warehouseIds.has(item.warehouseId) && includes(["draft", "posted", "cancelled"], item.status) && validLines(item.lines))) return false;
@@ -88,7 +95,31 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const supplierInvoiceIds = new Set((value.supplierInvoices as Record<string, unknown>[]).map((item) => item.id));
   const customerInvoiceIds = new Set((value.customerInvoices as Record<string, unknown>[]).map((item) => item.id));
   if (!(value.payments as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["paymentNumber", "invoiceId", "paymentDate"]) && hasNumber(item.amount) && includes(["payable", "receivable"], item.direction) && (item.direction !== "payable" || supplierInvoiceIds.has(item.invoiceId)) && (item.direction !== "receivable" || customerInvoiceIds.has(item.invoiceId)) && includes(["posted", "cancelled"], item.status))) return false;
-  if (!(value.stockMovements as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["productId", "warehouseId", "sourceType", "sourceId"]) && productIds.has(item.productId) && warehouseIds.has(item.warehouseId) && hasNumber(item.quantity) && includes(["in", "out", "adjustment"], item.direction) && includes(["seed", "goods_receipt", "delivery_order", "adjustment"], item.sourceType))) return false;
+  const stockAdjustments = value.stockAdjustments as Record<string, unknown>[];
+  if (!stockAdjustments.every((item) => hasEntityDates(item) && hasFields(item, ["adjustmentNumber", "productId", "warehouseId", "reason", "proposedByRole"]) && productIds.has(item.productId) && warehouseIds.has(item.warehouseId) && includes(erpRoles, item.proposedByRole) && hasNumber(item.quantityDelta) && Number.isInteger(item.quantityDelta) && item.quantityDelta !== 0 && includes(["pending", "approved", "rejected"], item.status) && (item.approvedByRole === null || includes(erpRoles, item.approvedByRole)) && (item.approvedAt === null || hasString(item.approvedAt)) && (item.status !== "approved" || (includes(erpRoles, item.approvedByRole) && item.approvedByRole !== item.proposedByRole && hasString(item.approvedAt))))) return false;
+  const stockAdjustmentById = new Map(stockAdjustments.map((item) => [item.id, item]));
+  const deliveryOrderById = new Map((value.deliveryOrders as Record<string, unknown>[]).map((item) => [item.id, item]));
+  const stockMovements = value.stockMovements as Record<string, unknown>[];
+  if (new Set(stockMovements.map((item) => item.id)).size !== stockMovements.length) return false;
+  if (!stockMovements.every((item) => {
+    if (!(hasEntityDates(item) && hasFields(item, ["productId", "warehouseId", "sourceType", "sourceId", "actorRole", "actorId"]) && productIds.has(item.productId) && warehouseIds.has(item.warehouseId) && hasNumber(item.quantity) && item.quantity !== 0 && includes(["in", "out", "adjustment"], item.direction) && includes(["seed", "goods_receipt", "delivery_order", "adjustment"], item.sourceType) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && (item.reason === null || typeof item.reason === "string"))) return false;
+    if (item.direction !== "adjustment" && item.quantity <= 0) return false;
+    if (item.sourceType === "seed") return item.actorRole === "system";
+    if (item.sourceType === "goods_receipt") { const receipt = goodsReceiptById.get(item.sourceId); return receipt?.warehouseId === item.warehouseId && ["approved", "posted"].includes(String(receipt?.status)); }
+    if (item.sourceType === "delivery_order") { const delivery = deliveryOrderById.get(item.sourceId); return delivery?.warehouseId === item.warehouseId && delivery?.status === "posted"; }
+    const adjustment = stockAdjustmentById.get(item.sourceId);
+    return item.direction === "adjustment" && adjustment?.status === "approved" && adjustment.productId === item.productId && adjustment.warehouseId === item.warehouseId && adjustment.quantityDelta === item.quantity && adjustment.reason === item.reason && adjustment.approvedByRole === item.actorRole && item.actorId === `role:${String(item.actorRole)}`;
+  })) return false;
+  if (!goodsReceipts.every((receipt) => {
+    const postings = stockMovements.filter((movement) => movement.sourceType === "goods_receipt" && movement.sourceId === receipt.id);
+    if (receipt.status !== "approved" && receipt.status !== "posted") return postings.length === 0;
+    const lines = receipt.lines as Record<string, unknown>[];
+    return postings.length === lines.length && lines.every((line) => postings.filter((movement) => movement.productId === line.productId && movement.warehouseId === receipt.warehouseId && movement.direction === "in" && movement.quantity === line.quantity && ["admin", "warehouse", "approver"].includes(String(movement.actorRole)) && movement.actorId === `role:${String(movement.actorRole)}` && hasString(movement.reason)).length === 1);
+  })) return false;
+  if (!stockAdjustments.every((adjustment) => {
+    const postings = stockMovements.filter((movement) => movement.sourceType === "adjustment" && movement.sourceId === adjustment.id);
+    return adjustment.status === "approved" ? postings.length === 1 : postings.length === 0;
+  })) return false;
   if (!(value.supplierCalls as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierId", "purchaseOrderId", "scenario"]) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["draft", "active", "completed", "failed"], item.status) && includes(["delivery_commitment", "partial_delivery", "stock_unavailable", "price_discrepancy", "failed_contact"], item.scenario))) return false;
   const supplierCallIds = new Set((value.supplierCalls as Record<string, unknown>[]).map((item) => item.id));
   if (!(value.supplierApprovals as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["supplierCallId", "supplierId", "purchaseOrderId"]) && supplierCallIds.has(item.supplierCallId) && supplierIds.has(item.supplierId) && openPurchaseOrderIds.has(item.purchaseOrderId) && includes(["pending", "approved", "rejected"], item.status) && (item.approvedBy === null || hasString(item.approvedBy)))) return false;
@@ -102,7 +133,11 @@ export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
-    const erp = migrateErpV3(value.erp);
+    const erp = migrateErpV4(migrateErpV3(value.erp));
+    return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
+  }
+  if (value.schemaVersion === 4) {
+    const erp = migrateErpV4(value.erp);
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, erp } : null;
   }
   if (value.schemaVersion === DEMO_SCHEMA_VERSION && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
@@ -121,7 +156,7 @@ export function loadDemoState(value: string | null): { state: DemoState; recover
 
 export function loadDemoStateFromStorage(storage: Pick<Storage, "getItem">): { state: DemoState; recoveryReason: DemoRecoveryReason } {
   const current = storage.getItem(DEMO_STORAGE_KEY);
-  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
 }
 
 export function serializeDemoState(state: DemoState): string { return JSON.stringify(state); }
@@ -134,9 +169,27 @@ function validRfqQuotationLines(rfqLines: unknown, quotationLines: unknown): boo
   return rfq.length === quotations.length && rfq.every((rfqLine) => quotations.some((quotationLine) => quotationLine.productId === rfqLine.productId && quotationLine.quantity === rfqLine.quantity));
 }
 
+function receiptProductsBelongToOrder(orderLines: unknown, receiptLines: unknown): boolean {
+  if (!hasQuantityLines(orderLines) || !hasQuantityLines(receiptLines)) return false;
+  const orderProducts = new Set((orderLines as Array<{ productId: string }>).map((line) => line.productId));
+  const receiptProducts = (receiptLines as Array<{ productId: string }>).map((line) => line.productId);
+  return new Set(receiptProducts).size === receiptProducts.length && receiptProducts.every((productId) => orderProducts.has(productId));
+}
+
 function migrateErpV3(value: unknown): ErpState | null {
   if (!isRecord(value)) return null;
   const purchaseOrders = Array.isArray(value.purchaseOrders) ? value.purchaseOrders.map((order) => isRecord(order) ? { ...order, supplierQuotationId: order.supplierQuotationId ?? null } : order) : value.purchaseOrders;
   const followUps = Array.isArray(value.followUps) ? value.followUps.map((followUp) => isRecord(followUp) ? { ...followUp, approvalStatus: followUp.approvalStatus ?? "pending", approvedBy: followUp.approvedBy ?? null } : followUp) : value.followUps;
   return { ...value, requestForQuotations: Array.isArray(value.requestForQuotations) ? value.requestForQuotations : [], supplierQuotations: Array.isArray(value.supplierQuotations) ? value.supplierQuotations : [], purchaseOrders, followUps } as unknown as ErpState;
+}
+
+function migrateErpV4(value: unknown): ErpState | null {
+  if (!isRecord(value)) return null;
+  const stockMovements = Array.isArray(value.stockMovements) ? value.stockMovements.map((movement) => isRecord(movement) ? {
+    ...movement,
+    actorRole: movement.actorRole ?? "system",
+    actorId: movement.actorId ?? "system:migrated-v4",
+    reason: movement.reason ?? null,
+  } : movement) : value.stockMovements;
+  return { ...value, stockMovements, stockAdjustments: Array.isArray(value.stockAdjustments) ? value.stockAdjustments : [] } as unknown as ErpState;
 }

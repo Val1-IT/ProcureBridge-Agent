@@ -26,10 +26,11 @@ const seed: ErpState = {
   salesOrders: [{ id: "so-router-shortage", orderNumber: "SO-2026-0001", customerId: "erp-customer-sinar", warehouseId: "warehouse-jakarta", status: "confirmed", lines: [{ productId: "product-router", quantity: 35, unitPrice: 1_500_000, reservedQuantity: 12, deliveredQuantity: 0 }], createdAt: seededAt, updatedAt: seededAt }],
   deliveryOrders: [], supplierInvoices: [], customerInvoices: [], payments: [],
   stockMovements: [
-    { id: "stock-router-opening", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 30, direction: "in", sourceType: "seed", sourceId: "seed-opening", createdAt: seededAt, updatedAt: seededAt },
-    { id: "stock-scanner-opening", productId: "product-scanner", warehouseId: "warehouse-jakarta", quantity: 15, direction: "in", sourceType: "seed", sourceId: "seed-opening", createdAt: seededAt, updatedAt: seededAt },
-    { id: "stock-paper-opening", productId: "product-paper", warehouseId: "warehouse-jakarta", quantity: 120, direction: "in", sourceType: "seed", sourceId: "seed-opening", createdAt: seededAt, updatedAt: seededAt },
+    { id: "stock-router-opening", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 30, direction: "in", sourceType: "seed", sourceId: "seed-opening", actorRole: "system", actorId: "system:seed", reason: "Demo opening balance", createdAt: seededAt, updatedAt: seededAt },
+    { id: "stock-scanner-opening", productId: "product-scanner", warehouseId: "warehouse-jakarta", quantity: 15, direction: "in", sourceType: "seed", sourceId: "seed-opening", actorRole: "system", actorId: "system:seed", reason: "Demo opening balance", createdAt: seededAt, updatedAt: seededAt },
+    { id: "stock-paper-opening", productId: "product-paper", warehouseId: "warehouse-jakarta", quantity: 120, direction: "in", sourceType: "seed", sourceId: "seed-opening", actorRole: "system", actorId: "system:seed", reason: "Demo opening balance", createdAt: seededAt, updatedAt: seededAt },
   ],
+  stockAdjustments: [],
   supplierCalls: [], supplierApprovals: [], supplierResults: [], disputes: [], followUps: [], auditLogs: [],
 };
 

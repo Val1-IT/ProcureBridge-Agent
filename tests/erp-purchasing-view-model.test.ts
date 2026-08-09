@@ -173,8 +173,8 @@ describe("purchasing workspace view models", () => {
     ];
 
     expect(buildReceiptPreparationRows(state).map((row) => ({ id: row.purchaseOrderId, href: row.prepareHref, postingEnabled: row.postingEnabled }))).toEqual([
-      { id: "po-confirmed", href: "/purchasing/receipts?purchaseOrderId=po-confirmed&mode=prepare", postingEnabled: false },
-      { id: "po-partial", href: "/purchasing/receipts?purchaseOrderId=po-partial&mode=prepare", postingEnabled: false },
+      { id: "po-confirmed", href: "/purchasing/receipts?purchaseOrderId=po-confirmed&mode=prepare", postingEnabled: true },
+      { id: "po-partial", href: "/purchasing/receipts?purchaseOrderId=po-partial&mode=prepare", postingEnabled: true },
     ]);
   });
 

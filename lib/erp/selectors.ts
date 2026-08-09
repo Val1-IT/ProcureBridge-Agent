@@ -1,4 +1,4 @@
-import type { ErpFollowUp, ErpState, PurchaseOrder, RequestForQuotation, Supplier, SupplierQuotation } from "./types";
+import type { ErpFollowUp, ErpState, Product, PurchaseOrder, RequestForQuotation, StockMovement, Supplier, SupplierQuotation } from "./types";
 
 export type SupplierFollowUpReason = "confirmation_overdue" | "delivery_overdue" | "partial_receipt_outstanding" | "approved_follow_up_due";
 
@@ -17,13 +17,39 @@ export interface SupplierQuotationComparisonItem {
   rank: number;
 }
 
+export interface StockOverviewRow {
+  product: Product;
+  physical: number;
+  reserved: number;
+  available: number;
+  incoming: number;
+  stockCardHref: string;
+}
+
+export interface StockCardRow {
+  movement: StockMovement;
+  sourceLabel: string;
+  actorLabel: string;
+  signedQuantity: number;
+  resultingBalance: number;
+}
+
+export function signedMovementQuantity(movement: StockMovement): number {
+  if (movement.direction === "adjustment") return movement.quantity;
+  return movement.direction === "out" ? -Math.abs(movement.quantity) : Math.abs(movement.quantity);
+}
+
 export function selectPhysicalStock(state: ErpState, productId: string): number {
-  return state.stockMovements.filter((movement) => movement.productId === productId).reduce((sum, movement) => sum + (movement.direction === "out" ? -movement.quantity : movement.quantity), 0);
+  return state.stockMovements.filter((movement) => movement.productId === productId).reduce((sum, movement) => sum + signedMovementQuantity(movement), 0);
+}
+
+export function selectReservedStock(state: ErpState, productId: string): number {
+  return state.salesOrders.filter((order) => !["cancelled", "completed"].includes(order.status)).flatMap((order) => order.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.reservedQuantity - line.deliveredQuantity, 0);
 }
 
 export function selectAvailableStock(state: ErpState, productId: string): number {
   const physical = selectPhysicalStock(state, productId);
-  const reserved = state.salesOrders.filter((order) => !["cancelled", "completed"].includes(order.status)).flatMap((order) => order.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.reservedQuantity - line.deliveredQuantity, 0);
+  const reserved = selectReservedStock(state, productId);
   return physical - reserved;
 }
 
@@ -31,7 +57,36 @@ export function selectIncomingStock(state: ErpState, productId: string): number 
   const openOrders = state.purchaseOrders.filter((order) => ["sent", "confirmed", "partially_received"].includes(order.status));
   const openOrderIds = new Set(openOrders.map((order) => order.id));
   return openOrders.flatMap((order) => order.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0)
-    - state.goodsReceipts.filter((receipt) => receipt.status === "posted" && openOrderIds.has(receipt.purchaseOrderId)).flatMap((receipt) => receipt.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
+    - state.goodsReceipts.filter((receipt) => ["approved", "posted"].includes(receipt.status) && openOrderIds.has(receipt.purchaseOrderId)).flatMap((receipt) => receipt.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
+}
+
+export function selectStockOverview(state: ErpState): StockOverviewRow[] {
+  return state.products.map((product) => ({
+    product,
+    physical: selectPhysicalStock(state, product.id),
+    reserved: selectReservedStock(state, product.id),
+    available: selectAvailableStock(state, product.id),
+    incoming: selectIncomingStock(state, product.id),
+    stockCardHref: `/inventory/movements?productId=${product.id}`,
+  })).sort((left, right) => left.product.sku.localeCompare(right.product.sku));
+}
+
+export function selectStockCard(state: ErpState, productId: string): StockCardRow[] {
+  let balance = 0;
+  return state.stockMovements
+    .filter((movement) => movement.productId === productId)
+    .sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id))
+    .map((movement) => {
+      const signedQuantity = signedMovementQuantity(movement);
+      balance += signedQuantity;
+      return {
+        movement,
+        sourceLabel: movementSourceLabel(state, movement),
+        actorLabel: roleLabel(movement.actorRole),
+        signedQuantity,
+        resultingBalance: balance,
+      };
+    });
 }
 
 export function selectSupplierFollowUpQueue(state: ErpState, now: string): SupplierFollowUpQueueItem[] {
@@ -86,8 +141,19 @@ export function selectSupplierQuotationComparison(state: ErpState, requestForQuo
 
 function receivedQuantity(state: ErpState, purchaseOrderId: string, productId: string): number {
   return state.goodsReceipts
-    .filter((receipt) => receipt.purchaseOrderId === purchaseOrderId && receipt.status === "posted")
+    .filter((receipt) => receipt.purchaseOrderId === purchaseOrderId && ["approved", "posted"].includes(receipt.status))
     .flatMap((receipt) => receipt.lines)
     .filter((line) => line.productId === productId)
     .reduce((sum, line) => sum + line.quantity, 0);
+}
+
+function movementSourceLabel(state: ErpState, movement: StockMovement): string {
+  if (movement.sourceType === "seed") return "Opening balance";
+  if (movement.sourceType === "goods_receipt") return state.goodsReceipts.find((receipt) => receipt.id === movement.sourceId)?.receiptNumber ?? movement.sourceId;
+  if (movement.sourceType === "delivery_order") return state.deliveryOrders.find((delivery) => delivery.id === movement.sourceId)?.deliveryNumber ?? movement.sourceId;
+  return state.stockAdjustments.find((adjustment) => adjustment.id === movement.sourceId)?.adjustmentNumber ?? movement.sourceId;
+}
+
+function roleLabel(role: StockMovement["actorRole"]): string {
+  return role === "system" ? "System" : `${role.charAt(0).toUpperCase()}${role.slice(1)}`;
 }

@@ -56,8 +56,8 @@ export interface ReceiptPreparationRow {
   outstandingQuantity: number;
   lines: ReceiptPreparationLine[];
   prepareHref: string;
-  postingEnabled: false;
-  disabledReason: string;
+  postingEnabled: true;
+  disabledReason: null;
 }
 
 export interface ReceiptPreparationLine {
@@ -231,8 +231,8 @@ export function buildReceiptPreparationRows(state: ErpState): ReceiptPreparation
       outstandingQuantity,
       lines,
       prepareHref: `/purchasing/receipts?purchaseOrderId=${purchaseOrder.id}&mode=prepare`,
-      postingEnabled: false as const,
-      disabledReason: "Pencatatan stok akan diaktifkan melalui command Goods Receipt pada Task 6.",
+      postingEnabled: true as const,
+      disabledReason: null,
     }];
   }).sort((left, right) => left.orderNumber.localeCompare(right.orderNumber));
 }
@@ -290,11 +290,11 @@ function approvalStatus(status: PurchaseOrderStatus): PurchaseOrderRow["approval
 }
 
 function receivedForOrder(state: ErpState, purchaseOrderId: string): number {
-  return state.goodsReceipts.filter((item) => item.purchaseOrderId === purchaseOrderId && item.status === "posted").reduce((sum, receipt) => sum + sumQuantities(receipt.lines), 0);
+  return state.goodsReceipts.filter((item) => item.purchaseOrderId === purchaseOrderId && ["approved", "posted"].includes(item.status)).reduce((sum, receipt) => sum + sumQuantities(receipt.lines), 0);
 }
 
 function receivedForProduct(state: ErpState, purchaseOrderId: string, productId: string): number {
-  return state.goodsReceipts.filter((item) => item.purchaseOrderId === purchaseOrderId && item.status === "posted").flatMap((item) => item.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
+  return state.goodsReceipts.filter((item) => item.purchaseOrderId === purchaseOrderId && ["approved", "posted"].includes(item.status)).flatMap((item) => item.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
 }
 
 function receiptLineQuantities(state: ErpState, purchaseOrderId: string, line: QuantityLine): ReceiptPreparationLine {
