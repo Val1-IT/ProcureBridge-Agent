@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { demoReducer, type DemoAction } from "@/lib/demo/reducer";
 import { createSeedState } from "@/lib/demo/seed";
-import { DEMO_STORAGE_KEY, deserializeDemoState, serializeDemoState } from "@/lib/demo/persistence";
+import { DEMO_STORAGE_KEY, deserializeDemoState, loadDemoStateFromStorage, serializeDemoState } from "@/lib/demo/persistence";
 import type { DemoState } from "@/lib/domain/types";
 
 interface DemoStoreValue {
@@ -19,7 +19,7 @@ export function DemoStoreProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    dispatch({ type: "HYDRATE", state: deserializeDemoState(window.localStorage.getItem(DEMO_STORAGE_KEY)) });
+    dispatch({ type: "HYDRATE", state: loadDemoStateFromStorage(window.localStorage).state });
     setHydrated(true);
   }, []);
 

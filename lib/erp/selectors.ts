@@ -11,6 +11,8 @@ export function selectAvailableStock(state: ErpState, productId: string): number
 }
 
 export function selectIncomingStock(state: ErpState, productId: string): number {
-  return state.purchaseOrders.filter((order) => ["sent", "confirmed", "partially_received"].includes(order.status)).flatMap((order) => order.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0)
-    - state.goodsReceipts.filter((receipt) => receipt.status === "posted").flatMap((receipt) => receipt.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
+  const openOrders = state.purchaseOrders.filter((order) => ["sent", "confirmed", "partially_received"].includes(order.status));
+  const openOrderIds = new Set(openOrders.map((order) => order.id));
+  return openOrders.flatMap((order) => order.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0)
+    - state.goodsReceipts.filter((receipt) => receipt.status === "posted" && openOrderIds.has(receipt.purchaseOrderId)).flatMap((receipt) => receipt.lines).filter((line) => line.productId === productId).reduce((sum, line) => sum + line.quantity, 0);
 }

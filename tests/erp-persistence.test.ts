@@ -30,4 +30,48 @@ describe("ERP persistence foundation", () => {
     expect(loaded.state).toEqual(createSeedState());
     expect(loaded.recoveryReason).toBe("INVALID_JSON");
   });
+
+  it("fails closed when a schema v3 ERP slice has an invalid role or product entity", () => {
+    const malformed = createSeedState();
+    malformed.erp.activeRole = "operator" as never;
+    malformed.erp.products = [null as never];
+
+    const loaded = loadDemoState(JSON.stringify(malformed));
+
+    expect(loaded.state).toEqual(createSeedState());
+    expect(loaded.recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
+  it("subtracts posted receipts only from the open purchase order quantity", () => {
+    const erp = createErpSeedState();
+    erp.purchaseOrders.push({
+      ...erp.purchaseOrders[0],
+      id: "po-completed-router",
+      orderNumber: "PO-2026-0002",
+      status: "completed",
+    });
+    erp.goodsReceipts.push({
+      id: "receipt-completed-router",
+      receiptNumber: "GR-2026-0001",
+      purchaseOrderId: "po-completed-router",
+      warehouseId: "warehouse-jakarta",
+      status: "posted",
+      lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }],
+      createdAt: "2026-08-09T00:00:00.000Z",
+      updatedAt: "2026-08-09T00:00:00.000Z",
+    });
+
+    expect(selectIncomingStock(erp, "product-router")).toBe(40);
+  });
+
+  it("fails closed when linked supplier-call transactions omit their required IDs and status", () => {
+    const malformed = createSeedState();
+    malformed.erp.supplierCalls = [{
+      id: "supplier-call-1",
+      createdAt: "2026-08-09T00:00:00.000Z",
+      updatedAt: "2026-08-09T00:00:00.000Z",
+    } as never];
+
+    expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
+  });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEMO_SCHEMA_VERSION,
   deserializeDemoState,
+  loadDemoStateFromStorage,
   serializeDemoState,
 } from "../lib/demo/persistence";
 import { createSeedState } from "../lib/demo/seed";
@@ -26,5 +27,17 @@ describe("versioned demo persistence", () => {
   it("fails closed to fresh seed for invalid or stale data", () => {
     expect(deserializeDemoState("not-json")).toEqual(createSeedState());
     expect(deserializeDemoState('{"schemaVersion":0}')).toEqual(createSeedState());
+  });
+
+  it("migrates a browser-persisted v2 recovery state when no v3 state exists", () => {
+    const legacy = { ...createSeedState(), schemaVersion: 2 } as Record<string, unknown>;
+    delete legacy.erp;
+    const values = new Map<string, string>([["arvanta-procurebridge-demo-v2", JSON.stringify(legacy)]]);
+
+    const loaded = loadDemoStateFromStorage({ getItem: (key) => values.get(key) ?? null });
+
+    expect(loaded.state.schemaVersion).toBe(3);
+    expect(loaded.state.erp.revision).toBe(0);
+    expect(loaded.recoveryReason).toBeNull();
   });
 });
