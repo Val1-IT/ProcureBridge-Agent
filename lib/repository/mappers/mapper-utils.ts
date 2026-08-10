@@ -66,6 +66,29 @@ function strictNumericValue(value: unknown, key: string, entity: string, scale: 
   return converted;
 }
 
+export interface PositiveDecimal {
+  value: number;
+  units: bigint;
+}
+
+export function positiveDecimal(row: Record<string, unknown>, key: string, entity: string, scale: number, precision: number): PositiveDecimal {
+  const input = row[key];
+  if (typeof input !== "number" && typeof input !== "string") throw new MapperError(entity, `${key} must be numeric`);
+  const serialized = typeof input === "number" ? String(input) : input;
+  const pattern = new RegExp(`^(?:0|[1-9]\\d*)(?:\\.\\d{1,${scale}})?$`);
+  if (!pattern.test(serialized)) throw new MapperError(entity, `${key} must be a positive decimal with at most ${scale} decimal places`);
+
+  const [whole, fraction = ""] = serialized.split(".");
+  if (whole.length > precision - scale) throw new MapperError(entity, `${key} exceeds numeric(${precision},${scale}) precision`);
+  const units = BigInt(`${whole}${fraction.padEnd(scale, "0")}`);
+  if (units === BigInt(0)) throw new MapperError(entity, `${key} must be positive`);
+  if (units > BigInt(Number.MAX_SAFE_INTEGER)) throw new MapperError(entity, `${key} exceeds safe precision`);
+
+  const value = Number(serialized);
+  if (!Number.isFinite(value)) throw new MapperError(entity, `${key} must be numeric`);
+  return { value, units };
+}
+
 export function positiveNumeric(row: Record<string, unknown>, key: string, entity: string, scale: number): number {
   const value = strictNumericValue(row[key], key, entity, scale);
   if (value <= 0) throw new MapperError(entity, `${key} must be positive`);

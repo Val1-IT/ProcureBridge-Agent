@@ -1,12 +1,16 @@
 import type { QuantityLine, TradeInvoice } from "../../erp/types";
 import {
-  arrayValue, enumText, expectedTenant, MapperError, nullableStrictText, positiveInteger, record, strictDate, strictInstant, strictText,
+  arrayValue, enumText, expectedTenant, MapperError, nullableStrictText, positiveDecimal, positiveInteger, record, strictDate, strictInstant, strictText,
 } from "./mapper-utils";
 
 const entity = "ERP trade invoice";
 const sourceEntity = "ERP trade invoice source";
 const lineEntity = "ERP trade invoice line";
 const invoiceStatuses = ["unpaid", "partially_paid", "paid", "cancelled"] as const;
+const numericPrecision = 18;
+const quantityScale = 4;
+const moneyScale = 2;
+const quantityScaleFactor = BigInt(10) ** BigInt(quantityScale);
 
 export interface ErpTradeInvoiceHeaderRow {
   tenant_id: string;
@@ -71,13 +75,17 @@ function parseLine(input: unknown, expectedTenantId: string, invoiceId: string) 
   const row = record(input, lineEntity);
   expectedTenant(row, expectedTenantId, lineEntity);
   if (strictText(row, "trade_invoice_id", lineEntity) !== invoiceId) throw new MapperError(lineEntity, "trade_invoice_id does not match the header");
+  const quantity = positiveDecimal(row, "quantity", lineEntity, quantityScale, numericPrecision);
+  const unitPrice = positiveDecimal(row, "unit_price", lineEntity, moneyScale, numericPrecision);
   return {
     lineNumber: positiveInteger(row, "line_number", lineEntity),
     line: {
       productId: strictText(row, "product_id", lineEntity),
-      quantity: positiveInteger(row, "quantity", lineEntity),
-      unitPrice: positiveInteger(row, "unit_price", lineEntity),
+      quantity: quantity.value,
+      unitPrice: unitPrice.value,
     } satisfies QuantityLine,
+    quantityUnits: quantity.units,
+    unitPriceUnits: unitPrice.units,
   };
 }
 
@@ -132,9 +140,9 @@ export function fromErpTradeInvoiceRows(input: unknown, expectedTenantId: string
   if (new Set(lines.map(({ lineNumber }) => lineNumber)).size !== lines.length || new Set(lines.map(({ line }) => line.productId)).size !== lines.length) throw new MapperError(entity, "lines must be unique");
   sources.sort((left, right) => left.sourceNumber - right.sourceNumber);
   lines.sort((left, right) => left.lineNumber - right.lineNumber);
-  const totalAmount = positiveInteger(header, "total_amount", entity);
-  const calculatedTotal = lines.reduce((sum, { line }) => sum + line.quantity * line.unitPrice, 0);
-  if (!Number.isSafeInteger(calculatedTotal) || calculatedTotal !== totalAmount) throw new MapperError(entity, "total_amount does not equal the line total");
+  const totalAmount = positiveDecimal(header, "total_amount", entity, moneyScale, numericPrecision);
+  const calculatedTotalUnits = lines.reduce((sum, line) => sum + line.quantityUnits * line.unitPriceUnits, BigInt(0));
+  if (calculatedTotalUnits !== totalAmount.units * quantityScaleFactor) throw new MapperError(entity, "total_amount does not equal the line total");
 
   return {
     id,
@@ -146,7 +154,7 @@ export function fromErpTradeInvoiceRows(input: unknown, expectedTenantId: string
     sourceDocumentIds: sources.map(({ sourceDocumentId }) => sourceDocumentId),
     status: enumText(header, "status", invoiceStatuses, entity),
     lines: lines.map(({ line }) => line),
-    totalAmount,
+    totalAmount: totalAmount.value,
     dueDate: strictDate(header, "due_date", entity),
     createdAt: strictInstant(header, "created_at", entity),
     updatedAt: strictInstant(header, "updated_at", entity),
