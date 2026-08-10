@@ -1,5 +1,5 @@
 import type { Product } from "../../erp/types";
-import { bool, MapperError, numeric, record, text } from "./mapper-utils";
+import { bool, expectedTenant, nonNegativeNumeric, positiveNumeric, record, strictInstant, strictText } from "./mapper-utils";
 
 export interface ErpProductRow {
   tenant_id: string;
@@ -15,14 +15,9 @@ export interface ErpProductRow {
   updated_at: string;
 }
 
-function tenantId(value: string, entity: string) {
-  if (!value.trim()) throw new MapperError(entity, "tenant_id must be text");
-  return value;
-}
-
-export function toErpProductRow(value: Product, tenant: string): ErpProductRow {
-  return {
-    tenant_id: tenantId(tenant, "ERP product"),
+export function toErpProductRow(value: Product, tenantId: string): ErpProductRow {
+  const row: ErpProductRow = {
+    tenant_id: tenantId,
     id: value.id,
     sku: value.sku,
     name: value.name,
@@ -34,21 +29,23 @@ export function toErpProductRow(value: Product, tenant: string): ErpProductRow {
     created_at: value.createdAt,
     updated_at: value.updatedAt,
   };
+  fromErpProductRow(row, tenantId);
+  return row;
 }
 
-export function fromErpProductRow(input: unknown): Product {
+export function fromErpProductRow(input: unknown, expectedTenantId: string): Product {
   const row = record(input, "ERP product");
-  text(row, "tenant_id", "ERP product");
+  expectedTenant(row, expectedTenantId, "ERP product");
   return {
-    id: text(row, "id", "ERP product"),
-    sku: text(row, "sku", "ERP product"),
-    name: text(row, "name", "ERP product"),
-    unit: text(row, "unit", "ERP product"),
-    salePrice: numeric(row, "sale_price", "ERP product"),
-    purchasePrice: numeric(row, "purchase_price", "ERP product"),
-    reorderPoint: numeric(row, "reorder_point", "ERP product"),
+    id: strictText(row, "id", "ERP product"),
+    sku: strictText(row, "sku", "ERP product"),
+    name: strictText(row, "name", "ERP product"),
+    unit: strictText(row, "unit", "ERP product"),
+    salePrice: positiveNumeric(row, "sale_price", "ERP product", 2),
+    purchasePrice: positiveNumeric(row, "purchase_price", "ERP product", 2),
+    reorderPoint: nonNegativeNumeric(row, "reorder_point", "ERP product", 4),
     active: bool(row, "active", "ERP product"),
-    createdAt: text(row, "created_at", "ERP product"),
-    updatedAt: text(row, "updated_at", "ERP product"),
+    createdAt: strictInstant(row, "created_at", "ERP product"),
+    updatedAt: strictInstant(row, "updated_at", "ERP product"),
   };
 }

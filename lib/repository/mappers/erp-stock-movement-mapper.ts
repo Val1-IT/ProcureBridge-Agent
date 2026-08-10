@@ -1,6 +1,7 @@
 import type { StockMovement } from "../../erp/types";
-import { enumText, MapperError, nullableText, numeric, record, text } from "./mapper-utils";
+import { enumText, expectedTenant, MapperError, nonZeroInteger, nullableStrictText, record, strictInstant, strictText } from "./mapper-utils";
 
+const entity = "ERP stock movement";
 const movementTypes = ["opening", "receipt", "delivery", "adjustment"] as const;
 const movementDirections = ["in", "out", "adjustment"] as const;
 const sourceTypes = ["seed", "goods_receipt", "delivery_order", "adjustment"] as const;
@@ -9,7 +10,7 @@ const actorRoles = ["admin", "procurement", "warehouse", "sales", "finance", "ap
 export interface ErpStockMovementRow {
   tenant_id: string;
   id: string;
-  type: StockMovement["type"] | null;
+  type: NonNullable<StockMovement["type"]>;
   product_id: string;
   warehouse_id: string;
   quantity: number | string;
@@ -23,12 +24,22 @@ export interface ErpStockMovementRow {
   updated_at: string;
 }
 
+function assertConvention(type: NonNullable<StockMovement["type"]>, sourceType: StockMovement["sourceType"], direction: StockMovement["direction"], quantity: number, actorRole: StockMovement["actorRole"]) {
+  const valid = sourceType === "seed"
+    ? type === "opening" && direction === "in" && quantity > 0 && actorRole === "system"
+    : sourceType === "goods_receipt"
+      ? type === "receipt" && direction === "in" && quantity > 0 && (actorRole === "warehouse" || actorRole === "admin")
+      : sourceType === "delivery_order"
+        ? type === "delivery" && direction === "out" && quantity > 0 && (actorRole === "warehouse" || actorRole === "admin")
+        : type === "adjustment" && direction === "adjustment" && quantity !== 0 && (actorRole === "approver" || actorRole === "admin");
+  if (!valid) throw new MapperError(entity, "source_type, type, direction, quantity, and actor_role are inconsistent");
+}
+
 export function toErpStockMovementRow(value: StockMovement, tenantId: string): ErpStockMovementRow {
-  if (!tenantId.trim()) throw new MapperError("ERP stock movement", "tenant_id must be text");
-  return {
+  const row = {
     tenant_id: tenantId,
     id: value.id,
-    type: value.type ?? null,
+    type: value.type,
     product_id: value.productId,
     warehouse_id: value.warehouseId,
     quantity: value.quantity,
@@ -41,25 +52,32 @@ export function toErpStockMovementRow(value: StockMovement, tenantId: string): E
     created_at: value.createdAt,
     updated_at: value.updatedAt,
   };
+  fromErpStockMovementRow(row, tenantId);
+  return row as ErpStockMovementRow;
 }
 
-export function fromErpStockMovementRow(input: unknown): StockMovement {
-  const row = record(input, "ERP stock movement");
-  text(row, "tenant_id", "ERP stock movement");
-  const type = row.type === null ? undefined : enumText(row, "type", movementTypes, "ERP stock movement");
+export function fromErpStockMovementRow(input: unknown, expectedTenantId: string): StockMovement {
+  const row = record(input, entity);
+  expectedTenant(row, expectedTenantId, entity);
+  const type = enumText(row, "type", movementTypes, entity);
+  const quantity = nonZeroInteger(row, "quantity", entity);
+  const direction = enumText(row, "direction", movementDirections, entity);
+  const sourceType = enumText(row, "source_type", sourceTypes, entity);
+  const actorRole = enumText(row, "actor_role", actorRoles, entity);
+  assertConvention(type, sourceType, direction, quantity, actorRole);
   return {
-    id: text(row, "id", "ERP stock movement"),
-    ...(type ? { type } : {}),
-    productId: text(row, "product_id", "ERP stock movement"),
-    warehouseId: text(row, "warehouse_id", "ERP stock movement"),
-    quantity: numeric(row, "quantity", "ERP stock movement"),
-    direction: enumText(row, "direction", movementDirections, "ERP stock movement"),
-    sourceType: enumText(row, "source_type", sourceTypes, "ERP stock movement"),
-    sourceId: text(row, "source_id", "ERP stock movement"),
-    actorRole: enumText(row, "actor_role", actorRoles, "ERP stock movement"),
-    actorId: text(row, "actor_id", "ERP stock movement"),
-    reason: nullableText(row, "reason", "ERP stock movement"),
-    createdAt: text(row, "created_at", "ERP stock movement"),
-    updatedAt: text(row, "updated_at", "ERP stock movement"),
+    id: strictText(row, "id", entity),
+    type,
+    productId: strictText(row, "product_id", entity),
+    warehouseId: strictText(row, "warehouse_id", entity),
+    quantity,
+    direction,
+    sourceType,
+    sourceId: strictText(row, "source_id", entity),
+    actorRole,
+    actorId: strictText(row, "actor_id", entity),
+    reason: nullableStrictText(row, "reason", entity),
+    createdAt: strictInstant(row, "created_at", entity),
+    updatedAt: strictInstant(row, "updated_at", entity),
   };
 }
