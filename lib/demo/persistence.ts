@@ -1,8 +1,11 @@
 import type { DemoState } from "../domain/types";
 import { isStrictIsoDate, isStrictIsoInstant } from "../erp/date-validation";
 import type { ErpState } from "../erp/types";
+import { isPositiveWholeQuantity } from "../erp/quantity";
 import { createErpSeedState } from "../erp/seed";
 import { compareStockMovementChronology, type StockMovementChronologyKey } from "../erp/stock-movement-order";
+import { hasValidLegacyDemoCollections } from "./legacy-state-validation";
+import { normalizeLegacyExecutedParentStatuses } from "./legacy-execution-normalization";
 import { createSeedState } from "./seed";
 import { createDemoSessionId, isValidDemoSessionId } from "./session";
 
@@ -22,8 +25,7 @@ function isRecord(value: unknown): value is Record<string, unknown> { return typ
 function isArrayField(value: Record<string, unknown>, field: string): boolean { return Array.isArray(value[field]); }
 
 function hasValidLegacyCollections(value: Record<string, unknown>): boolean {
-  return ["customers", "invoices", "calls", "approvals", "pendingResults", "paymentCommitments", "disputes", "auditLogs"].every((field) => isArrayField(value, field))
-    && isRecord(value.demo);
+  return hasValidLegacyDemoCollections(value);
 }
 
 const erpRoles = ["admin", "procurement", "warehouse", "sales", "finance", "approver"];
@@ -36,23 +38,28 @@ const hasTrimmedString = (value: unknown): value is string => hasString(value) &
 const hasNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const hasFields = (value: unknown, fields: string[]): value is Record<string, unknown> => isRecord(value) && fields.every((field) => hasString(value[field]));
 const includes = (values: string[], value: unknown): boolean => typeof value === "string" && values.includes(value);
-const hasQuantityLine = (value: unknown): boolean => hasFields(value, ["productId"]) && hasNumber(value.quantity) && hasNumber(value.unitPrice);
+const hasPositiveNumber = (value: unknown): value is number => hasNumber(value) && value > 0;
+const hasNonNegativeNumber = (value: unknown): value is number => hasNumber(value) && value >= 0;
+const hasNonNegativeSafeInteger = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+const hasPositiveUnitPrice = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+const hasQuantityLine = (value: unknown): boolean => hasFields(value, ["productId"]) && isPositiveWholeQuantity(value.quantity) && hasPositiveUnitPrice(value.unitPrice);
 const hasQuantityLines = (value: unknown): boolean => Array.isArray(value) && value.every(hasQuantityLine);
-const hasRfqLine = (value: unknown): boolean => hasFields(value, ["productId"]) && hasNumber(value.quantity);
+const hasRfqLine = (value: unknown): boolean => hasFields(value, ["productId"]) && isPositiveWholeQuantity(value.quantity);
 const hasRfqLines = (value: unknown): boolean => Array.isArray(value) && value.every(hasRfqLine);
-const hasEntityDates = (value: unknown): value is Record<string, unknown> => hasFields(value, ["id", "createdAt", "updatedAt"]);
+const hasEntityDates = (value: unknown): value is Record<string, unknown> => hasFields(value, ["id", "createdAt", "updatedAt"]) && isStrictIsoInstant(value.createdAt) && isStrictIsoInstant(value.updatedAt);
 const hasOptionalLink = (value: Record<string, unknown>, field: string, ids: Set<unknown>): boolean => Object.hasOwn(value, field) && (value[field] === null || (hasString(value[field]) && ids.has(value[field])));
 function hasValidErpCollections(value: unknown): value is ErpState {
-  if (!isRecord(value) || !hasNumber(value.revision) || !includes(erpRoles, value.activeRole)) return false;
+  if (!isRecord(value) || !Number.isSafeInteger(value.revision) || Number(value.revision) < 0 || !includes(erpRoles, value.activeRole)) return false;
   const arrays = ["products", "suppliers", "customers", "warehouses", "purchaseRequests", "requestForQuotations", "supplierQuotations", "purchaseOrders", "goodsReceipts", "salesOrders", "deliveryOrders", "supplierInvoices", "customerInvoices", "payments", "stockMovements", "stockAdjustments", "supplierCalls", "supplierApprovals", "supplierResults", "disputes", "followUps", "auditLogs"];
   if (!arrays.every((field) => isArrayField(value, field))) return false;
+  if (!arrays.every((field) => { const items = value[field] as unknown[]; return items.every((item) => isRecord(item) && hasString(item.id)) && new Set(items.map((item) => (item as Record<string, unknown>).id)).size === items.length; })) return false;
   const products = value.products as unknown[];
   const suppliers = value.suppliers as unknown[];
   const customers = value.customers as unknown[];
   const warehouses = value.warehouses as unknown[];
-  if (!products.every((item) => hasEntityDates(item) && hasFields(item, ["sku", "name", "unit"]) && hasNumber(item.salePrice) && hasNumber(item.purchasePrice) && hasNumber(item.reorderPoint) && typeof item.active === "boolean")) return false;
-  if (!suppliers.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "phone", "email", "address"]) && hasNumber(item.paymentTermDays) && typeof item.doNotContact === "boolean" && typeof item.active === "boolean")) return false;
-  if (!customers.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "contactName", "phone", "email", "address"]) && hasNumber(item.creditLimit) && typeof item.active === "boolean")) return false;
+  if (!products.every((item) => hasEntityDates(item) && hasFields(item, ["sku", "name", "unit"]) && hasPositiveNumber(item.salePrice) && hasPositiveNumber(item.purchasePrice) && hasNonNegativeNumber(item.reorderPoint) && typeof item.active === "boolean")) return false;
+  if (!suppliers.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "phone", "email", "address"]) && hasNonNegativeSafeInteger(item.paymentTermDays) && typeof item.doNotContact === "boolean" && typeof item.active === "boolean")) return false;
+  if (!customers.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "contactName", "phone", "email", "address"]) && hasNonNegativeNumber(item.creditLimit) && typeof item.active === "boolean")) return false;
   if (!warehouses.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "address"]) && typeof item.active === "boolean")) return false;
   if (warehouses.filter((item) => (item as Record<string, unknown>).active === true).length !== 1) return false;
   const productIds = new Set(products.map((item) => (item as Record<string, unknown>).id));
@@ -61,19 +68,27 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const warehouseIds = new Set(warehouses.map((item) => (item as Record<string, unknown>).id));
   const activeProductIds = new Set(products.filter((item) => (item as Record<string, unknown>).active === true).map((item) => (item as Record<string, unknown>).id));
   const activeWarehouseIds = new Set(warehouses.filter((item) => (item as Record<string, unknown>).active === true).map((item) => (item as Record<string, unknown>).id));
-  const validLines = (lines: unknown): boolean => hasQuantityLines(lines) && (lines as Record<string, unknown>[]).every((line) => productIds.has(line.productId));
-  const validRfqLines = (lines: unknown): boolean => hasRfqLines(lines) && (lines as Record<string, unknown>[]).every((line) => productIds.has(line.productId));
+  const validLines = (lines: unknown): boolean => hasQuantityLines(lines) && (lines as Record<string, unknown>[]).length > 0 && new Set((lines as Record<string, unknown>[]).map((line) => line.productId)).size === (lines as Record<string, unknown>[]).length && (lines as Record<string, unknown>[]).every((line) => productIds.has(line.productId));
+  const validRfqLines = (lines: unknown): boolean => hasRfqLines(lines) && (lines as Record<string, unknown>[]).length > 0 && new Set((lines as Record<string, unknown>[]).map((line) => line.productId)).size === (lines as Record<string, unknown>[]).length && (lines as Record<string, unknown>[]).every((line) => productIds.has(line.productId));
   const purchaseRequests = value.purchaseRequests as Record<string, unknown>[];
   if (!purchaseRequests.every((item) => hasEntityDates(item) && hasFields(item, ["requestNumber", "requesterRole"]) && includes(erpRoles, item.requesterRole) && Object.hasOwn(item, "sourceSalesOrderId") && (item.sourceSalesOrderId === null || hasString(item.sourceSalesOrderId)) && includes(["draft", "submitted", "approved", "rejected", "cancelled"], item.status) && validLines(item.lines))) return false;
   const purchaseRequestIds = new Set((value.purchaseRequests as Record<string, unknown>[]).map((item) => item.id));
   const requestForQuotations = value.requestForQuotations as Record<string, unknown>[];
+  const purchaseRequestById = new Map(purchaseRequests.map((item) => [item.id, item]));
+  if (!requestForQuotations.every((item) => {
+    const purchaseRequest = hasString(item.purchaseRequestId) ? purchaseRequestById.get(item.purchaseRequestId) : undefined;
+    return purchaseRequest?.status === "approved" && validRfqQuotationLines(item.lines, purchaseRequest.lines);
+  })) return false;
+
   if (!requestForQuotations.every((item) => hasEntityDates(item) && hasFields(item, ["rfqNumber", "warehouseId", "quoteDueAt"]) && warehouseIds.has(item.warehouseId) && hasOptionalLink(item, "purchaseRequestId", purchaseRequestIds) && Array.isArray(item.requestedSupplierIds) && item.requestedSupplierIds.length > 0 && item.requestedSupplierIds.every((supplierId) => supplierIds.has(supplierId)) && new Set(item.requestedSupplierIds).size === item.requestedSupplierIds.length && (item.selectedQuotationId === null || hasString(item.selectedQuotationId)) && includes(["open", "compared", "selected", "cancelled"], item.status) && validRfqLines(item.lines))) return false;
+  const activeRfqPurchaseRequestIds = requestForQuotations.filter((item) => item.status !== "cancelled" && item.purchaseRequestId !== null).map((item) => item.purchaseRequestId);
+  if (new Set(activeRfqPurchaseRequestIds).size !== activeRfqPurchaseRequestIds.length) return false;
   const rfqIds = new Set(requestForQuotations.map((item) => item.id));
   const rfqById = new Map(requestForQuotations.map((item) => [item.id, item]));
   const supplierQuotations = value.supplierQuotations as Record<string, unknown>[];
   if (!supplierQuotations.every((item) => {
     const rfq = hasString(item.requestForQuotationId) ? rfqById.get(item.requestForQuotationId) : undefined;
-    return hasEntityDates(item) && hasFields(item, ["quotationNumber", "requestForQuotationId", "supplierId", "validUntil"]) && rfqIds.has(item.requestForQuotationId) && supplierIds.has(item.supplierId) && Array.isArray(rfq?.requestedSupplierIds) && rfq.requestedSupplierIds.includes(item.supplierId) && includes(["submitted", "selected", "rejected"], item.status) && validLines(item.lines) && validRfqQuotationLines(rfq?.lines, item.lines);
+    return hasEntityDates(item) && hasFields(item, ["quotationNumber", "requestForQuotationId", "supplierId", "validUntil"]) && isStrictIsoDate(item.validUntil) && rfqIds.has(item.requestForQuotationId) && supplierIds.has(item.supplierId) && Array.isArray(rfq?.requestedSupplierIds) && rfq.requestedSupplierIds.includes(item.supplierId) && includes(["submitted", "selected", "rejected"], item.status) && validLines(item.lines) && validRfqQuotationLines(rfq?.lines, item.lines);
   })) return false;
   const quotationIds = new Set(supplierQuotations.map((item) => item.id));
   const quotationById = new Map(supplierQuotations.map((item) => [item.id, item]));
@@ -91,6 +106,8 @@ function hasValidErpCollections(value: unknown): value is ErpState {
     const rfq = quotation ? rfqById.get(quotation.requestForQuotationId) : undefined;
     return quotation?.status === "selected" && rfq?.status === "selected" && rfq.selectedQuotationId === quotation.id && quotation.supplierId === purchaseOrder.supplierId && rfq.purchaseRequestId === purchaseOrder.purchaseRequestId && rfq.warehouseId === purchaseOrder.warehouseId && validRfqQuotationLines(purchaseOrder.lines, quotation.lines);
   })) return false;
+  const consumingQuotationIds = purchaseOrders.filter((item) => item.supplierQuotationId !== null && !["rejected", "cancelled"].includes(String(item.status))).map((item) => item.supplierQuotationId);
+  if (new Set(consumingQuotationIds).size !== consumingQuotationIds.length) return false;
   const openPurchaseOrderIds = new Set(purchaseOrders.map((item) => item.id));
   const purchaseOrderById = new Map(purchaseOrders.map((item) => [item.id, item]));
   const goodsReceipts = value.goodsReceipts as Record<string, unknown>[];
@@ -244,40 +261,48 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   return (value.auditLogs as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["entityType", "entityId", "action", "actorRole", "actorId"]) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && isRecord(item.detail) && Object.values(item.detail).every((detail) => detail === null || typeof detail === "string" || typeof detail === "boolean" || (typeof detail === "number" && Number.isFinite(detail))));
 }
 
+export function isValidErpState(value: unknown): value is ErpState {
+  return hasValidErpCollections(value);
+}
+
 export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
   const demoSessionId = value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) ? value.demoSessionId : createDemoSessionId();
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
-    const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))))));
+    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp)))))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 4) {
-    const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp)))));
+    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp))))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 5) {
-    const erp = migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(value.erp))));
+    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(value.erp)))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 6) {
-    const erp = migrateErpV8(migrateErpV7(migrateErpV6(value.erp)));
+    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(value.erp))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 7) {
-    const erp = migrateErpV8(migrateErpV7(value.erp));
+    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(value.erp)));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 8) {
-    const erp = migrateErpV8(value.erp);
+    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(value.erp));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 9 && isRecord(value.erp) && Array.isArray(value.erp.supplierApprovals)) {
-    const erp = { ...value.erp, supplierApprovals: value.erp.supplierApprovals.map((item) => isRecord(item) ? { ...item, approvedAt: item.approvedAt ?? item.createdAt } : item) };
-    return hasValidErpCollections(erp) ? { ...(value as unknown as DemoState), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp: erp as unknown as ErpState } : null;
+    const erp = normalizeLegacyExecutedParentStatuses({ ...value.erp, supplierApprovals: value.erp.supplierApprovals.map((item) => isRecord(item) ? { ...item, approvedAt: item.approvedAt ?? item.createdAt } : item) });
+    return erp && hasValidErpCollections(erp) ? { ...(value as unknown as DemoState), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
   return null;
+}
+
+export function isValidDemoState(value: unknown): value is DemoState {
+  return isRecord(value) && value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) && hasValidLegacyCollections(value) && hasValidErpCollections(value.erp);
 }
 
 export function loadDemoState(value: string | null): { state: DemoState; recoveryReason: DemoRecoveryReason } {
@@ -426,7 +451,7 @@ function hasConsistentPurchaseReceiptTotals(purchaseOrders: Record<string, unkno
     const status = String(purchaseOrder.status);
     if (!receivedAny) return !["partially_received", "fully_received", "completed"].includes(status);
     if (receivedAll) return status === "fully_received" || status === "completed";
-    return status === "partially_received" || status === "cancelled";
+    return status === "partially_received";
   });
 }
 
@@ -447,7 +472,7 @@ function hasConsistentSalesDeliveryTotals(salesOrders: Record<string, unknown>[]
     if (status === "draft" || status === "confirmed") return !deliveredAny;
     if (status === "partially_delivered") return deliveredAny && !deliveredAll;
     if (["fully_delivered", "invoiced", "completed"].includes(status)) return deliveredAll;
-    return status === "cancelled" && !deliveredAll;
+    return status === "cancelled" && !deliveredAny;
   });
 }
 

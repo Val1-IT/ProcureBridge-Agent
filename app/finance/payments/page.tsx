@@ -5,17 +5,17 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { recordPayment, type PaymentInput } from "@/lib/erp/commands/finance";
+import type { PaymentInput } from "@/lib/erp/commands/finance";
 import type { ErpCommandResult } from "@/lib/erp/errors";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { authorize } from "@/lib/erp/permissions";
 import { selectPayableRows, selectReceivableRows } from "@/lib/erp/selectors-finance";
-import type { ErpRole, ErpState, Payment } from "@/lib/erp/types";
+import type { Payment } from "@/lib/erp/types";
 
-type FinanceCommandRunner = <T,>(command: (state: ErpState) => ErpCommandResult<T>) => ErpCommandResult<T>;
+type PaymentCommand = (input: PaymentInput, now: string) => Promise<ErpCommandResult<Payment>>;
 
-export function executePaymentRecording(run: FinanceCommandRunner, role: ErpRole, input: PaymentInput, now: string): ErpCommandResult<Payment> {
-  return run((state) => recordPayment(state, role, input, now));
+export function executePaymentRecording(command: PaymentCommand, input: PaymentInput, now: string): Promise<ErpCommandResult<Payment>> {
+  return command(input, now);
 }
 
 export interface PaymentConfirmationPanelProps {
@@ -35,7 +35,7 @@ export function PaymentConfirmationPanel(props: PaymentConfirmationPanelProps) {
 
 export default function PaymentsPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const invoiceOptions = useMemo(() => [
     ...selectPayableRows(state.erp).filter((row) => row.status !== "cancelled" && row.remainingBalance > 0).map((row) => ({ ...row, direction: "payable" as const })),
     ...selectReceivableRows(state.erp).filter((row) => row.status !== "cancelled" && row.remainingBalance > 0).map((row) => ({ ...row, direction: "receivable" as const })),
@@ -58,9 +58,9 @@ export default function PaymentsPage() {
     setPreview({ invoiceId: selected.id, direction: selected.direction, amount: numericAmount });
   }
 
-  function confirmPayment() {
+  async function confirmPayment() {
     if (!preview) return;
-    const result = executePaymentRecording(run, state.erp.activeRole, preview, new Date().toISOString());
+    const result = await executePaymentRecording(commands.recordPayment, preview, new Date().toISOString());
     setMessage(result.ok ? `${result.value.paymentNumber} recorded after explicit confirmation.` : result.error.message);
     setPreview(null);
     if (result.ok) setAmount("");

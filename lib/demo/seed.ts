@@ -207,6 +207,24 @@ export function createSeedState(demoSessionId = INITIAL_DEMO_SESSION_ID): DemoSt
   };
 }
 
-export function createErpJudgeSeedState(): DemoState {
-  return createSeedState(createDemoSessionId());
+export function createErpJudgeSeedState(demoSessionId = createDemoSessionId()): DemoState {
+  const state = createSeedState(demoSessionId);
+  const shortageRequestId = "purchase-request-router-shortage";
+  state.erp.purchaseRequests = [{
+    id: shortageRequestId,
+    requestNumber: "PR-2026-0001",
+    requesterRole: "sales",
+    sourceSalesOrderId: "so-router-shortage",
+    status: "approved",
+    lines: [{ productId: "product-router", quantity: 5, unitPrice: 1_050_000 }],
+    createdAt: "2026-08-09T00:00:00.000Z",
+    updatedAt: "2026-08-09T00:00:00.000Z",
+  }];
+  state.erp.purchaseOrders = state.erp.purchaseOrders.map((order) => order.id === "po-router-replenishment" ? {
+    ...order,
+    purchaseRequestId: shortageRequestId,
+    status: "pending_approval",
+    lines: [{ productId: "product-router", quantity: 5, unitPrice: 1_050_000 }],
+  } : order);
+  return state;
 }

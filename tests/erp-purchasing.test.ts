@@ -28,6 +28,23 @@ const purchaseOrderInput: PurchaseOrderInput = {
   confirmationDueAt: "2026-08-11T00:00:00.000Z",
 };
 
+function withApprovedPaperRequest(state: ErpState, quantity: number): ErpState {
+  return {
+    ...state,
+    purchaseRequests: [...state.purchaseRequests, {
+      id: "purchase-request-paper",
+      requestNumber: "PR-TEST-PAPER",
+      requesterRole: "procurement",
+      sourceSalesOrderId: null,
+      status: "approved",
+      lines: [{ productId: "product-paper", quantity, unitPrice: 11_000 }],
+      createdAt: fixedNow,
+      updatedAt: fixedNow,
+    }],
+  };
+}
+
+
 describe("ERP purchasing commands", () => {
   it("moves a PO through approval, sending, confirmation, and cancellation with one audit per command", () => {
     const seed = createErpSeedState();
@@ -133,8 +150,8 @@ describe("ERP purchasing commands", () => {
   });
 
   it("compares competing supplier quotations deterministically and records an approved selection", () => {
-    const seed = createErpSeedState();
-    const rfq = createRequestForQuotation(seed, "procurement", {
+    const seed = withApprovedPaperRequest(createErpSeedState(), 100);
+    const rfq = createRequestForQuotation(seed, "procurement", { purchaseRequestId: "purchase-request-paper",
       supplierIds: ["supplier-utama", "supplier-kertas"],
       lines: [{ productId: "product-paper", quantity: 100 }],
     }, fixedNow);
@@ -144,7 +161,7 @@ describe("ERP purchasing commands", () => {
       requestForQuotationId: rfq.value.id,
       supplierId: "supplier-utama",
       lines: [{ productId: "product-paper", quantity: 100, unitPrice: 11_000 }],
-      validUntil: "2026-08-20T00:00:00.000Z",
+      validUntil: "2026-08-20",
     }, fixedNow);
     expect(firstQuote.ok).toBe(true);
     if (!firstQuote.ok) return;
@@ -152,7 +169,7 @@ describe("ERP purchasing commands", () => {
       requestForQuotationId: rfq.value.id,
       supplierId: "supplier-kertas",
       lines: [{ productId: "product-paper", quantity: 100, unitPrice: 10_500 }],
-      validUntil: "2026-08-19T00:00:00.000Z",
+      validUntil: "2026-08-19",
     }, fixedNow);
     expect(lowerQuote.ok).toBe(true);
     if (!lowerQuote.ok) return;
@@ -197,24 +214,24 @@ describe("ERP purchasing commands", () => {
     expect(() => createPurchaseRequest(seed, "procurement", { lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, "not-a-date")).not.toThrow();
     expect(createPurchaseRequest(seed, "procurement", { lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
     expect(createPurchaseOrder(seed, "procurement", purchaseOrderInput, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
-    expect(createRequestForQuotation(seed, "procurement", { supplierIds: ["supplier-utama"], lines: [{ productId: "product-paper", quantity: 1 }] }, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
+    expect(createRequestForQuotation(seed, "procurement", { purchaseRequestId: "missing-request", supplierIds: ["supplier-utama"], lines: [{ productId: "product-paper", quantity: 1 }] }, "not-a-date")).toMatchObject({ ok: false, state: seed, error: { code: "INVALID_INPUT" } });
   });
 
   it("rejects an invalid timestamp without mutation or audit from every timestamped purchasing command", () => {
-    const seed = createErpSeedState();
+    const seed = withApprovedPaperRequest(createErpSeedState(), 1);
     const draft = createPurchaseOrder(seed, "procurement", purchaseOrderInput, fixedNow);
     expect(draft.ok).toBe(true);
     if (!draft.ok) return;
     const submitted = submitPurchaseOrder(draft.state, "procurement", draft.value.id, fixedNow);
     expect(submitted.ok).toBe(true);
     if (!submitted.ok) return;
-    const rfq = createRequestForQuotation(seed, "procurement", { supplierIds: ["supplier-utama", "supplier-kertas"], lines: [{ productId: "product-paper", quantity: 1 }] }, fixedNow);
+    const rfq = createRequestForQuotation(seed, "procurement", { purchaseRequestId: "purchase-request-paper", supplierIds: ["supplier-utama", "supplier-kertas"], lines: [{ productId: "product-paper", quantity: 1 }] }, fixedNow);
     expect(rfq.ok).toBe(true);
     if (!rfq.ok) return;
-    const firstQuote = createSupplierQuotation(rfq.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-utama", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, fixedNow);
+    const firstQuote = createSupplierQuotation(rfq.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-utama", validUntil: "2026-08-20", lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, fixedNow);
     expect(firstQuote.ok).toBe(true);
     if (!firstQuote.ok) return;
-    const secondQuote = createSupplierQuotation(firstQuote.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-kertas", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-paper", quantity: 1, unitPrice: 10_000 }] }, fixedNow);
+    const secondQuote = createSupplierQuotation(firstQuote.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-kertas", validUntil: "2026-08-20", lines: [{ productId: "product-paper", quantity: 1, unitPrice: 10_000 }] }, fixedNow);
     expect(secondQuote.ok).toBe(true);
     if (!secondQuote.ok) return;
     const compared = compareSupplierQuotations(secondQuote.state, "procurement", rfq.value.id, fixedNow);
@@ -223,7 +240,7 @@ describe("ERP purchasing commands", () => {
     const followUpState = { ...seed, followUps: [{ id: "follow-up-time", supplierId: "supplier-utama", customerId: null, purchaseOrderId: "po-router-replenishment", salesOrderId: null, dueAt: fixedNow, status: "open" as const, approvalStatus: "pending" as const, approvedBy: null, reason: "contact supplier", createdAt: fixedNow, updatedAt: fixedNow }] };
 
     const results: Array<{ result: ErpCommandResult<unknown>; before: ErpState }> = [
-      { result: createSupplierQuotation(rfq.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-utama", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, "not-a-date"), before: rfq.state },
+      { result: createSupplierQuotation(rfq.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-utama", validUntil: "2026-08-20", lines: [{ productId: "product-paper", quantity: 1, unitPrice: 11_000 }] }, "not-a-date"), before: rfq.state },
       { result: submitPurchaseOrder(draft.state, "procurement", draft.value.id, "not-a-date"), before: draft.state },
       { result: approvePurchaseOrder(submitted.state, "approver", submitted.value.id, "not-a-date"), before: submitted.state },
       { result: sendPurchaseOrder(seed, "procurement", "po-router-replenishment", "not-a-date"), before: seed },
@@ -244,14 +261,14 @@ describe("ERP purchasing commands", () => {
     const seed = createErpSeedState();
     const request = createPurchaseRequest(seed, "procurement", { lines: [{ productId: "product-paper", quantity: 10, unitPrice: 10_000 }] }, fixedNow);
     expect(request.ok).toBe(true);
-    if (!request.ok) return;
+    if (!request.ok) return; request.state.purchaseRequests[0] = { ...request.state.purchaseRequests[0], status: "approved" };
     const rfq = createRequestForQuotation(request.state, "procurement", { purchaseRequestId: request.value.id, supplierIds: ["supplier-utama", "supplier-kertas"], lines: [{ productId: "product-paper", quantity: 10 }] }, fixedNow);
     expect(rfq.ok).toBe(true);
     if (!rfq.ok) return;
-    const firstQuote = createSupplierQuotation(rfq.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-utama", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-paper", quantity: 10, unitPrice: 11_000 }] }, fixedNow);
+    const firstQuote = createSupplierQuotation(rfq.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-utama", validUntil: "2026-08-20", lines: [{ productId: "product-paper", quantity: 10, unitPrice: 11_000 }] }, fixedNow);
     expect(firstQuote.ok).toBe(true);
     if (!firstQuote.ok) return;
-    const selectedQuoteCandidate = createSupplierQuotation(firstQuote.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-kertas", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-paper", quantity: 10, unitPrice: 10_000 }] }, fixedNow);
+    const selectedQuoteCandidate = createSupplierQuotation(firstQuote.state, "procurement", { requestForQuotationId: rfq.value.id, supplierId: "supplier-kertas", validUntil: "2026-08-20", lines: [{ productId: "product-paper", quantity: 10, unitPrice: 10_000 }] }, fixedNow);
     expect(selectedQuoteCandidate.ok).toBe(true);
     if (!selectedQuoteCandidate.ok) return;
     const compared = compareSupplierQuotations(selectedQuoteCandidate.state, "procurement", rfq.value.id, fixedNow);

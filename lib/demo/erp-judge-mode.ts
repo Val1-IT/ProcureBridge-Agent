@@ -1,10 +1,13 @@
 import type { DemoState } from "../domain/types";
+import { selectSalesShortage } from "../erp/selectors";
+import type { PurchaseRequest } from "../erp/types";
 import type { SimulationSpeed } from "./simulation";
 import { createErpJudgeSeedState, createSeedState } from "./seed";
 import { createDemoSessionId } from "./session";
 
 export const ERP_DEMO_IDS = {
   salesOrderId: "so-router-shortage",
+  purchaseRequestId: "purchase-request-router-shortage",
   purchaseOrderId: "po-router-replenishment",
   supplierCallId: "supplier-call-po-1",
 } as const;
@@ -47,7 +50,7 @@ function cloneState(state: DemoState): DemoState { return structuredClone(state)
 
 function start(state: DemoState, presentationFallback: boolean): StartedErpJudgeSession {
   const simulationSpeed: SimulationSpeed = presentationFallback ? "instant" : "fast_demo";
-  const seeded = createErpJudgeSeedState();
+  const seeded = createErpJudgeSeedState(state.demoSessionId);
   seeded.demo.simulationSpeed = simulationSpeed;
   return {
     session: { active: true, step: "sales_shortage", simulationSpeed, providerMode: "mock", presentationFallback, preDemoSnapshot: cloneState(state), demoClockIso: ERP_JUDGE_DEMO_CLOCK_ISO },
@@ -60,13 +63,30 @@ export function startPresentationFallback(state: DemoState): StartedErpJudgeSess
 export function exitErpJudgeSession(session: ErpJudgeSession): DemoState { return cloneState(session.preDemoSnapshot); }
 export function resetErpDemo(state: DemoState, createSessionId: () => string = createDemoSessionId): DemoState { void state; return createSeedState(createSessionId()); }
 
+function guidedShortageRequest(state: DemoState): PurchaseRequest | null {
+  const request = state.erp.purchaseRequests.find((item) => item.id === ERP_DEMO_IDS.purchaseRequestId);
+  const shortage = selectSalesShortage(state.erp, ERP_DEMO_IDS.salesOrderId);
+  if (!request || request.sourceSalesOrderId !== ERP_DEMO_IDS.salesOrderId || request.status !== "approved") return null;
+  if (request.lines.length !== shortage.length || !shortage.length) return null;
+  return request.lines.every((line) => {
+    const demand = shortage.find((item) => item.productId === line.productId);
+    return demand?.shortage === line.quantity;
+  }) ? request : null;
+}
+
 function hasShortagePurchaseRequest(state: DemoState): boolean {
-  return state.erp.purchaseRequests.some((request) => request.sourceSalesOrderId === ERP_DEMO_IDS.salesOrderId && !["rejected", "cancelled"].includes(request.status));
+  return guidedShortageRequest(state) !== null;
 }
 
 function hasApprovedPurchaseOrder(state: DemoState): boolean {
+  const request = guidedShortageRequest(state);
   const order = state.erp.purchaseOrders.find((item) => item.id === ERP_DEMO_IDS.purchaseOrderId);
-  return Boolean(order && ["sent", "confirmed", "partially_received", "fully_received", "completed"].includes(order.status));
+  if (!request || !order || order.purchaseRequestId !== request.id || !["sent", "confirmed", "partially_received", "fully_received", "completed"].includes(order.status)) return false;
+  if (order.lines.length !== request.lines.length) return false;
+  return order.lines.every((line) => {
+    const demand = request.lines.find((item) => item.productId === line.productId);
+    return demand?.quantity === line.quantity && demand.unitPrice === line.unitPrice;
+  });
 }
 
 function hasStartedSupplierCall(state: DemoState): boolean {

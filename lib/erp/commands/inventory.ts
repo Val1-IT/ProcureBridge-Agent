@@ -2,6 +2,7 @@ import { nextDocumentNumber } from "../document-numbers";
 import type { ErpCommandResult } from "../errors";
 import { authorize, type ErpPermission } from "../permissions";
 import { selectPhysicalStock } from "../selectors";
+import { isPositiveWholeQuantity } from "../quantity";
 import type { ErpRole, ErpState, GoodsReceipt, PurchaseOrder, QuantityLine, StockAdjustment, StockMovement } from "../types";
 import { appendErpAudit, commitErpState, isErpRole, rejectErpCommand } from "./shared";
 
@@ -67,7 +68,7 @@ function validateReceiptLines<T>(state: ErpState, purchaseOrder: PurchaseOrder, 
     const product = state.products.find((item) => item.id === line.productId && item.active);
     const orderLine = purchaseOrder.lines.find((item) => item.productId === line.productId);
     if (!product || !orderLine) return invalid(state, "Goods receipt product does not belong to the purchase order.", { productId: line.productId });
-    if (!Number.isFinite(line.quantity) || !Number.isInteger(line.quantity) || line.quantity <= 0) return invalid(state, "Goods receipt quantity must be a positive whole number.", { productId: line.productId });
+    if (!isPositiveWholeQuantity(line.quantity)) return invalid(state, "Goods receipt quantity must be a positive whole number.", { productId: line.productId });
     const outstanding = orderLine.quantity - approvedQuantity(state, purchaseOrder.id, line.productId);
     if (line.quantity > outstanding) return invalid(state, "Goods receipt quantity exceeds the outstanding purchase order quantity.", { productId: line.productId, outstandingQuantity: outstanding });
     seen.add(line.productId);

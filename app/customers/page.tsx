@@ -7,7 +7,7 @@ import { EntityForm, type EntityFormValue } from "@/components/erp/entity-form";
 import { EntityTable } from "@/components/erp/entity-table";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { upsertCustomer, type CustomerInput } from "@/lib/erp/commands/master-data";
+import type { CustomerInput } from "@/lib/erp/commands/master-data";
 import { authorize } from "@/lib/erp/permissions";
 import type { ErpCustomer } from "@/lib/erp/types";
 import { formatCurrency } from "@/lib/format";
@@ -15,9 +15,9 @@ import { formatCurrency } from "@/lib/format";
 const blankCustomer: CustomerInput = { code: "", name: "", contactName: "", phone: "", email: "", address: "", creditLimit: 0, active: true };
 
 export default function CustomersPage() {
-  const { state } = useDemoStore(); const { run } = useErpCommands(); const [editing, setEditing] = useState<ErpCustomer | null>(null);
+  const { state } = useDemoStore(); const commands = useErpCommands(); const [editing, setEditing] = useState<ErpCustomer | null>(null);
   const canManage = authorize(state.erp.activeRole, "master.manage"); const initial = editing ?? blankCustomer;
-  const submit = (values: Record<string, EntityFormValue>) => { const input: CustomerInput = { ...(editing ? { id: editing.id } : {}), code: String(values.code), name: String(values.name), contactName: String(values.contactName), phone: String(values.phone), email: String(values.email), address: String(values.address), creditLimit: Number(values.creditLimit), active: Boolean(values.active) }; const result = run((erp) => upsertCustomer(erp, state.erp.activeRole, input, new Date().toISOString())); if (!result.ok) return result.error.message; setEditing(null); return null; };
+  const submit = async (values: Record<string, EntityFormValue>) => { const input: CustomerInput = { ...(editing ? { id: editing.id } : {}), code: String(values.code), name: String(values.name), contactName: String(values.contactName), phone: String(values.phone), email: String(values.email), address: String(values.address), creditLimit: Number(values.creditLimit), active: Boolean(values.active) }; const result = await commands.upsertCustomer(input, new Date().toISOString()); if (!result.ok) return result.error.message; setEditing(null); return null; };
   return <><PageHeader eyebrow="Master Data • Demo Data" title="Customers" description="Kelola pelanggan, PIC, kontak, dan batas kredit untuk alur penjualan distributor." /><div className="document-grid">
     <EntityTable rows={state.erp.customers} searchLabel="Filter customer" emptyTitle="Customer tidak ditemukan." emptyDescription="Ubah kata pencarian atau tambahkan customer baru jika role Anda diizinkan." onEdit={canManage ? setEditing : undefined} columns={[
       { label: "Customer", searchValue: (row) => `${row.code} ${row.name}`, render: (row) => <><span className="cell-title">{row.name}</span><span className="cell-sub mono">{row.code}</span></> }, { label: "PIC", searchValue: (row) => row.contactName, render: (row) => row.contactName || "—" },

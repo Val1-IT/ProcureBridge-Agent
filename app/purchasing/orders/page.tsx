@@ -7,16 +7,17 @@ import { useErpCommands } from "@/components/erp-command-provider";
 import { LineItemsEditor } from "@/components/erp/line-items-editor";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { createPurchaseOrder } from "@/lib/erp/commands/purchasing";
 import { authorize } from "@/lib/erp/permissions";
-import { buildPurchaseOrderRows, filterPurchaseOrderRows, type PurchaseOrderFilters, type PurchaseOrderNextAction } from "@/lib/erp/purchasing-view-model";
+import { buildPurchaseOrderRows, filterPurchaseOrderRows, selectAvailablePurchaseOrderQuotations, type PurchaseOrderFilters, type PurchaseOrderNextAction } from "@/lib/erp/purchasing-view-model";
 import type { PurchaseOrderStatus, QuantityLine } from "@/lib/erp/types";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 const nextActionCopy: Readonly<Record<PurchaseOrderNextAction, string>> = { submit: "Ajukan approval", approve: "Approve PO", confirm: "Catat konfirmasi", prepare_receipt: "Siapkan penerimaan", await_approval: "Menunggu approval", await_confirmation: "Menunggu konfirmasi", follow_up: "Supplier follow-up", complete: "Selesaikan PO", none: "Tidak ada aksi" };
 
 export default function PurchaseOrdersPage() {
-  const { state } = useDemoStore(); const { run } = useErpCommands();
+  const { state: storeState } = useDemoStore(); const commands = useErpCommands();
+  const state = useMemo(() => ({ ...storeState, erp: { ...storeState.erp, supplierQuotations: selectAvailablePurchaseOrderQuotations(storeState.erp) } }), [storeState]);
+
   const [filters, setFilters] = useState<PurchaseOrderFilters>({ status: "all", supplierId: "all", overdue: "all" });
   const [supplierId, setSupplierId] = useState(state.erp.suppliers[0]?.id ?? "");
   const [selectedQuotationId, setSelectedQuotationId] = useState("");
@@ -34,16 +35,17 @@ export default function PurchaseOrdersPage() {
     setLines(quotation.lines.map((line) => ({ ...line })));
   };
 
-  const create = () => {
+  const create = async () => {
     const rfq = selectedQuotation ? state.erp.requestForQuotations.find((item) => item.id === selectedQuotation.requestForQuotationId) : null;
-    const result = run((erp) => createPurchaseOrder(erp, state.erp.activeRole, {
+    const commandTime = new Date();
+    const result = await commands.createPurchaseOrder({
       supplierId,
       purchaseRequestId: rfq?.purchaseRequestId ?? null,
       supplierQuotationId: selectedQuotation?.id ?? null,
       warehouseId: rfq?.warehouseId,
       lines,
-      confirmationDueAt: new Date(Date.now() + 2 * 86_400_000).toISOString(),
-    }, new Date().toISOString()));
+      confirmationDueAt: new Date(commandTime.getTime() + 2 * 86_400_000).toISOString(),
+    }, commandTime.toISOString());
     if (!result.ok) return setMessage({ tone: "error", text: result.error.message });
     setLines([]); setSelectedQuotationId("");
     setMessage({ tone: "success", text: `${result.value.orderNumber} dibuat sebagai draft Demo Data.` });

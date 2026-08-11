@@ -38,15 +38,15 @@ export function EntityForm({
   initialValues: Record<string, EntityFormValue>;
   submitLabel: string;
   disabled?: boolean;
-  onSubmit: (values: Record<string, EntityFormValue>) => string | null;
+  onSubmit: (values: Record<string, EntityFormValue>) => string | null | Promise<string | null>;
   onCancel?: () => void;
 }) {
   const [values, setValues] = useState(initialValues);
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const error = onSubmit(values);
+    const error = await onSubmit(values);
     setMessage(error ? { tone: "error", text: error } : { tone: "success", text: "Perubahan tersimpan sebagai Demo Data dan dicatat di audit log." });
   };
 

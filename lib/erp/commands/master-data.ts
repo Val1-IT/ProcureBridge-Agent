@@ -130,7 +130,7 @@ export function upsertSupplier(state: ErpState, role: ErpRole, input: SupplierIn
   if (state.suppliers.some((item) => item.id !== input.id && item.code.toLowerCase() === code.toLowerCase())) return invalid(state, "Supplier code must be unique.", { code });
   if (!isPhone(phone)) return invalid(state, "Supplier phone number is invalid.");
   if (!isEmail(email)) return invalid(state, "Supplier email is invalid.");
-  if (!Number.isInteger(input.paymentTermDays) || input.paymentTermDays < 0) return invalid(state, "Supplier payment terms cannot be negative.");
+  if (!Number.isSafeInteger(input.paymentTermDays) || input.paymentTermDays < 0) return invalid(state, "Supplier payment terms must be a nonnegative safe integer.");
   const supplier: Supplier = {
     id: current?.id ?? makeId("supplier", code, state.suppliers.map((item) => item.id)), code, name, phone, email,
     address: normalize(input.address), paymentTermDays: input.paymentTermDays, doNotContact: input.doNotContact, active: input.active,
@@ -191,7 +191,7 @@ export function upsertWarehouse(state: ErpState, role: ErpRole, input: Warehouse
 export function setActiveRole(state: ErpState, nextRole: ErpRole, now: string): ErpCommandResult<ErpRole> {
   if (!isErpRole(nextRole)) return rejectErpCommand(state, { code: "INVALID_INPUT", message: "Active role is invalid." });
   const next = appendErpAudit({ ...state, activeRole: nextRole }, {
-    entityType: "demo_workspace", entityId: "erp-role", action: "demo.role_switched", actorRole: nextRole, actorId: `role:${nextRole}`,
+    entityType: "demo_workspace", entityId: "erp-role", action: "demo.role_switched", actorRole: state.activeRole, actorId: `role:${state.activeRole}`,
     detail: { previousRole: state.activeRole, nextRole },
   }, now);
   return commitErpState(state, next, nextRole);

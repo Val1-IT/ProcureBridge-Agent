@@ -6,12 +6,11 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { approveStockAdjustment, proposeStockAdjustment } from "@/lib/erp/commands/inventory";
 import { authorize } from "@/lib/erp/permissions";
 
 export default function StockAdjustmentsPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const selectedAdjustmentId = useSearchParams().get("adjustmentId");
   const visibleAdjustments = selectedAdjustmentId ? state.erp.stockAdjustments.filter((item) => item.id === selectedAdjustmentId) : state.erp.stockAdjustments;
   const [productId, setProductId] = useState(state.erp.products[0]?.id ?? "");
@@ -21,15 +20,15 @@ export default function StockAdjustmentsPage() {
   const mayPropose = authorize(state.erp.activeRole, "stock.adjust");
   const mayApprove = authorize(state.erp.activeRole, "stock.adjust.approve");
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = run((erp) => proposeStockAdjustment(erp, erp.activeRole, { productId, quantityDelta: Number(quantityDelta), reason }, new Date().toISOString()));
+    const result = await commands.proposeStockAdjustment({ productId, quantityDelta: Number(quantityDelta), reason }, new Date().toISOString());
     setMessage(result.ok ? `${result.value.adjustmentNumber} proposed without changing stock.` : result.error.message);
     if (result.ok) { setQuantityDelta(""); setReason(""); }
   }
 
-  function approve(adjustmentId: string) {
-    const result = run((erp) => approveStockAdjustment(erp, erp.activeRole, adjustmentId, new Date().toISOString()));
+  async function approve(adjustmentId: string) {
+    const result = await commands.approveStockAdjustment(adjustmentId, new Date().toISOString());
     setMessage(result.ok ? `${result.value.adjustmentNumber} approved and posted.` : result.error.message);
   }
 

@@ -2,13 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDemoStore } from "./demo-store-provider";
-import {
-  advanceJudgeDemo,
-  exitJudgeDemo,
-  restartJudgeDemo,
-  type JudgeDemoSession,
-} from "@/lib/demo/judge-mode";
+import type { DemoStorePrivateAuthority } from "./demo-store-provider";
+import type { JudgeDemoSession } from "@/lib/demo/judge-mode";
 import {
   advanceErpJudgeSession,
   canAdvanceErpJudgeSession,
@@ -19,29 +14,34 @@ import {
   type ErpJudgeSession,
   type ErpJudgeStep,
 } from "@/lib/demo/erp-judge-mode";
-import { deserializeDemoState } from "@/lib/demo/persistence";
+import {
+  createErpJudgeSessionEnvelope,
+  deserializeJudgeSessionEnvelope,
+  hasJudgeSessionOrigin,
+  serializeJudgeSessionEnvelope,
+  type ErpJudgeSessionEnvelope,
+  type JudgeSessionOrigin,
+} from "@/lib/demo/judge-session-envelope";
 import type { SimulationSpeed } from "@/lib/demo/simulation";
+import { runGuideReplayTransition } from "@/lib/demo/provider-lifecycle";
+import { restartSupplierCallDemoSession } from "@/lib/supplier-call/browser-approval";
 
-const JUDGE_SESSION_KEY = "arvanta-procurebridge-judge-session-v1";
+export const JUDGE_SESSION_KEY = "arvanta-distributor-mini-erp-judge-session-v1";
 type ActiveJudgeSession = ErpJudgeSession | JudgeDemoSession;
 
 interface JudgeDemoValue {
   session: ActiveJudgeSession | null;
-  start: () => void;
-  startFallback: () => void;
+  start: () => Promise<void>;
+  startFallback: () => Promise<void>;
   next: () => void;
-  exit: () => void;
-  restart: () => void;
-  resetDemo: () => void;
-  setSpeed: (speed: SimulationSpeed) => void;
+  exit: () => Promise<void>;
+  restart: () => Promise<void>;
+  resetDemo: () => Promise<void>;
+  setSpeed: (speed: SimulationSpeed) => Promise<void>;
   canAdvance: boolean;
 }
 
 const JudgeDemoContext = createContext<JudgeDemoValue | null>(null);
-
-function isErpSession(session: ActiveJudgeSession): session is ErpJudgeSession {
-  return typeof session.step === "string";
-}
 
 function erpStepHref(step: ErpJudgeStep): string {
   switch (step) {
@@ -58,112 +58,107 @@ function erpStepHref(step: ErpJudgeStep): string {
   }
 }
 
-export function JudgeDemoProvider({ children }: { children: React.ReactNode }) {
-  const { state, dispatch, hydrated } = useDemoStore();
+function createGuideId(): string {
+  const uuid = globalThis.crypto?.randomUUID?.();
+  return `guide-${uuid ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
+}
+
+export function JudgeDemoProvider({ children, authority }: { children: React.ReactNode; authority: DemoStorePrivateAuthority }) {
   const router = useRouter();
-  const [session, setSession] = useState<ActiveJudgeSession | null>(null);
+  const [storedSession, setStoredSession] = useState<ErpJudgeSessionEnvelope | null>(null);
+  const session: ActiveJudgeSession | null = storedSession?.session ?? null;
+  const origin = useMemo<JudgeSessionOrigin>(() => ({
+    demoSessionId: authority.envelope.lineage.demoSessionId,
+    resetGeneration: authority.envelope.lineage.resetGeneration,
+  }), [authority.envelope.lineage.demoSessionId, authority.envelope.lineage.resetGeneration]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    const stored = window.sessionStorage.getItem(JUDGE_SESSION_KEY);
-    if (!stored) return;
-    try {
-      const parsed = JSON.parse(stored) as ActiveJudgeSession;
-      if (parsed.active && (typeof parsed.step === "number" ? Boolean(parsed.normalStoreSnapshot) : parsed.providerMode === "mock" && Boolean(parsed.preDemoSnapshot))) setSession(parsed);
-      else window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
-    } catch {
+    if (!authority.hydrated) return;
+    const restored = deserializeJudgeSessionEnvelope(window.sessionStorage.getItem(JUDGE_SESSION_KEY), origin);
+    if (restored) setStoredSession(restored);
+    else {
       window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
+      setStoredSession(null);
     }
-  }, [hydrated]);
+  }, [authority.hydrated, origin]);
 
   useEffect(() => {
-    if (!session) return;
-    window.sessionStorage.setItem(JUDGE_SESSION_KEY, JSON.stringify(session));
-  }, [session]);
+    if (storedSession) window.sessionStorage.setItem(JUDGE_SESSION_KEY, serializeJudgeSessionEnvelope(storedSession));
+  }, [storedSession]);
+
+  useEffect(() => {
+    if (!storedSession || hasJudgeSessionOrigin(storedSession, origin)) return;
+    window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
+    setStoredSession(null);
+  }, [storedSession, origin]);
 
   const snapshotBeforePrimaryDemo = useCallback(() => {
-    if (!session?.active) return state;
-    return isErpSession(session) ? session.preDemoSnapshot : deserializeDemoState(session.normalStoreSnapshot);
-  }, [session, state]);
+    return storedSession?.session.active ? structuredClone(storedSession.session.preDemoSnapshot) : authority.state;
+  }, [storedSession, authority.state]);
 
-  const start = useCallback(() => {
-    const started = startErpJudgeSession(snapshotBeforePrimaryDemo());
-    dispatch({ type: "HYDRATE", state: started.state });
-    setSession(started.session);
-    router.push(erpStepHref(started.session.step));
-  }, [dispatch, router, snapshotBeforePrimaryDemo]);
+  const runReplayTransition = useCallback((transition: () => Promise<boolean>) => runGuideReplayTransition({
+    restartServer: () => restartSupplierCallDemoSession(origin.demoSessionId),
+    transition,
+    reportConflict: authority.reportConflict,
+  }), [authority.reportConflict, origin.demoSessionId]);
 
-  const startFallback = useCallback(() => {
-    const started = startPresentationFallback(snapshotBeforePrimaryDemo());
-    dispatch({ type: "HYDRATE", state: started.state });
-    setSession(started.session);
-    router.push(erpStepHref(started.session.step));
-  }, [dispatch, router, snapshotBeforePrimaryDemo]);
+  const begin = useCallback(async (fallback: boolean) => {
+    await runReplayTransition(async () => {
+      const started = fallback ? startPresentationFallback(snapshotBeforePrimaryDemo()) : startErpJudgeSession(snapshotBeforePrimaryDemo());
+      if (!await authority.replaceState(started.state, "guide_start")) return false;
+      const next = createErpJudgeSessionEnvelope(started.session, origin, createGuideId());
+      setStoredSession(next);
+      router.push(erpStepHref(started.session.step));
+      return true;
+    });
+  }, [authority, origin, router, runReplayTransition, snapshotBeforePrimaryDemo]);
 
-  const exit = useCallback(() => {
-    if (session) {
-      const restored = isErpSession(session) ? exitErpJudgeSession(session) : deserializeDemoState(exitJudgeDemo(session).restoreSnapshot ?? session.normalStoreSnapshot);
-      dispatch({ type: "HYDRATE", state: restored });
-    }
-    window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
-    setSession(null);
-    router.push("/");
-  }, [dispatch, router, session]);
+  const start = useCallback(async () => begin(false), [begin]);
+  const startFallback = useCallback(async () => begin(true), [begin]);
 
-  const restart = useCallback(() => {
-    if (!session) return;
-    if (isErpSession(session)) {
-      const restarted = restartErpJudgeSession(session);
-      dispatch({ type: "HYDRATE", state: restarted.state });
-      setSession(restarted.session);
+  const exit = useCallback(async () => {
+    await runReplayTransition(async () => {
+      if (storedSession && !await authority.replaceState(exitErpJudgeSession(storedSession.session), "guide_exit")) return false;
+      window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
+      setStoredSession(null);
+      router.push("/");
+      return true;
+    });
+  }, [authority, router, runReplayTransition, storedSession]);
+
+  const restart = useCallback(async () => {
+    if (!storedSession) return;
+    await runReplayTransition(async () => {
+      const restarted = restartErpJudgeSession(storedSession.session);
+      if (!await authority.replaceState(restarted.state, "guide_restart")) return false;
+      setStoredSession(createErpJudgeSessionEnvelope(restarted.session, storedSession.origin, storedSession.guideId));
       router.push(erpStepHref(restarted.session.step));
-      return;
-    }
-    const restarted = restartJudgeDemo(session);
-    dispatch({ type: "RESET" });
-    dispatch({ type: "SET_SIMULATION_SPEED", value: restarted.speed });
-    setSession(restarted);
-    router.push("/collections");
-  }, [dispatch, router, session]);
+      return true;
+    });
+  }, [authority, router, runReplayTransition, storedSession]);
 
-  const resetDemo = useCallback(() => {
-    dispatch({ type: "RESET" });
+  const resetDemo = useCallback(async () => {
+    if (!await authority.reset()) return;
     window.sessionStorage.removeItem(JUDGE_SESSION_KEY);
-    setSession(null);
+    setStoredSession(null);
     router.push("/dashboard");
-  }, [dispatch, router]);
+  }, [authority, router]);
 
   const canAdvance = useMemo(() => {
-    if (!session) return false;
-    if (isErpSession(session)) return canAdvanceErpJudgeSession(session, state);
-    if (session.step === 3) return state.approvals.some((item) => item.callId === "call-sinar");
-    if (session.step === 4) return state.calls.some((item) => item.id === "call-sinar");
-    if (session.step === 5) return state.calls.some((item) => item.id === "call-sinar" && item.status === "result_pending_review");
-    if (session.step === 6) return state.pendingResults.some((item) => item.callId === "call-sinar" && item.reviewStatus === "approved");
-    return true;
-  }, [session, state]);
+    return storedSession ? canAdvanceErpJudgeSession(storedSession.session, authority.state) : false;
+  }, [storedSession, authority.state]);
 
   const next = useCallback(() => {
-    if (!session || !canAdvance) return;
-    if (isErpSession(session)) {
-      const advanced = advanceErpJudgeSession(session, state);
-      setSession(advanced);
-      router.push(erpStepHref(advanced.step));
-      return;
-    }
-    const advanced = advanceJudgeDemo(session);
-    setSession(advanced);
-    if (advanced.step === 2) router.push("/invoices/inv-sinar");
-    if (advanced.step === 4) router.push("/invoices/inv-sinar");
-    if (advanced.step === 5) router.push("/calls/call-sinar");
-    if (advanced.step === 6) router.push("/calls/call-sinar/result");
-    if (advanced.step === 7) router.push("/promises");
-  }, [canAdvance, router, session, state]);
+    if (!canAdvance || !storedSession) return;
+    const advanced = advanceErpJudgeSession(storedSession.session, authority.state);
+    setStoredSession({ ...storedSession, session: advanced });
+    router.push(erpStepHref(advanced.step));
+  }, [canAdvance, router, storedSession, authority.state]);
 
-  const setSpeed = useCallback((speed: SimulationSpeed) => {
-    dispatch({ type: "SET_SIMULATION_SPEED", value: speed });
-    setSession((current) => current ? isErpSession(current) ? { ...current, simulationSpeed: speed } : { ...current, speed } : current);
-  }, [dispatch]);
+  const setSpeed = useCallback(async (speed: SimulationSpeed) => {
+    if (!await authority.dispatch({ type: "SET_SIMULATION_SPEED", value: speed })) return;
+    setStoredSession((current) => current ? { ...current, session: { ...current.session, simulationSpeed: speed } } : current);
+  }, [authority]);
 
   const value = useMemo(() => ({ session, start, startFallback, next, exit, restart, resetDemo, setSpeed, canAdvance }), [session, start, startFallback, next, exit, restart, resetDemo, setSpeed, canAdvance]);
   return <JudgeDemoContext.Provider value={value}>{children}</JudgeDemoContext.Provider>;

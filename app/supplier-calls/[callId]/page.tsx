@@ -8,24 +8,24 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { completeSupplierCallSimulation, type FinishSupplierCallSimulationInput } from "@/lib/erp/commands/supplier-results";
+import type { FinishSupplierCallSimulationInput } from "@/lib/erp/commands/supplier-results";
 import type { SimulationSpeed } from "@/lib/demo/simulation";
 
 export default function SupplierCallPage() {
   const { callId } = useParams<{ callId: string }>();
   const router = useRouter();
   const { state, dispatch } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const [error, setError] = useState<string | null>(null);
   const call = state.erp.supplierCalls.find((item) => item.id === callId);
   const purchaseOrder = state.erp.purchaseOrders.find((item) => item.id === call?.purchaseOrderId);
   const supplier = state.erp.suppliers.find((item) => item.id === call?.supplierId);
-  const complete = useCallback((input: FinishSupplierCallSimulationInput) => {
+  const complete = useCallback(async (input: FinishSupplierCallSimulationInput) => {
     if (!call || call.status !== "active") return;
-    const result = run((current) => completeSupplierCallSimulation(current, current.activeRole, call.id, input, new Date().toISOString()));
+    const result = await commands.completeSupplierCallSimulation(call.id, input, new Date().toISOString());
     if (!result.ok) { setError(result.error.message); return; }
     router.replace(`/supplier-calls/${call.id}/result`);
-  }, [call, router, run]);
+  }, [call, commands, router]);
   if (!call || !purchaseOrder || !supplier) return <div className="empty-state"><strong>Supplier call session was not found.</strong><p>Start from an approved Supplier Brief.</p><Link className="button" href="/purchasing/follow-up">Return to queue</Link></div>;
   const setSpeed = (speed: SimulationSpeed) => dispatch({ type: "SET_SIMULATION_SPEED", value: speed });
   const result = state.erp.supplierResults.find((item) => item.supplierCallId === call.id && item.status !== "rejected");

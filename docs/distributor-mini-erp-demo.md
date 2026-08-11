@@ -21,7 +21,9 @@ Open `http://127.0.0.1:3004` (or another free local port). No env file, database
 - **Next**: unlocks only when the authoritative business condition exists.
 - **Restart Demo**: reseeds the guide while retaining its original restore point.
 - **Exit & Restore**: restores the exact valid pre-demo state.
-- **Reset Demo Data**: creates a fresh session and resets all browser modules to v10 seed.
+- **Reset Demo Data**: creates a fresh session/reset generation, invalidates the prior guide and unconsumed Supplier Agent capabilities, and replaces all browser modules with clean v10 seed.
+
+Start/Presentation Fallback, Restart, and Exit first await `PUT /api/supplier-calls/session` with exactly `{ "demoSessionId": "..." }`. Only `204` permits the local guide transition; busy, retired, malformed, unauthorized, or transport failures surface a conflict and leave the current guide/browser state unchanged.
 
 The guide uses a labeled mock-only 10:00 Jakarta clock. Ordinary calls use authoritative server time.
 
@@ -33,20 +35,23 @@ Refresh after each numbered section and confirm documents/guide state survive.
 
 1. Start the guide and open `SO-2026-0001` at `/sales/orders/so-router-shortage`.
 2. Review 35 Router Bisnis requested versus 30 physical: shortage 5.
-3. Create the linked Purchase Request. It remains draft and cannot auto-create/approve a PO.
+3. Inspect pre-approved Demo Data `PR-2026-0001`: it links to this exact Sales Order and carries only the five-unit shortage.
+
+The guide seeds that approval evidence solely for deterministic rehearsal. Ordinary Sales Order use does not auto-create or auto-approve purchasing documents.
 
 ### 2. Purchase release and follow-up
 
-1. Open seeded `PO-2026-0001` at `/purchasing/orders/po-router-replenishment`.
-2. Confirm it is sent/released, scoped to PT Teknologi Utama, and overdue for confirmation.
-3. Open `/purchasing/follow-up`, then `/supplier-follow-up/po-router-replenishment`.
+1. Open linked `PO-2026-0001` at `/purchasing/orders/po-router-replenishment`.
+2. Confirm `purchaseRequestId` points to `PR-2026-0001`, its one line retains the same five-unit demand, and its status is `pending_approval`.
+3. As Admin or Approver, choose **Approve** and confirm the linked PO reaches `sent` before any supplier follow-up.
+4. Open `/purchasing/follow-up`, then `/supplier-follow-up/po-router-replenishment`.
 
 ### 3. Approval and guardrails
 
 1. Use Admin/Approver role.
 2. Review exact PO/products, objective, delivery limit, partial-delivery permission, price boundary, language, and approver.
-3. Save Human Approval and confirm the labeled mock clock plus **8/8 PASS**.
-4. Start Call. The same-origin route is `/api/supplier-calls?forceMock=1`; provider must be `mock`.
+3. Save Human Approval and confirm the labeled mock clock plus **8/8 PASS**. Saving also registers that exact scope with the same-process demo server and obtains an opaque, single-use capability.
+4. Start Call. The same-origin route is `/api/supplier-calls?forceMock=1`; it must send the capability in `x-supplier-call-approval`, consume it with the atomic call claim, and return provider `mock`.
 
 ### 4. Transcript and human result review
 
@@ -54,10 +59,10 @@ Refresh after each numbered section and confirm documents/guide state survive.
 2. Review commitment, provenance, dates, follow-up, summary, sentiment, and scope.
 3. Approve the result. PO commitment/follow-up may update; stock, receipts, invoices, payments, order quantity, and approved price must not.
 
-### 5. Partial Goods Receipt and reservation
+### 5. Goods Receipt and reservation
 
 1. Open `/purchasing/receipts?purchaseOrderId=po-router-replenishment`.
-2. Prepare and approve **10 routers**.
+2. Prepare and approve the **five linked routers**.
 3. Confirm receipt, PO progress, inbound movement, and physical stock update together.
 4. Return to `SO-2026-0001` and confirm its now-covered reservation.
 
@@ -89,19 +94,19 @@ Refresh after each numbered section and confirm documents/guide state survive.
 
 Use **Exit & Restore** for the exact pre-demo snapshot. Use **Reset Demo Data** only for a new deterministic seed.
 
-## Tablet acceptance (820-1024 px)
+## Tablet acceptance (820-1120 px)
 
-Manually confirm grouped navigation, role/Demo labels, scroll-safe tables, reachable form/actions, Supplier Brief guardrails, transcript/result controls, receipt quantities, delivery form, payment confirmation, and guided panel have no unusable overlap. Unit and HTTP smoke do not replace this browser check.
+At controller checkpoints 820 px and 1024 px, manually confirm grouped navigation, role/Demo labels, horizontal table scrolling through the rightmost action column, reachable forms/actions, Supplier Brief guardrails, transcript/result controls, receipt quantities, delivery form, payment confirmation, and no unusable guided-panel overlap. The style contract covers the full `<=1120px` breakpoint; unit and HTTP smoke do not replace this browser check.
 
 ## Reset acceptance
 
 1. First create call/result, receipt, delivery, invoices, payment, follow-up/dispute, and audit evidence.
 2. Choose **Reset Demo Data**.
-3. Confirm a new session and the seed: `SO-2026-0001`, `PO-2026-0001`, three products, two suppliers, two customers, one active warehouse.
-4. Confirm no stale guided call/result, receipt, delivery, invoice, payment, dispute/follow-up, adjustment, or prior ERP audit remains.
+3. Confirm a new session/reset generation and the seed: `SO-2026-0001`, `PO-2026-0001`, three products, two suppliers, two customers, one active warehouse.
+4. Confirm no stale guided session/capability, call/result, receipt, delivery, invoice, payment, dispute/follow-up, adjustment, or prior ERP/legacy audit remains.
 5. Refresh and confirm the clean seed survives.
 
-Reset affects browser data only; optional Supabase persistence is inactive.
+Reset affects browser data plus the same-process demo authorization session only; optional Supabase persistence is inactive. The reset action is deliberately not retained as an audit row because the deterministic seed is clean; the new session/reset generation is the documented reset boundary.
 
 ## Shell smoke contract
 
@@ -113,22 +118,26 @@ Required GET routes:
 /finance/payables  /finance/receivables  /approvals  /audit  /api/health
 ```
 
-Eligible deterministic payload to `POST /api/supplier-calls?forceMock=1`:
+Direct-bypass payload to `POST /api/supplier-calls?forceMock=1`:
 
 ```json
 {
   "callId": "supplier-call-po-1",
   "supplierId": "supplier-utama",
   "purchaseOrderId": "po-router-replenishment",
-  "demoSessionId": "demo_task14_shell_eligible_123456",
+  "demoSessionId": "demo_direct_bypass_123456789012",
   "demoClockIso": "2026-08-10T03:00:00.000Z"
 }
 ```
 
-Expected: HTTP `201`, `SUPPLIER_CALL_CREATED`, provider `mock`.
+Without a previously registered exact approval and `x-supplier-call-approval` header, expected: HTTP `409`, `SERVER_APPROVAL_REQUIRED`. This is the stable direct-bypass check.
 
-Stable ineligible path: use another valid session and `demoClockIso` `2026-08-10T14:00:00.000Z` (21:00 Jakarta). Expected: HTTP `409`, `SUPPLIER_CALL_INELIGIBLE`, reason `OUTSIDE_CALLING_HOURS`.
+For the authorized `201` proof, use the Human Approval workflow: its same-origin registration call returns a cache-disabled `approvalCapability`, and Start Call immediately supplies that opaque value in `x-supplier-call-approval`. Expected: `SUPPLIER_CALL_CREATED`, provider `mock`. Never log, browser-persist, preseed, or reuse the raw capability; concurrent starts must produce at most one provider call.
+
+For the after-hours path, register a fresh exact approval/capability, then use `demoClockIso` `2026-08-10T14:00:00.000Z` (21:00 Jakarta). Expected: HTTP `409`, `SUPPLIER_CALL_INELIGIBLE`, reason `OUTSIDE_CALLING_HOURS`.
+
+A guide replay must call `PUT /api/supplier-calls/session` for the still-active demo session; it clears prior process-local call/capability/claim state without retiring the browser session. Full **Reset Demo Data** calls `DELETE /api/supplier-calls/session` for the retired demo session. A subsequent start with its old capability must return `409 SERVER_APPROVAL_REQUIRED` and must not reach the provider.
 
 ## Disclose these gaps
 
-Browser persistence/selectable roles are not production storage/identity; calls/transcripts/extraction are simulated; Supabase SQL is inactive and not live-tested; no official live provider or durable jobs/observability exists; lightweight finance is not general-ledger/tax/reconciliation; and Task 14 audit has 22 unresolved vulnerabilities (4 moderate, 16 high, 2 critical).
+Browser persistence/selectable roles are not production storage/identity; the process-local approval-capability store is not durable or multi-instance authorization; calls/transcripts/extraction are simulated; Supabase SQL is inactive and not live-tested; no official live provider or durable jobs/observability exists; lightweight finance is not general-ledger/tax/reconciliation; and the retained audit has 22 unresolved vulnerabilities (4 moderate, 16 high, 2 critical). The dated local-loopback demo waiver in `docs/security.md` is not a production waiver.

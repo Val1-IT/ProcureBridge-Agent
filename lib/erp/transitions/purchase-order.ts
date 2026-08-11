@@ -5,7 +5,7 @@ export const purchaseOrderTransitions: Readonly<Record<PurchaseOrderStatus, read
   pending_approval: ["sent", "rejected", "cancelled"],
   sent: ["confirmed", "cancelled"],
   confirmed: ["partially_received", "fully_received", "cancelled"],
-  partially_received: ["fully_received", "cancelled"],
+  partially_received: ["fully_received"],
   fully_received: ["completed"],
   completed: [],
   rejected: [],

@@ -1,6 +1,6 @@
 import { authorize } from "./permissions";
 import { selectSupplierFollowUpQueue, selectSupplierQuotationComparison, type SupplierFollowUpReason } from "./selectors";
-import type { ErpRole, ErpState, PurchaseOrder, PurchaseOrderStatus, QuantityLine } from "./types";
+import type { ErpRole, ErpState, PurchaseOrder, PurchaseOrderStatus, QuantityLine, SupplierQuotation } from "./types";
 
 export type PurchaseOrderPrimaryAction = "submit" | "approve" | "confirm" | "prepare_receipt";
 export type PurchaseOrderCommandAction = Exclude<PurchaseOrderPrimaryAction, "prepare_receipt">;
@@ -135,6 +135,14 @@ export function filterPurchaseOrderRows(rows: readonly PurchaseOrderRow[], filte
     return true;
   });
 }
+export function selectAvailablePurchaseOrderQuotations(state: ErpState): SupplierQuotation[] {
+  const consumedQuotationIds = new Set(state.purchaseOrders
+    .filter((order) => order.status !== "rejected" && order.status !== "cancelled")
+    .map((order) => order.supplierQuotationId)
+    .filter((quotationId): quotationId is string => quotationId !== null));
+  return state.supplierQuotations.filter((quotation) => quotation.status === "selected" && !consumedQuotationIds.has(quotation.id));
+}
+
 
 export function buildPurchaseRequestRows(state: ErpState): PurchaseRequestRow[] {
   return state.purchaseRequests.map((request) => {

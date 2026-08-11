@@ -12,6 +12,7 @@ import {
   type ProductInput,
   type SupplierInput,
 } from "../lib/erp/commands/master-data";
+import { createErpCommandExecutor } from "../lib/erp/command-intents";
 
 const fixedNow = "2026-08-09T10:00:00.000Z";
 
@@ -127,7 +128,7 @@ describe("ERP command boundary", () => {
     if (!result.ok) return;
     expect(result.state).toMatchObject({ revision: 1, activeRole: "warehouse" });
     expect(result.state.auditLogs).toMatchObject([
-      { action: "demo.role_switched", actorRole: "warehouse", detail: { previousRole: "admin", nextRole: "warehouse" } },
+      { action: "demo.role_switched", actorRole: "admin", detail: { previousRole: "admin", nextRole: "warehouse" } },
     ]);
   });
 
@@ -171,5 +172,141 @@ describe("ERP command boundary", () => {
     const next = demoReducer(createSeedState(), action);
 
     expect(next.demo.simulationSpeed).toBe("real_time");
+  });
+
+  it("exposes only closed named commands and derives authorization from current state", () => {
+    const before = createErpSeedState();
+    before.activeRole = "warehouse";
+    let current = before;
+    const commands = createErpCommandExecutor(
+      () => current,
+      (_expectedRevision, next) => { current = next; return true; },
+    );
+
+    expect("run" in commands).toBe(false);
+    const forged = commands.upsertProduct({ ...productInput, role: "admin" } as typeof productInput, fixedNow);
+
+    expect(forged).toEqual({
+      ok: false,
+      state: before,
+      error: { code: "FORBIDDEN", message: "You do not have permission to manage products." },
+    });
+    expect(current).toBe(before);
+  });
+
+  it("rejects a forged public callback and whole-state hydration without mutation", () => {
+    const before = createSeedState();
+    const commands = createErpCommandExecutor(() => before.erp, () => { throw new Error("forged commit must not run"); });
+    const forgedRun = (commands as unknown as { run?: (input: unknown) => unknown }).run;
+    const forgedHydrate = demoReducer(before, { type: "HYDRATE", state: { ...before, erp: { ...before.erp, activeRole: "admin" } } } as never);
+
+    expect(forgedRun).toBeUndefined();
+    expect(forgedHydrate).toBe(before);
+  });
+
+  it("commits a named mutation only with rev+1, one authoritative audit, and a valid v10 state", () => {
+    const before = createErpSeedState();
+    let current = before;
+    const commands = createErpCommandExecutor(
+      () => current,
+      (_expectedRevision, next) => { current = next; return true; },
+    );
+
+    const result = commands.upsertProduct(productInput, fixedNow);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.state.revision).toBe(1);
+    expect(result.state.auditLogs).toHaveLength(1);
+    expect(result.state.auditLogs[0]).toMatchObject({ action: "product.upserted", actorRole: "admin" });
+    expect(current).toBe(result.state);
+  });
+
+  it("fails closed before revision overflow", () => {
+    const before = createErpSeedState();
+    before.revision = Number.MAX_SAFE_INTEGER;
+    let committed = false;
+    const commands = createErpCommandExecutor(
+      () => before,
+      () => { committed = true; return true; },
+    );
+
+    const result = commands.upsertProduct(productInput, fixedNow);
+
+    expect(result).toEqual({
+      ok: false,
+      state: before,
+      error: { code: "INVALID_STATE", message: "ERP revision cannot advance safely." },
+    });
+    expect(committed).toBe(false);
+  });
+
+  it("rejects a named master-data command with a malformed command time without mutation", () => {
+    const before = createErpSeedState();
+    let committed = false;
+    const commands = createErpCommandExecutor(
+      () => before,
+      () => { committed = true; return true; },
+    );
+
+    const result = commands.upsertProduct(productInput, "not-an-iso-time");
+
+    expect(result).toMatchObject({
+      ok: false,
+      state: before,
+      error: {
+        code: "INVALID_INPUT",
+      },
+    });
+    expect(result.state).toBe(before);
+    expect(result.state.products).toHaveLength(before.products.length);
+    expect(result.state.auditLogs).toHaveLength(before.auditLogs.length);
+    expect(committed).toBe(false);
+  });
+
+  it("rejects an unsafe supplier payment term without mutation", () => {
+    const before = createErpSeedState();
+
+    const result = upsertSupplier(before, "admin", {
+      ...supplierInput,
+      paymentTermDays: Number.MAX_SAFE_INTEGER + 1,
+    }, fixedNow);
+
+    expect(result.ok).toBe(false);
+    expect(result.state).toBe(before);
+    expect(result.state.revision).toBe(before.revision);
+    expect(result.state.auditLogs).toHaveLength(before.auditLogs.length);
+  });
+
+  it("rejects a named command when its next audit id would duplicate persisted evidence", () => {
+    const before = createErpSeedState();
+    before.auditLogs = [{
+      id: "erp-audit-1",
+      entityType: "demo_workspace",
+      entityId: "legacy-evidence",
+      action: "legacy.evidence_preserved",
+      actorRole: "system",
+      actorId: "system:migration",
+      detail: {},
+      createdAt: fixedNow,
+      updatedAt: fixedNow,
+    }];
+    let committed = false;
+    const commands = createErpCommandExecutor(
+      () => before,
+      () => { committed = true; return true; },
+    );
+
+    const result = commands.upsertProduct(productInput, fixedNow);
+
+    expect(result).toMatchObject({
+      ok: false,
+      state: before,
+      error: {
+        code: "INVALID_STATE",
+      },
+    });
+    expect(result.state).toBe(before);
+    expect(committed).toBe(false);
   });
 });

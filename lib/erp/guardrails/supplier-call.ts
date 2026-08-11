@@ -1,4 +1,5 @@
 import { isStrictIsoDate } from "../date-validation";
+import { isPositiveWholeQuantity } from "../quantity";
 import type { PurchaseOrder, Supplier, SupplierCallApproval } from "../types";
 
 export type SupplierCallGuardrailCode =
@@ -56,7 +57,7 @@ function validOrderData(supplier: Supplier, purchaseOrder: PurchaseOrder): boole
     && purchaseOrder.supplierId === supplier.id
     && purchaseOrder.lines.length > 0
     && purchaseOrder.lines.every((line) => {
-      const valid = Boolean(line.productId) && !products.has(line.productId) && Number.isSafeInteger(line.quantity) && line.quantity > 0 && Number.isSafeInteger(line.unitPrice) && line.unitPrice > 0;
+      const valid = Boolean(line.productId) && !products.has(line.productId) && isPositiveWholeQuantity(line.quantity) && Number.isSafeInteger(line.unitPrice) && line.unitPrice > 0;
       products.add(line.productId);
       return valid;
     });

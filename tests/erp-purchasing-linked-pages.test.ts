@@ -23,6 +23,10 @@ vi.mock("@/components/erp-command-provider", () => ({
   useErpCommands: () => ({ run: () => { throw new Error("Render test must not execute commands."); } }),
 }));
 
+vi.mock("@/components/judge-demo-provider", () => ({
+  useJudgeDemo: () => ({ session: null }),
+}));
+
 describe("purchasing linked destination pages", () => {
   beforeEach(() => {
     harness.state = createSeedState();

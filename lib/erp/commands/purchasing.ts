@@ -1,6 +1,9 @@
 import { nextDocumentNumber } from "../document-numbers";
+import { isStrictIsoDate } from "../date-validation";
 import type { ErpCommandResult } from "../errors";
+import { purchaseOrderHasReceiptExecution } from "../order-cancellation";
 import { authorize } from "../permissions";
+import { isPositiveWholeQuantity } from "../quantity";
 import { selectSupplierQuotationComparison, type SupplierQuotationComparisonItem } from "../selectors";
 import { canTransitionPurchaseOrder } from "../transitions/purchase-order";
 import type { ErpFollowUp, ErpRole, ErpState, PurchaseOrder, PurchaseOrderStatus, PurchaseRequest, QuantityLine, RequestForQuotation, RfqLine, SupplierQuotation } from "../types";
@@ -21,7 +24,7 @@ export interface PurchaseOrderInput {
 }
 
 export interface RequestForQuotationInput {
-  purchaseRequestId?: string | null;
+  purchaseRequestId: string;
   warehouseId?: string;
   supplierIds: readonly string[];
   quoteDueAt?: string;
@@ -59,8 +62,8 @@ function validateLines<T>(state: ErpState, lines: readonly QuantityLine[]): ErpC
   for (const line of lines) {
     if (!state.products.some((product) => product.id === line.productId && product.active)) return invalid(state, "Purchase line product was not found or is inactive.", { productId: line.productId });
     if (productIds.has(line.productId)) return invalid(state, "Purchase document lines must use each product once.", { productId: line.productId });
-    if (!Number.isFinite(line.quantity) || line.quantity <= 0) return invalid(state, "Purchase line quantity must be positive.", { productId: line.productId });
-    if (!Number.isFinite(line.unitPrice) || line.unitPrice <= 0) return invalid(state, "Purchase line unit price must be positive.", { productId: line.productId });
+    if (!isPositiveWholeQuantity(line.quantity)) return invalid(state, "Purchase line quantity must be a positive whole number.", { productId: line.productId });
+    if (!Number.isSafeInteger(line.unitPrice) || line.unitPrice <= 0) return invalid(state, "Purchase line unit price must be a positive safe integer.", { productId: line.productId });
     productIds.add(line.productId);
   }
   return null;
@@ -80,7 +83,7 @@ function validateRfqLines<T>(state: ErpState, lines: readonly RfqLine[]): ErpCom
   for (const line of lines) {
     if (!state.products.some((product) => product.id === line.productId && product.active)) return invalid(state, "RFQ line product was not found or is inactive.", { productId: line.productId });
     if (productIds.has(line.productId)) return invalid(state, "RFQ lines must use each product once.", { productId: line.productId });
-    if (!Number.isFinite(line.quantity) || line.quantity <= 0) return invalid(state, "RFQ line quantity must be positive.", { productId: line.productId });
+    if (!isPositiveWholeQuantity(line.quantity)) return invalid(state, "RFQ line quantity must be a positive whole number.", { productId: line.productId });
     productIds.add(line.productId);
   }
   return null;
@@ -116,6 +119,7 @@ function transition(
   if (!hasValidNow(now)) return invalid(state, "Command time is invalid.");
   const found = findPurchaseOrder<PurchaseOrder>(state, purchaseOrderId);
   if ("ok" in found) return found;
+  if (targetStatus === "cancelled" && purchaseOrderHasReceiptExecution(state, found.id)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Purchase Orders with approved receipts cannot be cancelled." });
   if (!canTransitionPurchaseOrder(found.status, targetStatus)) {
     return rejectErpCommand(state, { code: "INVALID_STATE", message: `Purchase order cannot move from ${found.status} to ${targetStatus}.` });
   }
@@ -161,6 +165,9 @@ export function createPurchaseOrder(state: ErpState, role: ErpRole, input: Purch
   if (quotation && warehouse.id !== requestForQuotation!.warehouseId) return invalid(state, "Purchase order warehouse must match its selected quotation RFQ.");
   if (quotation && quotation.supplierId !== supplier.id) return invalid(state, "Purchase order supplier must match its selected quotation.");
   if (quotation && !sameLines(quotation.lines, input.lines)) return invalid(state, "Purchase order lines must match its selected quotation.");
+  if (quotation && state.purchaseOrders.some((order) => order.supplierQuotationId === quotation.id && order.status !== "rejected" && order.status !== "cancelled")) {
+    return rejectErpCommand(state, { code: "INVALID_STATE", message: "Selected supplier quotation already backs an active or fulfilled purchase order." });
+  }
   if (!hasValidDate(input.confirmationDueAt) || !hasValidDate(input.promisedDeliveryDate)) return invalid(state, "Purchase order dates are invalid.");
   const lineError = validateLines<PurchaseOrder>(state, input.lines);
   if (lineError) return lineError;
@@ -183,16 +190,23 @@ export function createRequestForQuotation(state: ErpState, role: ErpRole, input:
   if (!hasValidNow(now)) return invalid(state, "Command time is invalid.");
   const warehouse = activeWarehouse<RequestForQuotation>(state, input.warehouseId);
   if ("ok" in warehouse) return warehouse;
-  if (input.purchaseRequestId && !state.purchaseRequests.some((request) => request.id === input.purchaseRequestId)) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Purchase request was not found." });
+  if (!input.purchaseRequestId) return invalid(state, "RFQ requires an approved purchase request.");
+  const purchaseRequest = state.purchaseRequests.find((request) => request.id === input.purchaseRequestId);
+  if (!purchaseRequest) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Purchase request was not found." });
+  if (purchaseRequest.status !== "approved") return rejectErpCommand(state, { code: "INVALID_STATE", message: "RFQ requires an approved purchase request." });
+  if (state.requestForQuotations.some((request) => request.purchaseRequestId === purchaseRequest.id && request.status !== "cancelled")) {
+    return rejectErpCommand(state, { code: "INVALID_STATE", message: "Purchase request already has an active RFQ." });
+  }
   if (input.supplierIds.length === 0 || new Set(input.supplierIds).size !== input.supplierIds.length) return invalid(state, "RFQ suppliers must be present and unique.");
   if (!input.supplierIds.every((supplierId) => state.suppliers.some((supplier) => supplier.id === supplierId && supplier.active))) return invalid(state, "RFQ supplier was not found or is inactive.");
   const lineError = validateRfqLines<RequestForQuotation>(state, input.lines);
   if (lineError) return lineError;
+  if (!sameRfqLines(input.lines, purchaseRequest.lines)) return invalid(state, "RFQ lines must match the approved purchase request demand exactly.");
   const quoteDueAt = input.quoteDueAt ?? now;
   if (!hasValidDate(quoteDueAt)) return invalid(state, "RFQ quote due date is invalid.");
   const rfqNumber = nextDocumentNumber("RFQ", now, state.requestForQuotations.map((request) => request.rfqNumber));
   const requestForQuotation: RequestForQuotation = {
-    id: documentId("request-for-quotation", rfqNumber), rfqNumber, purchaseRequestId: input.purchaseRequestId ?? null, warehouseId: warehouse.id,
+    id: documentId("request-for-quotation", rfqNumber), rfqNumber, purchaseRequestId: purchaseRequest.id, warehouseId: warehouse.id,
     requestedSupplierIds: [...input.supplierIds], selectedQuotationId: null, status: "open", quoteDueAt, lines: rfqLineCopies(input.lines), createdAt: now, updatedAt: now,
   };
   const next = appendErpAudit({ ...state, requestForQuotations: [...state.requestForQuotations, requestForQuotation] }, {
@@ -211,7 +225,7 @@ export function createSupplierQuotation(state: ErpState, role: ErpRole, input: S
   if (requestForQuotation.status !== "open") return rejectErpCommand(state, { code: "INVALID_STATE", message: "Supplier quotations can only be added to an open RFQ." });
   if (!requestForQuotation.requestedSupplierIds.includes(input.supplierId) || !state.suppliers.some((supplier) => supplier.id === input.supplierId && supplier.active)) return invalid(state, "Supplier is not an active RFQ participant.");
   if (state.supplierQuotations.some((quotation) => quotation.requestForQuotationId === requestForQuotation.id && quotation.supplierId === input.supplierId)) return invalid(state, "RFQ already has a quotation from this supplier.");
-  if (!hasValidDate(input.validUntil) || new Date(input.validUntil).getTime() < new Date(now).getTime()) return invalid(state, "Supplier quotation validity date is invalid.");
+  if (!isStrictIsoDate(input.validUntil) || input.validUntil < now.slice(0, 10)) return invalid(state, "Supplier quotation validity date is invalid.");
   const lineError = validateLines<SupplierQuotation>(state, input.lines);
   if (lineError) return lineError;
   if (!sameRfqLines(requestForQuotation.lines, input.lines)) return invalid(state, "Supplier quotation lines must match the RFQ quantities.");
@@ -250,6 +264,7 @@ export function selectSupplierQuotation(state: ErpState, role: ErpRole, quotatio
   const requestForQuotation = state.requestForQuotations.find((item) => item.id === quotation.requestForQuotationId);
   if (!requestForQuotation) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Request for quotation was not found." });
   if (requestForQuotation.status !== "compared" || quotation.status !== "submitted") return rejectErpCommand(state, { code: "INVALID_STATE", message: "Only a submitted quotation from a compared RFQ can be selected." });
+  if (!isStrictIsoDate(quotation.validUntil) || quotation.validUntil < now.slice(0, 10)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Expired supplier quotations cannot be selected." });
   const selected = { ...quotation, status: "selected" as const, updatedAt: now };
   const selectedRfq = { ...requestForQuotation, status: "selected" as const, selectedQuotationId: selected.id, updatedAt: now };
   const next = appendErpAudit({

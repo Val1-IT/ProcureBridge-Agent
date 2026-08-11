@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useErpCommands } from "@/components/erp-command-provider";
-import { setActiveRole } from "@/lib/erp/commands/master-data";
 import type { ErpRole } from "@/lib/erp/types";
 
 const roles: Array<{ value: ErpRole; label: string }> = [
@@ -19,11 +18,11 @@ export function formatErpRole(role: ErpRole): string {
 }
 
 export function RoleSwitcher({ activeRole }: { activeRole: ErpRole }) {
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const [error, setError] = useState<string | null>(null);
 
-  const changeRole = (nextRole: ErpRole) => {
-    const result = run((state) => setActiveRole(state, nextRole, new Date().toISOString()));
+  const changeRole = async (nextRole: ErpRole) => {
+    const result = await commands.setActiveRole(nextRole, new Date().toISOString());
     setError(result.ok ? null : result.error.message);
   };
 

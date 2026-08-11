@@ -8,8 +8,7 @@ import GoodsReceiptsPage, { executeReceiptApproval, executeReceiptDraftCreation 
 import { createSeedState } from "../lib/demo/seed";
 import type { DemoState } from "../lib/domain/types";
 import { buildReceiptPreparationRows } from "../lib/erp/purchasing-view-model";
-import type { ErpCommandResult } from "../lib/erp/errors";
-import type { ErpState } from "../lib/erp/types";
+import { createErpCommandExecutor } from "../lib/erp/command-intents";
 
 const harness = vi.hoisted(() => ({ query: "", state: null as DemoState | null }));
 
@@ -99,20 +98,16 @@ describe("inventory pages", () => {
     expect(html).toContain('max="40"');
   });
 
-  it("creates a partial receipt through the page boundary and routes approval to durable receipt context", () => {
+  it("creates a partial receipt through named commands and routes approval to durable receipt context", async () => {
     let erp = createSeedState().erp;
     erp.purchaseOrders[0] = { ...erp.purchaseOrders[0], status: "confirmed" };
     const selected = buildReceiptPreparationRows(erp)[0];
-    const run = <T,>(command: (state: ErpState) => ErpCommandResult<T>): ErpCommandResult<T> => {
-      const result = command(erp);
-      if (result.ok) erp = result.state;
-      return result;
-    };
+    const commands = createErpCommandExecutor(() => erp, (_expected, next) => { erp = next; return true; });
 
-    const draft = executeReceiptDraftCreation(run, selected, { "product-router": 10 }, "2026-08-09T10:00:00.000Z");
+    const draft = await executeReceiptDraftCreation(async (input, now) => commands.createGoodsReceipt(input, now), selected, { "product-router": 10 }, "2026-08-09T10:00:00.000Z");
     expect(draft).toMatchObject({ ok: true, value: { status: "draft", lines: [{ productId: "product-router", quantity: 10 }] } });
     let destination = "";
-    const approved = executeReceiptApproval(run, draft.ok ? draft.value.id : "missing", "2026-08-09T11:00:00.000Z", (href) => { destination = href; });
+    const approved = await executeReceiptApproval(async (id, now) => commands.approveGoodsReceipt(id, now), draft.ok ? draft.value.id : "missing", "2026-08-09T11:00:00.000Z", (href) => { destination = href; });
 
     expect(approved).toMatchObject({ ok: true, value: { status: "approved" } });
     expect(erp.purchaseOrders[0].status).toBe("partially_received");

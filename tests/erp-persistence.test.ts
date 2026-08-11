@@ -3,7 +3,7 @@ import type { DemoState } from "../lib/domain/types";
 import { deserializeDemoState, loadDemoState } from "../lib/demo/persistence";
 import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
-import { selectAvailableStock, selectIncomingStock, selectPhysicalStock, selectReservedStock } from "../lib/erp/selectors";
+import { selectAvailableStock, selectIncomingStock, selectPhysicalStock } from "../lib/erp/selectors";
 import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
 import { completeDelivery, confirmSalesOrder, createDeliveryOrder } from "../lib/erp/commands/sales";
 import { createCustomerInvoice, recordPayment, recordSupplierInvoice } from "../lib/erp/commands/finance";
@@ -17,7 +17,7 @@ function createStateWithLinkedSelectedQuotation() {
     { id: "request-b", requestNumber: "PR-2026-0002", requesterRole: "procurement", sourceSalesOrderId: null, status: "draft", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp },
   ];
   state.erp.requestForQuotations = [{ id: "rfq-linked", rfqNumber: "RFQ-2026-0001", purchaseRequestId: "request-a", warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-linked", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: timestamp, updatedAt: timestamp }];
-  state.erp.supplierQuotations = [{ id: "quotation-linked", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-linked", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp }];
+  state.erp.supplierQuotations = [{ id: "quotation-linked", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-linked", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: timestamp, updatedAt: timestamp }];
   state.erp.purchaseOrders[0] = { ...state.erp.purchaseOrders[0], supplierId: "supplier-kertas", purchaseRequestId: "request-a", supplierQuotationId: "quotation-linked", warehouseId: "warehouse-jakarta", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }] };
   return state;
 }
@@ -47,6 +47,16 @@ function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
 }
 
 describe("ERP persistence foundation", () => {
+  it.each([-1, 0.5, Number.MAX_SAFE_INTEGER + 1])("fails closed for unsafe ERP revision %s", (revision) => {
+    const malformed = createSeedState();
+    malformed.erp.revision = revision;
+
+    const loaded = loadDemoState(JSON.stringify(malformed));
+
+    expect(loaded.recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loaded.state.erp.revision).toBe(0);
+  });
+
   it("migrates schema v2 recovery data into schema v9 with a deterministic ERP slice", () => {
     const legacy = { ...createSeedState(), schemaVersion: 2 } as unknown as DemoState;
     delete (legacy as Partial<DemoState>).erp;
@@ -203,7 +213,7 @@ describe("ERP persistence foundation", () => {
     expect(loadDemoState(JSON.stringify(malformed)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
-  it("accepts a cancelled PO that retains valid partial receipt history", () => {
+  it("rejects a cancelled PO that retains approved partial receipt history", () => {
     const persisted = createSeedState();
     persisted.erp.purchaseOrders[0] = { ...persisted.erp.purchaseOrders[0], status: "cancelled" };
     persisted.erp.goodsReceipts.push({
@@ -215,7 +225,7 @@ describe("ERP persistence foundation", () => {
       actorRole: "warehouse", actorId: "role:warehouse", reason: "Approved GR-2026-0001", createdAt: "2026-08-09T10:00:00.000Z", updatedAt: "2026-08-09T10:00:00.000Z",
     });
 
-    expect(loadDemoState(JSON.stringify(persisted)).recoveryReason).toBeNull();
+    expect(loadDemoState(JSON.stringify(persisted)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
   it.each(["warehouse", "admin"] as const)("migrates a canonical v4 %s receipt actor without changing stock", (actorRole) => {
@@ -357,7 +367,7 @@ describe("ERP persistence foundation", () => {
       id: "rfq-router", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-kertas", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
     }];
     malformed.erp.supplierQuotations = [{
-      id: "quotation-kertas", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-router", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
+      id: "quotation-kertas", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-router", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z",
     }];
     malformed.erp.purchaseOrders[0].supplierQuotationId = "quotation-kertas";
 
@@ -373,11 +383,11 @@ describe("ERP persistence foundation", () => {
         { id: "rfq-a", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-utama"], selectedQuotationId: "quotation-b", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" },
         { id: "rfq-b", rfqNumber: "RFQ-2026-0002", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-kertas"], selectedQuotationId: "quotation-b", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" },
       ];
-      state.erp.supplierQuotations = [{ id: "quotation-b", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-b", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
+      state.erp.supplierQuotations = [{ id: "quotation-b", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-b", supplierId: "supplier-kertas", status: "selected", validUntil: "2026-08-20", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
     }],
     ["a selected RFQ points at a quotation that is not selected", (state: ReturnType<typeof createSeedState>) => {
       state.erp.requestForQuotations = [{ id: "rfq-submitted", rfqNumber: "RFQ-2026-0001", purchaseRequestId: null, warehouseId: "warehouse-jakarta", requestedSupplierIds: ["supplier-utama"], selectedQuotationId: "quotation-submitted", status: "selected", quoteDueAt: "2026-08-10T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
-      state.erp.supplierQuotations = [{ id: "quotation-submitted", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-submitted", supplierId: "supplier-utama", status: "submitted", validUntil: "2026-08-20T00:00:00.000Z", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
+      state.erp.supplierQuotations = [{ id: "quotation-submitted", quotationNumber: "SQ-2026-0001", requestForQuotationId: "rfq-submitted", supplierId: "supplier-utama", status: "submitted", validUntil: "2026-08-20", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_000_000 }], createdAt: "2026-08-09T00:00:00.000Z", updatedAt: "2026-08-09T00:00:00.000Z" }];
     }],
   ])("fails closed when %s", (_case, mutate) => {
     const malformed = createSeedState();
@@ -500,7 +510,7 @@ describe("sales persistence evidence", () => {
     expect(loadDemoState(JSON.stringify(withCancelledHistory)).recoveryReason).toBeNull();
   });
 
-  it("rejects a cancelled Sales Order whose delivery evidence proves every line was delivered", () => {
+  it("rejects a cancelled Sales Order after any posted delivery evidence", () => {
     const partiallyDelivered = createPostedDeliveryState();
     partiallyDelivered.erp.salesOrders[0].status = "cancelled";
     const state = createPostedDeliveryState();
@@ -509,17 +519,14 @@ describe("sales persistence evidence", () => {
     state.erp.deliveryOrders[0].lines[0].quantity = 20;
     state.erp.stockMovements.at(-1)!.quantity = 20;
 
-    const partialLoaded = loadDemoState(JSON.stringify(partiallyDelivered));
-    expect(partialLoaded.recoveryReason).toBeNull();
-    expect(selectReservedStock(partialLoaded.state.erp, "product-router")).toBe(0);
+    expect(loadDemoState(JSON.stringify(partiallyDelivered)).recoveryReason).toBe("INVALID_SCHEMA");
     expect(loadDemoState(JSON.stringify(state)).recoveryReason).toBe("INVALID_SCHEMA");
   });
 
-  it("migrates a genuine v5 partial delivery without changing physical stock or delivery evidence", () => {
+  it("migrates a covered v5 partial delivery and fails closed instead of cancelling an executed uncovered order", () => {
     const covered = createLegacyV5PartialDelivery(20, 10);
     const uncovered = createLegacyV5PartialDelivery(35, 12);
     const coveredPhysical = selectPhysicalStock(covered.erp, "product-router");
-    const uncoveredPhysical = selectPhysicalStock(uncovered.erp, "product-router");
 
     const coveredLoaded = loadDemoState(JSON.stringify(covered));
     const uncoveredLoaded = loadDemoState(JSON.stringify(uncovered));
@@ -530,12 +537,7 @@ describe("sales persistence evidence", () => {
     expect(coveredLoaded.state.erp.deliveryOrders).toEqual(covered.erp.deliveryOrders);
     expect(coveredLoaded.state.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order"))
       .toEqual(covered.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order").map((movement) => ({ ...movement, type: "delivery" })));
-    expect(uncoveredLoaded.recoveryReason).toBeNull();
-    expect(uncoveredLoaded.state.erp.salesOrders[0]).toMatchObject({ status: "cancelled", lines: [{ quantity: 35, deliveredQuantity: 8 }] });
-    expect(selectPhysicalStock(uncoveredLoaded.state.erp, "product-router")).toBe(uncoveredPhysical);
-    expect(uncoveredLoaded.state.erp.deliveryOrders).toEqual(uncovered.erp.deliveryOrders);
-    expect(uncoveredLoaded.state.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order"))
-      .toEqual(uncovered.erp.stockMovements.filter((movement) => movement.sourceType === "delivery_order").map((movement) => ({ ...movement, type: "delivery" })));
+    expect(uncoveredLoaded.recoveryReason).toBe("INVALID_SCHEMA");
   });
 
   it("keeps or releases genuine v5 confirmed reservations according to v6 coverage", () => {

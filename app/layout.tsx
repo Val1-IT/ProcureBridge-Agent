@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { DemoStoreProvider } from "@/components/demo-store-provider";
-import { JudgeDemoProvider } from "@/components/judge-demo-provider";
 import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
@@ -27,5 +26,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><DemoStoreProvider><JudgeDemoProvider><AppShell>{children}</AppShell></JudgeDemoProvider></DemoStoreProvider></body></html>;
+  return <html lang="en"><body><DemoStoreProvider><AppShell>{children}</AppShell></DemoStoreProvider></body></html>;
 }

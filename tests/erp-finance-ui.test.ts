@@ -6,8 +6,7 @@ import ReceivablesPage, { executeCustomerInvoiceCreation } from "../app/finance/
 import PaymentsPage, { executePaymentRecording, PaymentConfirmationPanel } from "../app/finance/payments/page";
 import { createSeedState } from "../lib/demo/seed";
 import type { DemoState } from "../lib/domain/types";
-import type { ErpCommandResult } from "../lib/erp/errors";
-import type { ErpState } from "../lib/erp/types";
+import { createErpCommandExecutor } from "../lib/erp/command-intents";
 
 const harness = vi.hoisted(() => ({ state: null as DemoState | null }));
 
@@ -108,22 +107,18 @@ describe("finance pages", () => {
     expect(panel).toContain("Cancel preview");
   });
 
-  it("routes invoice and payment mutations through the ERP command runner", () => {
+  it("routes invoice and payment mutations through closed named ERP commands", async () => {
     let erp = financeState().erp;
     erp.supplierInvoices = [];
     erp.customerInvoices = [];
     erp.payments = [];
     erp.purchaseOrders[0].status = "partially_received";
     erp.salesOrders[0] = { ...erp.salesOrders[0], status: "partially_delivered", lines: [{ ...erp.salesOrders[0].lines[0], deliveredQuantity: 8 }] };
-    const run = <T,>(command: (state: ErpState) => ErpCommandResult<T>): ErpCommandResult<T> => {
-      const result = command(erp);
-      if (result.ok) erp = result.state;
-      return result;
-    };
+    const commands = createErpCommandExecutor(() => erp, (_expected, next) => { erp = next; return true; });
 
-    const payable = executeSupplierInvoiceCreation(run, "finance", { purchaseOrderId: erp.purchaseOrders[0].id, sourceDocumentIds: ["receipt-finance"], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
-    const receivable = executeCustomerInvoiceCreation(run, "finance", { salesOrderId: erp.salesOrders[0].id, sourceDocumentIds: ["delivery-finance"], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
-    const payment = executePaymentRecording(run, "finance", { invoiceId: payable.ok ? payable.value.id : "missing", direction: "payable", amount: 5_000_000 }, "2026-08-11T10:00:00.000Z");
+    const payable = await executeSupplierInvoiceCreation(async (input, now) => commands.recordSupplierInvoice(input, now), { purchaseOrderId: erp.purchaseOrders[0].id, sourceDocumentIds: ["receipt-finance"], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
+    const receivable = await executeCustomerInvoiceCreation(async (input, now) => commands.createCustomerInvoice(input, now), { salesOrderId: erp.salesOrders[0].id, sourceDocumentIds: ["delivery-finance"], dueDate: "2026-09-08" }, "2026-08-10T10:00:00.000Z");
+    const payment = await executePaymentRecording(async (input, now) => commands.recordPayment(input, now), { invoiceId: payable.ok ? payable.value.id : "missing", direction: "payable", amount: 5_000_000 }, "2026-08-11T10:00:00.000Z");
 
     expect(payable).toMatchObject({ ok: true, value: { totalAmount: 10_500_000 } });
     expect(receivable).toMatchObject({ ok: true, value: { totalAmount: 12_000_000 } });

@@ -6,31 +6,28 @@ import { useState } from "react";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
+import type { AsyncErpCommandExecutor } from "@/components/erp-command-provider";
 import { StatusChip } from "@/components/status-chip";
-import { cancelSalesOrder, confirmSalesOrder, createPurchaseRequestFromShortage } from "@/lib/erp/commands/sales";
-import type { ErpCommandResult } from "@/lib/erp/errors";
 import { authorize } from "@/lib/erp/permissions";
+import { canCancelSalesOrder } from "@/lib/erp/order-cancellation";
 import { selectSalesOrderLineAvailability, selectSalesOrderReservedQuantity, selectSalesShortage } from "@/lib/erp/selectors";
-import type { ErpRole, ErpState, PurchaseRequest, SalesOrder } from "@/lib/erp/types";
 
-type SalesCommandRunner = <T,>(command: (state: ErpState) => ErpCommandResult<T>) => ErpCommandResult<T>;
-
-export function executeSalesOrderConfirmation(run: SalesCommandRunner, role: ErpRole, salesOrderId: string, now: string): ErpCommandResult<SalesOrder> {
-  return run((erp) => confirmSalesOrder(erp, role, salesOrderId, now));
+export function executeSalesOrderConfirmation(commands: Pick<AsyncErpCommandExecutor, "confirmSalesOrder">, salesOrderId: string, now: string) {
+  return commands.confirmSalesOrder(salesOrderId, now);
 }
 
-export function executeSalesOrderCancellation(run: SalesCommandRunner, role: ErpRole, salesOrderId: string, now: string): ErpCommandResult<SalesOrder> {
-  return run((erp) => cancelSalesOrder(erp, role, salesOrderId, now));
+export function executeSalesOrderCancellation(commands: Pick<AsyncErpCommandExecutor, "cancelSalesOrder">, salesOrderId: string, now: string) {
+  return commands.cancelSalesOrder(salesOrderId, now);
 }
 
-export function executeShortagePurchaseRequest(run: SalesCommandRunner, role: ErpRole, salesOrderId: string, now: string): ErpCommandResult<PurchaseRequest> {
-  return run((erp) => createPurchaseRequestFromShortage(erp, role, salesOrderId, now));
+export function executeShortagePurchaseRequest(commands: Pick<AsyncErpCommandExecutor, "createPurchaseRequestFromShortage">, salesOrderId: string, now: string) {
+  return commands.createPurchaseRequestFromShortage(salesOrderId, now);
 }
 
 export default function SalesOrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const [message, setMessage] = useState<string | null>(null);
   const order = state.erp.salesOrders.find((item) => item.id === orderId);
   if (!order) return <><PageHeader eyebrow="Sales • Demo Data" title="Sales Order not found" description="Reload the list to use the latest persisted state." /><Link className="button" href="/sales/orders">Back to Sales Orders</Link></>;
@@ -39,13 +36,13 @@ export default function SalesOrderDetailPage() {
   const requests = state.erp.purchaseRequests.filter((request) => request.sourceSalesOrderId === order.id);
   const deliveries = state.erp.deliveryOrders.filter((delivery) => delivery.salesOrderId === order.id);
   const mayWrite = authorize(state.erp.activeRole, "sales.write");
-  const canCancel = mayWrite && ["draft", "confirmed", "partially_delivered"].includes(order.status);
+  const canCancel = canCancelSalesOrder(state.erp, state.erp.activeRole, order.id);
 
-  function perform(kind: "confirm" | "cancel" | "request") {
+  async function perform(kind: "confirm" | "cancel" | "request") {
     const now = new Date().toISOString();
-    const result = kind === "confirm" ? executeSalesOrderConfirmation(run, state.erp.activeRole, order!.id, now)
-      : kind === "cancel" ? executeSalesOrderCancellation(run, state.erp.activeRole, order!.id, now)
-        : executeShortagePurchaseRequest(run, state.erp.activeRole, order!.id, now);
+    const result = kind === "confirm" ? await executeSalesOrderConfirmation(commands, order!.id, now)
+      : kind === "cancel" ? await executeSalesOrderCancellation(commands, order!.id, now)
+        : await executeShortagePurchaseRequest(commands, order!.id, now);
     setMessage(result.ok ? "Sales command committed with one revision and audit event." : result.error.message);
   }
 

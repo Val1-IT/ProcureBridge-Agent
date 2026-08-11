@@ -8,26 +8,25 @@ import { useErpCommands } from "@/components/erp-command-provider";
 import { DocumentStatusTimeline } from "@/components/erp/document-status-timeline";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { cancelPurchaseOrder } from "@/lib/erp/commands/purchasing";
-import { authorize } from "@/lib/erp/permissions";
-import { buildPurchaseOrderDetailModel, executePurchaseOrderAction, type PurchaseOrderCommandAction, type PurchaseOrderPrimaryAction } from "@/lib/erp/purchasing-view-model";
+import { canCancelPurchaseOrder } from "@/lib/erp/order-cancellation";
+import { buildPurchaseOrderDetailModel, type PurchaseOrderCommandAction, type PurchaseOrderPrimaryAction } from "@/lib/erp/purchasing-view-model";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 
 const actionCopy: Readonly<Record<PurchaseOrderPrimaryAction, string>> = { submit: "Ajukan approval", approve: "Approve purchase order", confirm: "Catat konfirmasi supplier", prepare_receipt: "Siapkan goods receipt" };
 
 export default function PurchaseOrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const { state } = useDemoStore(); const { run } = useErpCommands();
+  const { state } = useDemoStore(); const commands = useErpCommands();
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const model = buildPurchaseOrderDetailModel(state.erp, state.erp.activeRole, orderId, state.updatedAt);
   if (!model) return <><PageHeader eyebrow="Purchasing â€¢ Demo Data" title="Purchase Order tidak ditemukan" description="Dokumen mungkin berubah di halaman lain. Kembali ke daftar untuk memuat state terbaru." /><Link className="button" href="/purchasing/orders">Kembali ke Purchase Orders</Link></>;
-  const canCancel = authorize(state.erp.activeRole, "purchase.write") && ["draft", "pending_approval", "sent", "confirmed", "partially_received"].includes(model.purchaseOrder.status);
-  const perform = (action: PurchaseOrderCommandAction) => {
-    const result = run((erp) => executePurchaseOrderAction(erp, state.erp.activeRole, action, orderId, new Date().toISOString()));
+  const canCancel = canCancelPurchaseOrder(state.erp, state.erp.activeRole, model.purchaseOrder.id);
+  const perform = async (action: PurchaseOrderCommandAction) => {
+    const result = await commands.purchaseOrderAction(action, orderId, new Date().toISOString());
     setMessage(result.ok ? { tone: "success", text: `${result.value.orderNumber} berpindah ke ${result.value.status} melalui command ERP.` } : { tone: "error", text: result.error.message });
   };
-  const cancel = () => {
-    const result = run((erp) => cancelPurchaseOrder(erp, state.erp.activeRole, orderId, new Date().toISOString()));
+  const cancel = async () => {
+    const result = await commands.cancelPurchaseOrder(orderId, new Date().toISOString());
     setMessage(result.ok ? { tone: "success", text: `${result.value.orderNumber} dibatalkan dan dicatat di audit.` } : { tone: "error", text: result.error.message });
   };
 

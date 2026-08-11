@@ -10,13 +10,13 @@ import { useJudgeDemo } from "@/components/judge-demo-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { saveSupplierCallApproval, type SaveSupplierCallApprovalInput } from "@/lib/erp/commands/supplier-calls";
-import { recordSupplierCallStarted } from "@/lib/erp/commands/supplier-results";
+import type { SaveSupplierCallApprovalInput } from "@/lib/erp/commands/supplier-calls";
 import { evaluateSupplierCallEligibility } from "@/lib/erp/guardrails/supplier-call";
 import { authorize } from "@/lib/erp/permissions";
 import { selectAvailableStock } from "@/lib/erp/selectors";
 import type { CreateSupplierCallResult } from "@/lib/supplier-call/types";
 import { formatCurrency } from "@/lib/format";
+import { approveAndRegisterSupplierCall, isSupplierCallStartUnlocked, recordStartedSupplierCallAfterServerClaim, type BrowserSupplierCallApprovalBinding } from "@/lib/supplier-call/browser-approval";
 import { getSampledJakartaClock } from "@/lib/supplier-call/jakarta-clock";
 
 function callIdForPurchaseOrder(purchaseOrderId: string): string {
@@ -28,9 +28,10 @@ export default function SupplierFollowUpBriefPage() {
   const router = useRouter();
   const { state, hydrated } = useDemoStore();
   const { session } = useJudgeDemo();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [approvalBinding, setApprovalBinding] = useState<BrowserSupplierCallApprovalBinding | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   useEffect(() => { const sample = () => setCurrentTime(new Date()); sample(); const timer = window.setInterval(sample, 30_000); return () => window.clearInterval(timer); }, []);
   const purchaseOrder = state.erp.purchaseOrders.find((item) => item.id === purchaseOrderId);
@@ -38,6 +39,7 @@ export default function SupplierFollowUpBriefPage() {
   const callId = callIdForPurchaseOrder(purchaseOrderId);
   const call = state.erp.supplierCalls.find((item) => item.id === callId) ?? null;
   const approval = state.erp.supplierApprovals.find((item) => item.supplierCallId === callId) ?? null;
+  useEffect(() => { setApprovalBinding(null); }, [approval?.approvedAt, callId, state.demoSessionId]);
   const demoClockIso = session?.active && typeof session.step === "string" && session.providerMode === "mock" ? session.demoClockIso : null;
   const clock = getSampledJakartaClock(demoClockIso ? new Date(demoClockIso) : currentTime);
   const callsToday = clock ? state.erp.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === clock.date).length : 0;
@@ -47,11 +49,26 @@ export default function SupplierFollowUpBriefPage() {
   const displayedDecision = decision ?? { allowed: false, codes: [], reasons: ["Current Jakarta time pending."] };
 
   const impactedOrders = state.erp.salesOrders.filter((order) => order.lines.some((line) => purchaseOrder.lines.some((poLine) => poLine.productId === line.productId) && selectAvailableStock(state.erp, line.productId) < line.quantity));
-  const save = (input: SaveSupplierCallApprovalInput) => {
-    const result = run((current) => saveSupplierCallApproval(current, current.activeRole, input, new Date().toISOString()));
-    setError(result.ok ? null : result.error.message);
+  const save = async (input: SaveSupplierCallApprovalInput) => {
+    setBusy(true); setError(null); setApprovalBinding(null);
+    try {
+      const approvedAt = new Date().toISOString();
+      const result = await approveAndRegisterSupplierCall({
+        demoSessionId: state.demoSessionId,
+        approval: input,
+        approvedAt,
+        saveApproval: commands.saveSupplierCallApproval,
+      });
+      setApprovalBinding(result.ok ? { approvalCapability: result.approvalCapability, approvedAt } : null);
+      setError(result.error);
+    } catch {
+      setApprovalBinding(null);
+      setError("Unable to register supplier call approval.");
+    } finally { setBusy(false); }
   };
   const start = async () => {
+    const binding = approvalBinding;
+    if (!binding || !isSupplierCallStartUnlocked(true, binding, approval?.approvedAt ?? null)) { setError("Save Approval in this tab before starting the supplier call."); return; }
     setBusy(true); setError(null);
     try {
       const sampled = demoClockIso ? new Date(demoClockIso) : new Date();
@@ -61,10 +78,16 @@ export default function SupplierFollowUpBriefPage() {
       const sampledCallsToday = state.erp.supplierCalls.filter((item) => item.purchaseOrderId === purchaseOrderId && item.calledLocalDate === sampledClock.date).length;
       const sampledDecision = evaluateSupplierCallEligibility({ supplier, purchaseOrder, approval, localTime: sampledClock.time, callsToday: sampledCallsToday, openDispute });
       if (!sampledDecision.allowed) throw new Error(sampledDecision.reasons.join(" "));
-      const response = await fetch("/api/supplier-calls?forceMock=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ callId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: state.demoSessionId, ...(demoClockIso ? { demoClockIso } : {}) }) });
+      setApprovalBinding(null);
+      const response = await fetch("/api/supplier-calls?forceMock=1", { method: "POST", headers: { "content-type": "application/json", "x-supplier-call-approval": binding.approvalCapability }, body: JSON.stringify({ callId, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: state.demoSessionId, ...(demoClockIso ? { demoClockIso } : {}) }) });
       const payload = await response.json() as { call?: CreateSupplierCallResult; error?: string };
       if (!response.ok || !payload.call) throw new Error(payload.error ?? "Unable to start supplier simulation.");
-      const recorded = run((current) => recordSupplierCallStarted(current, current.activeRole, callId, payload.call!, sampledClock.sampledAt));
+      const recorded = await recordStartedSupplierCallAfterServerClaim({
+        callId,
+        providerResult: payload.call,
+        startedAt: sampledClock.sampledAt,
+        recordStarted: commands.recordSupplierCallStarted,
+      });
       if (!recorded.ok) throw new Error(recorded.error.message);
       router.push(`/supplier-calls/${callId}`);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Unable to start supplier simulation."); }
@@ -83,7 +106,7 @@ export default function SupplierFollowUpBriefPage() {
         <article className="brief-card"><div className="panel-title"><h2>Mandatory confirmations</h2><span>BEFORE CLOSE</span></div><ol className="activity-list"><li><span className="activity-dot" /><div><strong>Confirm the exact PO and products</strong><p>No unrelated order may be discussed.</p></div></li><li><span className="activity-dot" /><div><strong>Repeat delivery dates and quantities</strong><p>Every extracted commitment remains pending human review.</p></div></li><li><span className="activity-dot" /><div><strong>Escalate discrepancies</strong><p>The agent cannot approve a price change.</p></div></li></ol></article>
         <GuardrailPanel decision={displayedDecision} pending={!clock} />
       </div>
-      <ApprovalForm callId={callId} purchaseOrder={purchaseOrder} products={state.erp.products} approval={approval} initialScenario={call?.scenario ?? "delivery_commitment"} canApprove={authorize(state.erp.activeRole, "call.approve")} startAllowed={Boolean(hydrated && clock && call?.status === "draft" && decision?.allowed && authorize(state.erp.activeRole, "call.approve"))} busy={busy} error={error} currentCallTime={clock?.time ?? null} onSave={save} onStart={start} />
+      <ApprovalForm callId={callId} purchaseOrder={purchaseOrder} products={state.erp.products} approval={approval} initialScenario={call?.scenario ?? "delivery_commitment"} canApprove={authorize(state.erp.activeRole, "call.approve")} startAllowed={isSupplierCallStartUnlocked(Boolean(hydrated && clock && call?.status === "draft" && decision?.allowed && authorize(state.erp.activeRole, "call.approve")), approvalBinding, approval?.approvedAt ?? null)} busy={busy} error={error} currentCallTime={clock?.time ?? null} onSave={save} onStart={start} />
     </section>
   </>;
 }

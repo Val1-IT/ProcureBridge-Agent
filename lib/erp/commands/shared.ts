@@ -2,6 +2,9 @@ import type { ErpCommandResult, ErpError } from "../errors";
 import type { ErpAuditEvent, ErpRole, ErpState } from "../types";
 
 export function commitErpState<T>(before: ErpState, next: Omit<ErpState, "revision">, value: T): ErpCommandResult<T> {
+  if (!Number.isSafeInteger(before.revision) || before.revision < 0 || before.revision >= Number.MAX_SAFE_INTEGER) {
+    return rejectErpCommand(before, { code: "INVALID_STATE", message: "ERP revision cannot advance safely." });
+  }
   return { ok: true, state: { ...next, revision: before.revision + 1 }, value };
 }
 

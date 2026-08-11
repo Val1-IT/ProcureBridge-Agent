@@ -1,6 +1,7 @@
 import { nextDocumentNumber } from "../document-numbers";
 import type { ErpCommandResult } from "../errors";
 import { authorize } from "../permissions";
+import { salesOrderHasDeliveryExecution } from "../order-cancellation";
 import { selectPhysicalStock, selectSalesShortage } from "../selectors";
 import { canTransitionSalesOrder } from "../transitions/sales-order";
 import type { DeliveryOrder, ErpRole, ErpState, PurchaseRequest, QuantityLine, SalesOrder, SalesOrderLine, StockMovement } from "../types";
@@ -129,6 +130,7 @@ export function cancelSalesOrder(state: ErpState, role: ErpRole, salesOrderId: s
   if (!hasValidNow(now)) return invalid(state, "Command time is invalid.");
   const found = findSalesOrder<SalesOrder>(state, salesOrderId);
   if ("ok" in found) return found;
+  if (salesOrderHasDeliveryExecution(state, found.id)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Sales Orders with posted deliveries cannot be cancelled." });
   if (!canTransitionSalesOrder(found.status, "cancelled")) return rejectErpCommand(state, { code: "INVALID_STATE", message: `Sales order cannot move from ${found.status} to cancelled.` });
   const cancelled: SalesOrder = { ...found, status: "cancelled", updatedAt: now };
   const staged = {

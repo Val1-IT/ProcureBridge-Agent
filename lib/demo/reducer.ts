@@ -6,7 +6,6 @@ import type { AuditLog, CallApproval, CallRecord, DemoState, StructuredResult, T
 import type { SimulationSpeed } from "./simulation";
 
 export type DemoAction =
-  | { type: "HYDRATE"; state: DemoState }
   | { type: "RESET" }
   | { type: "REGISTER_CALL_DRAFT"; call: CallRecord }
   | { type: "SAVE_APPROVAL"; approval: CallApproval }
@@ -58,8 +57,6 @@ function applyCallTransition(state: DemoState, callId: string, event: CallEvent)
 
 export function demoReducer(state: DemoState, action: DemoAction): DemoState {
   switch (action.type) {
-    case "HYDRATE":
-      return action.state;
     case "RESET":
       return createSeedState(createDemoSessionId());
     case "REGISTER_CALL_DRAFT":

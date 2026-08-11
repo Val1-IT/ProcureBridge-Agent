@@ -7,31 +7,31 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { approveGoodsReceipt, createGoodsReceipt } from "@/lib/erp/commands/inventory";
 import type { ErpCommandResult } from "@/lib/erp/errors";
 import { authorize } from "@/lib/erp/permissions";
 import { buildReceiptPreparationRows, selectReceiptPreparationFromSearchParams, type ReceiptPreparationRow } from "@/lib/erp/purchasing-view-model";
 import { selectPhysicalStock } from "@/lib/erp/selectors";
-import type { ErpState, GoodsReceipt } from "@/lib/erp/types";
+import type { GoodsReceipt } from "@/lib/erp/types";
 
-type ReceiptCommandRunner = <T,>(command: (state: ErpState) => ErpCommandResult<T>) => ErpCommandResult<T>;
+type ReceiptCreationCommand = (input: { purchaseOrderId: string; lines: Array<{ productId: string; quantity: number }> }, now: string) => Promise<ErpCommandResult<GoodsReceipt>>;
+type ReceiptApprovalCommand = (goodsReceiptId: string, now: string) => Promise<ErpCommandResult<GoodsReceipt>>;
 
-export function executeReceiptDraftCreation(run: ReceiptCommandRunner, selected: ReceiptPreparationRow, quantities: Readonly<Record<string, number>>, now: string): ErpCommandResult<GoodsReceipt> {
-  return run((erp) => createGoodsReceipt(erp, erp.activeRole, {
+export function executeReceiptDraftCreation(command: ReceiptCreationCommand, selected: ReceiptPreparationRow, quantities: Readonly<Record<string, number>>, now: string): Promise<ErpCommandResult<GoodsReceipt>> {
+  return command({
     purchaseOrderId: selected.purchaseOrderId,
     lines: selected.lines.map((line) => ({ productId: line.productId, quantity: quantities[line.productId] ?? line.outstandingQuantity })).filter((line) => line.quantity > 0),
-  }, now));
+  }, now);
 }
 
-export function executeReceiptApproval(run: ReceiptCommandRunner, goodsReceiptId: string, now: string, navigate: (href: string) => void): ErpCommandResult<GoodsReceipt> {
-  const result = run((erp) => approveGoodsReceipt(erp, erp.activeRole, goodsReceiptId, now));
+export async function executeReceiptApproval(command: ReceiptApprovalCommand, goodsReceiptId: string, now: string, navigate: (href: string) => void): Promise<ErpCommandResult<GoodsReceipt>> {
+  const result = await command(goodsReceiptId, now);
   if (result.ok) navigate(`/purchasing/receipts?goodsReceiptId=${result.value.id}&purchaseOrderId=${result.value.purchaseOrderId}&status=approved`);
   return result;
 }
 
 export default function GoodsReceiptsPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [draftId, setDraftId] = useState<string | null>(null);
@@ -47,19 +47,19 @@ export default function GoodsReceiptsPage() {
   const currentDraft = linkedDraft ?? (draftId ? state.erp.goodsReceipts.find((receipt) => receipt.id === draftId && receipt.status === "draft") ?? null : null);
   const mayReceive = authorize(state.erp.activeRole, "stock.receive");
 
-  function createDraft() {
+  async function createDraft() {
     if (!selected) return;
     setError(null);
     const requested = Object.fromEntries(selected.lines.map((line) => [line.productId, Number(quantities[`${selected.purchaseOrderId}:${line.productId}`] ?? line.outstandingQuantity)]));
-    const result = executeReceiptDraftCreation(run, selected, requested, new Date().toISOString());
+    const result = await executeReceiptDraftCreation(commands.createGoodsReceipt, selected, requested, new Date().toISOString());
     if (!result.ok) { setError(result.error.message); return; }
     setDraftId(result.value.id);
   }
 
-  function approveDraft() {
+  async function approveDraft() {
     if (!currentDraft) return;
     setError(null);
-    const result = executeReceiptApproval(run, currentDraft.id, new Date().toISOString(), (href) => router.replace(href));
+    const result = await executeReceiptApproval(commands.approveGoodsReceipt, currentDraft.id, new Date().toISOString(), (href) => router.replace(href));
     if (!result.ok) { setError(result.error.message); return; }
     setDraftId(null);
   }

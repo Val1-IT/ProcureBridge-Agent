@@ -13,13 +13,12 @@ import { useJudgeDemo } from "./judge-demo-provider";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { state, hydrated, recoveryReason, dismissRecovery } = useDemoStore();
+  const { state, hydrated, recoveryReason, dismissRecovery, persistenceConflict, dismissPersistenceConflict } = useDemoStore();
   const { session, start, startFallback, resetDemo, setSpeed } = useJudgeDemo();
 
-  const reset = () => {
+  const reset = async () => {
     if (!window.confirm("Reset seluruh perubahan Demo Data ke kondisi awal? Sesi browser baru akan dibuat dan hanya data simulasi lokal yang dihapus.")) return;
-    resetDemo();
-    dismissRecovery();
+    await resetDemo();
   };
 
   if (!hydrated) return <main className="boot-screen"><div className="boot-mark">AD</div><p>Preparing Distributor ERP Demo Data and command policies…</p></main>;
@@ -58,6 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="topbar-role"><RoleSwitcher activeRole={state.erp.activeRole} /><div className="operator"><span>DO</span><div><strong>Demo Operator</strong><small>{formatErpRole(state.erp.activeRole)}</small></div></div></div>
         </div>
         {recoveryReason ? <section className="recovery-banner" role="alert"><div><strong>Browser data dipulihkan ke Demo Data yang aman.</strong><p>Data tersimpan tidak valid ({recoveryReason === "INVALID_JSON" ? "format JSON rusak" : "schema tidak dikenali"}) dan tidak digunakan. Legacy Recovery records remain supported when valid.</p></div><div><button className="button" type="button" onClick={reset}>Reset Demo Data</button><button className="button button-secondary" type="button" onClick={dismissRecovery} aria-label="Tutup pemberitahuan pemulihan">Tutup</button></div></section> : null}
+        {persistenceConflict ? <section className="recovery-banner" role="alert"><div><strong>Perubahan tidak disimpan.</strong><p>{persistenceConflict}</p></div><button className="button button-secondary" type="button" onClick={dismissPersistenceConflict}>Tutup</button></section> : null}
         <main className="page-content">{children}</main>
         <ErpDemoGuide />
         <JudgeDemoGuide />

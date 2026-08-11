@@ -6,22 +6,22 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { recordSupplierInvoice, type SupplierInvoiceInput } from "@/lib/erp/commands/finance";
+import type { SupplierInvoiceInput } from "@/lib/erp/commands/finance";
 import type { ErpCommandResult } from "@/lib/erp/errors";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { authorize } from "@/lib/erp/permissions";
 import { selectPayableRows } from "@/lib/erp/selectors-finance";
-import type { ErpRole, ErpState, TradeInvoice } from "@/lib/erp/types";
+import type { TradeInvoice } from "@/lib/erp/types";
 
-type FinanceCommandRunner = <T,>(command: (state: ErpState) => ErpCommandResult<T>) => ErpCommandResult<T>;
+type SupplierInvoiceCommand = (input: SupplierInvoiceInput, now: string) => Promise<ErpCommandResult<TradeInvoice>>;
 
-export function executeSupplierInvoiceCreation(run: FinanceCommandRunner, role: ErpRole, input: SupplierInvoiceInput, now: string): ErpCommandResult<TradeInvoice> {
-  return run((state) => recordSupplierInvoice(state, role, input, now));
+export function executeSupplierInvoiceCreation(command: SupplierInvoiceCommand, input: SupplierInvoiceInput, now: string): Promise<ErpCommandResult<TradeInvoice>> {
+  return command(input, now);
 }
 
 export default function PayablesPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const selectedInvoiceId = useSearchParams()?.get("invoiceId") ?? null;
   const rows = selectPayableRows(state.erp);
   const visibleRows = selectedInvoiceId ? rows.filter((row) => row.id === selectedInvoiceId) : rows;
@@ -32,10 +32,10 @@ export default function PayablesPage() {
   const [message, setMessage] = useState<string | null>(null);
   const mayWrite = authorize(state.erp.activeRole, "finance.write");
 
-  function createInvoice() {
+  async function createInvoice() {
     const receipt = state.erp.goodsReceipts.find((item) => item.id === sourceId);
     if (!receipt) return;
-    const result = executeSupplierInvoiceCreation(run, state.erp.activeRole, { purchaseOrderId: receipt.purchaseOrderId, sourceDocumentIds: [receipt.id], dueDate }, new Date().toISOString());
+    const result = await executeSupplierInvoiceCreation(commands.recordSupplierInvoice, { purchaseOrderId: receipt.purchaseOrderId, sourceDocumentIds: [receipt.id], dueDate }, new Date().toISOString());
     setMessage(result.ok ? `${result.value.invoiceNumber} recorded without inventory mutation.` : result.error.message);
     if (result.ok) setSourceId("");
   }

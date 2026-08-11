@@ -5,6 +5,7 @@ import { isStrictIsoDate, isStrictIsoInstant } from "../date-validation";
 import type { ErpCommandResult } from "../errors";
 import { evaluateSupplierCallEligibility } from "../guardrails/supplier-call";
 import { authorize } from "../permissions";
+import { isPositiveWholeQuantity } from "../quantity";
 import type { ErpDispute, ErpFollowUp, ErpRole, ErpState, SupplierCall, SupplierCallResult, SupplierCallScenario } from "../types";
 import { appendErpAudit, commitErpState, isErpRole, rejectErpCommand } from "./shared";
 
@@ -76,17 +77,21 @@ function scenarioDraft(call: SupplierCall, maximumDeliveryDate: string): Omit<Su
   }
 }
 
-function findPendingResult(state: ErpState, resultId: string): { result: SupplierCallResult; call: SupplierCall } | ErpCommandResult<never> {
+function findResultForStatuses(state: ErpState, resultId: string, allowedStatuses: readonly SupplierCallResult["status"][]): { result: SupplierCallResult; call: SupplierCall } | ErpCommandResult<never> {
   const result = state.supplierResults.find((item) => item.id === resultId);
   if (!result) return reject(state, "NOT_FOUND", "Supplier call result was not found.");
-  if (result.status !== "pending") return reject(state, "INVALID_STATE", "Supplier call result has already been reviewed.");
+  if (!allowedStatuses.includes(result.status)) return reject(state, "INVALID_STATE", "Supplier call result is not in a reviewable state.");
   const call = state.supplierCalls.find((item) => item.id === result.supplierCallId);
-  if (!call || call.status !== "completed" || !call.provider || !call.providerCallId
+  if (!call || !["completed", "ended_early"].includes(call.status) || !call.provider || !call.providerCallId
     || call.supplierId !== result.supplierId || call.purchaseOrderId !== result.purchaseOrderId
     || call.scenario !== result.sourceScenario || call.provider !== result.sourceProvider || call.providerCallId !== result.sourceProviderCallId) {
     return reject(state, "INVALID_STATE", "Supplier call result provenance is invalid.");
   }
   return { result, call };
+}
+
+function findPendingResult(state: ErpState, resultId: string): { result: SupplierCallResult; call: SupplierCall } | ErpCommandResult<never> {
+  return findResultForStatuses(state, resultId, ["pending"]);
 }
 
 function resultValidation(state: ErpState, result: SupplierCallResult, now: string): string | null {
@@ -98,7 +103,7 @@ function resultValidation(state: ErpState, result: SupplierCallResult, now: stri
   if (!["sent", "confirmed", "partially_received"].includes(purchaseOrder.status)) return "Purchase order is no longer eligible for supplier result approval.";
   const seenProducts = new Set<string>();
   if (!purchaseOrder.lines.length || purchaseOrder.lines.some((line) => {
-    const invalid = !line.productId || seenProducts.has(line.productId) || !Number.isSafeInteger(line.quantity) || line.quantity <= 0 || !Number.isSafeInteger(line.unitPrice) || line.unitPrice <= 0;
+    const invalid = !line.productId || seenProducts.has(line.productId) || !isPositiveWholeQuantity(line.quantity) || !Number.isSafeInteger(line.unitPrice) || line.unitPrice <= 0;
     seenProducts.add(line.productId);
     return invalid;
   })) return "Purchase order data is no longer valid.";
@@ -246,7 +251,7 @@ function decideSupplierResult(state: ErpState, role: ErpRole, resultId: string, 
   const permission = authorizeReview<SupplierCallResult>(state, role);
   if (permission) return permission;
   if (!isStrictIsoInstant(now)) return reject(state, "INVALID_INPUT", "Supplier result review time is invalid.");
-  const context = findPendingResult(state, resultId);
+  const context = findResultForStatuses(state, resultId, status === "rejected" ? ["pending", "human_review"] : ["pending"]);
   if ("ok" in context) return context;
   const decided: SupplierCallResult = { ...context.result, status, updatedAt: now };
   const staged: ErpState = { ...state, supplierResults: state.supplierResults.map((item) => item.id === resultId ? decided : item) };
@@ -261,4 +266,20 @@ export function rejectSupplierResult(state: ErpState, role: ErpRole, resultId: s
 
 export function markSupplierResultForHumanReview(state: ErpState, role: ErpRole, resultId: string, now: string): ErpCommandResult<SupplierCallResult> {
   return decideSupplierResult(state, role, resultId, "human_review", now);
+}
+
+export function retrySupplierResultReview(state: ErpState, role: ErpRole, resultId: string, now: string): ErpCommandResult<SupplierCallResult> {
+  const permission = authorizeReview<SupplierCallResult>(state, role);
+  if (permission) return permission;
+  if (!isStrictIsoInstant(now)) return reject(state, "INVALID_INPUT", "Supplier result review time is invalid.");
+  const context = findResultForStatuses(state, resultId, ["human_review"]);
+  if ("ok" in context) return context;
+  const retried: SupplierCallResult = { ...context.result, status: "pending", updatedAt: now };
+  const staged: ErpState = { ...state, supplierResults: state.supplierResults.map((item) => item.id === resultId ? retried : item) };
+  const next = appendErpAudit(staged, {
+    entityType: "supplier_call_result", entityId: resultId, action: "supplier_result.review_retried",
+    actorRole: role, actorId: `role:${role}`,
+    detail: { scenario: retried.scenario, purchaseOrderId: retried.purchaseOrderId },
+  }, now);
+  return commitErpState(state, next, retried);
 }

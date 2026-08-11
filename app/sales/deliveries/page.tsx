@@ -7,25 +7,26 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { completeDelivery, createDeliveryOrder, type DeliveryOrderInput } from "@/lib/erp/commands/sales";
+import type { DeliveryOrderInput } from "@/lib/erp/commands/sales";
 import type { ErpCommandResult } from "@/lib/erp/errors";
 import { authorize } from "@/lib/erp/permissions";
 import { selectPhysicalStock, selectSalesOrderReservedQuantity } from "@/lib/erp/selectors";
-import type { DeliveryOrder, ErpRole, ErpState } from "@/lib/erp/types";
+import type { DeliveryOrder } from "@/lib/erp/types";
 
-type DeliveryCommandRunner = <T,>(command: (state: ErpState) => ErpCommandResult<T>) => ErpCommandResult<T>;
+type DeliveryCreationCommand = (input: DeliveryOrderInput, now: string) => Promise<ErpCommandResult<DeliveryOrder>>;
+type DeliveryCompletionCommand = (deliveryOrderId: string, now: string) => Promise<ErpCommandResult<DeliveryOrder>>;
 
-export function executeDeliveryCreation(run: DeliveryCommandRunner, role: ErpRole, input: DeliveryOrderInput, now: string): ErpCommandResult<DeliveryOrder> {
-  return run((erp) => createDeliveryOrder(erp, role, input, now));
+export function executeDeliveryCreation(command: DeliveryCreationCommand, input: DeliveryOrderInput, now: string): Promise<ErpCommandResult<DeliveryOrder>> {
+  return command(input, now);
 }
 
-export function executeDeliveryCompletion(run: DeliveryCommandRunner, role: ErpRole, deliveryOrderId: string, now: string): ErpCommandResult<DeliveryOrder> {
-  return run((erp) => completeDelivery(erp, role, deliveryOrderId, now));
+export function executeDeliveryCompletion(command: DeliveryCompletionCommand, deliveryOrderId: string, now: string): Promise<ErpCommandResult<DeliveryOrder>> {
+  return command(deliveryOrderId, now);
 }
 
 export default function DeliveryOrdersPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const searchParams = useSearchParams();
   const eligible = state.erp.salesOrders.filter((order) => order.status === "confirmed" || order.status === "partially_delivered");
   const initialOrderId = searchParams.get("salesOrderId") ?? eligible[0]?.id ?? "";
@@ -36,15 +37,15 @@ export default function DeliveryOrdersPage() {
   const mayPrepare = authorize(state.erp.activeRole, "sales.write") || authorize(state.erp.activeRole, "stock.deliver");
   const mayComplete = authorize(state.erp.activeRole, "stock.deliver");
 
-  function create() {
+  async function create() {
     if (!selected) return;
     const lines = selected.lines.map((line) => ({ productId: line.productId, quantity: Number(quantities[line.productId] ?? line.quantity - line.deliveredQuantity) })).filter((line) => line.quantity > 0);
-    const result = executeDeliveryCreation(run, state.erp.activeRole, { salesOrderId: selected.id, lines }, new Date().toISOString());
+    const result = await executeDeliveryCreation(commands.createDeliveryOrder, { salesOrderId: selected.id, lines }, new Date().toISOString());
     setMessage(result.ok ? `${result.value.deliveryNumber} created as a stock-neutral draft.` : result.error.message);
   }
 
-  function complete(deliveryOrderId: string) {
-    const result = executeDeliveryCompletion(run, state.erp.activeRole, deliveryOrderId, new Date().toISOString());
+  async function complete(deliveryOrderId: string) {
+    const result = await executeDeliveryCompletion(commands.completeDelivery, deliveryOrderId, new Date().toISOString());
     setMessage(result.ok ? `${result.value.deliveryNumber} posted with exact outbound movements.` : result.error.message);
   }
 

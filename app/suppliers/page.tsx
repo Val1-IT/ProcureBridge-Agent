@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
-import { EntityForm, submitSupplierForm, type EntityFormValue } from "@/components/erp/entity-form";
+import { EntityForm, type EntityFormValue } from "@/components/erp/entity-form";
 import { EntityTable } from "@/components/erp/entity-table";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
@@ -15,11 +15,11 @@ import type { Supplier } from "@/lib/erp/types";
 const blankSupplier: SupplierInput = { code: "", name: "", phone: "", email: "", address: "", paymentTermDays: 30, doNotContact: false, active: true };
 
 export default function SuppliersPage() {
-  const { state } = useDemoStore(); const { run } = useErpCommands(); const [editing, setEditing] = useState<Supplier | null>(null);
+  const { state } = useDemoStore(); const commands = useErpCommands(); const [editing, setEditing] = useState<Supplier | null>(null);
   const selectedSupplierId = useSearchParams().get("supplierId");
   const visibleSuppliers = selectedSupplierId ? state.erp.suppliers.filter((supplier) => supplier.id === selectedSupplierId) : state.erp.suppliers;
   const canManage = authorize(state.erp.activeRole, "master.manage"); const initial = editing ?? blankSupplier;
-  const submit = (values: Record<string, EntityFormValue>) => { const input: SupplierInput = { ...(editing ? { id: editing.id } : {}), code: String(values.code), name: String(values.name), phone: String(values.phone), email: String(values.email), address: String(values.address), paymentTermDays: Number(values.paymentTermDays), doNotContact: Boolean(values.doNotContact), active: Boolean(values.active) }; const result = run((erp) => submitSupplierForm(erp, state.erp.activeRole, input, new Date().toISOString())); if (!result.ok) return result.error.message; setEditing(null); return null; };
+  const submit = async (values: Record<string, EntityFormValue>) => { const input: SupplierInput = { ...(editing ? { id: editing.id } : {}), code: String(values.code), name: String(values.name), phone: String(values.phone), email: String(values.email), address: String(values.address), paymentTermDays: Number(values.paymentTermDays), doNotContact: Boolean(values.doNotContact), active: Boolean(values.active) }; const result = await commands.upsertSupplier(input, new Date().toISOString()); if (!result.ok) return result.error.message; setEditing(null); return null; };
   return <><PageHeader eyebrow="Master Data • Demo Data" title="Suppliers" description="Kelola identitas pemasok, kontak operasional, termin pembayaran, dan kebijakan do-not-contact." /><div className="document-grid">
     <EntityTable rows={visibleSuppliers} selectedRowId={selectedSupplierId} searchLabel="Filter supplier" emptyTitle="Supplier tidak ditemukan." emptyDescription="Ubah kata pencarian atau kembali ke daftar supplier." onEdit={canManage ? setEditing : undefined} columns={[
       { label: "Supplier", searchValue: (row) => `${row.code} ${row.name}`, render: (row) => <><span className="cell-title">{row.name}</span><span className="cell-sub mono">{row.code}</span></> },

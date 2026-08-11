@@ -4,10 +4,10 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
+import { useJudgeDemo } from "@/components/judge-demo-provider";
 import { LineItemsEditor } from "@/components/erp/line-items-editor";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { compareSupplierQuotations, createPurchaseRequest, createRequestForQuotation, createSupplierQuotation, selectSupplierQuotation } from "@/lib/erp/commands/purchasing";
 import { authorize } from "@/lib/erp/permissions";
 import { buildPurchaseRequestRows } from "@/lib/erp/purchasing-view-model";
 import type { QuantityLine } from "@/lib/erp/types";
@@ -15,7 +15,8 @@ import { formatCurrency, formatDate } from "@/lib/format";
 
 export default function PurchaseRequestsPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
+  const { session } = useJudgeDemo();
   const selectedPurchaseRequestId = useSearchParams().get("purchaseRequestId");
   const [lines, setLines] = useState<QuantityLine[]>([]);
   const [quotationRfqId, setQuotationRfqId] = useState("");
@@ -26,23 +27,27 @@ export default function PurchaseRequestsPage() {
   const rows = useMemo(() => buildPurchaseRequestRows(state.erp).filter((row) => (!selectedPurchaseRequestId || row.id === selectedPurchaseRequestId) && (statusFilter === "all" || row.status === statusFilter)), [selectedPurchaseRequestId, state.erp, statusFilter]);
   const canWrite = authorize(state.erp.activeRole, "purchase.write");
   const canApprove = authorize(state.erp.activeRole, "purchase.approve");
+  const demoClockIso = session?.active && typeof session.step === "string" && session.providerMode === "mock" ? session.demoClockIso : null;
+  const sampleCommandTime = () => new Date(demoClockIso ?? Date.now());
 
-  const createRequest = () => {
-    const result = run((erp) => createPurchaseRequest(erp, state.erp.activeRole, { lines }, new Date().toISOString()));
+  const createRequest = async () => {
+    const commandTime = sampleCommandTime();
+    const result = await commands.createPurchaseRequest({ lines }, commandTime.toISOString());
     if (!result.ok) return setMessage({ tone: "error", text: result.error.message });
     setLines([]);
     setMessage({ tone: "success", text: `${result.value.requestNumber} dibuat sebagai Demo Data.` });
   };
 
-  const createRfq = (purchaseRequestId: string) => {
+  const createRfq = async (purchaseRequestId: string) => {
     const request = state.erp.purchaseRequests.find((item) => item.id === purchaseRequestId);
     if (!request) return;
-    const result = run((erp) => createRequestForQuotation(erp, state.erp.activeRole, {
+    const commandTime = sampleCommandTime();
+    const result = await commands.createRequestForQuotation({
       purchaseRequestId,
-      supplierIds: erp.suppliers.filter((supplier) => supplier.active).map((supplier) => supplier.id),
-      quoteDueAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+      supplierIds: state.erp.suppliers.filter((supplier) => supplier.active).map((supplier) => supplier.id),
+      quoteDueAt: new Date(commandTime.getTime() + 3 * 86_400_000).toISOString(),
       lines: request.lines.map((line) => ({ productId: line.productId, quantity: line.quantity })),
-    }, new Date().toISOString()));
+    }, commandTime.toISOString());
     setMessage(result.ok ? { tone: "success", text: `${result.value.rfqNumber} dibuat dan menunggu quotation supplier.` } : { tone: "error", text: result.error.message });
   };
 
@@ -54,25 +59,28 @@ export default function PurchaseRequestsPage() {
     setQuotationLines(rfq?.lines.map((line) => ({ ...line, unitPrice: state.erp.products.find((product) => product.id === line.productId)?.purchasePrice ?? 0 })) ?? []);
   };
 
-  const saveQuotation = () => {
-    const result = run((erp) => createSupplierQuotation(erp, state.erp.activeRole, {
+  const saveQuotation = async () => {
+    const commandTime = sampleCommandTime();
+    const result = await commands.createSupplierQuotation({
       requestForQuotationId: quotationRfqId,
       supplierId: quotationSupplierId,
-      validUntil: new Date(Date.now() + 14 * 86_400_000).toISOString(),
+      validUntil: new Date(commandTime.getTime() + 14 * 86_400_000).toISOString().slice(0, 10),
       lines: quotationLines,
-    }, new Date().toISOString()));
+    }, commandTime.toISOString());
     if (!result.ok) return setMessage({ tone: "error", text: result.error.message });
     setQuotationRfqId(""); setQuotationSupplierId(""); setQuotationLines([]);
     setMessage({ tone: "success", text: `${result.value.quotationNumber} dicatat melalui command purchasing.` });
   };
 
-  const compare = (rfqId: string) => {
-    const result = run((erp) => compareSupplierQuotations(erp, state.erp.activeRole, rfqId, new Date().toISOString()));
+  const compare = async (rfqId: string) => {
+    const commandTime = sampleCommandTime();
+    const result = await commands.compareSupplierQuotations(rfqId, commandTime.toISOString());
     setMessage(result.ok ? { tone: "success", text: "Quotation dibandingkan berdasarkan total, masa berlaku, dan kode supplier." } : { tone: "error", text: result.error.message });
   };
 
-  const selectQuotation = (quotationId: string) => {
-    const result = run((erp) => selectSupplierQuotation(erp, state.erp.activeRole, quotationId, new Date().toISOString()));
+  const selectQuotation = async (quotationId: string) => {
+    const commandTime = sampleCommandTime();
+    const result = await commands.selectSupplierQuotation(quotationId, commandTime.toISOString());
     setMessage(result.ok ? { tone: "success", text: `${result.value.quotationNumber} dipilih dengan approval dan audit.` } : { tone: "error", text: result.error.message });
   };
 

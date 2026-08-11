@@ -24,6 +24,30 @@ const approval: SupplierCallApproval = {
   createdAt: "2026-08-09T01:00:00.000Z", updatedAt: "2026-08-09T01:00:00.000Z",
 };
 
+const testApprovalCapability = "test_approval_capability_12345678901234567890";
+const demoApprovalInput = {
+  supplierCallId: supplierCall.id,
+  supplierId: supplier.id,
+  purchaseOrderId: purchaseOrder.id,
+  scenario: "delivery_commitment" as const,
+  objective: "Confirm delivery date",
+  permittedProductIds: ["product-router"],
+  maximumDeliveryDate: "2026-08-20",
+  partialDeliveryAllowed: true,
+  maximumUnitPriceIncreasePercent: 0,
+  language: "Bahasa Indonesia",
+  approvedBy: "Nadia Pratama",
+};
+
+async function registerDemoApproval(repository: DemoSupplierCallAuthorizationRepository, session = demoSessionId, capability = testApprovalCapability): Promise<void> {
+  const registered = await repository.registerSupplierCallApproval({
+    demoSessionId: session,
+    approvedAt: "2026-08-09T01:00:00.000Z",
+    approval: demoApprovalInput,
+  }, capability);
+  if (!registered.ok) throw new Error("Unable to register the test supplier-call approval.");
+}
+
 class FakeRepository implements SupplierCallAuthorizationRepository {
   authorizationMode: "demo" | "production" = "demo";
   repositoryCapability: "demo" | "production" = "demo";
@@ -44,7 +68,10 @@ class FakeRepository implements SupplierCallAuthorizationRepository {
   async getApproval() { return this.approval; }
   async countCallsForPurchaseOrderOnDate() { return this.callsToday; }
   async hasOpenDispute() { return this.openDispute; }
-  async claimSupplierCall() { this.claims += 1; return this.claimAllowed ? { ok: true as const, claimId: `claim-${this.claims}` } : { ok: false as const }; }
+  async registerSupplierCallApproval() { return this.approval ? { ok: true as const, approval: this.approval } : { ok: false as const }; }
+  async invalidateDemoSession() { return { ok: true as const }; }
+  async claimSupplierCall() { this.claims += 1; return this.claimAllowed ? { ok: true as const, claimId: `claim-${this.claims}` } : { ok: false as const, reason: "already_claimed" as const }; }
+  async restartDemoSession() { return { ok: true as const }; }
   async recordFailedCallClaim() { this.failedClaims += 1; }
   async recordCreatedCall() { this.recorded += 1; }
 }
@@ -71,13 +98,26 @@ function setup(options: { repository?: SupplierCallAuthorizationRepository; prov
     now: () => new Date("2026-08-09T03:00:00.000Z"),
     providerFactory: (mode) => { activeMode = mode; modes.push(mode); return provider; },
   });
-  const request = (query = "", body: unknown = { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId }) => new Request(`https://app.example/api/supplier-calls${query}`, {
-    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
+  const request = (query = "", body: unknown = { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId }, approvalCapability: string | null = testApprovalCapability) => new Request(`https://app.example/api/supplier-calls${query}`, {
+    method: "POST", headers: { "content-type": "application/json", ...(approvalCapability ? { "x-supplier-call-approval": approvalCapability } : {}) }, body: JSON.stringify(body),
   });
   return { handler, request, repository, inputs, modes };
 }
 
 describe("POST /api/supplier-calls", () => {
+  it("rejects a direct POST when no exact server approval capability was registered", async () => {
+    const context = setup({ repository: new DemoSupplierCallAuthorizationRepository() });
+
+    const response = await context.handler(context.request("", undefined, null));
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      error: "Server approval is required before a supplier call can start.",
+      code: "SERVER_APPROVAL_REQUIRED",
+    });
+    expect(context.inputs).toHaveLength(0);
+  });
+
   it("returns a stable 400 code for malformed or snapshot-bearing payloads", async () => {
     const context = setup();
     const response = await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId, supplier: { phone: "123", secret: "must-not-reflect" } }));
@@ -103,7 +143,9 @@ describe("POST /api/supplier-calls", () => {
   });
 
   it("uses the resettable demo repository in mock mode", async () => {
-    const context = setup({ repository: new DemoSupplierCallAuthorizationRepository() });
+    const repository = new DemoSupplierCallAuthorizationRepository();
+    await registerDemoApproval(repository);
+    const context = setup({ repository });
     const response = await context.handler(context.request());
     expect(response.status).toBe(201);
     expect(context.modes).toEqual(["mock"]);
@@ -111,6 +153,7 @@ describe("POST /api/supplier-calls", () => {
 
   it("atomically allows only one concurrent provider invocation for the same supplier PO and local date", async () => {
     const repository = new DemoSupplierCallAuthorizationRepository();
+    await registerDemoApproval(repository);
     let invocations = 0;
     let releaseProvider!: () => void;
     let markProviderStarted!: () => void;
@@ -131,7 +174,7 @@ describe("POST /api/supplier-calls", () => {
       }),
     });
     const makeRequest = () => new Request("https://app.example/api/supplier-calls", {
-      method: "POST", headers: { "content-type": "application/json" },
+      method: "POST", headers: { "content-type": "application/json", "x-supplier-call-approval": testApprovalCapability },
       body: JSON.stringify({ callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId }),
     });
 
@@ -144,11 +187,12 @@ describe("POST /api/supplier-calls", () => {
     expect(invocations).toBe(1);
     expect(firstResponse.status).toBe(201);
     expect(second.status).toBe(409);
-    expect(await second.json()).toEqual({ error: "Supplier call has already been claimed.", code: "SUPPLIER_CALL_ALREADY_CLAIMED" });
+    expect(await second.json()).toEqual({ error: "Server approval is required before a supplier call can start.", code: "SERVER_APPROVAL_REQUIRED" });
   });
 
   it("returns the same stable duplicate 409 after the first request has finalized", async () => {
     const repository = new DemoSupplierCallAuthorizationRepository();
+    await registerDemoApproval(repository);
     const context = setup({ repository });
     expect((await context.handler(context.request())).status).toBe(201);
     const duplicate = await context.handler(context.request());
@@ -159,10 +203,13 @@ describe("POST /api/supplier-calls", () => {
 
   it("scopes singleton demo claims and call state to the validated browser demo session", async () => {
     const repository = new DemoSupplierCallAuthorizationRepository();
+    await registerDemoApproval(repository);
     const context = setup({ repository });
     expect((await context.handler(context.request())).status).toBe(201);
     const resetSession = "demo_browser_session_0987654321";
-    expect((await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: resetSession }))).status).toBe(201);
+    const resetCapability = "test_reset_approval_capability_12345678901234567890";
+    await registerDemoApproval(repository, resetSession, resetCapability);
+    expect((await context.handler(context.request("", { callId: supplierCall.id, supplierId: supplier.id, purchaseOrderId: purchaseOrder.id, demoSessionId: resetSession }, resetCapability))).status).toBe(201);
     expect(context.inputs).toHaveLength(2);
   });
 

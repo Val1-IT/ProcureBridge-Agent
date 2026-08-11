@@ -3,7 +3,7 @@ import type { SalesOrderStatus } from "../types";
 export const salesOrderTransitions: Readonly<Record<SalesOrderStatus, readonly SalesOrderStatus[]>> = {
   draft: ["confirmed", "cancelled"],
   confirmed: ["partially_delivered", "fully_delivered", "cancelled"],
-  partially_delivered: ["fully_delivered", "cancelled"],
+  partially_delivered: ["fully_delivered"],
   fully_delivered: ["invoiced"],
   invoiced: ["completed"],
   completed: [],

@@ -6,8 +6,7 @@ import SalesOrderDetailPage, { executeSalesOrderConfirmation, executeShortagePur
 import SalesOrdersPage from "../app/sales/orders/page";
 import { createSeedState } from "../lib/demo/seed";
 import type { DemoState } from "../lib/domain/types";
-import type { ErpCommandResult } from "../lib/erp/errors";
-import type { ErpState } from "../lib/erp/types";
+import { createErpCommandExecutor } from "../lib/erp/command-intents";
 
 const harness = vi.hoisted(() => ({ orderId: "so-router-shortage", query: "", state: null as DemoState | null }));
 
@@ -62,19 +61,22 @@ describe("sales pages", () => {
     expect(html).not.toContain(">Confirm Sales Order<");
   });
 
-  it("executes confirmation and shortage conversion through the page command runner", () => {
+  it("executes confirmation and shortage conversion through named page commands", async () => {
     let erp = createSeedState().erp;
     erp.salesOrders[0] = { ...erp.salesOrders[0], lines: [{ ...erp.salesOrders[0].lines[0], quantity: 20 }] };
-    const run = <T,>(command: (state: ErpState) => ErpCommandResult<T>): ErpCommandResult<T> => {
-      const result = command(erp);
-      if (result.ok) erp = result.state;
-      return result;
+    const executor = createErpCommandExecutor(() => erp, (_expectedRevision, next) => {
+      erp = next;
+      return true;
+    });
+    const commands = {
+      confirmSalesOrder: async (id: string, now: string) => executor.confirmSalesOrder(id, now),
+      createPurchaseRequestFromShortage: async (id: string, now: string) => executor.createPurchaseRequestFromShortage(id, now),
     };
 
-    const confirmed = executeSalesOrderConfirmation(run, "sales", "so-router-shortage", "2026-08-09T10:00:00.000Z");
+    const confirmed = await executeSalesOrderConfirmation(commands, "so-router-shortage", "2026-08-09T10:00:00.000Z");
     expect(confirmed).toMatchObject({ ok: true, value: { status: "confirmed" } });
     erp.salesOrders[0] = { ...erp.salesOrders[0], id: "shortage", orderNumber: "SO-2026-0002", status: "draft", lines: [{ ...erp.salesOrders[0].lines[0], quantity: 42, deliveredQuantity: 0 }] };
-    const request = executeShortagePurchaseRequest(run, "sales", "shortage", "2026-08-09T11:00:00.000Z");
+    const request = await executeShortagePurchaseRequest(commands, "shortage", "2026-08-09T11:00:00.000Z");
     expect(request).toMatchObject({ ok: true, value: { status: "draft", sourceSalesOrderId: "shortage", lines: [{ quantity: 12 }] } });
   });
 
@@ -91,18 +93,14 @@ describe("sales pages", () => {
     expect(warehouseHtml).toContain("Create Delivery Order draft");
   });
 
-  it("creates and completes a delivery through the page command runner", () => {
+  it("creates and completes a delivery through closed named commands", async () => {
     let erp = createSeedState().erp;
     erp.salesOrders[0] = { ...erp.salesOrders[0], status: "confirmed", lines: [{ ...erp.salesOrders[0].lines[0], quantity: 20, deliveredQuantity: 0 }] };
-    const run = <T,>(command: (state: ErpState) => ErpCommandResult<T>): ErpCommandResult<T> => {
-      const result = command(erp);
-      if (result.ok) erp = result.state;
-      return result;
-    };
+    const commands = createErpCommandExecutor(() => erp, (_expected, next) => { erp = next; return true; });
 
-    const draft = executeDeliveryCreation(run, "warehouse", { salesOrderId: "so-router-shortage", lines: [{ productId: "product-router", quantity: 8 }] }, "2026-08-09T10:00:00.000Z");
+    const draft = await executeDeliveryCreation(async (input, now) => commands.createDeliveryOrder(input, now), { salesOrderId: "so-router-shortage", lines: [{ productId: "product-router", quantity: 8 }] }, "2026-08-09T10:00:00.000Z");
     expect(draft).toMatchObject({ ok: true, value: { status: "draft" } });
-    const completed = executeDeliveryCompletion(run, "warehouse", draft.ok ? draft.value.id : "missing", "2026-08-09T11:00:00.000Z");
+    const completed = await executeDeliveryCompletion(async (id, now) => commands.completeDelivery(id, now), draft.ok ? draft.value.id : "missing", "2026-08-09T11:00:00.000Z");
     expect(completed).toMatchObject({ ok: true, value: { status: "posted" } });
     expect(erp.salesOrders[0]).toMatchObject({ status: "partially_delivered", lines: [{ deliveredQuantity: 8 }] });
   });

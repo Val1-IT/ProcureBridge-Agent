@@ -7,7 +7,7 @@ import { EntityForm, type EntityFormValue } from "@/components/erp/entity-form";
 import { EntityTable } from "@/components/erp/entity-table";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { upsertProduct, type ProductInput } from "@/lib/erp/commands/master-data";
+import type { ProductInput } from "@/lib/erp/commands/master-data";
 import { authorize } from "@/lib/erp/permissions";
 import type { Product } from "@/lib/erp/types";
 import { formatCurrency } from "@/lib/format";
@@ -16,13 +16,13 @@ const blankProduct: ProductInput = { sku: "", name: "", unit: "unit", salePrice:
 
 export default function ProductsPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const [editing, setEditing] = useState<Product | null>(null);
   const canManage = authorize(state.erp.activeRole, "master.manage");
   const initial = editing ?? blankProduct;
-  const submit = (values: Record<string, EntityFormValue>) => {
+  const submit = async (values: Record<string, EntityFormValue>) => {
     const input: ProductInput = { ...(editing ? { id: editing.id } : {}), sku: String(values.sku), name: String(values.name), unit: String(values.unit), salePrice: Number(values.salePrice), purchasePrice: Number(values.purchasePrice), reorderPoint: Number(values.reorderPoint), active: Boolean(values.active) };
-    const result = run((erp) => upsertProduct(erp, state.erp.activeRole, input, new Date().toISOString()));
+    const result = await commands.upsertProduct(input, new Date().toISOString());
     if (!result.ok) return result.error.message;
     setEditing(null);
     return null;

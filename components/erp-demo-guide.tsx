@@ -6,12 +6,12 @@ import { useDemoStore } from "./demo-store-provider";
 import { useJudgeDemo } from "./judge-demo-provider";
 
 const guidance: Readonly<Record<ErpJudgeStep, { title: string; body: string; locked: string }>> = {
-  sales_shortage: { title: "Sales shortage", body: "Open SO-2026-0001, review the five-unit shortage, then create its linked Purchase Request.", locked: "Create the Purchase Request from this Sales Order to continue." },
-  purchase_order_approval: { title: "Approved purchase", body: "Inspect PO-2026-0001. Its released scope is already seeded and overdue for supplier confirmation.", locked: "The Purchase Order must be approved and released before follow-up." },
+  sales_shortage: { title: "Sales shortage", body: "Open SO-2026-0001 and inspect its exact five-unit shortage plus pre-approved Demo Data PR-2026-0001.", locked: "The exact approved shortage Purchase Request must remain linked to this Sales Order." },
+  purchase_order_approval: { title: "Linked purchase approval", body: "Inspect the same five-unit demand from PR-2026-0001, then Approve PO-2026-0001 as Approver or Admin to release it for supplier follow-up.", locked: "The linked pending Purchase Order must be approved and reach Sent status." },
   supplier_follow_up: { title: "Supplier Agent approval", body: "Open the Supplier Brief, approve the exact products and delivery boundary, then start the mock supplier call.", locked: "Save Human Approval and start the MockSupplierCallProvider session." },
   supplier_call: { title: "Mock supplier call", body: "Run the accelerated deterministic transcript. No external provider or API key is used.", locked: "Complete the simulated call so a structured result exists." },
   supplier_result_review: { title: "Human result review", body: "Check the extracted commitment and approve it before any PO promise or follow-up changes.", locked: "Approve the structured Supplier Agent result to continue." },
-  goods_receipt: { title: "Partial goods receipt", body: "Receive 10 routers, approve the Goods Receipt, then return to SO-2026-0001 and confirm its now-covered reservation.", locked: "Post an approved receipt and confirm the seeded Sales Order." },
+  goods_receipt: { title: "Goods receipt", body: "Receive the five linked routers, approve the Goods Receipt, then return to SO-2026-0001 and confirm its now-covered reservation.", locked: "Post the linked approved receipt and confirm the seeded Sales Order." },
   sales_delivery: { title: "Partial delivery", body: "Create and post a partial Delivery Order. Inventory and reservation evidence update atomically.", locked: "Post a Delivery Order linked to SO-2026-0001." },
   finance_sync: { title: "Payable and receivable", body: "Record one supplier invoice from the receipt and one customer invoice from the posted delivery.", locked: "Both linked trade invoices are required before payment." },
   partial_payment: { title: "Partial payment", body: "Record a payment smaller than its invoice balance, then verify the remaining balance.", locked: "Record a posted partial payment to continue." },

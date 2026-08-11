@@ -884,7 +884,9 @@ git commit -m "feat: add ERP action center and dashboard"
 it("starts the ERP judge session in fast mock mode and advances from authoritative state", () => {
   const started = startErpJudgeSession(createSeedState());
   expect(started.session).toMatchObject({ active: true, simulationSpeed: "fast_demo", providerMode: "mock", step: "sales_shortage" });
-  const advanced = advanceErpJudgeSession(started.session, seedWithApprovedPurchaseRequest);
+  expect(started.state.erp.purchaseRequests[0]).toMatchObject({ sourceSalesOrderId: "so-router-shortage", status: "approved", lines: [{ productId: "product-router", quantity: 5 }] });
+  expect(started.state.erp.purchaseOrders[0]).toMatchObject({ purchaseRequestId: started.state.erp.purchaseRequests[0].id, status: "pending_approval", lines: [{ productId: "product-router", quantity: 5 }] });
+  const advanced = advanceErpJudgeSession(started.session, started.state);
   expect(advanced.step).toBe("purchase_order_approval");
 });
 
@@ -908,7 +910,7 @@ Expected: FAIL because the ERP guide and branding are absent.
 
 - [ ] **Step 3: Implement ERP demo session and guide**
 
-The guide preserves the pre-demo browser snapshot, selects the seeded shortage scenario, defaults to fast simulation, advances only when authoritative state conditions are met, and restores the previous snapshot when exited.
+The guide preserves the pre-demo browser snapshot and authoritative session identity, selects the seeded shortage scenario, and overlays an exact approved five-unit PR plus its linked same-demand pending-approval PO. The PO step advances only after the real Admin/Approver action moves that exact PO to Sent. It defaults to fast simulation, advances only while that referential chain and later authoritative state conditions hold, and restores the previous snapshot when exited. Ordinary Sales Order use remains manual and never auto-creates or auto-approves purchasing documents.
 
 - [ ] **Step 4: Update landing, shell copy, metadata, and README**
 
@@ -1035,11 +1037,11 @@ Expected: HTTP success for pages/health, mock provider for eligible supplier cal
 
 - [ ] **Step 3: Run the full browser demo at desktop width**
 
-Execute the exact primary demonstration: shortage → purchase request → PO approval → follow-up queue → approval/guardrails → mock transcript → result review → partial receipt → partial delivery → supplier/customer invoices → partial payment → dashboard/audit. Refresh between major steps and confirm state survives.
+Execute the exact primary demonstration: shortage -> inspect the exact linked approved PR -> inspect and approve its same-demand pending PO to Sent -> follow-up queue -> approval/guardrails -> mock transcript -> result review -> linked receipt -> partial delivery -> supplier/customer invoices -> partial payment -> dashboard/audit. Refresh between major steps and confirm state survives.
 
 - [ ] **Step 4: Verify tablet usability and reset**
 
-At approximately 820–1024 px width, confirm sidebar/navigation, tables, forms, and primary actions remain usable. Trigger Reset Demo Data and verify all modules return to the deterministic seed with no stale call, receipt, payment, dispute, or audit entries.
+At approximately 820-1120 px width (controller checkpoints 820 and 1024), confirm sidebar/navigation, horizontally scrollable tables, forms, and rightmost primary actions remain usable. Trigger Reset Demo Data and verify all modules return to the deterministic seed with no stale call, receipt, payment, dispute, or audit entries.
 
 - [ ] **Step 5: Run repository hygiene checks**
 

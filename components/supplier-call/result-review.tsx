@@ -8,20 +8,22 @@ interface ResultReviewProps {
   result: SupplierCallResult;
   canReview: boolean;
   error: string | null;
-  onEdit: (patch: EditSupplierResultPatch) => boolean;
-  onApprove: () => void;
-  onReject: () => void;
-  onHumanReview: () => void;
+  onEdit: (patch: EditSupplierResultPatch) => Promise<boolean>;
+  onApprove: () => Promise<void>;
+  onReject: () => Promise<void>;
+  onHumanReview: () => Promise<void>;
+  onRetry: () => Promise<void>;
 }
 
-export function ResultReview({ result, canReview, error, onEdit, onApprove, onReject, onHumanReview }: ResultReviewProps) {
+export function ResultReview({ result, canReview, error, onEdit, onApprove, onReject, onHumanReview, onRetry }: ResultReviewProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(result);
   useEffect(() => setDraft(result), [result]);
   const reviewed = result.status !== "pending";
+  const requiresHumanResolution = result.status === "human_review";
   const update = <K extends keyof EditSupplierResultPatch>(key: K, value: EditSupplierResultPatch[K]) => setDraft((current) => ({ ...current, [key]: value }));
-  const save = () => {
-    const ok = onEdit({ scenario: draft.scenario, promisedDeliveryDate: draft.promisedDeliveryDate, partialDeliveryDate: draft.partialDeliveryDate, remainingDeliveryDate: draft.remainingDeliveryDate, followUpDate: draft.followUpDate, reason: draft.reason, summary: draft.summary, sentiment: draft.sentiment });
+  const save = async () => {
+    const ok = await onEdit({ scenario: draft.scenario, promisedDeliveryDate: draft.promisedDeliveryDate, partialDeliveryDate: draft.partialDeliveryDate, remainingDeliveryDate: draft.remainingDeliveryDate, followUpDate: draft.followUpDate, reason: draft.reason, summary: draft.summary, sentiment: draft.sentiment });
     if (ok) setEditing(false);
   };
   return <article className="result-card result-main">
@@ -37,12 +39,18 @@ export function ResultReview({ result, canReview, error, onEdit, onApprove, onRe
       <label><span>Reason</span>{editing ? <input value={draft.reason ?? ""} onChange={(event) => update("reason", event.target.value || null)} /> : <strong>{result.reason ?? "—"}</strong>}</label>
     </div>
     <div className="guardrail-box"><strong>No stock, invoice, or payment change occurs before approval.</strong><p>Approval can update only PO commitment fields, follow-up work, or disputes.</p></div>
+    {requiresHumanResolution ? <div className="guardrail-warning"><strong>Human resolution required</strong><p>Retry moves this result back to editable pending review. Reject closes it without downstream application.</p></div> : null}
     {error ? <div className="guardrail-warning"><strong>Review blocked</strong><p>{error}</p></div> : null}
     <div className="result-actions">
-      {editing ? <button className="button button-secondary" type="button" onClick={save}>Save Edit</button> : <button className="button button-secondary" type="button" disabled={!canReview || reviewed} onClick={() => setEditing(true)}>Edit</button>}
-      <button className="button" type="button" disabled={!canReview || reviewed || editing} onClick={onApprove}>Approve</button>
-      <button className="button button-danger" type="button" disabled={!canReview || reviewed || editing} onClick={onReject}>Reject</button>
-      <button className="button button-secondary" type="button" disabled={!canReview || reviewed || editing} onClick={onHumanReview}>Human Review</button>
+      {requiresHumanResolution ? <>
+        <button className="button" type="button" disabled={!canReview} onClick={onRetry}>Retry Review</button>
+        <button className="button button-danger" type="button" disabled={!canReview} onClick={onReject}>Reject</button>
+      </> : <>
+        {editing ? <button className="button button-secondary" type="button" onClick={save}>Save Edit</button> : <button className="button button-secondary" type="button" disabled={!canReview || reviewed} onClick={() => setEditing(true)}>Edit</button>}
+        <button className="button" type="button" disabled={!canReview || reviewed || editing} onClick={onApprove}>Approve</button>
+        <button className="button button-danger" type="button" disabled={!canReview || reviewed || editing} onClick={onReject}>Reject</button>
+        <button className="button button-secondary" type="button" disabled={!canReview || reviewed || editing} onClick={onHumanReview}>Human Review</button>
+      </>}
     </div>
   </article>;
 }

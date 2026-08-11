@@ -154,7 +154,7 @@ Version one uses `MockCallProvider`. A live provider remains fail-closed until p
 
 ### 3.9 Audit log
 
-The audit log records approvals, rejections, document transitions, inventory mutations, payment recording, call lifecycle events, result review, follow-up creation, and reset operations. Events contain actor, timestamp, action, entity reference, and a safe before/after summary where appropriate.
+The audit log records approvals, rejections, document transitions, inventory mutations, payment recording, call lifecycle events, result review, and follow-up creation. Reset deliberately clears that history with the prior Demo Data; the new session/reset generation is the documented reset boundary rather than an audit row inside the clean seed. Retained events contain actor, timestamp, action, entity reference, and a safe before/after summary where appropriate.
 
 ## 4. Roles and permissions
 
@@ -272,6 +272,8 @@ Validation failures do not partially mutate state. Provider errors do not leak s
 15. Dashboard and Audit Log reflect the complete chain.
 
 Supporting scenarios cover supplier stock unavailability, price discrepancies, short or damaged receipts, cancelled reserved orders, partial payments, failed contact, and unauthorized actions.
+For deterministic rehearsal, Judge Demo Mode starts from explicit Demo Data evidence for steps 3-5: an exact five-unit shortage PR and its linked same-demand PO in `pending_approval`. The judge must use the real Admin/Approver PO action to reach Sent before supplier follow-up. That fixture does not change the ordinary workflow: outside the guide, purchasing documents remain explicit human actions and are never auto-created or auto-approved from a Sales Order.
+
 
 ## 10. Visual direction
 

@@ -6,31 +6,31 @@ import { useDemoStore } from "@/components/demo-store-provider";
 import { useErpCommands } from "@/components/erp-command-provider";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
-import { createSalesOrder, type SalesOrderInput } from "@/lib/erp/commands/sales";
+import type { SalesOrderInput } from "@/lib/erp/commands/sales";
 import type { ErpCommandResult } from "@/lib/erp/errors";
 import { authorize } from "@/lib/erp/permissions";
 import { selectSalesOrderLineAvailability, selectSalesOrderReservedQuantity, selectSalesShortage } from "@/lib/erp/selectors";
-import type { ErpRole, ErpState, SalesOrder } from "@/lib/erp/types";
+import type { SalesOrder } from "@/lib/erp/types";
 
-type SalesCommandRunner = <T,>(command: (state: ErpState) => ErpCommandResult<T>) => ErpCommandResult<T>;
+type SalesOrderCommand = (input: SalesOrderInput, now: string) => Promise<ErpCommandResult<SalesOrder>>;
 
-export function executeSalesOrderCreation(run: SalesCommandRunner, role: ErpRole, input: SalesOrderInput, now: string): ErpCommandResult<SalesOrder> {
-  return run((erp) => createSalesOrder(erp, role, input, now));
+export function executeSalesOrderCreation(command: SalesOrderCommand, input: SalesOrderInput, now: string): Promise<ErpCommandResult<SalesOrder>> {
+  return command(input, now);
 }
 
 export default function SalesOrdersPage() {
   const { state } = useDemoStore();
-  const { run } = useErpCommands();
+  const commands = useErpCommands();
   const [customerId, setCustomerId] = useState(state.erp.customers.find((customer) => customer.active)?.id ?? "");
   const [productId, setProductId] = useState(state.erp.products.find((product) => product.active)?.id ?? "");
   const [quantity, setQuantity] = useState("1");
   const [message, setMessage] = useState<string | null>(null);
   const mayWrite = authorize(state.erp.activeRole, "sales.write");
 
-  function create() {
+  async function create() {
     const product = state.erp.products.find((item) => item.id === productId);
     if (!product) return;
-    const result = executeSalesOrderCreation(run, state.erp.activeRole, { customerId, lines: [{ productId, quantity: Number(quantity), unitPrice: product.salePrice }] }, new Date().toISOString());
+    const result = await executeSalesOrderCreation(commands.createSalesOrder, { customerId, lines: [{ productId, quantity: Number(quantity), unitPrice: product.salePrice }] }, new Date().toISOString());
     setMessage(result.ok ? `${result.value.orderNumber} created as a stock-neutral draft.` : result.error.message);
   }
 
