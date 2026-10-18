@@ -1,5 +1,13 @@
 # Product UX continuation — source audit, 2026-10-18
 
+Fresh-cloud update: JSX/typecheck, lint, Judge build and seven UI suites (42
+tests) now pass. Interrupted-command recovery was fixed in `0361622`: the exact
+attempt is retained before dispatch and uncertain responses are labelled
+honestly. Six transport regressions pass; its added real-server browser case,
+the prior three browser cases and visual/keyboard inspection remain unrun.
+See [recovery evidence](CLOUD-RECOVERY-20261018.md). The following audit is
+retained as the earlier source-level checkpoint, not current runtime certification.
+
 Status: bounded improvements implemented; **browser and typecheck validation
 pending**. This is not a visual certification or a claim of a polished product.
 The owner requested a mature product prototype, within the locked DealTwin

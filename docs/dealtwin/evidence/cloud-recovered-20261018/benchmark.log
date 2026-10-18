@@ -1,0 +1,10 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 benchmark:dealtwin
+> node node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/cli.ts -- --no-services --run-id cloud-restored-20261018
+
+{"sourceSha":"0c6a4210221ea8f043ec76ca21e953b30f44c0d3","sourceTreeHash":"e70abd2750b6224e2cdde83654009023b1bbe391d780033fc5082a81ffe02612","dirty":false,"core":13,"generated":100,"total":113,"compiler":{"falseFeasible":{"status":"MEASURED","numerator":0,"denominator":68,"rate":0,"reason":null},"falseInfeasible":{"status":"MEASURED","numerator":0,"denominator":45,"rate":0,"reason":null}},"fixedRule":{"falseFeasible":{"status":"MEASURED","numerator":35,"denominator":68,"rate":0.5147058823529411,"reason":null},"falseInfeasible":{"status":"MEASURED","numerator":22,"denominator":45,"rate":0.4888888888888889,"reason":null}},"metrics":{"sameDayOrdering":{"status":"MEASURED","numerator":0,"denominator":40,"rate":0,"reason":null},"replayMismatch":{"status":"MEASURED","numerator":0,"denominator":113,"rate":0,"reason":null},"amendmentMismatch":{"status":"MEASURED","numerator":0,"denominator":113,"rate":0,"reason":null},"duplicateCommitment":{"status":"NOT_MEASURED","numerator":null,"denominator":0,"rate":null,"reason":"SERVICE_OBSERVATIONS_MISSING"},"missedStaleness":{"status":"NOT_MEASURED","numerator":null,"denominator":0,"rate":null,"reason":"SERVICE_OBSERVATIONS_MISSING"},"idempotency":{"status":"NOT_MEASURED","numerator":null,"denominator":0,"rate":null,"reason":"SERVICE_OBSERVATIONS_MISSING"},"raceBehavior":{"status":"NOT_MEASURED","numerator":null,"denominator":0,"rate":null,"reason":"SERVICE_OBSERVATIONS_MISSING"},"extractionCorrectness":{"status":"NOT_MEASURED","numerator":null,"denominator":0,"rate":null,"reason":"SERVICE_OBSERVATIONS_MISSING"}},"llmOnly":{"status":"NOT_MEASURED","reason":"PROVIDER_EVIDENCE_MISSING"},"mismatches":57,"artifact":"output/dealtwin/task27/cloud-restored-20261018/report.json"}
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

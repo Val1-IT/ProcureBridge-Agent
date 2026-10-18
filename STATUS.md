@@ -1,6 +1,20 @@
 # DealTwin — local execution status
 
-## Current continuation — linked cloud, 2026-10-18
+## Current continuation — fresh cloud recovered, 2026-10-18
+
+The three original commits through `0c6a421` were restored exactly and verified.
+Locked dependency installation now succeeds without lifecycle scripts. Two local
+fix checkpoints (`fe678a1`, `0361622`) address missing deployment metadata during
+typecheck and recovery after an interrupted command response. Final non-database
+regression: **97 files / 1,037 PASS**, with 25 database suites excluded explicitly.
+Typecheck, lint, Judge build and emitted-client scan pass. PostgreSQL and supported
+browser capabilities are still unavailable; the generic Sites build lacks hosting
+metadata. Task29 remains **PARTIAL**, product readiness is unverified, release is
+blocked and video remains deferred. See [fresh recovery evidence](docs/dealtwin/CLOUD-RECOVERY-20261018.md)
+for exact source scopes and blockers. The following cloud and laptop sections are
+historical; their obsolete dependency blockers do not describe this workspace.
+
+## Earlier continuation — linked cloud, 2026-10-18
 
 The owner authorized continuation in the linked cloud from verified snapshot
 `6f51368a674953bdcc9cdb8031f76e1da6081875`; all491manifest hashes match.

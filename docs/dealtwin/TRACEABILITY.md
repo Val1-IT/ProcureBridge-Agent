@@ -1,5 +1,12 @@
 # DealTwin Requirement Traceability
 
+Fresh-cloud update (2026-10-18): original commits restored exactly; dependency
+installation, 97 non-DB suites / 1,037 tests, typecheck, lint, Judge build and
+bounded client scan pass after two fixes. See [recovery evidence](CLOUD-RECOVERY-20261018.md).
+DT-038 gained interrupted-command recovery and an unrun real-server browser case.
+No DB/browser requirement or DT-042 release gate is closed by these results.
+Task29 remains PARTIAL; the older npm/Vite blockers below are historical.
+
 Status: implementation contract
 Baseline: `1b3f75905f39c75cc6c7e06b23a3f553e6b136fe`
 Plan: `docs/superpowers/plans/2026-09-11-dealtwin-proof-carrying-commerce.md`

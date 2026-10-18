@@ -1,0 +1,10 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 benchmark:dealtwin
+> node node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/cli.ts -- --replay cloud-restored-20261018
+
+{"replayed":57,"failed":0,"artifact":"output/dealtwin/task27/cloud-restored-20261018/replay.json"}
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

@@ -1,0 +1,129 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/ui/command-recovery.test.ts
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ❯ tests/dealtwin/ui/command-recovery.test.ts (6 tests | 5 failed) 20ms
+   × command transport recovery (in-memory, not database transaction evidence) > retains the attempted operation before transport starts, even when no response arrives 9ms
+     → expected null to deeply equal { …(3) }
+   × command transport recovery (in-memory, not database transaction evidence) > replaces a previous successful command when the next response is lost 3ms
+     → expected { …(3) } to deeply equal { …(3) }
+   × command transport recovery (in-memory, not database transaction evidence) > retries the exact method, body, revision and key after a simulated accepted request loses its response 1ms
+     → expected null not to be null
+   × command transport recovery (in-memory, not database transaction evidence) > retains identity when status 200 has an unreadable response 3ms
+     → expected null to deeply equal { …(3) }
+   × command transport recovery (in-memory, not database transaction evidence) > retains identity when status 503 has an unreadable response 1ms
+     → expected null to deeply equal { …(3) }
+   ✓ command transport recovery (in-memory, not database transaction evidence) > continues to return the actual successful response 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/dealtwin/ui/command-recovery.test.ts > command transport recovery (in-memory, not database transaction evidence) > retains the attempted operation before transport starts, even when no response arrives
+AssertionError: expected null to deeply equal { …(3) }
+
+- Expected:
+{
+  "body": {
+    "amountRupiah": "19000000",
+    "expectedRevision": 7,
+    "idempotencyKey": "same-original-key",
+  },
+  "method": "PATCH",
+  "path": "/api/dealtwin/judge/obligations/judge-existing-ap",
+}
+
++ Received:
+null
+
+ ❯ tests/dealtwin/ui/command-recovery.test.ts:16:34
+     14|     const transport: typeof fetch = async () => { rememberedAtDispatch…
+     15|     await expect(sendCommandAttempt(command, value => { remembered = v…
+     16|     expect(rememberedAtDispatch).toEqual(command);
+       |                                  ^
+     17|     expect(remembered).toEqual(command);
+     18|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/dealtwin/ui/command-recovery.test.ts > command transport recovery (in-memory, not database transaction evidence) > replaces a previous successful command when the next response is lost
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+    "body": {
+-     "amountRupiah": "19000000",
+-     "expectedRevision": 7,
+-     "idempotencyKey": "same-original-key",
++     "idempotencyKey": "previous-key",
+    },
+-   "method": "PATCH",
+-   "path": "/api/dealtwin/judge/obligations/judge-existing-ap",
++   "method": "POST",
++   "path": "/api/dealtwin/judge/reset",
+  }
+
+ ❯ tests/dealtwin/ui/command-recovery.test.ts:23:24
+     21|     let remembered: UiCommand = previous;
+     22|     await expect(sendCommandAttempt(command, value => { remembered = v…
+     23|     expect(remembered).toEqual(command);
+       |                        ^
+     24|     expect(remembered).not.toEqual(previous);
+     25|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/dealtwin/ui/command-recovery.test.ts > command transport recovery (in-memory, not database transaction evidence) > retries the exact method, body, revision and key after a simulated accepted request loses its response
+AssertionError: expected null not to be null
+ ❯ tests/dealtwin/ui/command-recovery.test.ts:36:28
+     34|     };
+     35|     await expect(sendCommandAttempt(command, value => { remembered = v…
+     36|     expect(remembered).not.toBeNull();
+       |                            ^
+     37|     const retry = remembered as unknown as UiCommand;
+     38|     expect(await sendCommand(retry.path, retry.body, transport, retry.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/dealtwin/ui/command-recovery.test.ts > command transport recovery (in-memory, not database transaction evidence) > retains identity when status 200 has an unreadable response
+ FAIL  tests/dealtwin/ui/command-recovery.test.ts > command transport recovery (in-memory, not database transaction evidence) > retains identity when status 503 has an unreadable response
+AssertionError: expected null to deeply equal { …(3) }
+
+- Expected:
+{
+  "body": {
+    "amountRupiah": "19000000",
+    "expectedRevision": 7,
+    "idempotencyKey": "same-original-key",
+  },
+  "method": "PATCH",
+  "path": "/api/dealtwin/judge/obligations/judge-existing-ap",
+}
+
++ Received:
+null
+
+ ❯ tests/dealtwin/ui/command-recovery.test.ts:46:24
+     44|     let remembered: UiCommand | null = null;
+     45|     await expect(sendCommandAttempt(command, value => { remembered = v…
+     46|     expect(remembered).toEqual(command);
+       |                        ^
+     47|   });
+     48|   it('continues to return the actual successful response', async () =>…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 1 passed (6)
+   Start at  05:28:32
+   Duration  324ms (transform 53ms, setup 0ms, collect 60ms, tests 20ms, environment 0ms, prepare 85ms)
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

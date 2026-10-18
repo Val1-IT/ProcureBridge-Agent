@@ -1,0 +1,16 @@
+{
+  "restored": {
+    "files": 95,
+    "passed": 1023,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "final": {
+    "files": 97,
+    "passed": 1037,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  }
+}

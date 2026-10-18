@@ -293,3 +293,11 @@ output/playwright/task24 evidence because the existing suite writes that path;
 use a new Task29 results/reporter path. Do not overwrite Task27 benchmark runs.
 Do not rerun the same unchanged test without a new verification purpose.
 No second review of unchanged aggregation, no push/merge/deploy/production.
+# Fresh-cloud recovery addendum — 2026-10-18
+
+See [CLOUD-RECOVERY-20261018.md](CLOUD-RECOVERY-20261018.md) for exact import
+identity, effective two-domain network policy, install and non-DB evidence.
+Final code checkpoint `0361622` passes 97 non-DB files / 1,037 tests, typecheck,
+lint, Judge build and bounded client scan. These do not replace the excluded
+25 database suites, real browser journeys, full coverage, configured Sites build
+or final exact-candidate packet. Task29 remains PARTIAL; no release claim.

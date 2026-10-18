@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-18",
+  "requestedConfiguration": "cecfgver_6ad4569fcd9881a19b34dbecf73f1929",
+  "policyVerification": "effective local /etc/codex/network-policy.json; configuration ID not independently exposed",
+  "allowedHttpHosts": [
+    "registry.npmjs.org",
+    "sdmntprwestcentralus.oaiusercontent.com"
+  ],
+  "tcpNetworkAccess": {
+    "domains": [],
+    "ip_ranges": []
+  },
+  "archiveLibraryId": "libfile_3a5abc8f502c81918a47520463346a40",
+  "archiveSha256": "744a85d7d8def9aa42d5a927c969706fd3d1b130813ad425d8187a3e5a162369",
+  "archivePayloadChecksumsVerified": 10,
+  "baseline": "6f51368a674953bdcc9cdb8031f76e1da6081875",
+  "restoredHead": "0c6a4210221ea8f043ec76ca21e953b30f44c0d3",
+  "restoredTree": "d27fbdf3f194ff7ddfe02052807b579d80f7ff9c",
+  "restoredCommits": 3,
+  "restoredClean": true,
+  "gitFsck": "PASS",
+  "candidateCodeHead": "0361622badf4c6dad5d13bf9d50bcf83e15a35d4",
+  "candidateCodeTree": "8a860bb9abb2023f0f192f921066d370f455947b",
+  "lockSha256": "be4c7d6db1ea524f4a236d3fd6f7ef932fd0c2badc9fd323d3f0436048e2fa54",
+  "lifecycleScriptsExecuted": false,
+  "databaseTestsRun": false,
+  "browserTestsRun": false,
+  "task29": "PARTIAL",
+  "productReady": false,
+  "releaseReady": false,
+  "automaticApprovalDenials": 0
+}

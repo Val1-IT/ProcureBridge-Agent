@@ -1,0 +1,6364 @@
+{
+  "schemaVersion": "dealtwin.benchmark.v1",
+  "metadata": {
+    "sourceSha": "0c6a4210221ea8f043ec76ca21e953b30f44c0d3",
+    "sourceTreeHash": "e70abd2750b6224e2cdde83654009023b1bbe391d780033fc5082a81ffe02612",
+    "dirty": false,
+    "seed": 27,
+    "generatedAt": "2026-10-18T05:27:18.124Z"
+  },
+  "serviceEvidence": null,
+  "measurementScopes": {
+    "classification": "One product/cost plus AP/AR; financial eligibility includes CONDITIONAL and never grants COMMIT approval",
+    "sameDayOrdering": "Tagged same-day corpus cases only",
+    "replayMismatch": "Genuine canonical proof recomputation for each corpus case",
+    "amendmentMismatch": "Exhaustive bounded one-cost deposit/customer/supplier grid with required receipt-delay stress",
+    "serviceMetrics": "Disposable synthetic Judge command flows and two-distinct-pool races only; not exhaustive schedules",
+    "extractionCorrectness": "Four offline synthetic ProviderReply schema/confirmation contracts; NOT live LLM extraction accuracy"
+  },
+  "versions": {
+    "compiler": "dealtwin-engine-v1",
+    "stress": "dealtwin-engine-v2",
+    "recompiler": "dealtwin.amendment-policy.v1",
+    "oracle": "independent-prefix-grid-v1",
+    "fixedRule": "margin-and-20pct-v1",
+    "adapter": "dealtwin-erp-adapter-v1",
+    "canonicalization": "dealtwin-canonicalization-v1",
+    "extraction": "offline-synthetic-contract-v1"
+  },
+  "corpusHash": "6e3a8f4a2510f5d430f07ed9193d2932f5a05e1f55d560763f3744e360eb6902",
+  "cases": [
+    {
+      "scenario": {
+        "id": "core-judge20",
+        "tags": [
+          "judge"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 2,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2000000",
+        "firstViolationDate": "2026-09-22",
+        "shortfallRupiah": "3000000",
+        "winner": [
+          2500,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 2457,
+        "feasibleCandidates": 2097
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2000000",
+        "firstViolationDate": "2026-09-22",
+        "shortfallRupiah": "3000000",
+        "winner": [
+          2500,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 2457,
+        "feasibleCandidates": 2097,
+        "replayMatched": true,
+        "contextHash": "cd68603189aacb85e7ff4cb05cf28808dfe42b4c5229cdabe16c3685f7d23549"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-judge25",
+        "tags": [
+          "judge"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2500,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 2600,
+          "minBalanceDays": 14,
+          "maxCostDays": 6,
+          "allowSupplier": false,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "5000000",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2500,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 2,
+        "feasibleCandidates": 2
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "5000000",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2500,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 2,
+        "feasibleCandidates": 2,
+        "replayMatched": true,
+        "contextHash": "b6befa78d221803e4b29f8890380cf792ae83d9fac00aa9ab8e46bc05a6c8daf"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-ap19",
+        "tags": [
+          "judge"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 2,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "1000000",
+        "firstViolationDate": "2026-09-22",
+        "shortfallRupiah": "4000000",
+        "winner": [
+          2700,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 2457,
+        "feasibleCandidates": 1953
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "1000000",
+        "firstViolationDate": "2026-09-22",
+        "shortfallRupiah": "4000000",
+        "winner": [
+          2700,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 2457,
+        "feasibleCandidates": 1953,
+        "replayMatched": true,
+        "contextHash": "6b362c903da4095cf78ac4ae5b7ac1b1b7a22db0c4fe58537acf888827b4b2ec"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-deposit24-no-solution",
+        "tags": [
+          "judge"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 2400,
+          "minBalanceDays": 14,
+          "maxCostDays": 6,
+          "allowSupplier": false,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2000000",
+        "firstViolationDate": "2026-09-22",
+        "shortfallRupiah": "3000000",
+        "winner": null,
+        "evaluatedCandidates": 5,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2000000",
+        "firstViolationDate": "2026-09-22",
+        "shortfallRupiah": "3000000",
+        "winner": null,
+        "evaluatedCandidates": 5,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "0c77d8b970d9d5d80a0e875036f80bf5a7e45d3b3b4a00c0c2e2f24cc5bbf5b0"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-same-day",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 2200,
+          "minBalanceDays": 14,
+          "maxCostDays": 4,
+          "allowSupplier": false,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-18000000",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "18000000",
+        "winner": null,
+        "evaluatedCandidates": 3,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-18000000",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "18000000",
+        "winner": null,
+        "evaluatedCandidates": 3,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "efb6c92356c283d3ea8bcf48e8b27ae98aa9f7485b8b285e873dc11351c7c858"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-late-cost",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "105000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 2000,
+          "minBalanceDays": 14,
+          "maxCostDays": 31,
+          "allowSupplier": false,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-13000000",
+        "firstViolationDate": "2026-10-17",
+        "shortfallRupiah": "13000000",
+        "winner": null,
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-13000000",
+        "firstViolationDate": "2026-10-17",
+        "shortfallRupiah": "13000000",
+        "winner": null,
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "380161b2cfe620b4049a2cef5a8e1e6646a26c270cf762482a368961550063c6"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "core-rounding",
+        "tags": [
+          "rounding"
+        ],
+        "cash": {
+          "openingRupiah": "5",
+          "floorRupiah": "1",
+          "payableRupiah": "1",
+          "receivableRupiah": "1"
+        },
+        "deal": {
+          "revenueRupiah": "7",
+          "directCostRupiah": "5",
+          "depositBps": 3333,
+          "balanceDays": 2,
+          "costDays": 1
+        },
+        "amendment": {
+          "maxDepositBps": 3333,
+          "minBalanceDays": 2,
+          "maxCostDays": 1,
+          "allowSupplier": false,
+          "receiptDelayDays": 0
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "1",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3333,
+          2,
+          1
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "1",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3333,
+          2,
+          1
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1,
+        "replayMatched": true,
+        "contextHash": "42cd5c4b957b6898ce544695dbaf714f6049a9b67b53151a5ad7be004bb7d3cf"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-pre-acceptance-floor",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "20000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 2000,
+          "minBalanceDays": 14,
+          "maxCostDays": 6,
+          "allowSupplier": false,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-8000000",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3000000",
+        "winner": null,
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-8000000",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3000000",
+        "winner": null,
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "f54e290994ea973569ceafca385f6438c438f8dab16c825f91352d25d0ec5e63"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-large-exact",
+        "tags": [
+          "large"
+        ],
+        "cash": {
+          "openingRupiah": "9007199254740993",
+          "floorRupiah": "0",
+          "payableRupiah": "1",
+          "receivableRupiah": "1"
+        },
+        "deal": {
+          "revenueRupiah": "9007199254740993",
+          "directCostRupiah": "9007199254740993",
+          "depositBps": 0,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 0,
+          "minBalanceDays": 14,
+          "maxCostDays": 6,
+          "allowSupplier": false,
+          "receiptDelayDays": 0
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "0",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          0,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "0",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          0,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1,
+        "replayMatched": true,
+        "contextHash": "4dc3020501851ce3b76ab386b71b15b1c052ea8b49e3504f4c12af7f410c7ec6"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "core-full-deposit-order",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 10000,
+          "balanceDays": 14,
+          "costDays": 0
+        },
+        "amendment": {
+          "maxDepositBps": 10000,
+          "minBalanceDays": 14,
+          "maxCostDays": 0,
+          "allowSupplier": false,
+          "receiptDelayDays": 0
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-30000000",
+        "firstViolationDate": "2026-09-16",
+        "shortfallRupiah": "30000000",
+        "winner": null,
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-30000000",
+        "firstViolationDate": "2026-09-16",
+        "shortfallRupiah": "30000000",
+        "winner": null,
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "04f6a09eda00f2761767004ad6c029e2c5fe5cddd6279ed4ec9dff33e2f252e7"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-floor-equality",
+        "tags": [
+          "rounding"
+        ],
+        "cash": {
+          "openingRupiah": "5",
+          "floorRupiah": "0",
+          "payableRupiah": "1",
+          "receivableRupiah": "1"
+        },
+        "deal": {
+          "revenueRupiah": "10",
+          "directCostRupiah": "9",
+          "depositBps": 5000,
+          "balanceDays": 2,
+          "costDays": 1
+        },
+        "amendment": {
+          "maxDepositBps": 5000,
+          "minBalanceDays": 2,
+          "maxCostDays": 1,
+          "allowSupplier": false,
+          "receiptDelayDays": 0
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "0",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          5000,
+          2,
+          1
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "0",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          5000,
+          2,
+          1
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1,
+        "replayMatched": true,
+        "contextHash": "e737959897dd3ede41149e2c7f11d3993c764728491856e0effe71e75fc8d6be"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "core-early-balance",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "30000000",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 0,
+          "balanceDays": 2,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 0,
+          "minBalanceDays": 2,
+          "maxCostDays": 6,
+          "allowSupplier": false,
+          "receiptDelayDays": 0
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "12000000",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          0,
+          2,
+          6
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "12000000",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          0,
+          2,
+          6
+        ],
+        "evaluatedCandidates": 1,
+        "feasibleCandidates": 1,
+        "replayMatched": true,
+        "contextHash": "479ba812ae3f9760c5b692c35c724d7719ca42455f09f2a925aa5133dfe6e9ad"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "core-zero-opening",
+        "tags": [
+          "judge"
+        ],
+        "cash": {
+          "openingRupiah": "0",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18000000",
+          "receivableRupiah": "20000000"
+        },
+        "deal": {
+          "revenueRupiah": "60000000",
+          "directCostRupiah": "42000000",
+          "depositBps": 2000,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 2600,
+          "minBalanceDays": 14,
+          "maxCostDays": 6,
+          "allowSupplier": false,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-28000000",
+        "firstViolationDate": "2026-09-12",
+        "shortfallRupiah": "5000000",
+        "winner": null,
+        "evaluatedCandidates": 7,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-28000000",
+        "firstViolationDate": "2026-09-12",
+        "shortfallRupiah": "5000000",
+        "winner": null,
+        "evaluatedCandidates": 7,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "84636f8438390018efd9bce91cd766594402984190fbc15a3ad4e83ed2253849"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-0",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "30082141",
+          "floorRupiah": "5000000",
+          "payableRupiah": "11069184",
+          "receivableRupiah": "16359425"
+        },
+        "deal": {
+          "revenueRupiah": "68927254",
+          "directCostRupiah": "46480092",
+          "depositBps": 2300,
+          "balanceDays": 11,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 2500,
+          "minBalanceDays": 9,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "19012957",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2300,
+          11,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "19012957",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2300,
+          11,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "81771b8d3bbd847df39886e5d1b9eee6c591df1af64049dbbc8542b786f121a6"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-1",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "26229236",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12080006",
+          "receivableRupiah": "18076262"
+        },
+        "deal": {
+          "revenueRupiah": "59084798",
+          "directCostRupiah": "31885735",
+          "depositBps": 1400,
+          "balanceDays": 2,
+          "costDays": 16
+        },
+        "amendment": {
+          "maxDepositBps": 1600,
+          "minBalanceDays": 0,
+          "maxCostDays": 18,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "14149230",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1400,
+          2,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "14149230",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1400,
+          2,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "e3eb13083e8146c850075e7380a3f5b78a66f0b972072dda29f1ba42eed18e18"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-2",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "27662961",
+          "floorRupiah": "5000000",
+          "payableRupiah": "14401383",
+          "receivableRupiah": "21148411"
+        },
+        "deal": {
+          "revenueRupiah": "60046512",
+          "directCostRupiah": "62859624",
+          "depositBps": 2200,
+          "balanceDays": 4,
+          "costDays": 13
+        },
+        "amendment": {
+          "maxDepositBps": 2400,
+          "minBalanceDays": 2,
+          "maxCostDays": 15,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "13261578",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          4,
+          13
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "13261578",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          4,
+          13
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "885b79922c77798be019fd8acd6008f5ee07a2906c8bc1d830742ebb0f0cac39"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-3",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "23340177",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18421307",
+          "receivableRupiah": "20639174"
+        },
+        "deal": {
+          "revenueRupiah": "60362735",
+          "directCostRupiah": "50065907",
+          "depositBps": 2900,
+          "balanceDays": 14,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 3100,
+          "minBalanceDays": 12,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-7002670",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "81130",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-7002670",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "81130",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "ad5a52c5d591510eec7537196c2bf8ddcb9b712e43f926e7a98a08dd7a38b64f"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-4",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "26700619",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17230853",
+          "receivableRupiah": "15592532"
+        },
+        "deal": {
+          "revenueRupiah": "53572853",
+          "directCostRupiah": "57872088",
+          "depositBps": 3700,
+          "balanceDays": 6,
+          "costDays": 15
+        },
+        "amendment": {
+          "maxDepositBps": 3900,
+          "minBalanceDays": 4,
+          "maxCostDays": 17,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "9469766",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          6,
+          15
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "9469766",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          6,
+          15
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "587971a19cde424efc1cfa007e80bc22a4a1c3a15e121af7f2354ee64073a338"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-5",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "25381248",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19332831",
+          "receivableRupiah": "10927090"
+        },
+        "deal": {
+          "revenueRupiah": "58155939",
+          "directCostRupiah": "37887648",
+          "depositBps": 2900,
+          "balanceDays": 2,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3100,
+          "minBalanceDays": 0,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "6048417",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2900,
+          2,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "6048417",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2900,
+          2,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "4c42ef7e2bd0b142298af92d64ee22c152a6305a240a7d734eae822f78df17d4"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-6",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28443860",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21485362",
+          "receivableRupiah": "19186143"
+        },
+        "deal": {
+          "revenueRupiah": "57396637",
+          "directCostRupiah": "61889206",
+          "depositBps": 2800,
+          "balanceDays": 9,
+          "costDays": 12
+        },
+        "amendment": {
+          "maxDepositBps": 3000,
+          "minBalanceDays": 7,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "6958498",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2800,
+          9,
+          13
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "6958498",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2800,
+          9,
+          13
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24,
+        "replayMatched": true,
+        "contextHash": "00377683b497f8b6a419297321d5ee9121b2c7fb97220a3fc72ffdf36ccf0ad0"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-7",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "27326985",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17422702",
+          "receivableRupiah": "29955195"
+        },
+        "deal": {
+          "revenueRupiah": "57206582",
+          "directCostRupiah": "47976605",
+          "depositBps": 1000,
+          "balanceDays": 9,
+          "costDays": 9
+        },
+        "amendment": {
+          "maxDepositBps": 1200,
+          "minBalanceDays": 7,
+          "maxCostDays": 11,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-2396469",
+        "firstViolationDate": "2026-09-25",
+        "shortfallRupiah": "2396469",
+        "winner": [
+          1000,
+          7,
+          11
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-2396469",
+        "firstViolationDate": "2026-09-25",
+        "shortfallRupiah": "2396469",
+        "winner": [
+          1000,
+          7,
+          11
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "4a28596280c13cffdbf094dcf5e250b2179a2d12b7fcdf97d0f7824755a877ab"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-8",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "27756378",
+          "floorRupiah": "5000000",
+          "payableRupiah": "20253944",
+          "receivableRupiah": "18151838"
+        },
+        "deal": {
+          "revenueRupiah": "45383729",
+          "directCostRupiah": "38454725",
+          "depositBps": 4000,
+          "balanceDays": 14,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 12,
+          "maxCostDays": 8,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "5353038",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          4000,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 9,
+        "feasibleCandidates": 9
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "5353038",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          4000,
+          14,
+          6
+        ],
+        "evaluatedCandidates": 9,
+        "feasibleCandidates": 9,
+        "replayMatched": true,
+        "contextHash": "fc081a710bc4cd626fb0fb1e694341ea3e47f6864096051c9aae395ba405d08b"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-9",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28020545",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17459330",
+          "receivableRupiah": "23372162"
+        },
+        "deal": {
+          "revenueRupiah": "57090986",
+          "directCostRupiah": "59086012",
+          "depositBps": 1600,
+          "balanceDays": 6,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 1800,
+          "minBalanceDays": 4,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-39390240",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "39390240",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-39390240",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "39390240",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "f2651f252789735b730e05fcbc70c955f3bec2f34e5d89dafe0158fe3bc88078"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-10",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32118326",
+          "floorRupiah": "5000000",
+          "payableRupiah": "24985550",
+          "receivableRupiah": "24568270"
+        },
+        "deal": {
+          "revenueRupiah": "69054781",
+          "directCostRupiah": "54995038",
+          "depositBps": 3000,
+          "balanceDays": 16,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 14,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-27145828",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "27145828",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-27145828",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "27145828",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "30ed869bad79e56b8cd53f1a9d31cbc7116b2b32aa5242d8c72ccbf0fb2f75a9"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-11",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "31090928",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13556071",
+          "receivableRupiah": "17562432"
+        },
+        "deal": {
+          "revenueRupiah": "55128868",
+          "directCostRupiah": "64540660",
+          "depositBps": 3700,
+          "balanceDays": 19,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 3900,
+          "minBalanceDays": 17,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "17534857",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          19,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "17534857",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          19,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "84f52be405af32dd17b457552ff0c97a600f02921455202bf0beb1b4f9b0224f"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-12",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "32876933",
+          "floorRupiah": "5000000",
+          "payableRupiah": "10944839",
+          "receivableRupiah": "14828823"
+        },
+        "deal": {
+          "revenueRupiah": "42802789",
+          "directCostRupiah": "61780936",
+          "depositBps": 2400,
+          "balanceDays": 8,
+          "costDays": 11
+        },
+        "amendment": {
+          "maxDepositBps": 2600,
+          "minBalanceDays": 6,
+          "maxCostDays": 13,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "17782770",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2400,
+          8,
+          12
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "17782770",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2400,
+          8,
+          12
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24,
+        "replayMatched": true,
+        "contextHash": "801128f3ef74bb3b2823d07712ac3e970904097bf422404643390c864a886538"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-13",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "24522320",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23518477",
+          "receivableRupiah": "13480284"
+        },
+        "deal": {
+          "revenueRupiah": "69248034",
+          "directCostRupiah": "44287572",
+          "depositBps": 2700,
+          "balanceDays": 10,
+          "costDays": 16
+        },
+        "amendment": {
+          "maxDepositBps": 2900,
+          "minBalanceDays": 8,
+          "maxCostDays": 18,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "1003843",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3996157",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "1003843",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3996157",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "f88f341a276f20869d1e8381fcb757400af8d6098ab54f419994e5a142f7b1a3"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-14",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "31493934",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13369536",
+          "receivableRupiah": "11533653"
+        },
+        "deal": {
+          "revenueRupiah": "50272165",
+          "directCostRupiah": "33248747",
+          "depositBps": 2200,
+          "balanceDays": 12,
+          "costDays": 12
+        },
+        "amendment": {
+          "maxDepositBps": 2400,
+          "minBalanceDays": 10,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "7469180",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          12,
+          12
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "7469180",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          12,
+          12
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "fa482cf4cba7ca0695a4c02346ec9bfa6aceeb5df957aa87ee460c0b43810497"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-15",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32375091",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21516980",
+          "receivableRupiah": "16170260"
+        },
+        "deal": {
+          "revenueRupiah": "46483857",
+          "directCostRupiah": "51957436",
+          "depositBps": 1600,
+          "balanceDays": 13,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 1800,
+          "minBalanceDays": 11,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-33661908",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "33661908",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-33661908",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "33661908",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "8907311a43367b581f7910de34c103afb581ebd4ffb8a0b486af4c56b708c366"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-16",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "25722882",
+          "floorRupiah": "5000000",
+          "payableRupiah": "24955640",
+          "receivableRupiah": "19287079"
+        },
+        "deal": {
+          "revenueRupiah": "52353936",
+          "directCostRupiah": "64885736",
+          "depositBps": 1000,
+          "balanceDays": 4,
+          "costDays": 14
+        },
+        "amendment": {
+          "maxDepositBps": 1200,
+          "minBalanceDays": 2,
+          "maxCostDays": 16,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "767242",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "4232758",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "767242",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "4232758",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "78ae71f47bd660b9da11b23ba6c25fdee854e9c3c077e92dbb7ed6a2667e4f40"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-17",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "29789923",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23230522",
+          "receivableRupiah": "11071791"
+        },
+        "deal": {
+          "revenueRupiah": "40934977",
+          "directCostRupiah": "49525769",
+          "depositBps": 1400,
+          "balanceDays": 14,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 1600,
+          "minBalanceDays": 12,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-26163681",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "26163681",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-26163681",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "26163681",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "811ebfaf85f62fa1c3305c2dd1e41099a4bc2540c16790795bfdcecabbf9bb23"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-18",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28383031",
+          "floorRupiah": "5000000",
+          "payableRupiah": "15243687",
+          "receivableRupiah": "26453971"
+        },
+        "deal": {
+          "revenueRupiah": "59884201",
+          "directCostRupiah": "59385867",
+          "depositBps": 1400,
+          "balanceDays": 16,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 1600,
+          "minBalanceDays": 14,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-11408764",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "11408764",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-11408764",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "11408764",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "ec5263cc66fb54c98921288a966a4797d47762c1956adf4fffc4d1f048d374bd"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-19",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "24592903",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21238144",
+          "receivableRupiah": "11608072"
+        },
+        "deal": {
+          "revenueRupiah": "44647614",
+          "directCostRupiah": "54792378",
+          "depositBps": 2800,
+          "balanceDays": 18,
+          "costDays": 16
+        },
+        "amendment": {
+          "maxDepositBps": 3000,
+          "minBalanceDays": 16,
+          "maxCostDays": 18,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-27328216",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1645241",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-27328216",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1645241",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "a77e994d400d11cac5b5691022524a250a999b85f22a74fdae3653364a35ec7b"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-20",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "31859491",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12760832",
+          "receivableRupiah": "15609170"
+        },
+        "deal": {
+          "revenueRupiah": "40995287",
+          "directCostRupiah": "38916600",
+          "depositBps": 3900,
+          "balanceDays": 2,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 0,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "19098659",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3900,
+          2,
+          5
+        ],
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 14
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "19098659",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3900,
+          2,
+          5
+        ],
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 14,
+        "replayMatched": true,
+        "contextHash": "3baa3d2edbdd8ae9f06aaccace7c0461ef9b00fc367452a660c09eb34f7ac0ad"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-21",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "28802965",
+          "floorRupiah": "5000000",
+          "payableRupiah": "22603650",
+          "receivableRupiah": "24907275"
+        },
+        "deal": {
+          "revenueRupiah": "60700624",
+          "directCostRupiah": "51516495",
+          "depositBps": 3300,
+          "balanceDays": 17,
+          "costDays": 17
+        },
+        "amendment": {
+          "maxDepositBps": 3500,
+          "minBalanceDays": 15,
+          "maxCostDays": 19,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-378700",
+        "firstViolationDate": "2026-10-03",
+        "shortfallRupiah": "378700",
+        "winner": [
+          3300,
+          15,
+          19
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-378700",
+        "firstViolationDate": "2026-10-03",
+        "shortfallRupiah": "378700",
+        "winner": [
+          3300,
+          15,
+          19
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "3b4a60dbaac3a4d1d8c448a8663cfa156fc2354cef1ae606507a0a9b70cd5ae4"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-22",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "30973136",
+          "floorRupiah": "5000000",
+          "payableRupiah": "14135940",
+          "receivableRupiah": "25060474"
+        },
+        "deal": {
+          "revenueRupiah": "62052510",
+          "directCostRupiah": "36618721",
+          "depositBps": 3800,
+          "balanceDays": 6,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 4,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "16837196",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3800,
+          6,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "16837196",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3800,
+          6,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "16bda6ef98fb24da83ca05f380d08931761a6fccb427f9de52a660cbb1d8f0b4"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-23",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "24949677",
+          "floorRupiah": "5000000",
+          "payableRupiah": "20208545",
+          "receivableRupiah": "23535882"
+        },
+        "deal": {
+          "revenueRupiah": "64999850",
+          "directCostRupiah": "46669086",
+          "depositBps": 3000,
+          "balanceDays": 19,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 17,
+          "maxCostDays": 8,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "1107883",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "258868",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "1107883",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "258868",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "4c02e7f519c14071b2acd83600171e4dd5f8d1fd169c8fbeeb65b36d8631385a"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-24",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "29860862",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18427273",
+          "receivableRupiah": "15141670"
+        },
+        "deal": {
+          "revenueRupiah": "44944833",
+          "directCostRupiah": "54205599",
+          "depositBps": 2200,
+          "balanceDays": 11,
+          "costDays": 12
+        },
+        "amendment": {
+          "maxDepositBps": 2400,
+          "minBalanceDays": 9,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "11433589",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          10,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 9
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "11433589",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          10,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 9,
+        "replayMatched": true,
+        "contextHash": "eed57fbb0d00d66a40d7814772d0d2c31ab4066a5a5d2a56c5ff38920131fbda"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-25",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "28425652",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19467716",
+          "receivableRupiah": "27833904"
+        },
+        "deal": {
+          "revenueRupiah": "46239747",
+          "directCostRupiah": "36843241",
+          "depositBps": 3000,
+          "balanceDays": 3,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 1,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "8957936",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3000,
+          3,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "8957936",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3000,
+          3,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "cd796e8057a7cf1dd1bac388eb8a3d1e34a09d5dd32aa3d3508016e53061fc4c"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-26",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "24069974",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23691346",
+          "receivableRupiah": "12479040"
+        },
+        "deal": {
+          "revenueRupiah": "40519293",
+          "directCostRupiah": "37242955",
+          "depositBps": 3900,
+          "balanceDays": 14,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 12,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-21061803",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "4621372",
+        "winner": null,
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-21061803",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "4621372",
+        "winner": null,
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "f9639d827fe0bab5e6270b840f98d3a8517a187d3b4ed3b7bee0109412049c1f"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-27",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "32299317",
+          "floorRupiah": "5000000",
+          "payableRupiah": "20837715",
+          "receivableRupiah": "18643672"
+        },
+        "deal": {
+          "revenueRupiah": "65213332",
+          "directCostRupiah": "52006688",
+          "depositBps": 3100,
+          "balanceDays": 14,
+          "costDays": 5
+        },
+        "amendment": {
+          "maxDepositBps": 3300,
+          "minBalanceDays": 12,
+          "maxCostDays": 7,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-1685282",
+        "firstViolationDate": "2026-09-21",
+        "shortfallRupiah": "1685282",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-1685282",
+        "firstViolationDate": "2026-09-21",
+        "shortfallRupiah": "1685282",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "7538a92b4e58e83728ee34c01f1c58b2fef51f1e9e58b37ac27691f7adf2c7ac"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-28",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "23729272",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12209438",
+          "receivableRupiah": "15707503"
+        },
+        "deal": {
+          "revenueRupiah": "44599923",
+          "directCostRupiah": "35915184",
+          "depositBps": 1800,
+          "balanceDays": 2,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 2000,
+          "minBalanceDays": 0,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-16367364",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "16367364",
+        "winner": [
+          1800,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-16367364",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "16367364",
+        "winner": [
+          1800,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "feb72c8a06037ac81f6093459f9cb163ca86cb644b823b17aa02be52ee0b3f17"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-29",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "27521893",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23376050",
+          "receivableRupiah": "18657969"
+        },
+        "deal": {
+          "revenueRupiah": "67351359",
+          "directCostRupiah": "34895960",
+          "depositBps": 3600,
+          "balanceDays": 9,
+          "costDays": 5
+        },
+        "amendment": {
+          "maxDepositBps": 3800,
+          "minBalanceDays": 7,
+          "maxCostDays": 7,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "4145843",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "854157",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "4145843",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "854157",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "dc5b63a9bd9f30d807b7f910830da980c6b9aba0e998f9ea003cdf73544997e7"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-30",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "28627865",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18944642",
+          "receivableRupiah": "28339634"
+        },
+        "deal": {
+          "revenueRupiah": "43617322",
+          "directCostRupiah": "61551053",
+          "depositBps": 1300,
+          "balanceDays": 7,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 1500,
+          "minBalanceDays": 5,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-46197579",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "46197579",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-46197579",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "46197579",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "72081822f9c9f4c5f5e492a8ad1a097d24191dc3b3d42c81c260905036ff64ca"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-31",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "31181520",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19195349",
+          "receivableRupiah": "19981336"
+        },
+        "deal": {
+          "revenueRupiah": "47017100",
+          "directCostRupiah": "45695072",
+          "depositBps": 3900,
+          "balanceDays": 6,
+          "costDays": 16
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 4,
+          "maxCostDays": 18,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "11986171",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3900,
+          6,
+          16
+        ],
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "11986171",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3900,
+          6,
+          16
+        ],
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "caf1af6c7c00f7b8937315c890ba63fb8764f36ef57fd931449d4e45a843ef77"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-32",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "27421716",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18311207",
+          "receivableRupiah": "13559971"
+        },
+        "deal": {
+          "revenueRupiah": "47644547",
+          "directCostRupiah": "55591847",
+          "depositBps": 1800,
+          "balanceDays": 12,
+          "costDays": 12
+        },
+        "amendment": {
+          "maxDepositBps": 2000,
+          "minBalanceDays": 10,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-24345349",
+        "firstViolationDate": "2026-09-28",
+        "shortfallRupiah": "24345349",
+        "winner": [
+          1800,
+          10,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-24345349",
+        "firstViolationDate": "2026-09-28",
+        "shortfallRupiah": "24345349",
+        "winner": [
+          1800,
+          10,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "05281c55d08c88170a63fda1b80c20fc30015d8788c6224b83f571ba958b5ed4"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-33",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "31245334",
+          "floorRupiah": "5000000",
+          "payableRupiah": "15702839",
+          "receivableRupiah": "23719454"
+        },
+        "deal": {
+          "revenueRupiah": "56310539",
+          "directCostRupiah": "57446197",
+          "depositBps": 1900,
+          "balanceDays": 2,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 2100,
+          "minBalanceDays": 0,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "15542495",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1900,
+          2,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "15542495",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1900,
+          2,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "0944d51cbc55c7aee833e17fe75c7dd4d34cd353689728a15b1eec8e2d36b702"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-34",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "26231987",
+          "floorRupiah": "5000000",
+          "payableRupiah": "20907353",
+          "receivableRupiah": "12190363"
+        },
+        "deal": {
+          "revenueRupiah": "61868254",
+          "directCostRupiah": "58349252",
+          "depositBps": 1300,
+          "balanceDays": 7,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 1500,
+          "minBalanceDays": 5,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-32791382",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "32791382",
+        "winner": [
+          1300,
+          5,
+          9
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-32791382",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "32791382",
+        "winner": [
+          1300,
+          5,
+          9
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "1bbc04ab97feaf9d61844fa0a981e4a5a2768552cf753eba02b4f0add753d914"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-35",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "26781009",
+          "floorRupiah": "5000000",
+          "payableRupiah": "24937267",
+          "receivableRupiah": "19166988"
+        },
+        "deal": {
+          "revenueRupiah": "68127346",
+          "directCostRupiah": "49287669",
+          "depositBps": 1200,
+          "balanceDays": 17,
+          "costDays": 17
+        },
+        "amendment": {
+          "maxDepositBps": 1400,
+          "minBalanceDays": 15,
+          "maxCostDays": 19,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-20101658",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3156258",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-20101658",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3156258",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "02c122b85481edda968092dd006d6b0f337a0e1ad3ba0353e31fe3b0d41aee60"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-36",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "27862675",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19005913",
+          "receivableRupiah": "19430125"
+        },
+        "deal": {
+          "revenueRupiah": "65555385",
+          "directCostRupiah": "56820956",
+          "depositBps": 1100,
+          "balanceDays": 12,
+          "costDays": 14
+        },
+        "amendment": {
+          "maxDepositBps": 1300,
+          "minBalanceDays": 10,
+          "maxCostDays": 16,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "8856762",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1100,
+          12,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "8856762",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1100,
+          12,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "3c88f0572e37461dd4145489b5584bf029a331452da82278efa6a1f780bde836"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-37",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "26016059",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18194655",
+          "receivableRupiah": "12569979"
+        },
+        "deal": {
+          "revenueRupiah": "63314719",
+          "directCostRupiah": "30225896",
+          "depositBps": 3900,
+          "balanceDays": 4,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 2,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2288248",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "2711752",
+        "winner": null,
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2288248",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "2711752",
+        "winner": null,
+        "evaluatedCandidates": 18,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "220d06aef5979693266ae5d4564436723aa059321469f5d57c424c5a33414921"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-38",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "31920011",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21234090",
+          "receivableRupiah": "20340038"
+        },
+        "deal": {
+          "revenueRupiah": "43657275",
+          "directCostRupiah": "46128493",
+          "depositBps": 1300,
+          "balanceDays": 8,
+          "costDays": 8
+        },
+        "amendment": {
+          "maxDepositBps": 1500,
+          "minBalanceDays": 6,
+          "maxCostDays": 10,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-9427089",
+        "firstViolationDate": "2026-09-24",
+        "shortfallRupiah": "9427089",
+        "winner": [
+          1300,
+          6,
+          10
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-9427089",
+        "firstViolationDate": "2026-09-24",
+        "shortfallRupiah": "9427089",
+        "winner": [
+          1300,
+          6,
+          10
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "fe7a095ba99467ffd940636750bcea241c655dc1308f86b79857f156c1e06a79"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-39",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28818685",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17477981",
+          "receivableRupiah": "21902001"
+        },
+        "deal": {
+          "revenueRupiah": "49541306",
+          "directCostRupiah": "44488404",
+          "depositBps": 3700,
+          "balanceDays": 14,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 3900,
+          "minBalanceDays": 12,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "7084584",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          14,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "7084584",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          14,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "6de4dfb7142beb1ee6704fb636ce24c58b12795d9d430fcdeb416ca42c8ec00b"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-40",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "28168010",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18834560",
+          "receivableRupiah": "22603421"
+        },
+        "deal": {
+          "revenueRupiah": "67135890",
+          "directCostRupiah": "45131545",
+          "depositBps": 1100,
+          "balanceDays": 10,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 1300,
+          "minBalanceDays": 8,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-28413148",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "28413148",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-28413148",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "28413148",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "eca2ffe7f190a8011d4a17d547e31978932bd09d7595c274452e437931fd735b"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-41",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "30509508",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23212578",
+          "receivableRupiah": "15130708"
+        },
+        "deal": {
+          "revenueRupiah": "42456411",
+          "directCostRupiah": "59833317",
+          "depositBps": 3000,
+          "balanceDays": 11,
+          "costDays": 13
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 9,
+          "maxCostDays": 15,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "5050732",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3000,
+          11,
+          15
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "5050732",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3000,
+          11,
+          15
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "3386b9f4d245e5ab5ac2f79c53c798ffb710e9ededd7f880dc66ae0aa09afce8"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-42",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "25758615",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19628224",
+          "receivableRupiah": "12756210"
+        },
+        "deal": {
+          "revenueRupiah": "54060583",
+          "directCostRupiah": "33609441",
+          "depositBps": 3000,
+          "balanceDays": 11,
+          "costDays": 11
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 9,
+          "maxCostDays": 13,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "1495334",
+        "firstViolationDate": "2026-09-27",
+        "shortfallRupiah": "3504666",
+        "winner": [
+          3000,
+          9,
+          13
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "1495334",
+        "firstViolationDate": "2026-09-27",
+        "shortfallRupiah": "3504666",
+        "winner": [
+          3000,
+          9,
+          13
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "a304fc27543090416abc10b087b2fa7021de434b97d2180d62a261be85bd41d3"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-43",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "27134621",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12946772",
+          "receivableRupiah": "17789883"
+        },
+        "deal": {
+          "revenueRupiah": "57199168",
+          "directCostRupiah": "30908190",
+          "depositBps": 3500,
+          "balanceDays": 2,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 3700,
+          "minBalanceDays": 0,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "3299367",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "1700633",
+        "winner": [
+          3500,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "3299367",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "1700633",
+        "winner": [
+          3500,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "e8189aac0cd3a24ab6b2d60e6e8df658a8fb4e4a75ffbb696e2ce140243754a7"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-44",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "30999221",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12373365",
+          "receivableRupiah": "16715338"
+        },
+        "deal": {
+          "revenueRupiah": "62783327",
+          "directCostRupiah": "50731525",
+          "depositBps": 1300,
+          "balanceDays": 6,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 1500,
+          "minBalanceDays": 4,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "18625856",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1300,
+          6,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "18625856",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1300,
+          6,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "6e8d856f5326b7455e530dc4db77260233112441b6c8a3a4ed8144aa8c228951"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-45",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32243539",
+          "floorRupiah": "5000000",
+          "payableRupiah": "20032337",
+          "receivableRupiah": "12260421"
+        },
+        "deal": {
+          "revenueRupiah": "47761979",
+          "directCostRupiah": "43570450",
+          "depositBps": 1500,
+          "balanceDays": 13,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 1700,
+          "minBalanceDays": 11,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-24194952",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "24194952",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-24194952",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "24194952",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "b733f91bc89017a7403025b06602162b714b199804c799858004f7c591ae169c"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-46",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "27940416",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17609555",
+          "receivableRupiah": "18203707"
+        },
+        "deal": {
+          "revenueRupiah": "58777533",
+          "directCostRupiah": "44623922",
+          "depositBps": 3400,
+          "balanceDays": 12,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3600,
+          "minBalanceDays": 10,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-14308700",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "14308700",
+        "winner": [
+          3600,
+          12,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 6
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-14308700",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "14308700",
+        "winner": [
+          3600,
+          12,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 6,
+        "replayMatched": true,
+        "contextHash": "1b4dce933fd1d0e7eaa305d6a62b35df83af2a3103661f2e6bb794d505668e09"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-47",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "29744917",
+          "floorRupiah": "5000000",
+          "payableRupiah": "24412957",
+          "receivableRupiah": "18612644"
+        },
+        "deal": {
+          "revenueRupiah": "54937151",
+          "directCostRupiah": "45497295",
+          "depositBps": 1700,
+          "balanceDays": 14,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 1900,
+          "minBalanceDays": 12,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-12213376",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "12213376",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-12213376",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "12213376",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "d38747aff72ac4e2b551848dd8cc68c9022037819e6c650f8e4176d44dfcfba3"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-48",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "29180379",
+          "floorRupiah": "5000000",
+          "payableRupiah": "22038152",
+          "receivableRupiah": "21630681"
+        },
+        "deal": {
+          "revenueRupiah": "64023072",
+          "directCostRupiah": "37387946",
+          "depositBps": 3000,
+          "balanceDays": 4,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 2,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "7142227",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3000,
+          4,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "7142227",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3000,
+          4,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "65153ecaa049af4388c1b9aa2341b6fe6fe66ace8d81a43c436f166f87951c59"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-49",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "25207496",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19528038",
+          "receivableRupiah": "14846251"
+        },
+        "deal": {
+          "revenueRupiah": "58868393",
+          "directCostRupiah": "40015670",
+          "depositBps": 3800,
+          "balanceDays": 8,
+          "costDays": 8
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 6,
+          "maxCostDays": 10,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2880028",
+        "firstViolationDate": "2026-09-24",
+        "shortfallRupiah": "2119972",
+        "winner": [
+          3800,
+          6,
+          10
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2880028",
+        "firstViolationDate": "2026-09-24",
+        "shortfallRupiah": "2119972",
+        "winner": [
+          3800,
+          6,
+          10
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "17441042e01afe8e49e3357b621609c962f2860bab5ebb1ee3dfe7fc31b372ef"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-50",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "26390577",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13230941",
+          "receivableRupiah": "27424665"
+        },
+        "deal": {
+          "revenueRupiah": "55998339",
+          "directCostRupiah": "60688090",
+          "depositBps": 2100,
+          "balanceDays": 5,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 2300,
+          "minBalanceDays": 3,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-35768803",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "35768803",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-35768803",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "35768803",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "7a6aa6735786cd28af826c55ed4980a05b1f7b787b7af88166e5a2de9eeea3ce"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-51",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "31146257",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17261008",
+          "receivableRupiah": "24122511"
+        },
+        "deal": {
+          "revenueRupiah": "68881878",
+          "directCostRupiah": "49028084",
+          "depositBps": 2700,
+          "balanceDays": 4,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 2900,
+          "minBalanceDays": 2,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-16544728",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "16544728",
+        "winner": [
+          2700,
+          4,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-16544728",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "16544728",
+        "winner": [
+          2700,
+          4,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "bd6d1af88b8e19da94feb7fcce2b7697668380fede98d22ac19612a3ed2bebb1"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-52",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "23958941",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13029635",
+          "receivableRupiah": "21771736"
+        },
+        "deal": {
+          "revenueRupiah": "65147242",
+          "directCostRupiah": "32305107",
+          "depositBps": 2600,
+          "balanceDays": 10,
+          "costDays": 5
+        },
+        "amendment": {
+          "maxDepositBps": 2800,
+          "minBalanceDays": 8,
+          "maxCostDays": 7,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "10929306",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2600,
+          10,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "10929306",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2600,
+          10,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "00215dd81d28c1ce3d725eaf2c76d50d7dcf8f2883ecb041e52041d775911402"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-53",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "24034431",
+          "floorRupiah": "5000000",
+          "payableRupiah": "20525751",
+          "receivableRupiah": "29001190"
+        },
+        "deal": {
+          "revenueRupiah": "62972754",
+          "directCostRupiah": "32526929",
+          "depositBps": 3500,
+          "balanceDays": 4,
+          "costDays": 8
+        },
+        "amendment": {
+          "maxDepositBps": 3700,
+          "minBalanceDays": 2,
+          "maxCostDays": 10,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "3508680",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1491320",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "3508680",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1491320",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "6f38db7df442e725335afac91649f8b21f4d12fc9725b85d77e99fd46c5bbf2f"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-54",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "26141962",
+          "floorRupiah": "5000000",
+          "payableRupiah": "16287834",
+          "receivableRupiah": "19291877"
+        },
+        "deal": {
+          "revenueRupiah": "46971650",
+          "directCostRupiah": "59483755",
+          "depositBps": 2500,
+          "balanceDays": 12,
+          "costDays": 15
+        },
+        "amendment": {
+          "maxDepositBps": 2700,
+          "minBalanceDays": 10,
+          "maxCostDays": 17,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "9854128",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2500,
+          12,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "9854128",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2500,
+          12,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24,
+        "replayMatched": true,
+        "contextHash": "284783d057180e08f27a34a9b696e58804c1dd9d7c86f5d49ec6d714a0616102"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-55",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "31421538",
+          "floorRupiah": "5000000",
+          "payableRupiah": "11469440",
+          "receivableRupiah": "11999917"
+        },
+        "deal": {
+          "revenueRupiah": "64307434",
+          "directCostRupiah": "33361087",
+          "depositBps": 1600,
+          "balanceDays": 16,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 1800,
+          "minBalanceDays": 14,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "19952098",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1600,
+          16,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "19952098",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1600,
+          16,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "0094b5c09e7fbe72ecf09b74000770f14b2a73e1b314ed699b0df7d2396d3897"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-56",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "29953707",
+          "floorRupiah": "5000000",
+          "payableRupiah": "22521318",
+          "receivableRupiah": "16251522"
+        },
+        "deal": {
+          "revenueRupiah": "41819680",
+          "directCostRupiah": "61522978",
+          "depositBps": 2700,
+          "balanceDays": 3,
+          "costDays": 3
+        },
+        "amendment": {
+          "maxDepositBps": 2900,
+          "minBalanceDays": 1,
+          "maxCostDays": 5,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-42799276",
+        "firstViolationDate": "2026-09-19",
+        "shortfallRupiah": "42799276",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-42799276",
+        "firstViolationDate": "2026-09-19",
+        "shortfallRupiah": "42799276",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "4814a077e1eeaddc2d4457911ae927ec63759a9ddec50f80c81852132665f689"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-57",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "23141255",
+          "floorRupiah": "5000000",
+          "payableRupiah": "15423949",
+          "receivableRupiah": "16947185"
+        },
+        "deal": {
+          "revenueRupiah": "47713738",
+          "directCostRupiah": "56712889",
+          "depositBps": 3400,
+          "balanceDays": 18,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 3600,
+          "minBalanceDays": 16,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-15825728",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "15825728",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-15825728",
+        "firstViolationDate": "2026-09-23",
+        "shortfallRupiah": "15825728",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "4665a2b8d39f774f1614929026b53e8cbd2836ecb09fb35ac8e6b16df03c63a5"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-58",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "30729359",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18431599",
+          "receivableRupiah": "23287106"
+        },
+        "deal": {
+          "revenueRupiah": "58755035",
+          "directCostRupiah": "51230173",
+          "depositBps": 3700,
+          "balanceDays": 10,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 3900,
+          "minBalanceDays": 8,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "6094055",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          10,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "6094055",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3700,
+          10,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "365ffa0577849c3620fbe2f3c3ca72416a33b95797bdf63e1e2bae342240dd26"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-59",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "32884914",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21220204",
+          "receivableRupiah": "17839172"
+        },
+        "deal": {
+          "revenueRupiah": "43230875",
+          "directCostRupiah": "48848280",
+          "depositBps": 1700,
+          "balanceDays": 2,
+          "costDays": 8
+        },
+        "amendment": {
+          "maxDepositBps": 1900,
+          "minBalanceDays": 0,
+          "maxCostDays": 10,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "11664710",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1700,
+          2,
+          8
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "11664710",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1700,
+          2,
+          8
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "cbeb5c82a69118d147b458dcdcee5f38c74f321cbae63f230b3f7ca7c0875350"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-60",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32120176",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13192799",
+          "receivableRupiah": "25296505"
+        },
+        "deal": {
+          "revenueRupiah": "61278272",
+          "directCostRupiah": "34876494",
+          "depositBps": 1800,
+          "balanceDays": 8,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 2000,
+          "minBalanceDays": 6,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-4919029",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "4919029",
+        "winner": [
+          1800,
+          8,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-4919029",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "4919029",
+        "winner": [
+          1800,
+          8,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "ae85906bab2de9862b7a12b60747ad9468a9e525054ff43022e3ab398c7343dd"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-61",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "26022571",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18180164",
+          "receivableRupiah": "23538632"
+        },
+        "deal": {
+          "revenueRupiah": "64536662",
+          "directCostRupiah": "36985544",
+          "depositBps": 3500,
+          "balanceDays": 5,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 3700,
+          "minBalanceDays": 3,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "7842407",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3500,
+          5,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "7842407",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3500,
+          5,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "46c9714b0079599a418df6021498fd6b7d617a5fa1106e44546b011546fce9d7"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-62",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "31807334",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21667607",
+          "receivableRupiah": "25293468"
+        },
+        "deal": {
+          "revenueRupiah": "63329605",
+          "directCostRupiah": "45251789",
+          "depositBps": 2000,
+          "balanceDays": 19,
+          "costDays": 8
+        },
+        "amendment": {
+          "maxDepositBps": 2200,
+          "minBalanceDays": 17,
+          "maxCostDays": 10,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2847327",
+        "firstViolationDate": "2026-09-24",
+        "shortfallRupiah": "2152673",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2847327",
+        "firstViolationDate": "2026-09-24",
+        "shortfallRupiah": "2152673",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "fcca8fbbfd49d285aa15522c39619884d31c6049330d088e489777ad02ced3d4"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-63",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "30142919",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17134605",
+          "receivableRupiah": "28846346"
+        },
+        "deal": {
+          "revenueRupiah": "62853936",
+          "directCostRupiah": "59693236",
+          "depositBps": 2000,
+          "balanceDays": 5,
+          "costDays": 5
+        },
+        "amendment": {
+          "maxDepositBps": 2200,
+          "minBalanceDays": 3,
+          "maxCostDays": 7,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-5267789",
+        "firstViolationDate": "2026-09-21",
+        "shortfallRupiah": "5267789",
+        "winner": [
+          2000,
+          3,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-5267789",
+        "firstViolationDate": "2026-09-21",
+        "shortfallRupiah": "5267789",
+        "winner": [
+          2000,
+          3,
+          7
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "40c93f6b444a9b17d7f4688ab4f0fd3962e15c02b6e8e2ea793c53d7b49c8c58"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-64",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "24986191",
+          "floorRupiah": "5000000",
+          "payableRupiah": "10333148",
+          "receivableRupiah": "14950114"
+        },
+        "deal": {
+          "revenueRupiah": "58624722",
+          "directCostRupiah": "50831425",
+          "depositBps": 2900,
+          "balanceDays": 12,
+          "costDays": 16
+        },
+        "amendment": {
+          "maxDepositBps": 3100,
+          "minBalanceDays": 10,
+          "maxCostDays": 18,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "14653043",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2900,
+          12,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "14653043",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2900,
+          12,
+          16
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "8668b0c05e021081ff519cfec9931ea8113a1fb8ac40267a3f1c6c6a54343ac6"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-65",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "25106888",
+          "floorRupiah": "5000000",
+          "payableRupiah": "16455281",
+          "receivableRupiah": "17556785"
+        },
+        "deal": {
+          "revenueRupiah": "46654184",
+          "directCostRupiah": "58240129",
+          "depositBps": 1400,
+          "balanceDays": 4,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 1600,
+          "minBalanceDays": 2,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-43056937",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "43056937",
+        "winner": [
+          1400,
+          2,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-43056937",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "43056937",
+        "winner": [
+          1400,
+          2,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "7499615cf670c9a904b226feadddedcc3f1a0ea0fd7909fc6861810a188b90ae"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-66",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "23489492",
+          "floorRupiah": "5000000",
+          "payableRupiah": "24676354",
+          "receivableRupiah": "25413224"
+        },
+        "deal": {
+          "revenueRupiah": "58408119",
+          "directCostRupiah": "63101735",
+          "depositBps": 2100,
+          "balanceDays": 19,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 2300,
+          "minBalanceDays": 17,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-1186862",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1186862",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-1186862",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1186862",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "87446076d496fb7be16026eb2374cbe90be7a1119b28e8ada2333991f8fe76cf"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-67",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "30564805",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21157060",
+          "receivableRupiah": "23629410"
+        },
+        "deal": {
+          "revenueRupiah": "44734755",
+          "directCostRupiah": "61756000",
+          "depositBps": 2300,
+          "balanceDays": 6,
+          "costDays": 7
+        },
+        "amendment": {
+          "maxDepositBps": 2500,
+          "minBalanceDays": 4,
+          "maxCostDays": 9,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "9407745",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2300,
+          5,
+          9
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 9
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "9407745",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2300,
+          5,
+          9
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 9,
+        "replayMatched": true,
+        "contextHash": "61f6f1a671048a524546545e962b26a791f11fd5c4765da318e46f7628aaa895"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-68",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32399852",
+          "floorRupiah": "5000000",
+          "payableRupiah": "14110573",
+          "receivableRupiah": "18603542"
+        },
+        "deal": {
+          "revenueRupiah": "56255969",
+          "directCostRupiah": "33945331",
+          "depositBps": 1000,
+          "balanceDays": 6,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 1200,
+          "minBalanceDays": 4,
+          "maxCostDays": 8,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "8573086",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1000,
+          6,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "8573086",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1000,
+          6,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "e4b76f5e9f2a51cbc5ccf629376a791bc37c8ce10311ea0d66379a30aaa9bd69"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-69",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "31691303",
+          "floorRupiah": "5000000",
+          "payableRupiah": "14606943",
+          "receivableRupiah": "15336527"
+        },
+        "deal": {
+          "revenueRupiah": "69262731",
+          "directCostRupiah": "49708341",
+          "depositBps": 2400,
+          "balanceDays": 12,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 2600,
+          "minBalanceDays": 10,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-16000926",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "16000926",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-16000926",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "16000926",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "685f9d97da978a026dd48b56f0472fdc3184f4660a2c5f358fad74134261fea4"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-70",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "27951182",
+          "floorRupiah": "5000000",
+          "payableRupiah": "11895056",
+          "receivableRupiah": "25917398"
+        },
+        "deal": {
+          "revenueRupiah": "58443193",
+          "directCostRupiah": "43983463",
+          "depositBps": 3000,
+          "balanceDays": 2,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 0,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-10394380",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "10394380",
+        "winner": [
+          3000,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-10394380",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "10394380",
+        "winner": [
+          3000,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "4bc908eaf90378a7414504573cfa658cf9e0bf500b973bb530e30224aa046b72"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-71",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "25003064",
+          "floorRupiah": "5000000",
+          "payableRupiah": "22830748",
+          "receivableRupiah": "13092674"
+        },
+        "deal": {
+          "revenueRupiah": "56606563",
+          "directCostRupiah": "35352295",
+          "depositBps": 2600,
+          "balanceDays": 17,
+          "costDays": 12
+        },
+        "amendment": {
+          "maxDepositBps": 2800,
+          "minBalanceDays": 15,
+          "maxCostDays": 14,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-5369599",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "2827684",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-5369599",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "2827684",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "23ee8c654664f4bc14a45de0c1d4434045043416c113c3ea2cbefec367124845"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-72",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28996937",
+          "floorRupiah": "5000000",
+          "payableRupiah": "10649910",
+          "receivableRupiah": "18361812"
+        },
+        "deal": {
+          "revenueRupiah": "48880602",
+          "directCostRupiah": "57081458",
+          "depositBps": 1700,
+          "balanceDays": 13,
+          "costDays": 3
+        },
+        "amendment": {
+          "maxDepositBps": 1900,
+          "minBalanceDays": 11,
+          "maxCostDays": 5,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-30424729",
+        "firstViolationDate": "2026-09-19",
+        "shortfallRupiah": "30424729",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-30424729",
+        "firstViolationDate": "2026-09-19",
+        "shortfallRupiah": "30424729",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "2e4e04cccdb637d8825e1c5dd10f30f1046d6a139dc4b2ab837e2a3f47fc5a50"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-73",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "32707740",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12761392",
+          "receivableRupiah": "12614396"
+        },
+        "deal": {
+          "revenueRupiah": "53367406",
+          "directCostRupiah": "39398923",
+          "depositBps": 1700,
+          "balanceDays": 19,
+          "costDays": 5
+        },
+        "amendment": {
+          "maxDepositBps": 1900,
+          "minBalanceDays": 17,
+          "maxCostDays": 7,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2234280",
+        "firstViolationDate": "2026-09-21",
+        "shortfallRupiah": "2765720",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2234280",
+        "firstViolationDate": "2026-09-21",
+        "shortfallRupiah": "2765720",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "a09e21aa847736c01fed328fd2762016d3f2ce9f323a054f12922d7246497c3d"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-74",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28552203",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12252764",
+          "receivableRupiah": "22801845"
+        },
+        "deal": {
+          "revenueRupiah": "53170174",
+          "directCostRupiah": "44893228",
+          "depositBps": 1200,
+          "balanceDays": 17,
+          "costDays": 14
+        },
+        "amendment": {
+          "maxDepositBps": 1400,
+          "minBalanceDays": 15,
+          "maxCostDays": 16,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "588476",
+        "firstViolationDate": "2026-09-30",
+        "shortfallRupiah": "4411524",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "588476",
+        "firstViolationDate": "2026-09-30",
+        "shortfallRupiah": "4411524",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "ff5536ca537d9f86b5f44316a7472e66880a7e1f813f2fa4011fec19ab28dc9d"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-75",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "26032735",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19556917",
+          "receivableRupiah": "10005428"
+        },
+        "deal": {
+          "revenueRupiah": "40290597",
+          "directCostRupiah": "49359176",
+          "depositBps": 3000,
+          "balanceDays": 19,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3200,
+          "minBalanceDays": 17,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-30796179",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "30796179",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-30796179",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "30796179",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "8e92e45d61ba9eda90f9ae0ff353667019420f5dfa3cb800db505570ee1eb6ef"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-76",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "23211491",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13927448",
+          "receivableRupiah": "16799933"
+        },
+        "deal": {
+          "revenueRupiah": "69903804",
+          "directCostRupiah": "46147795",
+          "depositBps": 3600,
+          "balanceDays": 16,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 3800,
+          "minBalanceDays": 14,
+          "maxCostDays": 8,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "5101550",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3600,
+          16,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "5101550",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3600,
+          16,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "5a7aee8c0e40aff04583425288edcf2b8cdce912778bac0b127517e47a19f3e6"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-77",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "24902957",
+          "floorRupiah": "5000000",
+          "payableRupiah": "14595555",
+          "receivableRupiah": "12887184"
+        },
+        "deal": {
+          "revenueRupiah": "49522165",
+          "directCostRupiah": "40375821",
+          "depositBps": 1200,
+          "balanceDays": 2,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 1400,
+          "minBalanceDays": 0,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "10307402",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1200,
+          2,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "10307402",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1200,
+          2,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "9f2214d36962d2c8b9b461387e45092d4da7e3b4a2eeeca603161d18383f826c"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-78",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "25250834",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23633035",
+          "receivableRupiah": "21951852"
+        },
+        "deal": {
+          "revenueRupiah": "42721474",
+          "directCostRupiah": "35297767",
+          "depositBps": 3600,
+          "balanceDays": 17,
+          "costDays": 9
+        },
+        "amendment": {
+          "maxDepositBps": 3800,
+          "minBalanceDays": 15,
+          "maxCostDays": 11,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "1617799",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3382201",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "1617799",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "3382201",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "6e7d32161d05eccc945857c0a6b0e663262efc45fcec4a9bf2f1cc1ded046d94"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-79",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "30224601",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18160189",
+          "receivableRupiah": "25771611"
+        },
+        "deal": {
+          "revenueRupiah": "69369063",
+          "directCostRupiah": "60212546",
+          "depositBps": 2300,
+          "balanceDays": 19,
+          "costDays": 9
+        },
+        "amendment": {
+          "maxDepositBps": 2500,
+          "minBalanceDays": 17,
+          "maxCostDays": 11,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-6421639",
+        "firstViolationDate": "2026-09-25",
+        "shortfallRupiah": "6421639",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-6421639",
+        "firstViolationDate": "2026-09-25",
+        "shortfallRupiah": "6421639",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "cbb109b52611017a22f8f6eb2fed1e166328f41a977248f6dafe5d3651e5e275"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-80",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32576823",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19179761",
+          "receivableRupiah": "23906142"
+        },
+        "deal": {
+          "revenueRupiah": "54309370",
+          "directCostRupiah": "36474435",
+          "depositBps": 2800,
+          "balanceDays": 7,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3000,
+          "minBalanceDays": 5,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-7870750",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "7870750",
+        "winner": [
+          2800,
+          7,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-7870750",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "7870750",
+        "winner": [
+          2800,
+          7,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 18,
+        "replayMatched": true,
+        "contextHash": "639e3b61d9d40f4a18c5585ad648f3eeb8b2a4b5094f19f42ea2a5e1257fd7ff"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-81",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "25986669",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23609068",
+          "receivableRupiah": "10471448"
+        },
+        "deal": {
+          "revenueRupiah": "47388900",
+          "directCostRupiah": "55428377",
+          "depositBps": 1400,
+          "balanceDays": 8,
+          "costDays": 15
+        },
+        "amendment": {
+          "maxDepositBps": 1600,
+          "minBalanceDays": 6,
+          "maxCostDays": 17,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "2377601",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "2622399",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "2377601",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "2622399",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "5c75c7d7105855350fe9943923e229ae46f36dc2ebea6c4f808defb71f9ea6eb"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-82",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "25670893",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17194333",
+          "receivableRupiah": "12121892"
+        },
+        "deal": {
+          "revenueRupiah": "62941676",
+          "directCostRupiah": "32006721",
+          "depositBps": 3500,
+          "balanceDays": 4,
+          "costDays": 10
+        },
+        "amendment": {
+          "maxDepositBps": 3700,
+          "minBalanceDays": 2,
+          "maxCostDays": 12,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "8476560",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3500,
+          4,
+          10
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "8476560",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3500,
+          4,
+          10
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "25f624b45dceec58bbb4a83f3ff367864948487df833135704549b08ab2edfe9"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-83",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "23630369",
+          "floorRupiah": "5000000",
+          "payableRupiah": "16842865",
+          "receivableRupiah": "16187124"
+        },
+        "deal": {
+          "revenueRupiah": "58392977",
+          "directCostRupiah": "61067749",
+          "depositBps": 1400,
+          "balanceDays": 12,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 1600,
+          "minBalanceDays": 10,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-46105229",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "46105229",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-46105229",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "46105229",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "53e833cc151808eab246ff2ef58a024f2b0552161a8b72b0c5a32100db5609c8"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-84",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "32706716",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12016456",
+          "receivableRupiah": "14972936"
+        },
+        "deal": {
+          "revenueRupiah": "68373381",
+          "directCostRupiah": "60615119",
+          "depositBps": 1300,
+          "balanceDays": 2,
+          "costDays": 2
+        },
+        "amendment": {
+          "maxDepositBps": 1500,
+          "minBalanceDays": 0,
+          "maxCostDays": 4,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-31036320",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "31036320",
+        "winner": [
+          1300,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-31036320",
+        "firstViolationDate": "2026-09-18",
+        "shortfallRupiah": "31036320",
+        "winner": [
+          1300,
+          0,
+          4
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 3,
+        "replayMatched": true,
+        "contextHash": "6ae8ae11bc41d0e7a864e991e87ee13f7ac4652bd177bba1072b20f44716d3e4"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-85",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "25061916",
+          "floorRupiah": "5000000",
+          "payableRupiah": "13988457",
+          "receivableRupiah": "25544165"
+        },
+        "deal": {
+          "revenueRupiah": "65124442",
+          "directCostRupiah": "50253185",
+          "depositBps": 2800,
+          "balanceDays": 15,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3000,
+          "minBalanceDays": 13,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-20944883",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "20944883",
+        "winner": [
+          2900,
+          15,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 12
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-20944883",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "20944883",
+        "winner": [
+          2900,
+          15,
+          5
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 12,
+        "replayMatched": true,
+        "contextHash": "9634bc9524807ccbcd392240c8a67b43f593e77dfc1afb95484df0bf9da4b3d5"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-86",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28680809",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19467098",
+          "receivableRupiah": "13699321"
+        },
+        "deal": {
+          "revenueRupiah": "59246591",
+          "directCostRupiah": "59130124",
+          "depositBps": 2600,
+          "balanceDays": 8,
+          "costDays": 11
+        },
+        "amendment": {
+          "maxDepositBps": 2800,
+          "minBalanceDays": 6,
+          "maxCostDays": 13,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "9213711",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2600,
+          8,
+          12
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "9213711",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2600,
+          8,
+          12
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 24,
+        "replayMatched": true,
+        "contextHash": "1fe246dd7be462767b14f4dc102587b35f77da233530f3ec78a9730ac07a6b83"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-87",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "25036525",
+          "floorRupiah": "5000000",
+          "payableRupiah": "21314722",
+          "receivableRupiah": "22539617"
+        },
+        "deal": {
+          "revenueRupiah": "45180385",
+          "directCostRupiah": "39883165",
+          "depositBps": 3400,
+          "balanceDays": 16,
+          "costDays": 13
+        },
+        "amendment": {
+          "maxDepositBps": 3600,
+          "minBalanceDays": 14,
+          "maxCostDays": 15,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "1739585",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1278197",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "1739585",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1278197",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "f45bd6d33a62ef309bc2893a4b21d8359806904cc59e7d52b81404d4dda5327f"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-88",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "26203707",
+          "floorRupiah": "5000000",
+          "payableRupiah": "10990986",
+          "receivableRupiah": "28659960"
+        },
+        "deal": {
+          "revenueRupiah": "46189409",
+          "directCostRupiah": "30651987",
+          "depositBps": 2200,
+          "balanceDays": 18,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 2400,
+          "minBalanceDays": 16,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "15212721",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          18,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "15212721",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2200,
+          18,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "a970cba21e919a64e59c3d89034bdbee3c53b24fd72c596cfe270723b676ff33"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-89",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28037109",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18964578",
+          "receivableRupiah": "13659810"
+        },
+        "deal": {
+          "revenueRupiah": "41127114",
+          "directCostRupiah": "43020694",
+          "depositBps": 3500,
+          "balanceDays": 19,
+          "costDays": 15
+        },
+        "amendment": {
+          "maxDepositBps": 3700,
+          "minBalanceDays": 17,
+          "maxCostDays": 17,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-5893864",
+        "firstViolationDate": "2026-10-01",
+        "shortfallRupiah": "5893864",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-5893864",
+        "firstViolationDate": "2026-10-01",
+        "shortfallRupiah": "5893864",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "5066d16ea84ea33e2ebf8c6c07b8a9a5ba68eaa3bf8b4b8acb4f957bd1c16f94"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-90",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "23122685",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19442805",
+          "receivableRupiah": "12646251"
+        },
+        "deal": {
+          "revenueRupiah": "69106393",
+          "directCostRupiah": "40001762",
+          "depositBps": 3600,
+          "balanceDays": 17,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 3800,
+          "minBalanceDays": 15,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-11443581",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1320120",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-11443581",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1320120",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "90a594282188788c31ec023c647736b409595da9fb8fa60c55a003793b3ec5a9"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-91",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "26973503",
+          "floorRupiah": "5000000",
+          "payableRupiah": "18629110",
+          "receivableRupiah": "17753777"
+        },
+        "deal": {
+          "revenueRupiah": "69584049",
+          "directCostRupiah": "39501310",
+          "depositBps": 3800,
+          "balanceDays": 6,
+          "costDays": 6
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 4,
+          "maxCostDays": 8,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "8344393",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3800,
+          6,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "8344393",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          3800,
+          6,
+          6
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "136e10807a63779921313962fba5916da4c2ae82b71662dfe11cb2816953d6fb"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-92",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "24438748",
+          "floorRupiah": "5000000",
+          "payableRupiah": "11844743",
+          "receivableRupiah": "26128251"
+        },
+        "deal": {
+          "revenueRupiah": "66579202",
+          "directCostRupiah": "55565899",
+          "depositBps": 1100,
+          "balanceDays": 3,
+          "costDays": 14
+        },
+        "amendment": {
+          "maxDepositBps": 1300,
+          "minBalanceDays": 1,
+          "maxCostDays": 16,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "12594005",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1100,
+          3,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "12594005",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1100,
+          3,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "f463d40df6e38bc0970649989b50a22d218adacaa2111318e97e244fee5167aa"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-93",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "23793729",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19876059",
+          "receivableRupiah": "24854619"
+        },
+        "deal": {
+          "revenueRupiah": "59598895",
+          "directCostRupiah": "42088159",
+          "depositBps": 4000,
+          "balanceDays": 9,
+          "costDays": 11
+        },
+        "amendment": {
+          "maxDepositBps": 4000,
+          "minBalanceDays": 7,
+          "maxCostDays": 13,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "3917670",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1082330",
+        "winner": null,
+        "evaluatedCandidates": 9,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "3917670",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "1082330",
+        "winner": null,
+        "evaluatedCandidates": 9,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "4e9d83bc338b743b2c7df78cc6079aceb14d8c23c150d0f4dcad4ffd8d912421"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-94",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "32233069",
+          "floorRupiah": "5000000",
+          "payableRupiah": "11512124",
+          "receivableRupiah": "18345082"
+        },
+        "deal": {
+          "revenueRupiah": "41359543",
+          "directCostRupiah": "59336532",
+          "depositBps": 3100,
+          "balanceDays": 13,
+          "costDays": 10
+        },
+        "amendment": {
+          "maxDepositBps": 3300,
+          "minBalanceDays": 11,
+          "maxCostDays": 12,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-7449047",
+        "firstViolationDate": "2026-09-26",
+        "shortfallRupiah": "7449047",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-7449047",
+        "firstViolationDate": "2026-09-26",
+        "shortfallRupiah": "7449047",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "8a3d08ef578f3064eba2483da9e908a03ef1bdccf573631f076ad0d51b78b871"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-95",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "26086502",
+          "floorRupiah": "5000000",
+          "payableRupiah": "12044201",
+          "receivableRupiah": "10354849"
+        },
+        "deal": {
+          "revenueRupiah": "41509142",
+          "directCostRupiah": "55923018",
+          "depositBps": 2400,
+          "balanceDays": 11,
+          "costDays": 4
+        },
+        "amendment": {
+          "maxDepositBps": 2600,
+          "minBalanceDays": 9,
+          "maxCostDays": 6,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-31918523",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "31918523",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-31918523",
+        "firstViolationDate": "2026-09-20",
+        "shortfallRupiah": "31918523",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "f69a8779c9897d28eea6082db31e3caa4946aa7a676cdf6b11337cde50e1adcb"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-96",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "28499488",
+          "floorRupiah": "5000000",
+          "payableRupiah": "10317073",
+          "receivableRupiah": "10906477"
+        },
+        "deal": {
+          "revenueRupiah": "61585247",
+          "directCostRupiah": "45338696",
+          "depositBps": 1600,
+          "balanceDays": 6,
+          "costDays": 15
+        },
+        "amendment": {
+          "maxDepositBps": 1800,
+          "minBalanceDays": 4,
+          "maxCostDays": 17,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "18182415",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1600,
+          6,
+          15
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "18182415",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          1600,
+          6,
+          15
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "6663e6298710a8c62ad107bd10a1400cbebdc784d4888ea19563dca8e99c46dd"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-97",
+        "tags": [],
+        "cash": {
+          "openingRupiah": "23839940",
+          "floorRupiah": "5000000",
+          "payableRupiah": "17221691",
+          "receivableRupiah": "23955575"
+        },
+        "deal": {
+          "revenueRupiah": "51384898",
+          "directCostRupiah": "58824069",
+          "depositBps": 2600,
+          "balanceDays": 6,
+          "costDays": 14
+        },
+        "amendment": {
+          "maxDepositBps": 2800,
+          "minBalanceDays": 4,
+          "maxCostDays": 16,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "6618249",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2600,
+          6,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "6618249",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2600,
+          6,
+          14
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "c287a8a966422e65d32361a253023b7f01ddb974af78fac45c0dbf4f768b46be"
+      },
+      "fixedRuleEligible": false
+    },
+    {
+      "scenario": {
+        "id": "generated-27-98",
+        "tags": [
+          "same_day"
+        ],
+        "cash": {
+          "openingRupiah": "23235631",
+          "floorRupiah": "5000000",
+          "payableRupiah": "23490447",
+          "receivableRupiah": "22457028"
+        },
+        "deal": {
+          "revenueRupiah": "62117639",
+          "directCostRupiah": "47995507",
+          "depositBps": 2900,
+          "balanceDays": 14,
+          "costDays": 14
+        },
+        "amendment": {
+          "maxDepositBps": 3100,
+          "minBalanceDays": 12,
+          "maxCostDays": 16,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": false,
+        "minimumRupiah": "-7779180",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "254816",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0
+      },
+      "compiler": {
+        "eligible": false,
+        "minimumRupiah": "-7779180",
+        "firstViolationDate": "2026-09-15",
+        "shortfallRupiah": "254816",
+        "winner": null,
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 0,
+        "replayMatched": true,
+        "contextHash": "7a3be23f1b0887eede2e1c853a8b06ed2c9ebfcaf0ef37dd33fb65b4e2dfeb3d"
+      },
+      "fixedRuleEligible": true
+    },
+    {
+      "scenario": {
+        "id": "generated-27-99",
+        "tags": [
+          "late"
+        ],
+        "cash": {
+          "openingRupiah": "29678716",
+          "floorRupiah": "5000000",
+          "payableRupiah": "19847430",
+          "receivableRupiah": "26136117"
+        },
+        "deal": {
+          "revenueRupiah": "65597067",
+          "directCostRupiah": "54674086",
+          "depositBps": 2000,
+          "balanceDays": 5,
+          "costDays": 31
+        },
+        "amendment": {
+          "maxDepositBps": 2200,
+          "minBalanceDays": 3,
+          "maxCostDays": 33,
+          "allowSupplier": true,
+          "receiptDelayDays": 3
+        }
+      },
+      "oracle": {
+        "eligible": true,
+        "minimumRupiah": "9831286",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2000,
+          5,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27
+      },
+      "compiler": {
+        "eligible": true,
+        "minimumRupiah": "9831286",
+        "firstViolationDate": null,
+        "shortfallRupiah": null,
+        "winner": [
+          2000,
+          5,
+          31
+        ],
+        "evaluatedCandidates": 27,
+        "feasibleCandidates": 27,
+        "replayMatched": true,
+        "contextHash": "ce1f81a729cf9e82ec92ac484e3aebbcac9b24e9c8f98150a17c8cd8dc07c186"
+      },
+      "fixedRuleEligible": true
+    }
+  ],
+  "methods": {
+    "compiler": {
+      "falseFeasible": {
+        "status": "MEASURED",
+        "numerator": 0,
+        "denominator": 68,
+        "rate": 0,
+        "reason": null
+      },
+      "falseInfeasible": {
+        "status": "MEASURED",
+        "numerator": 0,
+        "denominator": 45,
+        "rate": 0,
+        "reason": null
+      }
+    },
+    "fixedRule": {
+      "falseFeasible": {
+        "status": "MEASURED",
+        "numerator": 35,
+        "denominator": 68,
+        "rate": 0.5147058823529411,
+        "reason": null
+      },
+      "falseInfeasible": {
+        "status": "MEASURED",
+        "numerator": 22,
+        "denominator": 45,
+        "rate": 0.4888888888888889,
+        "reason": null
+      }
+    },
+    "llmOnly": {
+      "status": "NOT_MEASURED",
+      "reason": "PROVIDER_EVIDENCE_MISSING"
+    }
+  },
+  "metrics": {
+    "sameDayOrdering": {
+      "status": "MEASURED",
+      "numerator": 0,
+      "denominator": 40,
+      "rate": 0,
+      "reason": null
+    },
+    "replayMismatch": {
+      "status": "MEASURED",
+      "numerator": 0,
+      "denominator": 113,
+      "rate": 0,
+      "reason": null
+    },
+    "amendmentMismatch": {
+      "status": "MEASURED",
+      "numerator": 0,
+      "denominator": 113,
+      "rate": 0,
+      "reason": null
+    },
+    "duplicateCommitment": {
+      "status": "NOT_MEASURED",
+      "numerator": null,
+      "denominator": 0,
+      "rate": null,
+      "reason": "SERVICE_OBSERVATIONS_MISSING"
+    },
+    "missedStaleness": {
+      "status": "NOT_MEASURED",
+      "numerator": null,
+      "denominator": 0,
+      "rate": null,
+      "reason": "SERVICE_OBSERVATIONS_MISSING"
+    },
+    "idempotency": {
+      "status": "NOT_MEASURED",
+      "numerator": null,
+      "denominator": 0,
+      "rate": null,
+      "reason": "SERVICE_OBSERVATIONS_MISSING"
+    },
+    "raceBehavior": {
+      "status": "NOT_MEASURED",
+      "numerator": null,
+      "denominator": 0,
+      "rate": null,
+      "reason": "SERVICE_OBSERVATIONS_MISSING"
+    },
+    "extractionCorrectness": {
+      "status": "NOT_MEASURED",
+      "numerator": null,
+      "denominator": 0,
+      "rate": null,
+      "reason": "SERVICE_OBSERVATIONS_MISSING"
+    }
+  },
+  "mismatches": [
+    {
+      "scenarioId": "core-judge20",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-ap19",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-deposit24-no-solution",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-same-day",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-pre-acceptance-floor",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-large-exact",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-full-deposit-order",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-early-balance",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "core-zero-opening",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-1",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-2",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-3",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-4",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-6",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-10",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-11",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-12",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-13",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-21",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-23",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-24",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-26",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-27",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-29",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-33",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-36",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-37",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-41",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-42",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-43",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-44",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-46",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-49",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-51",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-53",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-54",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-55",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-59",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-62",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-63",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-67",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-68",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-69",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-70",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-71",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-77",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-78",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-79",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-80",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-85",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-87",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-90",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-92",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-93",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-96",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-97",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    },
+    {
+      "scenarioId": "generated-27-98",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH"
+    }
+  ]
+}

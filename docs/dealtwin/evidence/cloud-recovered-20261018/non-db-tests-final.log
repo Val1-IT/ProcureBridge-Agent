@@ -1,0 +1,122 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/call-api.test.ts tests/call-machine.test.ts tests/calle-provider.test.ts tests/dealtwin/ai/constraint-extractor.test.ts tests/dealtwin/api/commitment-lifecycle-route.test.ts tests/dealtwin/api/commitment-routes.test.ts tests/dealtwin/api/disposable-config.test.ts tests/dealtwin/api/judge-routes.test.ts tests/dealtwin/application/approval-service.test.ts tests/dealtwin/application/commitment-service.test.ts tests/dealtwin/application/proof-invalidation.test.ts tests/dealtwin/compiler/compile-deal.test.ts tests/dealtwin/compiler/horizon.test.ts tests/dealtwin/compiler/judge-scenario.test.ts tests/dealtwin/compiler/timeline.test.ts tests/dealtwin/domain/canonical-event.test.ts tests/dealtwin/domain/canonical-json.test.ts tests/dealtwin/domain/cash-event-order.test.ts tests/dealtwin/domain/constraints.test.ts tests/dealtwin/domain/deal-lifecycle.test.ts tests/dealtwin/domain/deal-terms.test.ts tests/dealtwin/domain/money.test.ts tests/dealtwin/erp/cash-foundation.test.ts tests/dealtwin/erp/financial-normalization.test.ts tests/dealtwin/erp/inventory-normalization.test.ts tests/dealtwin/erp/snapshot.test.ts tests/dealtwin/evaluation/benchmark-cli.test.ts tests/dealtwin/evaluation/benchmark.test.ts tests/dealtwin/evaluation/release-evidence.test.ts tests/dealtwin/evaluation/source-fingerprint.test.ts tests/dealtwin/postgres/transaction.test.ts tests/dealtwin/proof/build-proof.test.ts tests/dealtwin/proof/replay-proof.test.ts tests/dealtwin/recompiler/recompiler.test.ts tests/dealtwin/security/server-boundary.test.ts tests/dealtwin/stress/stress-lab.test.ts tests/dealtwin/ui/api-client.test.ts tests/dealtwin/ui/command-recovery.test.ts tests/dealtwin/ui/commands.test.ts tests/dealtwin/ui/dealtwin-surfaces.test.ts tests/dealtwin/ui/judge-guide.test.ts tests/dealtwin/ui/selection.test.ts tests/dealtwin/ui/shell-isolation.test.ts tests/demo-provider-lifecycle.test.ts tests/demo-reset-atomicity.test.ts tests/demo-reset-coalesced-remote.test.ts tests/demo-reset-lifecycle-atomic.test.ts tests/demo-store-coordinator-late-corruption.test.ts tests/demo-store-coordinator-lock-errors.test.ts tests/demo-store-coordinator-recovery.test.ts tests/demo-store-coordinator.test.ts tests/erp-cancellation-finance.test.ts tests/erp-command-boundary.test.ts tests/erp-command-provider.test.ts tests/erp-dashboard-clock.test.ts tests/erp-dashboard-destinations.test.ts tests/erp-dashboard.test.ts tests/erp-demo-guide.test.ts tests/erp-demo-readiness.test.ts tests/erp-domain-persistence.test.ts tests/erp-finance-ui.test.ts tests/erp-finance.test.ts tests/erp-human-review.test.ts tests/erp-inventory-ui.test.ts tests/erp-inventory.test.ts tests/erp-invoice-decimals.test.ts tests/erp-navigation.test.ts tests/erp-persistence.test.ts tests/erp-purchasing-linked-pages.test.ts tests/erp-purchasing-obligations.test.ts tests/erp-purchasing-view-model.test.ts tests/erp-purchasing.test.ts tests/erp-repository-mappers.test.ts tests/erp-sales-ui.test.ts tests/erp-sales.test.ts tests/erp-schema.test.ts tests/erp-synchronization.test.ts tests/erp-tablet-layout.test.ts tests/guardrails.test.ts tests/hosting-bindings.test.ts tests/judge-readiness.test.ts tests/judge-session-envelope.test.ts tests/persistence.test.ts tests/reducer.test.ts tests/repository-mappers.test.ts tests/results.test.ts tests/supplier-call-api.test.ts tests/supplier-call-browser-approval.test.ts tests/supplier-call-guardrails.test.ts tests/supplier-call-persistence.test.ts tests/supplier-call-provider.test.ts tests/supplier-call-review-fixes.test.ts tests/supplier-call-server-approval.test.ts tests/supplier-call-ui.test.ts tests/supplier-result-review.test.ts tests/task12-review-fixes.test.ts tests/webhook.test.ts --reporter=default --reporter=json --outputFile=/workspace/dealtwin-validation/non-db-tests-final.json
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ✓ tests/dealtwin/evaluation/benchmark-cli.test.ts (1 test) 9694ms
+   ✓ runs the actual local CLI, fingerprints source, writes measured artifacts and independently replays every baseline mismatch  9693ms
+ ✓ tests/dealtwin/recompiler/recompiler.test.ts (9 tests) 8545ms
+   ✓ bounded deterministic minimum-amendment solver, never AI-ranked > exact locked Judge winner changes only deposit to25%, retaining14day balance/6day cost and required+3stress  1263ms
+   ✓ bounded deterministic minimum-amendment solver, never AI-ranked > after the one AP obligation rises18m->19m, proposes27% with5.2m minimum while26% fails400k  1167ms
+   ✓ bounded deterministic minimum-amendment solver, never AI-ranked > agrees with an independently enumerated exhaustive2457candidate oracle and literal lexicographic objective  2257ms
+   ✓ bounded deterministic minimum-amendment solver, never AI-ranked > steps from a valid fractional-percent current deposit without requiring the policy cap to lie on that grid  1094ms
+   ✓ bounded deterministic minimum-amendment solver, never AI-ranked > is deterministic under input ordering and never mutates the confirmed source terms/policy  2753ms
+ ✓ tests/dealtwin/evaluation/benchmark.test.ts (28 tests) 310ms
+ ✓ tests/erp-persistence.test.ts (84 tests) 246ms
+ ✓ tests/dealtwin/ui/dealtwin-surfaces.test.ts (11 tests) 65ms
+ ✓ tests/dealtwin/stress/stress-lab.test.ts (25 tests) 124ms
+ ✓ tests/dealtwin/proof/replay-proof.test.ts (14 tests) 125ms
+ ✓ tests/dealtwin/proof/build-proof.test.ts (12 tests) 135ms
+ ✓ tests/supplier-call-api.test.ts (19 tests) 126ms
+ ✓ tests/erp-dashboard.test.ts (13 tests) 72ms
+ ✓ tests/erp-purchasing-obligations.test.ts (21 tests) 57ms
+ ✓ tests/dealtwin/erp/cash-foundation.test.ts (25 tests) 27ms
+ ✓ tests/erp-purchasing.test.ts (11 tests) 30ms
+ ✓ tests/supplier-result-review.test.ts (18 tests) 58ms
+ ✓ tests/supplier-call-ui.test.ts (6 tests) 71ms
+ ✓ tests/task12-review-fixes.test.ts (7 tests) 57ms
+ ✓ tests/dealtwin/application/approval-service.test.ts (8 tests) 52ms
+ ✓ tests/erp-cancellation-finance.test.ts (7 tests) 142ms
+ ✓ tests/erp-dashboard-destinations.test.ts (6 tests) 53ms
+ ✓ tests/dealtwin/evaluation/release-evidence.test.ts (62 tests) 79ms
+ ✓ tests/supplier-call-server-approval.test.ts (10 tests) 44ms
+ ✓ tests/erp-inventory-ui.test.ts (6 tests) 59ms
+ ✓ tests/erp-finance-ui.test.ts (4 tests) 68ms
+ ✓ tests/dealtwin/postgres/transaction.test.ts (18 tests) 15ms
+ ✓ tests/dealtwin/ai/constraint-extractor.test.ts (18 tests) 46ms
+ ✓ tests/erp-inventory.test.ts (15 tests) 19ms
+ ✓ tests/erp-command-boundary.test.ts (17 tests) 22ms
+ ✓ tests/erp-human-review.test.ts (9 tests) 41ms
+ ✓ tests/erp-finance.test.ts (16 tests) 22ms
+ ✓ tests/erp-sales-ui.test.ts (5 tests) 35ms
+ ✓ tests/call-api.test.ts (13 tests) 38ms
+ ✓ tests/dealtwin/api/judge-routes.test.ts (5 tests) 37ms
+ ✓ tests/dealtwin/erp/financial-normalization.test.ts (17 tests) 24ms
+ ✓ tests/erp-domain-persistence.test.ts (21 tests) 36ms
+ ✓ tests/dealtwin/evaluation/source-fingerprint.test.ts (1 test) 22ms
+ ✓ tests/supplier-call-review-fixes.test.ts (9 tests) 35ms
+ ✓ tests/dealtwin/security/server-boundary.test.ts (35 tests) 29ms
+ ✓ tests/erp-purchasing-view-model.test.ts (9 tests) 32ms
+ ✓ tests/dealtwin/api/commitment-routes.test.ts (4 tests) 32ms
+ ✓ tests/erp-purchasing-linked-pages.test.ts (2 tests) 34ms
+ ✓ tests/supplier-call-browser-approval.test.ts (7 tests) 30ms
+ ✓ tests/dealtwin/api/commitment-lifecycle-route.test.ts (4 tests) 31ms
+ ✓ tests/supplier-call-persistence.test.ts (13 tests) 30ms
+ ✓ tests/erp-schema.test.ts (7 tests) 20ms
+ ✓ tests/erp-synchronization.test.ts (1 test) 27ms
+ ✓ tests/judge-session-envelope.test.ts (12 tests) 28ms
+ ✓ tests/demo-provider-lifecycle.test.ts (7 tests) 27ms
+ ✓ tests/dealtwin/ui/commands.test.ts (10 tests) 21ms
+ ✓ tests/demo-store-coordinator.test.ts (4 tests) 25ms
+ ✓ tests/dealtwin/erp/snapshot.test.ts (15 tests) 21ms
+ ✓ tests/demo-reset-atomicity.test.ts (2 tests) 23ms
+ ✓ tests/demo-store-coordinator-recovery.test.ts (2 tests) 20ms
+ ✓ tests/erp-command-provider.test.ts (2 tests) 22ms
+ ✓ tests/demo-store-coordinator-late-corruption.test.ts (1 test) 17ms
+ ✓ tests/hosting-bindings.test.ts (8 tests) 19ms
+ ✓ tests/persistence.test.ts (4 tests) 20ms
+ ✓ tests/demo-reset-coalesced-remote.test.ts (2 tests) 20ms
+ ✓ tests/erp-demo-readiness.test.ts (5 tests) 20ms
+ ✓ tests/calle-provider.test.ts (11 tests) 27ms
+ ✓ tests/erp-sales.test.ts (16 tests) 15ms
+ ✓ tests/demo-reset-lifecycle-atomic.test.ts (1 test) 20ms
+ ✓ tests/dealtwin/compiler/judge-scenario.test.ts (4 tests) 18ms
+ ✓ tests/erp-navigation.test.ts (5 tests) 22ms
+ ✓ tests/erp-demo-guide.test.ts (3 tests) 17ms
+ ✓ tests/demo-store-coordinator-lock-errors.test.ts (1 test) 16ms
+ ✓ tests/dealtwin/ui/judge-guide.test.ts (4 tests) 13ms
+ ✓ tests/judge-readiness.test.ts (17 tests) 17ms
+ ✓ tests/erp-dashboard-clock.test.ts (2 tests) 13ms
+ ✓ tests/dealtwin/ui/command-recovery.test.ts (6 tests) 10ms
+ ✓ tests/dealtwin/domain/deal-lifecycle.test.ts (28 tests) 17ms
+ ✓ tests/erp-repository-mappers.test.ts (8 tests) 13ms
+ ✓ tests/repository-mappers.test.ts (9 tests) 12ms
+ ✓ tests/dealtwin/ui/shell-isolation.test.ts (1 test) 8ms
+ ✓ tests/dealtwin/compiler/compile-deal.test.ts (10 tests) 12ms
+ ✓ tests/reducer.test.ts (9 tests) 10ms
+ ✓ tests/webhook.test.ts (8 tests) 10ms
+ ✓ tests/dealtwin/domain/deal-terms.test.ts (18 tests) 11ms
+ ✓ tests/results.test.ts (8 tests) 10ms
+ ✓ tests/dealtwin/erp/inventory-normalization.test.ts (8 tests) 8ms
+ ✓ tests/dealtwin/ui/api-client.test.ts (3 tests) 7ms
+ ✓ tests/supplier-call-guardrails.test.ts (13 tests) 7ms
+ ✓ tests/dealtwin/domain/cash-event-order.test.ts (14 tests) 9ms
+ ✓ tests/dealtwin/domain/money.test.ts (22 tests) 12ms
+ ✓ tests/dealtwin/compiler/timeline.test.ts (4 tests) 10ms
+ ✓ tests/guardrails.test.ts (10 tests) 9ms
+ ✓ tests/supplier-call-provider.test.ts (6 tests) 6ms
+ ✓ tests/dealtwin/application/proof-invalidation.test.ts (8 tests) 13ms
+ ✓ tests/erp-invoice-decimals.test.ts (3 tests) 6ms
+ ✓ tests/dealtwin/domain/constraints.test.ts (11 tests) 6ms
+ ✓ tests/dealtwin/domain/canonical-json.test.ts (8 tests) 6ms
+ ✓ tests/dealtwin/domain/canonical-event.test.ts (3 tests) 5ms
+ ✓ tests/call-machine.test.ts (6 tests) 4ms
+ ✓ tests/dealtwin/ui/selection.test.ts (7 tests) 4ms
+ ✓ tests/dealtwin/application/commitment-service.test.ts (5 tests) 5ms
+ ✓ tests/dealtwin/api/disposable-config.test.ts (7 tests) 4ms
+ ✓ tests/dealtwin/compiler/horizon.test.ts (2 tests) 5ms
+ ✓ tests/erp-tablet-layout.test.ts (1 test) 3ms
+
+ Test Files  97 passed (97)
+      Tests  1037 passed (1037)
+   Start at  05:29:50
+   Duration  50.53s (transform 2.71s, setup 0ms, collect 8.26s, tests 21.60s, environment 17ms, prepare 6.29s)
+
+JSON report written to /workspace/dealtwin-validation/non-db-tests-final.json
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
