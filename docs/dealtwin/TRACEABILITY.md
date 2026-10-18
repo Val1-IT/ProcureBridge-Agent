@@ -1,5 +1,12 @@
 # DealTwin Requirement Traceability
 
+Current preparation: [dependency disposition and Windows restore plan](DEPENDENCY-DISPOSITION-RESTORE-PLAN-20261019.md)
+maps all eight audit entries to their locally patched braces root, refreshes
+official release evidence and bounds embedded-code reachability without a waiver.
+A read-only Windows restore planner passes 12 native tests and names a new,
+absent target plus ownership checks. No cluster/restore was executed; DT-042
+remains incomplete and earlier test results retain their actual candidate.
+
 Latest substantive verification: [browser, benchmark and restore review](BROWSER-BENCHMARK-REVIEW-20261018.md)
 records 11/11 browser/HTTP checks on the unchanged application tree, including
 responsive/keyboard and durable recovery paths. A benchmark output-reservation
