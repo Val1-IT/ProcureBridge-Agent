@@ -1,5 +1,15 @@
 # DealTwin Requirement Traceability
 
+Latest local checkpoint: [candidate 17b5c75 validation](LOCAL-VALIDATION-17B5C75-20261018.md)
+records 1328/1328 tests in 135 files with coverage thresholds met, 4/4 native
+runtime checks, typecheck/lint and both builds/client scans passing. The fresh
+browser attempt was interrupted at 3511 MiB by the unchanged 4096 MiB RAM guard;
+no current browser pass is claimed. Fresh audit remains 8 high aggregates.
+The [durable checkpoint](CHECKPOINT-20261018-1601UTC.md) preserves exact source,
+process ownership, evidence and safe resume steps. Task29/DT-042 remain PARTIAL;
+physical restore, standalone benchmark and external gates remain open. Older
+entries below retain their historical SHA and scope.
+
 Current local review: [demo checklist and remaining evidence](CURRENT-DEMO-CHECKLIST-20261018.md)
 records the source review of 3e74db3, with product code 99ef77b unchanged and its
 14/14 focused UI tests plus changed-file lint passing. Node 24.22.0 is installed
