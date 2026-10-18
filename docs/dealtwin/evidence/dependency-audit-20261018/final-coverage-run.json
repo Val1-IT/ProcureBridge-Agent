@@ -1,0 +1,18 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "npm",
+    "run",
+    "test:coverage",
+    "--",
+    "--testTimeout=60000",
+    "--hookTimeout=60000",
+    "--reporter=dot",
+    "--reporter=json",
+    "--outputFile=/workspace/dealtwin-runtime/audit-20261018/final-coverage-tests.json"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 459.923,
+  "lifecycleScriptsDisabled": true
+}

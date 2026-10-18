@@ -1,6 +1,13 @@
 # DealTwin Requirement Traceability
 
-Latest local gate evidence: [cloud gates](CLOUD-GATES-20261018.md) at clean413c0e4
+Latest dependency evidence: [audit and remediation](DEPENDENCY-AUDIT-20261018.md)
+records22 original package aggregates /32 unique advisory URLs, two compatible
+fix commits and1274/1274 whole-suite tests on clean cd1d8bd. Final audit20
+aggregates /9 reported advisory URLs still blocks DT-042; embedded package
+copies and major migrations remain open. DT-038 browser remains unproven.
+All existing thresholds, assertions and required gate IDs are preserved.
+
+Earlier local gate evidence: [cloud gates](CLOUD-GATES-20261018.md) at clean413c0e4
 adds1264/1264 full coverage, real45-table restore with payment/receipt/SO checks,
 44-table cross-tenant read checks, three benchmark races, and57/57 replay.
 This supports local DB/financial/restore requirements. DT-038 browser and DT-042

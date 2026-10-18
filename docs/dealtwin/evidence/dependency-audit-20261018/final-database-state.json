@@ -1,0 +1,21 @@
+{
+  "database": "dealtwin_test",
+  "address": "127.0.0.1",
+  "port": 55432,
+  "tables": 45,
+  "otherClients": 0,
+  "roles": [
+    {
+      "rolname": "dealtwin_app_login",
+      "rolsuper": false,
+      "rolbypassrls": false,
+      "rolcanlogin": true
+    },
+    {
+      "rolname": "dealtwin_reset_login",
+      "rolsuper": false,
+      "rolbypassrls": false,
+      "rolcanlogin": true
+    }
+  ]
+}

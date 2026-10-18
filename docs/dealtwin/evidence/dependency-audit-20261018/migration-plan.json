@@ -1,0 +1,36 @@
+{
+  "notApplied": true,
+  "reason": "User requires concrete review before major migration",
+  "testRunner": {
+    "packages": {
+      "vitest": "4.1.11",
+      "@vitest/coverage-v8": "4.1.11"
+    },
+    "compatibilityWork": [
+      "Explicitly retain reviewed vite-node3.2.7 or replace all benchmark/bootstrap CLI invocations with tested equivalent",
+      "Verify mocks, serial pools and changed coverage engine without reducing thresholds",
+      "Review Node engines and install script declarations before install"
+    ]
+  },
+  "cloudflare": {
+    "verifiedCandidate": {
+      "@cloudflare/vite-plugin": "1.64.0",
+      "wrangler": "4.151.0"
+    },
+    "majorPrerequisites": {
+      "@cloudflare/workers-types": "^5.20261006.1",
+      "miniflare": "5.20261012.0-beta"
+    },
+    "compatibilityWork": [
+      "Review prerelease runtime acceptance and global worker type changes",
+      "Preserve worker binding API, matching workerd, native packages and scripts-disabled installation",
+      "Supply real authorized Sites hosting metadata before build validation",
+      "Re-evaluate override pins against newer upstream versions; no peer forcing"
+    ]
+  },
+  "braces": {
+    "latest": "3.0.3",
+    "fixedVersionPublished": false,
+    "nextStep": "Upstream patch or reviewed alternative/risk decision; no blanket dev exemption or framework downgrade"
+  }
+}

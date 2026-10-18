@@ -1,0 +1,12 @@
+{
+  "sourceSha": "89d8d7f59f45f9f7f9dfcbfc82a70ff0969d3600",
+  "dirty": true,
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "tests/dealtwin/security/native-dependency-compatibility.test.ts"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 1.256,
+  "lifecycleScriptsDisabled": true
+}

@@ -1,0 +1,55 @@
+{
+  "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "testedTree": "3e0ffb33af4702cf022fcb5d224c3edff2066aa6",
+  "files": 126,
+  "tests": 1274,
+  "passed": 1274,
+  "failed": 0,
+  "skipped": 0,
+  "coverage": {
+    "lines": {
+      "total": 4239,
+      "covered": 4069,
+      "skipped": 0,
+      "pct": 95.98
+    },
+    "statements": {
+      "total": 4239,
+      "covered": 4069,
+      "skipped": 0,
+      "pct": 95.98
+    },
+    "functions": {
+      "total": 313,
+      "covered": 311,
+      "skipped": 0,
+      "pct": 99.36
+    },
+    "branches": {
+      "total": 2976,
+      "covered": 2488,
+      "skipped": 0,
+      "pct": 83.6
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "coverageDurationSeconds": 459.923,
+  "thresholdsChanged": false,
+  "audit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 6,
+    "high": 12,
+    "critical": 2,
+    "total": 20
+  },
+  "uniqueReportedAdvisoryUrls": 9,
+  "embeddedAffectedCopiesRemain": true,
+  "lifecycleScriptsExecuted": false,
+  "lockfileSha256": "698a9724d0a52b3794f0a3c22a263da67b3a75d6a40686e35562d497f6f8e06c"
+}

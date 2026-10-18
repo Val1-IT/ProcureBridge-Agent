@@ -1,0 +1,23 @@
+from pathlib import Path
+import os,sys,subprocess,json,time
+repo=Path('/workspace/ProcureBridge-Agent');root=Path('/workspace/dealtwin-runtime');out=root/'audit-20261018'
+name=sys.argv[1];args=sys.argv[2:]
+env={**os.environ,'NPM_CONFIG_CACHE':'/workspace/dealtwin-npm-cache','NPM_CONFIG_IGNORE_SCRIPTS':'true','NPM_CONFIG_FETCH_RETRIES':'0'}
+if name.startswith('final-coverage') or name.startswith('final-db'):
+ env['DEALTWIN_TEST_DATABASE_URL']='postgres://dealtwin:'+(root/'owner-password').read_text().strip()+'@127.0.0.1:55432/dealtwin_test'
+if name.startswith('final-http'):
+ os.umask(0o077)
+ env['DATABASE_URL']='postgres://dealtwin_app_login:dealtwin_app_login@127.0.0.1:55432/dealtwin_test'
+ env['DEALTWIN_JUDGE_RESET_DATABASE_URL']='postgres://dealtwin_reset_login:dealtwin_reset_login@127.0.0.1:55432/dealtwin_test'
+ env['DATABASE_SSL_MODE']='disable'
+ env['DEALTWIN_JUDGE_SESSION_SIGNING_KEY']=(root/'http-session-key').read_text().strip()
+if name=='final-benchmark':
+ env['DEALTWIN_BENCHMARK_APP_DATABASE_URL']='postgres://dealtwin_app_login:dealtwin_app_login@127.0.0.1:55432/dealtwin_test'
+ env['DEALTWIN_BENCHMARK_RESET_DATABASE_URL']='postgres://dealtwin_reset_login:dealtwin_reset_login@127.0.0.1:55432/dealtwin_test'
+if name=='final-client-scan':
+ env['DEALTWIN_JUDGE_SESSION_SIGNING_KEY']=(root/'http-session-key').read_text().strip()
+ env['DATABASE_URL']='postgres://dealtwin:'+(root/'owner-password').read_text().strip()+'@127.0.0.1:55432/dealtwin_test'
+start=time.time();sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip();dirty=subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True).strip()
+with (out/(name+'.log')).open('x') as log:r=subprocess.run(args,cwd=repo,env=env,stdout=log,stderr=subprocess.STDOUT)
+(out/(name+'-run.json')).write_text(json.dumps({'sourceSha':sha,'dirty':bool(dirty),'command':args,'exitCode':r.returncode,'durationSeconds':round(time.time()-start,3),'lifecycleScriptsDisabled':True},indent=2)+'\n')
+print(name,'exit',r.returncode,flush=True);sys.exit(r.returncode)

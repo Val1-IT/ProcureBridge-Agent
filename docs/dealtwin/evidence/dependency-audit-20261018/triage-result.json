@@ -1,0 +1,1549 @@
+{
+  "schema_version": "triage-finding/v0",
+  "repository": {
+    "path": "/workspace/ProcureBridge-Agent",
+    "revision": "57782e8c84435050e3a6ed786a56b9c69ba69e4b"
+  },
+  "findings": [
+    {
+      "triage_item_id": "triage-001",
+      "input_id": "npm-audit:@cloudflare/vite-plugin",
+      "source_type": "advisory",
+      "title": "@cloudflare/vite-plugin affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "@cloudflare/vite-plugin",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "undici dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/@cloudflare/vite-plugin@1.37.1",
+        "preconditions": [
+          "Cloudflare tooling HTTP/WebSocket client"
+        ],
+        "impact": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591; sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545; sharp : Vulnerability in librsvg dependency CVE-2026-96889; undici vulnerable to TLS certificate validation bypass via dropped requestTls in SOCKS5 ProxyAgent; undici vulnerable to HTTP header injection via Set-Cookie percent-decoding; undici WebSocket client vulnerable to denial of service via fragment count bypass; undici vulnerable to cross-origin request routing via SOCKS5 proxy pool reuse; undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching; undici vulnerable to cross-user information disclosure via shared cache whitespace bypass; undici vulnerable to downstream response desynchronization via retry interceptor; undici vulnerable to cross-user information disclosure and parse-time crash via degenerate private cache directives; undici vulnerable to CRLF Injection via blob-like body 'type' property; undici vulnerable to cross-user information disclosure via whitespace around equals in Cache-Control directives; undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields; undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse; undici vulnerable to Denial of Service via orphaned RetryHandler response body; undici vulnerable to downstream response splitting via retry interceptor; undici vulnerable to Denial of Service via unrequested WebSocket subprotocol; undici vulnerable to Denial of Service via unbounded decompression of compressed responses; undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches; undici vulnerable to response truncation via oversized chunked responses in the dump interceptor; undici vulnerable to TLS certificate validation bypass via dropped connect options in BalancedPool; undici vulnerable to caching and replay of unsafe HTTP method responses; undici vulnerable to Denial of Service via WebSocketStream unclean close; ws: Uninitialized memory disclosure; ws: Memory exhaustion DoS from tiny fragments and data chunks; esbuild enables any website to send any requests to the development server and read the response; esbuild allows arbitrary file read when running the development server on Windows",
+        "references": [
+          "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+          "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+          "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+          "https://github.com/advisories/GHSA-vmh5-mc38-953g",
+          "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+          "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+          "https://github.com/advisories/GHSA-hm92-r4w5-c3mj",
+          "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+          "https://github.com/advisories/GHSA-pr7r-676h-xcf6",
+          "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+          "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
+          "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+          "https://github.com/advisories/GHSA-jr45-8vmc-qm54",
+          "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+          "https://github.com/advisories/GHSA-35p6-xmwp-9g52",
+          "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+          "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+          "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+          "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+          "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+          "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+          "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+          "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+          "https://github.com/advisories/GHSA-rx4f-c7p8-82vq",
+          "https://github.com/advisories/GHSA-58qx-3vcg-4xpx",
+          "https://github.com/advisories/GHSA-96hv-2xvq-fx4p",
+          "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/@cloudflare/vite-plugin",
+          "lines": "unknown",
+          "detail": "1.37.1"
+        }
+      ],
+      "reachable_path": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle."
+      ],
+      "boundary_assessment": {
+        "product_surface": "MCP/tooling",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 5,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Cloudflare tooling HTTP/WebSocket client",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle.",
+        "node_modules/miniflare/dist/src/index.js:89217",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:4455",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:33134"
+      ],
+      "counterevidence": [
+        "App provider code uses native fetch; no direct npm-undici import. Proxy/cache/retry modes differ per advisory and are not all established reachable. npm override cannot patch embedded copies."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-002",
+      "input_id": "npm-audit:@esbuild-kit/core-utils",
+      "source_type": "advisory",
+      "title": "@esbuild-kit/core-utils affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "@esbuild-kit/core-utils",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "esbuild dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/@esbuild-kit/core-utils@3.3.2",
+        "preconditions": [
+          "Build/test transformation, migration CLI"
+        ],
+        "impact": "esbuild enables any website to send any requests to the development server and read the response; esbuild allows arbitrary file read when running the development server on Windows",
+        "references": [
+          "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/@esbuild-kit/core-utils",
+          "lines": "unknown",
+          "detail": "3.3.2"
+        }
+      ],
+      "reachable_path": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "Configured transform-only loader does not expose esbuild serve",
+        "drivers": []
+      },
+      "evidence": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20.",
+        "node_modules/@esbuild-kit/core-utils/dist/index.js:23",
+        "package.json:7-21",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Current host Linux; configured Vite/build/loader paths transform code rather than call esbuild serve. Historical Windows use and other supported tooling modes need separate assessment. The supplied advisory for these three aggregates is solely esbuild serve CORS; inspected loader exports call transform/transformSync and the configured db:generate does not start serve. This is a scoped non-applicability conclusion, not a waiver for other uses."
+      ],
+      "proof_gaps": [],
+      "recommended_next_step": "Preserve scope decision; no automatic audit waiver",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-003",
+      "input_id": "npm-audit:@esbuild-kit/esm-loader",
+      "source_type": "advisory",
+      "title": "@esbuild-kit/esm-loader affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "@esbuild-kit/esm-loader",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "esbuild dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/@esbuild-kit/esm-loader@2.6.5",
+        "preconditions": [
+          "Build/test transformation, migration CLI"
+        ],
+        "impact": "esbuild enables any website to send any requests to the development server and read the response; esbuild allows arbitrary file read when running the development server on Windows",
+        "references": [
+          "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/@esbuild-kit/esm-loader",
+          "lines": "unknown",
+          "detail": "2.6.5"
+        }
+      ],
+      "reachable_path": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "Configured transform-only loader does not expose esbuild serve",
+        "drivers": []
+      },
+      "evidence": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20.",
+        "node_modules/@esbuild-kit/core-utils/dist/index.js:23",
+        "package.json:7-21",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Current host Linux; configured Vite/build/loader paths transform code rather than call esbuild serve. Historical Windows use and other supported tooling modes need separate assessment. The supplied advisory for these three aggregates is solely esbuild serve CORS; inspected loader exports call transform/transformSync and the configured db:generate does not start serve. This is a scoped non-applicability conclusion, not a waiver for other uses."
+      ],
+      "proof_gaps": [],
+      "recommended_next_step": "Preserve scope decision; no automatic audit waiver",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-004",
+      "input_id": "npm-audit:@next/eslint-plugin-next",
+      "source_type": "advisory",
+      "title": "@next/eslint-plugin-next affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "@next/eslint-plugin-next",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/@next/eslint-plugin-next@15.5.28",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/@next/eslint-plugin-next",
+          "lines": "unknown",
+          "detail": "15.5.28"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 18,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-005",
+      "input_id": "npm-audit:@vitest/coverage-v8",
+      "source_type": "advisory",
+      "title": "@vitest/coverage-v8 affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "@vitest/coverage-v8",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "vitest dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/@vitest/coverage-v8@3.2.7",
+        "preconditions": [
+          "Test runner/optional mock WebSocket API"
+        ],
+        "impact": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock; Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution; Tinypool: Prototype Pollution Gadget to RCE in run() options",
+        "references": [
+          "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/@vitest/coverage-v8",
+          "lines": "unknown",
+          "detail": "3.2.7"
+        }
+      ],
+      "reachable_path": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration."
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 10,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Test runner/optional mock WebSocket API",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration.",
+        "node_modules/vitest/dist/chunks/coverage.DfSpMS-b.js:2608-2632",
+        "node_modules/tinypool/dist/index.js:748-749",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1058-1059",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1091-1095",
+        "vitest.config.ts:8-13"
+      ],
+      "counterevidence": [
+        "package.json uses vitest run, not UI/API/browser server. No untrusted prototype-pollution source demonstrated; trusted test code already executes with runner privileges."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-006",
+      "input_id": "npm-audit:@vitest/mocker",
+      "source_type": "advisory",
+      "title": "@vitest/mocker affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "@vitest/mocker",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "vitest dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/vitest/node_modules/@vitest/mocker@3.2.7",
+        "preconditions": [
+          "Test runner/optional mock WebSocket API"
+        ],
+        "impact": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+        "references": [
+          "https://github.com/advisories/GHSA-82fw-gwwq-j7x9"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/vitest/node_modules/@vitest/mocker",
+          "lines": "unknown",
+          "detail": "3.2.7"
+        }
+      ],
+      "reachable_path": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration."
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 9,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Test runner/optional mock WebSocket API",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration.",
+        "node_modules/vitest/dist/chunks/coverage.DfSpMS-b.js:2608-2632",
+        "node_modules/tinypool/dist/index.js:748-749",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1058-1059",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1091-1095",
+        "vitest.config.ts:8-13"
+      ],
+      "counterevidence": [
+        "package.json uses vitest run, not UI/API/browser server. No untrusted prototype-pollution source demonstrated; trusted test code already executes with runner privileges."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-007",
+      "input_id": "npm-audit:braces",
+      "source_type": "advisory",
+      "title": "braces affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "braces",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/braces@3.0.3",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/braces",
+          "lines": "unknown",
+          "detail": "3.0.3"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 12,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-008",
+      "input_id": "npm-audit:drizzle-kit",
+      "source_type": "advisory",
+      "title": "drizzle-kit affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "drizzle-kit",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "esbuild dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/drizzle-kit@0.31.10",
+        "preconditions": [
+          "Build/test transformation, migration CLI"
+        ],
+        "impact": "esbuild enables any website to send any requests to the development server and read the response; esbuild allows arbitrary file read when running the development server on Windows",
+        "references": [
+          "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      "verdict": "not_actionable",
+      "confidence": "medium",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/drizzle-kit",
+          "lines": "unknown",
+          "detail": "0.31.10"
+        }
+      ],
+      "reachable_path": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "trusted_developer_config",
+        "boundary_crossed": false,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": null,
+        "rank": null,
+        "rationale": "Configured transform-only loader does not expose esbuild serve",
+        "drivers": []
+      },
+      "evidence": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20.",
+        "node_modules/@esbuild-kit/core-utils/dist/index.js:23",
+        "package.json:7-21",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Current host Linux; configured Vite/build/loader paths transform code rather than call esbuild serve. Historical Windows use and other supported tooling modes need separate assessment. The supplied advisory for these three aggregates is solely esbuild serve CORS; inspected loader exports call transform/transformSync and the configured db:generate does not start serve. This is a scoped non-applicability conclusion, not a waiver for other uses."
+      ],
+      "proof_gaps": [],
+      "recommended_next_step": "Preserve scope decision; no automatic audit waiver",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-009",
+      "input_id": "npm-audit:esbuild",
+      "source_type": "advisory",
+      "title": "esbuild affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "esbuild",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "esbuild dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/@esbuild-kit/core-utils/node_modules/esbuild@0.18.20; node_modules/drizzle-kit/node_modules/esbuild@0.25.12; node_modules/esbuild@0.28.0; node_modules/wrangler/node_modules/esbuild@0.27.3",
+        "preconditions": [
+          "Build/test transformation, migration CLI"
+        ],
+        "impact": "esbuild enables any website to send any requests to the development server and read the response; esbuild allows arbitrary file read when running the development server on Windows",
+        "references": [
+          "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/@esbuild-kit/core-utils/node_modules/esbuild",
+          "lines": "unknown",
+          "detail": "0.18.20"
+        },
+        {
+          "label": "dependency path",
+          "path": "node_modules/drizzle-kit/node_modules/esbuild",
+          "lines": "unknown",
+          "detail": "0.25.12"
+        },
+        {
+          "label": "dependency path",
+          "path": "node_modules/esbuild",
+          "lines": "unknown",
+          "detail": "0.28.0"
+        },
+        {
+          "label": "dependency path",
+          "path": "node_modules/wrangler/node_modules/esbuild",
+          "lines": "unknown",
+          "detail": "0.27.3"
+        }
+      ],
+      "reachable_path": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 11,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Build/test transformation, migration CLI",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20.",
+        "node_modules/@esbuild-kit/core-utils/dist/index.js:23",
+        "package.json:7-21",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Current host Linux; configured Vite/build/loader paths transform code rather than call esbuild serve. Historical Windows use and other supported tooling modes need separate assessment."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-010",
+      "input_id": "npm-audit:eslint-config-next",
+      "source_type": "advisory",
+      "title": "eslint-config-next affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "eslint-config-next",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/eslint-config-next@15.5.28",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/eslint-config-next",
+          "lines": "unknown",
+          "detail": "15.5.28"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 19,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-011",
+      "input_id": "npm-audit:fast-glob",
+      "source_type": "advisory",
+      "title": "fast-glob affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "fast-glob",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/fast-glob@3.3.1; node_modules/vite-plugin-dynamic-import/node_modules/fast-glob@3.3.3",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/fast-glob",
+          "lines": "unknown",
+          "detail": "3.3.1"
+        },
+        {
+          "label": "dependency path",
+          "path": "node_modules/vite-plugin-dynamic-import/node_modules/fast-glob",
+          "lines": "unknown",
+          "detail": "3.3.3"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 14,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-012",
+      "input_id": "npm-audit:micromatch",
+      "source_type": "advisory",
+      "title": "micromatch affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "micromatch",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/micromatch@4.0.8",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/micromatch",
+          "lines": "unknown",
+          "detail": "4.0.8"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 13,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-013",
+      "input_id": "npm-audit:miniflare",
+      "source_type": "advisory",
+      "title": "miniflare affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "miniflare",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "undici dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/miniflare@4.20260515.0",
+        "preconditions": [
+          "Cloudflare tooling HTTP/WebSocket client"
+        ],
+        "impact": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591; sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545; sharp : Vulnerability in librsvg dependency CVE-2026-96889; undici vulnerable to TLS certificate validation bypass via dropped requestTls in SOCKS5 ProxyAgent; undici vulnerable to HTTP header injection via Set-Cookie percent-decoding; undici WebSocket client vulnerable to denial of service via fragment count bypass; undici vulnerable to cross-origin request routing via SOCKS5 proxy pool reuse; undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching; undici vulnerable to cross-user information disclosure via shared cache whitespace bypass; undici vulnerable to downstream response desynchronization via retry interceptor; undici vulnerable to cross-user information disclosure and parse-time crash via degenerate private cache directives; undici vulnerable to CRLF Injection via blob-like body 'type' property; undici vulnerable to cross-user information disclosure via whitespace around equals in Cache-Control directives; undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields; undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse; undici vulnerable to Denial of Service via orphaned RetryHandler response body; undici vulnerable to downstream response splitting via retry interceptor; undici vulnerable to Denial of Service via unrequested WebSocket subprotocol; undici vulnerable to Denial of Service via unbounded decompression of compressed responses; undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches; undici vulnerable to response truncation via oversized chunked responses in the dump interceptor; undici vulnerable to TLS certificate validation bypass via dropped connect options in BalancedPool; undici vulnerable to caching and replay of unsafe HTTP method responses; undici vulnerable to Denial of Service via WebSocketStream unclean close; ws: Uninitialized memory disclosure; ws: Memory exhaustion DoS from tiny fragments and data chunks",
+        "references": [
+          "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+          "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+          "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+          "https://github.com/advisories/GHSA-vmh5-mc38-953g",
+          "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+          "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+          "https://github.com/advisories/GHSA-hm92-r4w5-c3mj",
+          "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+          "https://github.com/advisories/GHSA-pr7r-676h-xcf6",
+          "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+          "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
+          "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+          "https://github.com/advisories/GHSA-jr45-8vmc-qm54",
+          "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+          "https://github.com/advisories/GHSA-35p6-xmwp-9g52",
+          "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+          "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+          "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+          "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+          "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+          "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+          "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+          "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+          "https://github.com/advisories/GHSA-rx4f-c7p8-82vq",
+          "https://github.com/advisories/GHSA-58qx-3vcg-4xpx",
+          "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/miniflare",
+          "lines": "unknown",
+          "detail": "4.20260515.0"
+        }
+      ],
+      "reachable_path": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle."
+      ],
+      "boundary_assessment": {
+        "product_surface": "MCP/tooling",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 4,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Cloudflare tooling HTTP/WebSocket client",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle.",
+        "node_modules/miniflare/dist/src/index.js:89217",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:4455",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:33134"
+      ],
+      "counterevidence": [
+        "App provider code uses native fetch; no direct npm-undici import. Proxy/cache/retry modes differ per advisory and are not all established reachable. npm override cannot patch embedded copies."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-014",
+      "input_id": "npm-audit:sharp",
+      "source_type": "advisory",
+      "title": "sharp affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "sharp",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "sharp dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/sharp@0.34.5",
+        "preconditions": [
+          "Node production-installed optional dependency and Cloudflare image tooling"
+        ],
+        "impact": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591; sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545; sharp : Vulnerability in librsvg dependency CVE-2026-96889",
+        "references": [
+          "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+          "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+          "https://github.com/advisories/GHSA-wq5f-xc86-pv6w"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/sharp",
+          "lines": "unknown",
+          "detail": "0.34.5"
+        }
+      ],
+      "reachable_path": [
+        "Next15.5.28 allows ^0.34.3 || ^0.35.5; Miniflare4.20260515.0 constrains ^0.34.5. Native decoders affect untrusted media when enabled."
+      ],
+      "boundary_assessment": {
+        "product_surface": "library API",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 1,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Node production-installed optional dependency and Cloudflare image tooling",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Next15.5.28 allows ^0.34.3 || ^0.35.5; Miniflare4.20260515.0 constrains ^0.34.5. Native decoders affect untrusted media when enabled.",
+        "node_modules/next/package.json:114",
+        "node_modules/next/dist/server/image-optimizer.js:202-225",
+        "node_modules/vinext/dist/server/image-optimization.js:1-18",
+        "vite.config.ts:14-34"
+      ],
+      "counterevidence": [
+        "Current Node server uses vinext image passthrough, not next start. vite.config.ts configures no Images binding. No proof of an active remote decode route; public Sites metadata absent."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-015",
+      "input_id": "npm-audit:tinypool",
+      "source_type": "advisory",
+      "title": "tinypool affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "tinypool",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "vitest dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/tinypool@1.1.1",
+        "preconditions": [
+          "Test runner/optional mock WebSocket API"
+        ],
+        "impact": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution; Tinypool: Prototype Pollution Gadget to RCE in run() options",
+        "references": [
+          "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/tinypool",
+          "lines": "unknown",
+          "detail": "1.1.1"
+        }
+      ],
+      "reachable_path": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration."
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 7,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Test runner/optional mock WebSocket API",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration.",
+        "node_modules/vitest/dist/chunks/coverage.DfSpMS-b.js:2608-2632",
+        "node_modules/tinypool/dist/index.js:748-749",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1058-1059",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1091-1095",
+        "vitest.config.ts:8-13"
+      ],
+      "counterevidence": [
+        "package.json uses vitest run, not UI/API/browser server. No untrusted prototype-pollution source demonstrated; trusted test code already executes with runner privileges."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-016",
+      "input_id": "npm-audit:undici",
+      "source_type": "advisory",
+      "title": "undici affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "undici",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "undici dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/undici@7.24.8",
+        "preconditions": [
+          "Cloudflare tooling HTTP/WebSocket client"
+        ],
+        "impact": "undici vulnerable to TLS certificate validation bypass via dropped requestTls in SOCKS5 ProxyAgent; undici vulnerable to HTTP header injection via Set-Cookie percent-decoding; undici WebSocket client vulnerable to denial of service via fragment count bypass; undici vulnerable to cross-origin request routing via SOCKS5 proxy pool reuse; undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching; undici vulnerable to cross-user information disclosure via shared cache whitespace bypass; undici vulnerable to downstream response desynchronization via retry interceptor; undici vulnerable to cross-user information disclosure and parse-time crash via degenerate private cache directives; undici vulnerable to CRLF Injection via blob-like body 'type' property; undici vulnerable to cross-user information disclosure via whitespace around equals in Cache-Control directives; undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields; undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse; undici vulnerable to Denial of Service via orphaned RetryHandler response body; undici vulnerable to downstream response splitting via retry interceptor; undici vulnerable to Denial of Service via unrequested WebSocket subprotocol; undici vulnerable to Denial of Service via unbounded decompression of compressed responses; undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches; undici vulnerable to response truncation via oversized chunked responses in the dump interceptor; undici vulnerable to TLS certificate validation bypass via dropped connect options in BalancedPool; undici vulnerable to caching and replay of unsafe HTTP method responses; undici vulnerable to Denial of Service via WebSocketStream unclean close",
+        "references": [
+          "https://github.com/advisories/GHSA-vmh5-mc38-953g",
+          "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+          "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+          "https://github.com/advisories/GHSA-hm92-r4w5-c3mj",
+          "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+          "https://github.com/advisories/GHSA-pr7r-676h-xcf6",
+          "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+          "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
+          "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+          "https://github.com/advisories/GHSA-jr45-8vmc-qm54",
+          "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+          "https://github.com/advisories/GHSA-35p6-xmwp-9g52",
+          "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+          "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+          "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+          "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+          "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+          "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+          "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+          "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+          "https://github.com/advisories/GHSA-rx4f-c7p8-82vq"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/undici",
+          "lines": "unknown",
+          "detail": "7.24.8"
+        }
+      ],
+      "reachable_path": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle."
+      ],
+      "boundary_assessment": {
+        "product_surface": "MCP/tooling",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 2,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Cloudflare tooling HTTP/WebSocket client",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle.",
+        "node_modules/miniflare/dist/src/index.js:89217",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:4455",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:33134"
+      ],
+      "counterevidence": [
+        "App provider code uses native fetch; no direct npm-undici import. Proxy/cache/retry modes differ per advisory and are not all established reachable. npm override cannot patch embedded copies."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-017",
+      "input_id": "npm-audit:vinext",
+      "source_type": "advisory",
+      "title": "vinext affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "vinext",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/vinext@0.0.50",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/vinext",
+          "lines": "unknown",
+          "detail": "0.0.50"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 15,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-018",
+      "input_id": "npm-audit:vite-plugin-commonjs",
+      "source_type": "advisory",
+      "title": "vite-plugin-commonjs affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "vite-plugin-commonjs",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/vite-plugin-commonjs@0.10.4",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/vite-plugin-commonjs",
+          "lines": "unknown",
+          "detail": "0.10.4"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 16,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-019",
+      "input_id": "npm-audit:vite-plugin-dynamic-import",
+      "source_type": "advisory",
+      "title": "vite-plugin-dynamic-import affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "vite-plugin-dynamic-import",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "braces dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/vite-plugin-dynamic-import@1.6.0",
+        "preconditions": [
+          "Lint/build pattern processing"
+        ],
+        "impact": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+        "references": [
+          "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/vite-plugin-dynamic-import",
+          "lines": "unknown",
+          "detail": "1.6.0"
+        }
+      ],
+      "reachable_path": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces."
+      ],
+      "boundary_assessment": {
+        "product_surface": "CLI",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 17,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Lint/build pattern processing",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "ESLint Next rules and Vite dynamic import plugin reach fast-glob\u2192micromatch\u2192braces.",
+        "node_modules/vite-plugin-dynamic-import/dist/index.mjs:5",
+        "node_modules/micromatch/index.js:4",
+        "eslint.config.mjs:10",
+        "vite.dealtwin.config.ts:4"
+      ],
+      "counterevidence": [
+        "Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-020",
+      "input_id": "npm-audit:vitest",
+      "source_type": "advisory",
+      "title": "vitest affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "vitest",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "vitest dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/vitest@3.2.7",
+        "preconditions": [
+          "Test runner/optional mock WebSocket API"
+        ],
+        "impact": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock; Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution; Tinypool: Prototype Pollution Gadget to RCE in run() options",
+        "references": [
+          "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/vitest",
+          "lines": "unknown",
+          "detail": "3.2.7"
+        }
+      ],
+      "reachable_path": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration."
+      ],
+      "boundary_assessment": {
+        "product_surface": "test/fixture",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 8,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Test runner/optional mock WebSocket API",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration.",
+        "node_modules/vitest/dist/chunks/coverage.DfSpMS-b.js:2608-2632",
+        "node_modules/tinypool/dist/index.js:748-749",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1058-1059",
+        "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1091-1095",
+        "vitest.config.ts:8-13"
+      ],
+      "counterevidence": [
+        "package.json uses vitest run, not UI/API/browser server. No untrusted prototype-pollution source demonstrated; trusted test code already executes with runner privileges."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-021",
+      "input_id": "npm-audit:wrangler",
+      "source_type": "advisory",
+      "title": "wrangler affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "wrangler",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "undici dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/wrangler@4.92.0",
+        "preconditions": [
+          "Cloudflare tooling HTTP/WebSocket client"
+        ],
+        "impact": "esbuild enables any website to send any requests to the development server and read the response; esbuild allows arbitrary file read when running the development server on Windows; sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591; sharp: Vulnerabilities in libheif: GHSA-g89c-p67h-r497 and GHSA-2jg2-4ch7-h545; sharp : Vulnerability in librsvg dependency CVE-2026-96889; undici vulnerable to TLS certificate validation bypass via dropped requestTls in SOCKS5 ProxyAgent; undici vulnerable to HTTP header injection via Set-Cookie percent-decoding; undici WebSocket client vulnerable to denial of service via fragment count bypass; undici vulnerable to cross-origin request routing via SOCKS5 proxy pool reuse; undici vulnerable to Set-Cookie SameSite attribute downgrade via permissive substring matching; undici vulnerable to cross-user information disclosure via shared cache whitespace bypass; undici vulnerable to downstream response desynchronization via retry interceptor; undici vulnerable to cross-user information disclosure and parse-time crash via degenerate private cache directives; undici vulnerable to CRLF Injection via blob-like body 'type' property; undici vulnerable to cross-user information disclosure via whitespace around equals in Cache-Control directives; undici vulnerable to cookie attribute injection via unsanitized domain and unparsed setCookie fields; undici vulnerable to HTTP response queue poisoning via keep-alive socket reuse; undici vulnerable to Denial of Service via orphaned RetryHandler response body; undici vulnerable to downstream response splitting via retry interceptor; undici vulnerable to Denial of Service via unrequested WebSocket subprotocol; undici vulnerable to Denial of Service via unbounded decompression of compressed responses; undici vulnerable to cross-user cookie disclosure via Set-Cookie caching in shared caches; undici vulnerable to response truncation via oversized chunked responses in the dump interceptor; undici vulnerable to TLS certificate validation bypass via dropped connect options in BalancedPool; undici vulnerable to caching and replay of unsafe HTTP method responses; undici vulnerable to Denial of Service via WebSocketStream unclean close; ws: Uninitialized memory disclosure; ws: Memory exhaustion DoS from tiny fragments and data chunks",
+        "references": [
+          "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "https://github.com/advisories/GHSA-g7r4-m6w7-qqqr",
+          "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+          "https://github.com/advisories/GHSA-rgj7-g3m4-5g8c",
+          "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+          "https://github.com/advisories/GHSA-vmh5-mc38-953g",
+          "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+          "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+          "https://github.com/advisories/GHSA-hm92-r4w5-c3mj",
+          "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+          "https://github.com/advisories/GHSA-pr7r-676h-xcf6",
+          "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+          "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
+          "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+          "https://github.com/advisories/GHSA-jr45-8vmc-qm54",
+          "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+          "https://github.com/advisories/GHSA-35p6-xmwp-9g52",
+          "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+          "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+          "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+          "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+          "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+          "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+          "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+          "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+          "https://github.com/advisories/GHSA-rx4f-c7p8-82vq",
+          "https://github.com/advisories/GHSA-58qx-3vcg-4xpx",
+          "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/wrangler",
+          "lines": "unknown",
+          "detail": "4.92.0"
+        }
+      ],
+      "reachable_path": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle."
+      ],
+      "boundary_assessment": {
+        "product_surface": "MCP/tooling",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 6,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Cloudflare tooling HTTP/WebSocket client",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle.",
+        "node_modules/miniflare/dist/src/index.js:89217",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:4455",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:33134"
+      ],
+      "counterevidence": [
+        "App provider code uses native fetch; no direct npm-undici import. Proxy/cache/retry modes differ per advisory and are not all established reachable. npm override cannot patch embedded copies."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    },
+    {
+      "triage_item_id": "triage-022",
+      "input_id": "npm-audit:ws",
+      "source_type": "advisory",
+      "title": "ws affected package aggregate",
+      "normalized_input": {
+        "vulnerable_component": "ws",
+        "claimed_source": "See individual advisory preconditions in advisory-inventory.json",
+        "claimed_sink": "ws dependent operation",
+        "claimed_control": "Controls described per advisory; installed affected version verified",
+        "affected_version_or_path": "node_modules/ws@8.18.0",
+        "preconditions": [
+          "Cloudflare development HMR/worker WebSockets"
+        ],
+        "impact": "ws: Uninitialized memory disclosure; ws: Memory exhaustion DoS from tiny fragments and data chunks",
+        "references": [
+          "https://github.com/advisories/GHSA-58qx-3vcg-4xpx",
+          "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+        ]
+      },
+      "verdict": "needs_review",
+      "confidence": "low",
+      "affected_locations": [
+        {
+          "label": "dependency path",
+          "path": "node_modules/ws",
+          "lines": "unknown",
+          "detail": "8.18.0"
+        }
+      ],
+      "reachable_path": [
+        "Cloudflare plugin and Miniflare construct WebSocketServer using installed ws8.18.0; old Receiver accumulates fragments."
+      ],
+      "boundary_assessment": {
+        "product_surface": "MCP/tooling",
+        "source_trust": "unknown",
+        "boundary_crossed": null,
+        "policy_basis": "docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found"
+      },
+      "exploitability_stack_rank": {
+        "rank_queue": "needs_review",
+        "rank": 3,
+        "rationale": "Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional",
+        "drivers": [
+          "Cloudflare development HMR/worker WebSockets",
+          "missing lower-trust source/control-path proof"
+        ]
+      },
+      "evidence": [
+        "Cloudflare plugin and Miniflare construct WebSocketServer using installed ws8.18.0; old Receiver accumulates fragments.",
+        "node_modules/@cloudflare/vite-plugin/dist/index.mjs:52893",
+        "node_modules/miniflare/dist/src/index.js:88150-88151",
+        "node_modules/ws/lib/receiver.js:493",
+        "scripts/dealtwin/node-server.mjs:7-24"
+      ],
+      "counterevidence": [
+        "Current production Node loopback wrapper has no WebSocket handler; public dev server forbidden. Exploit reachability depends on development listener/Origin/proxy behavior."
+      ],
+      "proof_gaps": [
+        "No runtime exploit validation in this static triage",
+        "See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction",
+        "No public deployment configuration or lower-trust prototype-pollution source established"
+      ],
+      "recommended_next_step": "Apply compatible installed-component remediation and retain remaining exposure questions",
+      "fix_finding_handoff": null
+    }
+  ]
+}

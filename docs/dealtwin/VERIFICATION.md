@@ -1,6 +1,13 @@
 # DealTwin Task29 checkpoint — PARTIAL / PUBLIC RELEASE BLOCKED
 
-Latest gate checkpoint: [CLOUD-GATES-20261018.md](CLOUD-GATES-20261018.md).
+Latest dependency checkpoint: [DEPENDENCY-AUDIT-20261018.md](DEPENDENCY-AUDIT-20261018.md).
+On clean cd1d8bd,1274/1274 tests and unchanged coverage, Node build/scan,
+benchmark/replay and1HTTP case pass. Audit remains blocking at20 package
+aggregates (2critical/12high/6moderate), with bundled old ws/Undici separately
+open. No major migration, threshold change or gate removal occurred. Prior
+restore evidence is retained, not relabeled as a new same-candidate restore.
+
+Earlier gate checkpoint: [CLOUD-GATES-20261018.md](CLOUD-GATES-20261018.md).
 Clean413c0e4 passes full coverage1264/1264,45-table restore,113-case benchmark,
 57/57 mismatch replay, typecheck/lint, Node build/scan and1HTTP case. Current
 audit fails22 aggregates (2critical/14high/6moderate). Ten browser cases, Sites

@@ -1,0 +1,12 @@
+{
+  "sourceSha": "89d8d7f59f45f9f7f9dfcbfc82a70ff0969d3600",
+  "dirty": true,
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 17.942,
+  "lifecycleScriptsDisabled": true
+}

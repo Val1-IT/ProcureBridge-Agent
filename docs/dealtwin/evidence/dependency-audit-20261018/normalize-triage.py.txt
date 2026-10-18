@@ -1,0 +1,73 @@
+from pathlib import Path
+import json,subprocess
+root=Path('/workspace/dealtwin-runtime/audit-20261018');repo=Path('/workspace/ProcureBridge-Agent')
+a=json.load(open(repo/'docs/dealtwin/evidence/cloud-gates-20261018/npm-audit.json'));lock=json.load(open(repo/'package-lock.json'))
+conditions={
+'GHSA-82fw-gwwq-j7x9':('Client can reach a configured Vitest mock-interceptor WebSocket, register a redirect URL, then request its module; redirect handler reads the resolved path without equivalent filesystem containment.','4.1.11'),
+'GHSA-vfj7-8cjw-p6xm':('Attacker controls a deeply nested brace/glob pattern passed to braces; recursive parsing/compilation can exhaust the call stack.','No published fixed braces version; registry latest3.0.3 is affected'),
+'GHSA-67mh-4wv8-2f99':('esbuild serve API must be active; a user visits an attacker website which reads local development-server responses through permissive CORS.','0.25.0'),
+'GHSA-g7r4-m6w7-qqqr':('esbuild development server on Windows must serve attacker-selected filesystem requests; Windows path handling is the claimed boundary.','0.28.1'),
+'GHSA-f88m-g3jw-g9cj':('Untrusted image bytes reach affected bundled libvips loaders; four underlying CVEs are named in this single advisory record. Exact format-specific prerequisites need upstream detail.','0.35.0'),
+'GHSA-rgj7-g3m4-5g8c':('Untrusted HEIF/AVIF media reaches vulnerable libheif decoding in the selected native sharp/libvips build; registry record references two upstream advisories.','0.35.4'),
+'GHSA-wq5f-xc86-pv6w':('Untrusted SVG reaches the affected librsvg native decoder, with a use-after-free condition; exact malformed input is not provided in registry synopsis.','0.35.5'),
+'GHSA-5gmw-xhrv-c9v3':('A prior prototype-pollution primitive controls inherited worker options in the same process before Tinypool spawns a worker; worker execution then consumes them.','2.1.1'),
+'GHSA-85c8-ppgw-ccpr':('A prior prototype-pollution primitive controls inherited run() options such as filename/name/runtime; affected Tinypool destructures these options.','2.1.2'),
+'GHSA-vmh5-mc38-953g':('SOCKS5 ProxyAgent is configured with custom requestTls options; forwarding drops options needed for intended certificate validation.','7.28.0'),
+'GHSA-p88m-4jfj-68fv':('Attacker-controlled Set-Cookie data is parsed with percent decoding and then propagated as HTTP header/cookie data.','7.28.0'),
+'GHSA-vxpw-j846-p89q':('An untrusted WebSocket peer sends fragmented messages that bypass the client fragment-count resource limit.','7.28.0'),
+'GHSA-hm92-r4w5-c3mj':('Multiple target origins share a SOCKS5 proxy pool; attacker-influenced routing interacts with pool reuse.','7.28.0'),
+'GHSA-g8m3-5g58-fq7m':('An untrusted Set-Cookie SameSite attribute containing, rather than equalling, a valid token reaches cookie parsing.','7.28.0'),
+'GHSA-pr7r-676h-xcf6':('A shared HTTP cache interceptor receives attacker-controlled Cache-Control whitespace that bypasses private-response handling.','7.28.0'),
+'GHSA-8xcm-r25x-g524':('A retry interceptor forwards responses across a downstream HTTP boundary; attacker-influenced response framing causes desynchronization.','7.29.0'),
+'GHSA-4cwx-7wf7-3272':('Shared cache processing receives degenerate private directives, producing disclosure or a parse-time failure.','7.29.0'),
+'GHSA-m8rv-5g2x-5cg5':('An attacker influences a blob-like body type property containing CR/LF and it is serialized as a request Content-Type.','7.29.0'),
+'GHSA-jr45-8vmc-qm54':('Shared cache parses attacker-controlled whitespace around Cache-Control equals signs inconsistently.','7.29.0'),
+'GHSA-v3r7-h72x-cjcm':('Attacker influences domain/unparsed cookie fields that setCookie serializes into response attributes.','7.29.0'),
+'GHSA-35p6-xmwp-9g52':('Attacker-controlled timing/framing intersects keep-alive socket reuse and response queue assignment.','7.28.0'),
+'GHSA-pmjh-fq2x-6v4x':('A retry handler leaves an attacker-controlled response body orphaned, retaining resources across retries.','7.29.1'),
+'GHSA-r53p-7pc4-xj5r':('Retry interceptor response forwarding mishandles framing across a downstream HTTP boundary.','7.29.1'),
+'GHSA-rfgv-xxqx-mfg5':('A WebSocket server replies with an unrequested subprotocol; the client error path can terminate the process.','7.29.1'),
+'GHSA-3xpg-4rpp-hhhm':('HTTP response decompression processes an untrusted compressed response without a sufficient expanded-size bound.','7.29.1'),
+'GHSA-2jfj-6hjv-fm6j':('A shared cache stores/replays Set-Cookie responses across users.','7.29.1'),
+'GHSA-2gqq-gqf2-x968':('Dump interceptor receives an oversized chunked response; failure/truncation handling crosses the response boundary.','7.29.1'),
+'GHSA-w293-vg96-wgc3':('BalancedPool is configured with custom TLS connect options; dropping options changes intended certificate validation.','7.29.1'),
+'GHSA-8436-99hf-9mmv':('Shared cache caches/replays unsafe HTTP method responses under attacker-influenced traffic.','7.29.1'),
+'GHSA-rx4f-c7p8-82vq':('An untrusted WebSocketStream peer closes uncleanly and triggers a process-level error path.','7.29.1'),
+'GHSA-58qx-3vcg-4xpx':('A privileged/in-process caller supplies unsafely sized or mutable send buffers, exposing uninitialized memory to a WebSocket peer; exact API constraints need full upstream advisory.','8.20.1'),
+'GHSA-96hv-2xvq-fx4p':('An untrusted WebSocket peer sends many tiny fragments/chunks below byte-oriented limits; object/buffer overhead exhausts memory.','8.21.0')}
+families={
+'sharp':('Node production-installed optional dependency and Cloudflare image tooling','Next15.5.28 allows ^0.34.3 || ^0.35.5; Miniflare4.20260515.0 constrains ^0.34.5. Native decoders affect untrusted media when enabled.','Current Node server uses vinext image passthrough, not next start. vite.config.ts configures no Images binding. No proof of an active remote decode route; public Sites metadata absent.',['node_modules/next/package.json:114','node_modules/next/dist/server/image-optimizer.js:202-225','node_modules/vinext/dist/server/image-optimization.js:1-18','vite.config.ts:14-34']),
+'undici':('Cloudflare tooling HTTP/WebSocket client','Miniflare imports npm undici; Cloudflare plugin also embeds undici7.24.8 in its distributed bundle.','App provider code uses native fetch; no direct npm-undici import. Proxy/cache/retry modes differ per advisory and are not all established reachable. npm override cannot patch embedded copies.',['node_modules/miniflare/dist/src/index.js:89217','node_modules/@cloudflare/vite-plugin/dist/index.mjs:4455','node_modules/@cloudflare/vite-plugin/dist/index.mjs:33134']),
+'ws':('Cloudflare development HMR/worker WebSockets','Cloudflare plugin and Miniflare construct WebSocketServer using installed ws8.18.0; old Receiver accumulates fragments.','Current production Node loopback wrapper has no WebSocket handler; public dev server forbidden. Exploit reachability depends on development listener/Origin/proxy behavior.',['node_modules/@cloudflare/vite-plugin/dist/index.mjs:52893','node_modules/miniflare/dist/src/index.js:88150-88151','node_modules/ws/lib/receiver.js:493','scripts/dealtwin/node-server.mjs:7-24']),
+'vitest':('Test runner/optional mock WebSocket API','Vitest3.2.7 imports Tinypool1.1.1; mock redirect handler reads redirected paths after registration.','package.json uses vitest run, not UI/API/browser server. No untrusted prototype-pollution source demonstrated; trusted test code already executes with runner privileges.',['node_modules/vitest/dist/chunks/coverage.DfSpMS-b.js:2608-2632','node_modules/tinypool/dist/index.js:748-749','node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1058-1059','node_modules/vitest/node_modules/@vitest/mocker/dist/node.js:1091-1095','vitest.config.ts:8-13']),
+'braces':('Lint/build pattern processing','ESLint Next rules and Vite dynamic import plugin reach fast-glob→micromatch→braces.','Patterns observed come from repository/config/import expressions, not app request fields. Untrusted-project build isolation has not been established, so no blanket dev-only dismissal.',['node_modules/vite-plugin-dynamic-import/dist/index.mjs:5','node_modules/micromatch/index.js:4','eslint.config.mjs:10','vite.dealtwin.config.ts:4']),
+'esbuild':('Build/test transformation, migration CLI','Four installed versions; Vite/tsx use0.28.0, Wrangler0.27.3, Drizzle0.25.12, esbuild-kit0.18.20.','Current host Linux; configured Vite/build/loader paths transform code rather than call esbuild serve. Historical Windows use and other supported tooling modes need separate assessment.',['node_modules/@esbuild-kit/core-utils/dist/index.js:23','package.json:7-21','vite.dealtwin.config.ts:4'])}
+family_map={k:'braces' for k in ['braces','micromatch','fast-glob','eslint-config-next','@next/eslint-plugin-next','vinext','vite-plugin-commonjs','vite-plugin-dynamic-import']}
+family_map.update({k:'vitest' for k in ['vitest','@vitest/mocker','@vitest/coverage-v8','tinypool']});family_map.update({k:'esbuild' for k in ['esbuild','@esbuild-kit/core-utils','@esbuild-kit/esm-loader','drizzle-kit']});family_map.update({'sharp':'sharp','ws':'ws','undici':'undici','miniflare':'undici','wrangler':'undici','@cloudflare/vite-plugin':'undici'})
+def advisories(name,seen=None):
+ seen=set() if seen is None else seen
+ if name in seen:return []
+ seen.add(name);out=[]
+ for v in a['vulnerabilities'][name]['via']:
+  out.extend([v] if isinstance(v,dict) else advisories(v,seen))
+ return out
+unique={v['url']:v for x in a['vulnerabilities'].values() for v in x['via'] if isinstance(v,dict)}
+adv=[]
+for url,v in unique.items():
+ ident=url.rsplit('/',1)[-1];condition,fixed=conditions[ident];adv.append({**v,'advisoryId':ident,'exploitPreconditions':condition,'firstFixedVersionFromAffectedRange':fixed,'preconditionEvidence':'Registry advisory synopsis + installed source tracing; full external advisory text not fetched because only registry.npmjs.org is authorized','affectedAggregates':[n for n in a['vulnerabilities'] if any(x['url']==url for x in advisories(n))]})
+(root/'advisory-inventory.json').write_text(json.dumps({'packageAggregateCount':22,'uniqueAdvisoryUrlCount':len(unique),'underlyingCveCount':'Not equated to advisory count; some records group multiple upstream CVEs','advisories':adv},indent=2)+'\n')
+rank_order=['sharp','undici','ws','miniflare','@cloudflare/vite-plugin','wrangler','tinypool','vitest','@vitest/mocker','@vitest/coverage-v8','esbuild','braces','micromatch','fast-glob','vinext','vite-plugin-commonjs','vite-plugin-dynamic-import','@next/eslint-plugin-next','eslint-config-next']
+findings=[];packages=[]
+for i,(name,v) in enumerate(a['vulnerabilities'].items(),1):
+ fam=family_map[name];surface,evidence,counter,refs=families[fam]
+ nodes=[{'path':p,'version':d['version'],'lockfileDevFlag':d.get('dev',False),'installScriptDeclared':d.get('hasInstallScript',False)} for p,d in lock['packages'].items() if p=='node_modules/'+name or p.endswith('/node_modules/'+name)]
+ directrefs=list(dict.fromkeys(x['url'] for x in advisories(name)));not_actionable=name in ['@esbuild-kit/core-utils','@esbuild-kit/esm-loader','drizzle-kit']
+ verdict='not_actionable' if not_actionable else 'needs_review'
+ if not_actionable:counter+=' The supplied advisory for these three aggregates is solely esbuild serve CORS; inspected loader exports call transform/transformSync and the configured db:generate does not start serve. This is a scoped non-applicability conclusion, not a waiver for other uses.'
+ packages.append({'name':name,'severity':v['severity'],'direct':v['isDirect'],'installed':nodes,'exposure':surface,'advisories':directrefs,'verdict':verdict,'evidence':evidence,'counterevidence':counter,'sourceReferences':refs})
+ findings.append({'triage_item_id':f'triage-{i:03d}','input_id':'npm-audit:'+name,'source_type':'advisory','title':name+' affected package aggregate','normalized_input':{'vulnerable_component':name,'claimed_source':'See individual advisory preconditions in advisory-inventory.json','claimed_sink':fam+' dependent operation','claimed_control':'Controls described per advisory; installed affected version verified','affected_version_or_path':'; '.join(n['path']+'@'+n['version'] for n in nodes),'preconditions':[surface],'impact':'; '.join(dict.fromkeys(x['title'] for x in advisories(name))),'references':directrefs},'verdict':verdict,'confidence':'medium' if not_actionable else 'low','affected_locations':[{'label':'dependency path','path':x['path'],'lines':'unknown','detail':x['version']} for x in nodes],'reachable_path':[evidence],'boundary_assessment':{'product_surface':surface,'source_trust':'trusted_developer_config' if not_actionable else 'unknown','boundary_crossed':False if not_actionable else None,'policy_basis':'docs/security.md; docs/dealtwin/DEPLOYMENT.md:9-22,94-110; no applicable SECURITY.md found'},'exploitability_stack_rank':{'rank_queue':None if not_actionable else 'needs_review','rank':None if not_actionable else rank_order.index(name)+1,'rationale':'Configured transform-only loader does not expose esbuild serve' if not_actionable else 'Priority by possible shipped/native/network surface before test/build-only paths; exploit reachability remains conditional','drivers':[] if not_actionable else [surface,'missing lower-trust source/control-path proof']},'evidence':[evidence,*refs],'counterevidence':[counter],'proof_gaps':[] if not_actionable else ['No runtime exploit validation in this static triage','See advisory-specific preconditions; full upstream advisory unavailable under current domain restriction','No public deployment configuration or lower-trust prototype-pollution source established'],'recommended_next_step':'Preserve scope decision; no automatic audit waiver' if not_actionable else 'Apply compatible installed-component remediation and retain remaining exposure questions','fix_finding_handoff':None})
+(root/'package-triage.json').write_text(json.dumps(packages,indent=2)+'\n')
+(root/'triage-result.json').write_text(json.dumps({'schema_version':'triage-finding/v0','repository':{'path':str(repo),'revision':'57782e8c84435050e3a6ed786a56b9c69ba69e4b'},'findings':findings},indent=2)+'\n')
+assert len(findings)==22 and len(adv)==32
+assert sorted(x['exploitability_stack_rank']['rank'] for x in findings if x['verdict']=='needs_review')==list(range(1,20))
+print('Static triage:22 aggregates;32 advisory URLs;19 needs_review;3 scoped not_actionable;0 confirmed exploit chains.')

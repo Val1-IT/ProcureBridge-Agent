@@ -1,6 +1,18 @@
 # DealTwin — local execution status
 
-## Current continuation — coverage and restore verified, 2026-10-18
+## Current continuation — dependency remediation, 2026-10-18
+
+Compatible fixes landed in89d8d7f andcd1d8bd. Clean **cd1d8bd** passes
+1274/1274 tests in126 files with unchanged coverage, typecheck/lint, Node build,
+60-file client scan,113-case benchmark,57/57 replay and1HTTP case.
+Audit is now20 affected package aggregates (2critical/12high/6moderate),
+with9 reported advisory URLs; embedded older ws/Undici remain open separately.
+Major Vitest/Cloudflare migrations require review; browser/Sites and other
+Task29 gates remain blocked. Task29 stays PARTIAL. Both PG clusters and web
+processes are stopped; data retained. See
+[dependency triage and remaining work](docs/dealtwin/DEPENDENCY-AUDIT-20261018.md).
+
+## Earlier continuation — coverage and restore verified, 2026-10-18
 
 On clean413c0e4, full coverage passed **1264/1264 tests in124 files**,0fail/skip;
 45-table synthetic backup/restore, repeated service races,113-case benchmark

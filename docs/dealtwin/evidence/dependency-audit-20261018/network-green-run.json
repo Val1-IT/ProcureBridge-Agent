@@ -1,0 +1,17 @@
+{
+  "sourceSha": "57782e8c84435050e3a6ed786a56b9c69ba69e4b",
+  "dirty": true,
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "tests/dealtwin/security/dependency-boundaries.test.ts",
+    "tests/dealtwin/security/server-boundary.test.ts",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=/workspace/dealtwin-runtime/audit-20261018/network-green.json"
+  ],
+  "exitCode": 1,
+  "durationSeconds": 4.505,
+  "lifecycleScriptsDisabled": true
+}

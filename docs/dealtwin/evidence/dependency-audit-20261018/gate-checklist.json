@@ -1,0 +1,111 @@
+{
+  "candidateSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "ready": false,
+  "task29": "PARTIAL",
+  "notAPassingReleasePacket": true,
+  "checks": [
+    {
+      "id": "dependency_audit",
+      "status": "fail",
+      "evidence": "final-audit.json",
+      "scope": "20 affected package aggregates:2critical12high6moderate;9 reported GHSA URLs; embedded old ws/Undici remain separately open",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "migration_restore",
+      "status": "historical_pass",
+      "evidence": "../cloud-gates-20261018/migration-restore-inventory.json",
+      "scope": "Prior45-table synthetic restore preserved; no SQL/PG application source changed; not a new same-candidate restore",
+      "testedSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38"
+    },
+    {
+      "id": "rls",
+      "status": "pass_local",
+      "evidence": "final-coverage-tests.json",
+      "scope": "real PostgreSQL suite and restored roles/policies",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "cross_tenant_api",
+      "status": "pass_local",
+      "evidence": "final-coverage-tests.json",
+      "scope": "actual app-role API tests; restored44 tenant-table isolation separately",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "secret_scan",
+      "status": "pass_bounded",
+      "evidence": "final-client-scan.log",
+      "scope": "60 emitted client files/0issues; new shared evidence checked for private runtime values",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "typecheck",
+      "status": "pass",
+      "evidence": "final-typecheck-run.json",
+      "scope": "exit0",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "lint",
+      "status": "pass",
+      "evidence": "final-lint-run.json",
+      "scope": "full lint exit0",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "tests",
+      "status": "pass",
+      "evidence": "test-summary.json",
+      "scope": "1274/1274 tests in126 files;0failed/0skipped",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "evidence": "final-coverage-summary.json",
+      "scope": "unchanged overall and per-module thresholds",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "build",
+      "status": "blocked",
+      "evidence": "final-sites-build-run.json",
+      "scope": "Node passed; Sites requires canonical hosting metadata",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "authenticated_judge_smoke",
+      "status": "blocked",
+      "evidence": "final-http-test.log",
+      "scope": "1 HTTP case passed;10 browser cases not selected",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "tls",
+      "status": "not_proven",
+      "evidence": null,
+      "scope": "no public endpoint authorized",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "least_privilege",
+      "status": "pass_local",
+      "evidence": "final-database-state.json",
+      "scope": "synthetic app/reset NOSUPERUSER NOBYPASSRLS; not public deployment certification",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f"
+    },
+    {
+      "id": "backup_restore",
+      "status": "historical_pass",
+      "evidence": "../cloud-gates-20261018/restore-verification.json",
+      "scope": "Prior45-table synthetic restore preserved; no SQL/PG application source changed; not a new same-candidate restore",
+      "testedSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38"
+    }
+  ],
+  "additionalPending": [
+    "10 sandboxed browser cases and UX inspection",
+    "live provider/public identity/TLS/hosted-CI evidence as required and specifically authorized",
+    "final42-ID exact-candidate artifact packet"
+  ]
+}

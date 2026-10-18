@@ -1,0 +1,61 @@
+[
+  {
+    "package": "@cloudflare/vite-plugin",
+    "version": "1.64.0",
+    "archiveSha256": "a1c345236d9157fac8ac7deeb361aba0d91b5b9f5932ba393728f6a9bd7a71d3",
+    "entrySha256": "fe86b2c409772cb658564eec127c71b79f7e024acf4eeeff784e2ef1cafd8849",
+    "dependencies": {
+      "unenv": "2.0.0-rc.24",
+      "workerd": "1.20261012.1",
+      "ws": "8.21.0",
+      "@cloudflare/unenv-preset": "2.16.2",
+      "wrangler": "4.151.0",
+      "miniflare": "5.20261012.0-beta"
+    },
+    "peerDependencies": {
+      "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+      "wrangler": "^4.151.0"
+    },
+    "engines": null,
+    "license": "MIT",
+    "bundledPackageVersionMarkers": {
+      "ws": [
+        "8.21.0"
+      ],
+      "undici": [
+        "7.29.1"
+      ]
+    }
+  },
+  {
+    "package": "wrangler",
+    "version": "4.151.0",
+    "archiveSha256": "e14ed5fd78db64dc0ce684f823596a897e08223a0190eaff53b5bafdb8cb8969",
+    "entrySha256": "fdc72018f9cdd5cecff191ec00876825ac90620113996c9bf7d343914fbc842d",
+    "dependencies": {
+      "blake3-wasm": "2.1.5",
+      "esbuild": "0.28.2",
+      "path-to-regexp": "6.3.0",
+      "unenv": "2.0.0-rc.24",
+      "workerd": "1.20261012.1",
+      "@cloudflare/kv-asset-handler": "0.5.0",
+      "@cloudflare/unenv-preset": "2.16.2",
+      "miniflare": "5.20261012.0-beta"
+    },
+    "peerDependencies": {
+      "@cloudflare/workers-types": "^5.20261006.1"
+    },
+    "engines": {
+      "node": ">=22.0.0"
+    },
+    "license": "MIT OR Apache-2.0",
+    "bundledPackageVersionMarkers": {
+      "ws": [
+        "8.21.0"
+      ],
+      "undici": [
+        "7.29.1"
+      ]
+    }
+  }
+]

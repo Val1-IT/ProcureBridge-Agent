@@ -1,0 +1,19 @@
+{
+  "pg16-data": {
+    "statusExit": 3,
+    "pidFilePresent": false
+  },
+  "pg16-restore-data": {
+    "statusExit": 3,
+    "pidFilePresent": false
+  },
+  "55432": {
+    "accepting": false
+  },
+  "55632": {
+    "accepting": false
+  },
+  "4177": {
+    "accepting": false
+  }
+}

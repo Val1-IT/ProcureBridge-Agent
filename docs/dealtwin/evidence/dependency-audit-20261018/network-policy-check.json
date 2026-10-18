@@ -1,0 +1,11 @@
+{
+  "httpDomains": [
+    "registry.npmjs.org",
+    "sdmntprwestcentralus.oaiusercontent.com"
+  ],
+  "additionalTcpDomains": [],
+  "additionalTcpIpRanges": [],
+  "expanded": false,
+  "reviewedPackageSources": "registry.npmjs.org only",
+  "libraryWriteRoute": "official same-item replacement, version guard retained"
+}

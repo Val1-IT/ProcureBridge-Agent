@@ -1,0 +1,17 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config=playwright.dealtwin.config.ts",
+    "--grep",
+    "Node production target serves real hydration assets and denies traversal",
+    "--reporter=list",
+    "--output=output/playwright/cloud-audit-20261018/results"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 11.232,
+  "lifecycleScriptsDisabled": true
+}

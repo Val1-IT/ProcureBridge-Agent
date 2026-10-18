@@ -1,0 +1,30 @@
+{
+  "version": "4.20260515.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "ws": "8.18.0",
+    "sharp": "^0.34.5",
+    "youch": "4.1.0-beta.10",
+    "undici": "7.24.8",
+    "workerd": "1.20260515.1",
+    "@cspotcode/source-map-support": "0.8.1"
+  },
+  "scripts": {
+    "dev": "concurrently -n esbuild,typechk,typewrk -c yellow,blue,blue.dim \"node scripts/build.mjs --watch\" \"node scripts/types.mjs tsconfig.json --bundle --watch\" \"node scripts/types.mjs src/workers/tsconfig.json --watch\"",
+    "test": "vitest run",
+    "build": "node scripts/build.mjs && pnpm run types:build",
+    "clean": "node -r esbuild-register ../../tools/clean/clean.ts ./dist ./dist-types",
+    "test:ci": "pnpm run test",
+    "posttest": "node -r esbuild-register ../../tools/clean/clean.ts ./.tmp",
+    "check:type": "tsc",
+    "types:build": "node scripts/types.mjs tsconfig.json --bundle && node scripts/types.mjs src/workers/tsconfig.json",
+    "generate:api": "pnpm generate:openapi && pnpm generate:types",
+    "capnp:workerd": "capnp-es node_modules/workerd/workerd.capnp -ots:src/runtime/config/generated --src-prefix=node_modules/workerd",
+    "generate:types": "openapi-ts && oxfmt src/workers/local-explorer/openapi.local.json src/workers/local-explorer/generated",
+    "generate:openapi": "node -r esbuild-register scripts/filter-openapi.ts -i $OPENAPI_INPUT_PATH",
+    "check:generate-api": "node -r esbuild-register scripts/check-generate-api.ts"
+  },
+  "license": "MIT"
+}

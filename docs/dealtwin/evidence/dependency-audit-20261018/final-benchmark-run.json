@@ -1,0 +1,15 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "npm",
+    "run",
+    "benchmark:dealtwin",
+    "--",
+    "--run-id",
+    "cloud-audit-cd1d8bd-20261018"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 22.104,
+  "lifecycleScriptsDisabled": true
+}

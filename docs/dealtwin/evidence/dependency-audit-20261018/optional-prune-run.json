@@ -1,0 +1,16 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "npm",
+    "prune",
+    "--offline",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    "--cache=/workspace/dealtwin-npm-cache"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 3.637,
+  "lifecycleScriptsDisabled": true
+}

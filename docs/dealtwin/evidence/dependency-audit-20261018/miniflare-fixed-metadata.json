@@ -1,0 +1,15 @@
+{
+  "version": "4.20260722.0",
+  "dependencies": {
+    "ws": "8.21.0",
+    "sharp": "0.35.2",
+    "youch": "4.1.0-beta.10",
+    "undici": "7.28.0",
+    "workerd": "1.20260722.1",
+    "@cspotcode/source-map-support": "0.8.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "license": "MIT"
+}

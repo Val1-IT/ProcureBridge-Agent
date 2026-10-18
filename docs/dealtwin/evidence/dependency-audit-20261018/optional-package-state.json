@@ -1,0 +1,24 @@
+{
+  "npmPruneExit": 0,
+  "npmLsExit": 0,
+  "lockfileRestoredUnchanged": true,
+  "physicalPackages": {
+    "@emnapi/core": {
+      "directoryExists": true,
+      "packageJsonExists": true
+    },
+    "@emnapi/runtime": {
+      "directoryExists": true,
+      "packageJsonExists": true
+    },
+    "@emnapi/wasi-threads": {
+      "directoryExists": true,
+      "packageJsonExists": true
+    },
+    "@tybys/wasm-util": {
+      "directoryExists": true,
+      "packageJsonExists": true
+    }
+  },
+  "note": "npm ls still reports optional WASM nodes as extraneous; no invalid/missing peer problem. No dependency requirement removed or source changed to suppress these entries."
+}

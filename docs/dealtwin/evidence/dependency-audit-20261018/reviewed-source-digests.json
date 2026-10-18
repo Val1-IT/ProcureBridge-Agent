@@ -1,0 +1,88 @@
+[
+  {
+    "path": "node_modules/@cloudflare/vite-plugin/dist/index.mjs",
+    "sha256": "b19bd79c6f771f6f7a8b63082c144fe6e8d7b061e09ef0fc4e1414fc0a3a9479",
+    "bytes": 2103658,
+    "embeddedUndiciVersionMarkers": [
+      "7.24.8"
+    ],
+    "bundledPackageVersionMarkers": {
+      "ws": [],
+      "undici": [
+        "7.24.8"
+      ],
+      "sharp": [],
+      "esbuild": [],
+      "braces": [],
+      "tinypool": []
+    }
+  },
+  {
+    "path": "node_modules/wrangler/wrangler-dist/cli.js",
+    "sha256": "fc1aa72afc91906759a3555e76e6dae1b13504f71dec6d3bbfa0fe24c351ebd7",
+    "bytes": 12595865,
+    "embeddedUndiciVersionMarkers": [
+      "7.24.8"
+    ],
+    "bundledPackageVersionMarkers": {
+      "ws": [
+        "8.18.0"
+      ],
+      "undici": [
+        "7.24.8"
+      ],
+      "sharp": [],
+      "esbuild": [],
+      "braces": [],
+      "tinypool": []
+    }
+  },
+  {
+    "path": "node_modules/miniflare/dist/src/index.js",
+    "sha256": "9584409d464f6c21d720b20da3c5dc6e5bdab0393f9cb19b36cb960beaf0958b",
+    "bytes": 3866506,
+    "bundledPackageVersionMarkers": {
+      "ws": [],
+      "undici": [],
+      "sharp": [],
+      "esbuild": [],
+      "braces": [],
+      "tinypool": []
+    }
+  },
+  {
+    "path": "node_modules/ws/lib/receiver.js",
+    "sha256": "4879edbf8e48d04d09783cf9c04b5e25f5a448247bb01279438ded2899747220",
+    "bytes": 17802
+  },
+  {
+    "path": "node_modules/ws/lib/websocket-server.js",
+    "sha256": "29029a4d346800c792300df153df2007e9805d9d7b67b0883f9730b64f25b1c8",
+    "bytes": 17026
+  },
+  {
+    "path": "node_modules/undici/lib/web/cookies/parse.js",
+    "sha256": "d4768b29fd6b5ac9ad045936597618858dd15b38e1af6eb12281379fbfbbebe5",
+    "bytes": 12736
+  },
+  {
+    "path": "node_modules/tinypool/dist/index.js",
+    "sha256": "21a972f29f565170207234994faef33fa4366f7ce2375e166f91a15bb2497fa5",
+    "bytes": 26655
+  },
+  {
+    "path": "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js",
+    "sha256": "90c9d0c8d7fdf75293facf01675f227b08c793428fb7b8965e5f59769dd69a14",
+    "bytes": 46002
+  },
+  {
+    "path": "node_modules/next/dist/server/image-optimizer.js",
+    "sha256": "bf2e6f1961dd49c8928a9671319f1f623478a868cc460b979ba414f19e82f48b",
+    "bytes": 40071
+  },
+  {
+    "path": "node_modules/vinext/dist/server/image-optimization.js",
+    "sha256": "0639e4b19cada5b3c59a2a0d7715e828d754517450ed934e60077a4f1214253d",
+    "bytes": 8176
+  }
+]

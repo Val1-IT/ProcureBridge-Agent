@@ -64,6 +64,19 @@ Activation requires server-only secrets, identity-to-tenant mapping, atomic expe
 
 Task 14 tracked-file scans found no hard-coded local path or credential after excluding the implementation plan's literal hygiene command. The raw scan also matched only the worktree `.git` pointer and that literal example. Non-demo emails were package-lock metadata (`@xata.io` and the glob deprecation contact), not customer records.
 
+## Current dependency checkpoint — 2026-10-18
+
+See [DealTwin dependency triage](dealtwin/DEPENDENCY-AUDIT-20261018.md).
+The initial22 affected package aggregates map to32 distinct advisory URLs;
+these are not22 unique exploits. Compatible external ws/Undici, esbuild0.28.x,
+and Next-specific Sharp updates are pinned and tested atcd1d8bd. Full coverage
+passes1274/1274 with original thresholds. Final npm audit still reports20
+aggregates (2critical/12high/6moderate) and9 unique advisory URLs. Cloudflare
+bundles still contain older ws/Undici code outside npm's external dependency
+counts. No blanket development-dependency exclusion or renewed waiver applies.
+Two coordinated major migrations are pending review; no force downgrade,
+install lifecycle script, production connection or public deployment occurred.
+
 ## Historical dependency audit snapshot (not current)
 
 The ignored artifact `.superpowers/sdd/2026-08-09-balanced-distributor-mini-erp/npm-audit.json` records the fresh 11 August 2026 `npm.cmd audit --json` result (exit 1):

@@ -1,0 +1,35 @@
+{
+  "version": "4.114.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "unenv": "2.0.0-rc.24",
+    "esbuild": "0.28.1",
+    "workerd": "1.20260722.1",
+    "miniflare": "4.20260722.0",
+    "blake3-wasm": "2.1.5",
+    "path-to-regexp": "6.3.0",
+    "@cloudflare/unenv-preset": "2.16.1",
+    "@cloudflare/kv-asset-handler": "0.5.0"
+  },
+  "peerDependencies": {
+    "@cloudflare/workers-types": "^5.20260722.1"
+  },
+  "scripts": {
+    "dev": "pnpm run clean && concurrently -c black,blue --kill-others-on-fail false \"pnpm tsup --watch src --watch ../containers-shared/src --watch ../cli\" \"pnpm run check:type --watch --preserveWatchOutput\"",
+    "test": "dotenv -- pnpm run assert-git-version && cross-env NODE_OPTIONS=\"$(node scripts/node-options-for-tests.js)\" dotenv -- vitest",
+    "build": "pnpm run clean && pnpm tsup && pnpm tsdown && pnpm run generate-json-schema",
+    "clean": "node -r esbuild-register ../../tools/clean/clean.ts wrangler-dist miniflare-dist emitted-types",
+    "start": "pnpm run build && cross-env NODE_OPTIONS=--enable-source-maps ./bin/wrangler.js",
+    "test:ci": "cross-env NODE_OPTIONS=\"$(node scripts/node-options-for-tests.js)\" pnpm run test run",
+    "test:e2e": "dotenv -- vitest run -c ./e2e/vitest.config.mts",
+    "check:type": "tsc -p ./tsconfig.json && tsc -p ./templates/tsconfig.json",
+    "test:debug": "pnpm run test --silent=false --verbose=true",
+    "test:watch": "pnpm run test --testTimeout=50000 --watch",
+    "type:tests": "tsc -p ./src/__tests__/tsconfig.json && tsc -p ./e2e/tsconfig.json",
+    "assert-git-version": "node -r esbuild-register scripts/assert-git-version.ts",
+    "generate-json-schema": "node -r esbuild-register scripts/generate-json-schema.ts"
+  },
+  "license": "MIT OR Apache-2.0"
+}

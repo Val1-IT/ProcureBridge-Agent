@@ -1,0 +1,18 @@
+{
+  "sourceSha": "89d8d7f59f45f9f7f9dfcbfc82a70ff0969d3600",
+  "dirty": true,
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "tests/dealtwin/security/dependency-boundaries.test.ts",
+    "tests/dealtwin/security/native-dependency-compatibility.test.ts",
+    "tests/dealtwin/security/server-boundary.test.ts",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=/workspace/dealtwin-runtime/audit-20261018/native-green.json"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 5.931,
+  "lifecycleScriptsDisabled": true
+}

@@ -1,0 +1,1634 @@
+[
+  {
+    "name": "ws",
+    "version": "8.18.0",
+    "location": "node_modules/ws",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "ws",
+        "spec": "8.18.0",
+        "from": {
+          "name": "miniflare",
+          "version": "4.20260515.0",
+          "location": "node_modules/miniflare",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "miniflare",
+              "spec": "4.20260515.0",
+              "from": {
+                "name": "wrangler",
+                "version": "4.92.0",
+                "location": "node_modules/wrangler",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "wrangler",
+                    "spec": "4.92.0",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "wrangler",
+                    "spec": "4.92.0",
+                    "from": {
+                      "name": "@cloudflare/vite-plugin",
+                      "version": "1.37.1",
+                      "location": "node_modules/@cloudflare/vite-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@cloudflare/vite-plugin",
+                          "spec": "1.37.1",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "miniflare",
+              "spec": "4.20260515.0",
+              "from": {
+                "name": "@cloudflare/vite-plugin",
+                "version": "1.37.1",
+                "location": "node_modules/@cloudflare/vite-plugin",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@cloudflare/vite-plugin",
+                    "spec": "1.37.1",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "prod",
+        "name": "ws",
+        "spec": "8.18.0",
+        "from": {
+          "name": "@cloudflare/vite-plugin",
+          "version": "1.37.1",
+          "location": "node_modules/@cloudflare/vite-plugin",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "@cloudflare/vite-plugin",
+              "spec": "1.37.1",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "undici",
+    "version": "7.24.8",
+    "location": "node_modules/undici",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "undici",
+        "spec": "7.24.8",
+        "from": {
+          "name": "miniflare",
+          "version": "4.20260515.0",
+          "location": "node_modules/miniflare",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "miniflare",
+              "spec": "4.20260515.0",
+              "from": {
+                "name": "wrangler",
+                "version": "4.92.0",
+                "location": "node_modules/wrangler",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "wrangler",
+                    "spec": "4.92.0",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "wrangler",
+                    "spec": "4.92.0",
+                    "from": {
+                      "name": "@cloudflare/vite-plugin",
+                      "version": "1.37.1",
+                      "location": "node_modules/@cloudflare/vite-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@cloudflare/vite-plugin",
+                          "spec": "1.37.1",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "miniflare",
+              "spec": "4.20260515.0",
+              "from": {
+                "name": "@cloudflare/vite-plugin",
+                "version": "1.37.1",
+                "location": "node_modules/@cloudflare/vite-plugin",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@cloudflare/vite-plugin",
+                    "spec": "1.37.1",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "sharp",
+    "version": "0.34.5",
+    "location": "node_modules/sharp",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "sharp",
+        "spec": "^0.34.5",
+        "from": {
+          "name": "miniflare",
+          "version": "4.20260515.0",
+          "location": "node_modules/miniflare",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "miniflare",
+              "spec": "4.20260515.0",
+              "from": {
+                "name": "wrangler",
+                "version": "4.92.0",
+                "location": "node_modules/wrangler",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "wrangler",
+                    "spec": "4.92.0",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "wrangler",
+                    "spec": "4.92.0",
+                    "from": {
+                      "name": "@cloudflare/vite-plugin",
+                      "version": "1.37.1",
+                      "location": "node_modules/@cloudflare/vite-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@cloudflare/vite-plugin",
+                          "spec": "1.37.1",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "miniflare",
+              "spec": "4.20260515.0",
+              "from": {
+                "name": "@cloudflare/vite-plugin",
+                "version": "1.37.1",
+                "location": "node_modules/@cloudflare/vite-plugin",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@cloudflare/vite-plugin",
+                    "spec": "1.37.1",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "optional",
+        "name": "sharp",
+        "spec": "^0.34.3 || ^0.35.5",
+        "from": {
+          "name": "next",
+          "version": "15.5.28",
+          "location": "node_modules/next",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "next",
+              "spec": "15.5.28",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            },
+            {
+              "type": "peerOptional",
+              "name": "next",
+              "spec": "^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0",
+              "from": {
+                "name": "@unpic/react",
+                "version": "1.0.2",
+                "location": "node_modules/@unpic/react",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@unpic/react",
+                    "spec": "^1.0.2",
+                    "from": {
+                      "name": "vinext",
+                      "version": "0.0.50",
+                      "location": "node_modules/vinext",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vinext",
+                          "spec": "0.0.50",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": false,
+    "optional": false,
+    "devOptional": true,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "esbuild",
+    "version": "0.28.0",
+    "location": "node_modules/esbuild",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "esbuild",
+        "spec": "~0.28.0",
+        "from": {
+          "name": "tsx",
+          "version": "4.22.1",
+          "location": "node_modules/tsx",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "tsx",
+              "spec": "^4.21.0",
+              "from": {
+                "name": "drizzle-kit",
+                "version": "0.31.10",
+                "location": "node_modules/drizzle-kit",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "drizzle-kit",
+                    "spec": "0.31.10",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peerOptional",
+              "name": "tsx",
+              "spec": "^4.8.1",
+              "from": {
+                "name": "vite",
+                "version": "8.0.16",
+                "location": "node_modules/vite",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "vite",
+                    "spec": "8.0.16",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "vite",
+                    "spec": "^7.0.0 || ^8.0.0",
+                    "from": {
+                      "name": "vinext",
+                      "version": "0.0.50",
+                      "location": "node_modules/vinext",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vinext",
+                          "spec": "0.0.50",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "vite",
+                    "spec": "*",
+                    "from": {
+                      "name": "vite-tsconfig-paths",
+                      "version": "6.1.1",
+                      "location": "node_modules/vite-tsconfig-paths",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "vite-tsconfig-paths",
+                          "spec": "^6.1.1",
+                          "from": {
+                            "name": "vinext",
+                            "version": "0.0.50",
+                            "location": "node_modules/vinext",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "vinext",
+                                "spec": "0.0.50",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peerOptional",
+                    "name": "vite",
+                    "spec": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+                    "from": {
+                      "name": "vitefu",
+                      "version": "1.1.3",
+                      "location": "node_modules/vitefu",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "vitefu",
+                          "spec": "^1.1.3",
+                          "from": {
+                            "name": "@vitejs/plugin-rsc",
+                            "version": "0.5.26",
+                            "location": "node_modules/@vitejs/plugin-rsc",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "@vitejs/plugin-rsc",
+                                "spec": "0.5.26",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              },
+                              {
+                                "type": "peerOptional",
+                                "name": "@vitejs/plugin-rsc",
+                                "spec": "^0.5.23",
+                                "from": {
+                                  "name": "vinext",
+                                  "version": "0.0.50",
+                                  "location": "node_modules/vinext",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "vinext",
+                                      "spec": "0.0.50",
+                                      "from": {
+                                        "location": "/workspace/ProcureBridge-Agent"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "vite",
+                    "spec": "^6.1.0 || ^7.0.0 || ^8.0.0",
+                    "from": {
+                      "name": "@cloudflare/vite-plugin",
+                      "version": "1.37.1",
+                      "location": "node_modules/@cloudflare/vite-plugin",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@cloudflare/vite-plugin",
+                          "spec": "1.37.1",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "vite",
+                    "spec": "^8.0.0",
+                    "from": {
+                      "name": "@vitejs/plugin-react",
+                      "version": "6.0.2",
+                      "location": "node_modules/@vitejs/plugin-react",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@vitejs/plugin-react",
+                          "spec": "6.0.2",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        },
+                        {
+                          "type": "peer",
+                          "name": "@vitejs/plugin-react",
+                          "spec": "^5.1.4 || ^6.0.0",
+                          "from": {
+                            "name": "vinext",
+                            "version": "0.0.50",
+                            "location": "node_modules/vinext",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "vinext",
+                                "spec": "0.0.50",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "vite",
+                    "spec": "*",
+                    "from": {
+                      "name": "@vitejs/plugin-rsc",
+                      "version": "0.5.26",
+                      "location": "node_modules/@vitejs/plugin-rsc",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@vitejs/plugin-rsc",
+                          "spec": "0.5.26",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        },
+                        {
+                          "type": "peerOptional",
+                          "name": "@vitejs/plugin-rsc",
+                          "spec": "^0.5.23",
+                          "from": {
+                            "name": "vinext",
+                            "version": "0.0.50",
+                            "location": "node_modules/vinext",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "vinext",
+                                "spec": "0.0.50",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peerOptional",
+              "name": "tsx",
+              "spec": "^4.8.1",
+              "from": {
+                "name": "vite",
+                "version": "7.3.7",
+                "location": "node_modules/vite-node/node_modules/vite",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "vite",
+                    "spec": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+                    "from": {
+                      "name": "vite-node",
+                      "version": "3.2.4",
+                      "location": "node_modules/vite-node",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "vite-node",
+                          "spec": "3.2.4",
+                          "from": {
+                            "name": "vitest",
+                            "version": "3.2.7",
+                            "location": "node_modules/vitest",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "vitest",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              },
+                              {
+                                "type": "peer",
+                                "name": "vitest",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "name": "@vitest/coverage-v8",
+                                  "version": "3.2.7",
+                                  "location": "node_modules/@vitest/coverage-v8",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "@vitest/coverage-v8",
+                                      "spec": "3.2.7",
+                                      "from": {
+                                        "location": "/workspace/ProcureBridge-Agent"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peerOptional",
+              "name": "tsx",
+              "spec": "^4.8.1",
+              "from": {
+                "name": "vite",
+                "version": "7.3.7",
+                "location": "node_modules/vitest/node_modules/vite",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "vite",
+                    "spec": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+                    "from": {
+                      "name": "vitest",
+                      "version": "3.2.7",
+                      "location": "node_modules/vitest",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vitest",
+                          "spec": "3.2.7",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        },
+                        {
+                          "type": "peer",
+                          "name": "vitest",
+                          "spec": "3.2.7",
+                          "from": {
+                            "name": "@vitest/coverage-v8",
+                            "version": "3.2.7",
+                            "location": "node_modules/@vitest/coverage-v8",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "@vitest/coverage-v8",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "peerOptional",
+                    "name": "vite",
+                    "spec": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+                    "from": {
+                      "name": "@vitest/mocker",
+                      "version": "3.2.7",
+                      "location": "node_modules/vitest/node_modules/@vitest/mocker",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@vitest/mocker",
+                          "spec": "3.2.7",
+                          "from": {
+                            "name": "vitest",
+                            "version": "3.2.7",
+                            "location": "node_modules/vitest",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "vitest",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              },
+                              {
+                                "type": "peer",
+                                "name": "vitest",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "name": "@vitest/coverage-v8",
+                                  "version": "3.2.7",
+                                  "location": "node_modules/@vitest/coverage-v8",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "@vitest/coverage-v8",
+                                      "spec": "3.2.7",
+                                      "from": {
+                                        "location": "/workspace/ProcureBridge-Agent"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "dev": true,
+                      "optional": false,
+                      "devOptional": false,
+                      "peer": false,
+                      "bundled": false,
+                      "overridden": false
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "peerOptional",
+        "name": "esbuild",
+        "spec": "^0.27.0 || ^0.28.0",
+        "from": {
+          "name": "vite",
+          "version": "8.0.16",
+          "location": "node_modules/vite",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "vite",
+              "spec": "8.0.16",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vite",
+              "spec": "^7.0.0 || ^8.0.0",
+              "from": {
+                "name": "vinext",
+                "version": "0.0.50",
+                "location": "node_modules/vinext",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "vinext",
+                    "spec": "0.0.50",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vite",
+              "spec": "*",
+              "from": {
+                "name": "vite-tsconfig-paths",
+                "version": "6.1.1",
+                "location": "node_modules/vite-tsconfig-paths",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "vite-tsconfig-paths",
+                    "spec": "^6.1.1",
+                    "from": {
+                      "name": "vinext",
+                      "version": "0.0.50",
+                      "location": "node_modules/vinext",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vinext",
+                          "spec": "0.0.50",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peerOptional",
+              "name": "vite",
+              "spec": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+              "from": {
+                "name": "vitefu",
+                "version": "1.1.3",
+                "location": "node_modules/vitefu",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "vitefu",
+                    "spec": "^1.1.3",
+                    "from": {
+                      "name": "@vitejs/plugin-rsc",
+                      "version": "0.5.26",
+                      "location": "node_modules/@vitejs/plugin-rsc",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@vitejs/plugin-rsc",
+                          "spec": "0.5.26",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        },
+                        {
+                          "type": "peerOptional",
+                          "name": "@vitejs/plugin-rsc",
+                          "spec": "^0.5.23",
+                          "from": {
+                            "name": "vinext",
+                            "version": "0.0.50",
+                            "location": "node_modules/vinext",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "vinext",
+                                "spec": "0.0.50",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vite",
+              "spec": "^6.1.0 || ^7.0.0 || ^8.0.0",
+              "from": {
+                "name": "@cloudflare/vite-plugin",
+                "version": "1.37.1",
+                "location": "node_modules/@cloudflare/vite-plugin",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@cloudflare/vite-plugin",
+                    "spec": "1.37.1",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vite",
+              "spec": "^8.0.0",
+              "from": {
+                "name": "@vitejs/plugin-react",
+                "version": "6.0.2",
+                "location": "node_modules/@vitejs/plugin-react",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@vitejs/plugin-react",
+                    "spec": "6.0.2",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "@vitejs/plugin-react",
+                    "spec": "^5.1.4 || ^6.0.0",
+                    "from": {
+                      "name": "vinext",
+                      "version": "0.0.50",
+                      "location": "node_modules/vinext",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vinext",
+                          "spec": "0.0.50",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vite",
+              "spec": "*",
+              "from": {
+                "name": "@vitejs/plugin-rsc",
+                "version": "0.5.26",
+                "location": "node_modules/@vitejs/plugin-rsc",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@vitejs/plugin-rsc",
+                    "spec": "0.5.26",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "peerOptional",
+                    "name": "@vitejs/plugin-rsc",
+                    "spec": "^0.5.23",
+                    "from": {
+                      "name": "vinext",
+                      "version": "0.0.50",
+                      "location": "node_modules/vinext",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vinext",
+                          "spec": "0.0.50",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "prod",
+        "name": "esbuild",
+        "spec": "^0.27.0 || ^0.28.0",
+        "from": {
+          "name": "vite",
+          "version": "7.3.7",
+          "location": "node_modules/vite-node/node_modules/vite",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "vite",
+              "spec": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+              "from": {
+                "name": "vite-node",
+                "version": "3.2.4",
+                "location": "node_modules/vite-node",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "vite-node",
+                    "spec": "3.2.4",
+                    "from": {
+                      "name": "vitest",
+                      "version": "3.2.7",
+                      "location": "node_modules/vitest",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vitest",
+                          "spec": "3.2.7",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        },
+                        {
+                          "type": "peer",
+                          "name": "vitest",
+                          "spec": "3.2.7",
+                          "from": {
+                            "name": "@vitest/coverage-v8",
+                            "version": "3.2.7",
+                            "location": "node_modules/@vitest/coverage-v8",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "@vitest/coverage-v8",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "prod",
+        "name": "esbuild",
+        "spec": "^0.27.0 || ^0.28.0",
+        "from": {
+          "name": "vite",
+          "version": "7.3.7",
+          "location": "node_modules/vitest/node_modules/vite",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "vite",
+              "spec": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+              "from": {
+                "name": "vitest",
+                "version": "3.2.7",
+                "location": "node_modules/vitest",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "vitest",
+                    "spec": "3.2.7",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  },
+                  {
+                    "type": "peer",
+                    "name": "vitest",
+                    "spec": "3.2.7",
+                    "from": {
+                      "name": "@vitest/coverage-v8",
+                      "version": "3.2.7",
+                      "location": "node_modules/@vitest/coverage-v8",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "@vitest/coverage-v8",
+                          "spec": "3.2.7",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "peerOptional",
+              "name": "vite",
+              "spec": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+              "from": {
+                "name": "@vitest/mocker",
+                "version": "3.2.7",
+                "location": "node_modules/vitest/node_modules/@vitest/mocker",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@vitest/mocker",
+                    "spec": "3.2.7",
+                    "from": {
+                      "name": "vitest",
+                      "version": "3.2.7",
+                      "location": "node_modules/vitest",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "vitest",
+                          "spec": "3.2.7",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        },
+                        {
+                          "type": "peer",
+                          "name": "vitest",
+                          "spec": "3.2.7",
+                          "from": {
+                            "name": "@vitest/coverage-v8",
+                            "version": "3.2.7",
+                            "location": "node_modules/@vitest/coverage-v8",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "@vitest/coverage-v8",
+                                "spec": "3.2.7",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "dev": true,
+                "optional": false,
+                "devOptional": false,
+                "peer": false,
+                "bundled": false,
+                "overridden": false
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "esbuild",
+    "version": "0.25.12",
+    "location": "node_modules/drizzle-kit/node_modules/esbuild",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "esbuild",
+        "spec": "^0.25.4",
+        "from": {
+          "name": "drizzle-kit",
+          "version": "0.31.10",
+          "location": "node_modules/drizzle-kit",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "drizzle-kit",
+              "spec": "0.31.10",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "esbuild",
+    "version": "0.27.3",
+    "location": "node_modules/wrangler/node_modules/esbuild",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "esbuild",
+        "spec": "0.27.3",
+        "from": {
+          "name": "wrangler",
+          "version": "4.92.0",
+          "location": "node_modules/wrangler",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "wrangler",
+              "spec": "4.92.0",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            },
+            {
+              "type": "prod",
+              "name": "wrangler",
+              "spec": "4.92.0",
+              "from": {
+                "name": "@cloudflare/vite-plugin",
+                "version": "1.37.1",
+                "location": "node_modules/@cloudflare/vite-plugin",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@cloudflare/vite-plugin",
+                    "spec": "1.37.1",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "esbuild",
+    "version": "0.18.20",
+    "location": "node_modules/@esbuild-kit/core-utils/node_modules/esbuild",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "esbuild",
+        "spec": "~0.18.20",
+        "from": {
+          "name": "@esbuild-kit/core-utils",
+          "version": "3.3.2",
+          "location": "node_modules/@esbuild-kit/core-utils",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "@esbuild-kit/core-utils",
+              "spec": "^3.3.2",
+              "from": {
+                "name": "@esbuild-kit/esm-loader",
+                "version": "2.6.5",
+                "location": "node_modules/@esbuild-kit/esm-loader",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@esbuild-kit/esm-loader",
+                    "spec": "^2.5.5",
+                    "from": {
+                      "name": "drizzle-kit",
+                      "version": "0.31.10",
+                      "location": "node_modules/drizzle-kit",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "drizzle-kit",
+                          "spec": "0.31.10",
+                          "from": {
+                            "location": "/workspace/ProcureBridge-Agent"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "tinypool",
+    "version": "1.1.1",
+    "location": "node_modules/tinypool",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "tinypool",
+        "spec": "^1.1.1",
+        "from": {
+          "name": "vitest",
+          "version": "3.2.7",
+          "location": "node_modules/vitest",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "vitest",
+              "spec": "3.2.7",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vitest",
+              "spec": "3.2.7",
+              "from": {
+                "name": "@vitest/coverage-v8",
+                "version": "3.2.7",
+                "location": "node_modules/@vitest/coverage-v8",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@vitest/coverage-v8",
+                    "spec": "3.2.7",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "braces",
+    "version": "3.0.3",
+    "location": "node_modules/braces",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "braces",
+        "spec": "^3.0.3",
+        "from": {
+          "name": "micromatch",
+          "version": "4.0.8",
+          "location": "node_modules/micromatch",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "micromatch",
+              "spec": "^4.0.4",
+              "from": {
+                "name": "fast-glob",
+                "version": "3.3.1",
+                "location": "node_modules/fast-glob",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "fast-glob",
+                    "spec": "3.3.1",
+                    "from": {
+                      "name": "@next/eslint-plugin-next",
+                      "version": "15.5.28",
+                      "location": "node_modules/@next/eslint-plugin-next",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@next/eslint-plugin-next",
+                          "spec": "15.5.28",
+                          "from": {
+                            "name": "eslint-config-next",
+                            "version": "15.5.28",
+                            "location": "node_modules/eslint-config-next",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "eslint-config-next",
+                                "spec": "15.5.28",
+                                "from": {
+                                  "location": "/workspace/ProcureBridge-Agent"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "micromatch",
+              "spec": "^4.0.8",
+              "from": {
+                "name": "fast-glob",
+                "version": "3.3.3",
+                "location": "node_modules/vite-plugin-dynamic-import/node_modules/fast-glob",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "fast-glob",
+                    "spec": "^3.3.2",
+                    "from": {
+                      "name": "vite-plugin-dynamic-import",
+                      "version": "1.6.0",
+                      "location": "node_modules/vite-plugin-dynamic-import",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "vite-plugin-dynamic-import",
+                          "spec": "^1.6.0",
+                          "from": {
+                            "name": "vite-plugin-commonjs",
+                            "version": "0.10.4",
+                            "location": "node_modules/vite-plugin-commonjs",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "vite-plugin-commonjs",
+                                "spec": "^0.10.4",
+                                "from": {
+                                  "name": "vinext",
+                                  "version": "0.0.50",
+                                  "location": "node_modules/vinext",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "vinext",
+                                      "spec": "0.0.50",
+                                      "from": {
+                                        "location": "/workspace/ProcureBridge-Agent"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "@vitest/mocker",
+    "version": "3.2.7",
+    "location": "node_modules/vitest/node_modules/@vitest/mocker",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "@vitest/mocker",
+        "spec": "3.2.7",
+        "from": {
+          "name": "vitest",
+          "version": "3.2.7",
+          "location": "node_modules/vitest",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "dev",
+              "name": "vitest",
+              "spec": "3.2.7",
+              "from": {
+                "location": "/workspace/ProcureBridge-Agent"
+              }
+            },
+            {
+              "type": "peer",
+              "name": "vitest",
+              "spec": "3.2.7",
+              "from": {
+                "name": "@vitest/coverage-v8",
+                "version": "3.2.7",
+                "location": "node_modules/@vitest/coverage-v8",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "dev",
+                    "name": "@vitest/coverage-v8",
+                    "spec": "3.2.7",
+                    "from": {
+                      "location": "/workspace/ProcureBridge-Agent"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  }
+]

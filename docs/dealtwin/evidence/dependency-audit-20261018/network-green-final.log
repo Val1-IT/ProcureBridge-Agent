@@ -1,0 +1,16 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/security/dependency-boundaries.test.ts tests/dealtwin/security/server-boundary.test.ts --reporter=default --reporter=json --outputFile=/workspace/dealtwin-runtime/audit-20261018/network-green-final.json
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ✓ tests/dealtwin/security/dependency-boundaries.test.ts (8 tests) 14ms
+ ✓ tests/dealtwin/security/server-boundary.test.ts (35 tests) 85ms
+
+ Test Files  2 passed (2)
+      Tests  43 passed (43)
+   Start at  06:30:47
+   Duration  2.17s (transform 818ms, setup 0ms, collect 1.28s, tests 99ms, environment 0ms, prepare 308ms)
+
+JSON report written to /workspace/dealtwin-runtime/audit-20261018/network-green-final.json

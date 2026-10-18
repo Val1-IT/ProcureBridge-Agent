@@ -1,0 +1,12 @@
+{
+  "sourceSha": "57782e8c84435050e3a6ed786a56b9c69ba69e4b",
+  "dirty": true,
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "tests/dealtwin/security/dependency-boundaries.test.ts"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 2.992,
+  "lifecycleScriptsDisabled": true
+}

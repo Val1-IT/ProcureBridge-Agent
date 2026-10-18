@@ -1,0 +1,15 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "npm",
+    "audit",
+    "--audit-level=high",
+    "--json",
+    "--registry=https://registry.npmjs.org",
+    "--cache=/workspace/dealtwin-npm-cache",
+    "--fetch-retries=0"
+  ],
+  "exitCode": 1,
+  "durationSeconds": 8.431
+}

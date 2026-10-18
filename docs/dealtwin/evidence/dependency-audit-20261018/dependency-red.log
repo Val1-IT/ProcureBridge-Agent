@@ -1,0 +1,94 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/security/dependency-boundaries.test.ts --reporter=default --reporter=json --outputFile=/workspace/dealtwin-runtime/audit-20261018/dependency-red.json
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ❯ tests/dealtwin/security/dependency-boundaries.test.ts (8 tests | 5 failed) 22ms
+   × installed tooling dependency security boundaries > bounds WebSocket fragment/chunk counts by default without opening a listener 10ms
+     → actual value must be number or bigint, received "undefined"
+   × installed tooling dependency security boundaries > rejects a third tiny fragment at a two-fragment limit while accepting a valid two-part message 5ms
+     → expected null to match object { Object (code) }
+   × installed tooling dependency security boundaries > does not interpret a SameSite substring as a valid token: none-extra 4ms
+     → expected { name: 'synthetic', …(2) } to match object { name: 'synthetic', …(2) }
+   × installed tooling dependency security boundaries > does not interpret a SameSite substring as a valid token: not-strict 1ms
+     → expected { name: 'synthetic', …(2) } to match object { name: 'synthetic', …(2) }
+   × installed tooling dependency security boundaries > does not interpret a SameSite substring as a valid token: relaxed 1ms
+     → expected { name: 'synthetic', …(2) } to match object { name: 'synthetic', …(2) }
+   ✓ installed tooling dependency security boundaries > preserves a valid SameSite token: None 0ms
+   ✓ installed tooling dependency security boundaries > preserves a valid SameSite token: Strict 0ms
+   ✓ installed tooling dependency security boundaries > preserves a valid SameSite token: Lax 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/dealtwin/security/dependency-boundaries.test.ts > installed tooling dependency security boundaries > bounds WebSocket fragment/chunk counts by default without opening a listener
+TypeError: actual value must be number or bigint, received "undefined"
+ ❯ tests/dealtwin/security/dependency-boundaries.test.ts:19:43
+     17|     const server=new WebSocketServer({noServer:true});
+     18|     try{
+     19|       expect(server.options.maxFragments).toBeGreaterThan(0);
+       |                                           ^
+     20|       expect(server.options.maxBufferedChunks).toBeGreaterThan(0);
+     21|     }finally{server.close(()=>{});}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/dealtwin/security/dependency-boundaries.test.ts > installed tooling dependency security boundaries > rejects a third tiny fragment at a two-fragment limit while accepting a valid two-part message
+AssertionError: expected null to match object { Object (code) }
+
+- Expected:
+{
+  "code": "WS_ERR_TOO_MANY_BUFFERED_PARTS",
+}
+
++ Received:
+null
+
+ ❯ tests/dealtwin/security/dependency-boundaries.test.ts:30:19
+     28|     const error=await new Promise<Error|null|undefined>(resolve=>recei…
+     29|       Buffer.from([0x01,1,0x61,0x00,1,0x62,0x80,1,0x63]),resolve));
+     30|     expect(error).toMatchObject({code:'WS_ERR_TOO_MANY_BUFFERED_PARTS'…
+       |                   ^
+     31|     receiver.destroy();
+     32|     const valid=new Receiver({isServer:false,maxFragments:2,maxPayload…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/dealtwin/security/dependency-boundaries.test.ts > installed tooling dependency security boundaries > does not interpret a SameSite substring as a valid token: none-extra
+ FAIL  tests/dealtwin/security/dependency-boundaries.test.ts > installed tooling dependency security boundaries > does not interpret a SameSite substring as a valid token: not-strict
+ FAIL  tests/dealtwin/security/dependency-boundaries.test.ts > installed tooling dependency security boundaries > does not interpret a SameSite substring as a valid token: relaxed
+AssertionError: expected { name: 'synthetic', …(2) } to match object { name: 'synthetic', …(2) }
+
+- Expected
++ Received
+
+  {
+    "name": "synthetic",
+-   "sameSite": "Default",
++   "sameSite": "None",
+    "value": "value",
+  }
+
+ ❯ tests/dealtwin/security/dependency-boundaries.test.ts:42:46
+     40|   it.each(['none-extra','not-strict','relaxed'])('does not interpret a…
+     41|     const headers=new undici.Headers({'set-cookie':`synthetic=value; S…
+     42|     expect(undici.getSetCookies(headers)[0]).toMatchObject({name:'synt…
+       |                                              ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 3 passed (8)
+   Start at  06:28:54
+   Duration  664ms (transform 81ms, setup 0ms, collect 134ms, tests 22ms, environment 0ms, prepare 103ms)
+
+JSON report written to /workspace/dealtwin-runtime/audit-20261018/dependency-red.json
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

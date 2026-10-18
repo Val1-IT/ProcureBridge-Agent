@@ -1,0 +1,17 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/security/dependency-boundaries.test.ts tests/dealtwin/security/native-dependency-compatibility.test.ts tests/dealtwin/security/server-boundary.test.ts --reporter=default --reporter=json --outputFile=/workspace/dealtwin-runtime/audit-20261018/native-green.json
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ✓ tests/dealtwin/security/server-boundary.test.ts (35 tests) 47ms
+ ✓ tests/dealtwin/security/dependency-boundaries.test.ts (8 tests) 15ms
+ ✓ tests/dealtwin/security/native-dependency-compatibility.test.ts (2 tests) 80ms
+
+ Test Files  3 passed (3)
+      Tests  45 passed (45)
+   Start at  06:32:39
+   Duration  4.32s (transform 824ms, setup 0ms, collect 1.28s, tests 141ms, environment 9ms, prepare 759ms)
+
+JSON report written to /workspace/dealtwin-runtime/audit-20261018/native-green.json

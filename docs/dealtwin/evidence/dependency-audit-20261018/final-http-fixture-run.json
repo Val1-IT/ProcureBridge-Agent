@@ -1,0 +1,14 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "node",
+    "node_modules/vite-node/vite-node.mjs",
+    "--config",
+    "vitest.config.ts",
+    "scripts/dealtwin/prepare-browser-fixture.ts"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 1.543,
+  "lifecycleScriptsDisabled": true
+}

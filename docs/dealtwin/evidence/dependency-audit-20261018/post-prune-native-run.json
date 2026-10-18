@@ -1,0 +1,17 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "dirty": false,
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "tests/dealtwin/security/dependency-boundaries.test.ts",
+    "tests/dealtwin/security/native-dependency-compatibility.test.ts",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=/workspace/dealtwin-runtime/audit-20261018/post-prune-native.json"
+  ],
+  "exitCode": 0,
+  "durationSeconds": 3.252,
+  "lifecycleScriptsDisabled": true
+}

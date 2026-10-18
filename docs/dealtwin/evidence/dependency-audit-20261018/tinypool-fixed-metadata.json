@@ -1,0 +1,15 @@
+{
+  "version": "2.1.2",
+  "engines": {
+    "node": "^20.0.0 || >=22.0.0"
+  },
+  "scripts": {
+    "dev": "tsdown --watch ./src",
+    "lint": "eslint --max-warnings=0",
+    "test": "vitest",
+    "bench": "vitest bench",
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT"
+}

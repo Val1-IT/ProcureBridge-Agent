@@ -1,0 +1,32 @@
+{
+  "sourceSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+  "status": "read_only_review_complete",
+  "sharedSkillReferenceErrors": [
+    "skill://Plugin_1e648473be9c8191a91ac3947151af55/references/security-guidance.md: failed to read skill resource",
+    "skill://Plugin_1e648473be9c8191a91ac3947151af55/references/static-finding-assessment.md: failed to read skill resource"
+  ],
+  "fallbackPolicy": [
+    "AGENTS.md",
+    "docs/security.md",
+    "docs/dealtwin/DEPLOYMENT.md",
+    "docs/dealtwin/LOCKED_PRODUCT_SPEC.md"
+  ],
+  "externalAdvisoryTextFetched": false,
+  "advisoryEvidence": "Existing successful npm registry audit report; registry package metadata; installed code and official package archive inspection",
+  "securityScope": "Only supplied dependency findings and relevant bundled copies; not an unrelated discovery scan",
+  "dynamicScope": "Bounded dependency regressions and compatibility checks; no exhaustive exploit validation",
+  "newPermissionNeeded": [
+    {
+      "action": "Coordinated test-runner migration",
+      "target": "vitest and @vitest/coverage-v8 4.1.11; preserve vite-node CLI explicitly or migrate scripts",
+      "state": "pending_review_not_attempted",
+      "reason": "User required concrete report before a major migration; no fixed3.x/1.x line for mocker/Tinypool found"
+    },
+    {
+      "action": "Coordinated Cloudflare toolchain migration",
+      "target": "reviewed candidate @cloudflare/vite-plugin1.64.0, wrangler4.151.0, Workers types5, Miniflare5 beta",
+      "state": "pending_review_not_attempted",
+      "reason": "User required concrete report before major migration; candidate fixes embedded package versions but changes global types and introduces a prerelease runtime"
+    }
+  ]
+}
