@@ -1,5 +1,12 @@
 # DealTwin Requirement Traceability
 
+Maintained braces follow-up: [backport evidence](BRACES-BACKPORT-20261018.md)
+records the owner-approved local mitigation at6e9911b,31/31 focused tests on
+that clean commit, passing Sites/Node builds and unchanged dependency pins.
+The version-based audit remains blocked (16 aggregates;0 critical/12 high/4
+moderate), with five advisory URLs plus embedded Undici. No waiver or new
+whole-suite/browser claim is made; Task29/DT-042 remains PARTIAL.
+
 Local continuation: [Windows browser verification](LOCAL-BROWSER-20261018.md)
 adds 11/11 measured local Playwright results (ten browser cases plus one HTTP
 control), including durable Judge journeys at 1440/1024/820px and keyboard
