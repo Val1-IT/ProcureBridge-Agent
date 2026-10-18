@@ -1,0 +1,95 @@
+[
+  {
+    "name": "node-index",
+    "url": "https://nodejs.org/dist/index.json",
+    "status": 200,
+    "sha256": "b52f521b8e24898364b74f03596afef1f97c1448014df7c2b5ebdcd2b69ca4a9",
+    "bytes": 333611,
+    "fetchedAt": "2026-10-18T14:29:43.381895+00:00"
+  },
+  {
+    "name": "node-installed-undici-package",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.19.0/deps/undici/src/package.json",
+    "status": 200,
+    "sha256": "d2fb5736b5adad6a74c3fba9345d756258e1e953a3a2a13c03fca1bd6c9f6c52",
+    "bytes": 6333,
+    "fetchedAt": "2026-10-18T14:29:44.011438+00:00"
+  },
+  {
+    "name": "node-installed-undici-bundle",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.19.0/deps/undici/undici.js",
+    "status": 200,
+    "sha256": "19e00833036e7d25f20da1bc70dd4b19dd3081c051bfc9eea8f70d026534cad4",
+    "bytes": 758136,
+    "fetchedAt": "2026-10-18T14:29:45.716458+00:00"
+  },
+  {
+    "name": "next-621-6281-compare",
+    "url": "https://api.github.com/repos/nodejs/undici/compare/v6.21.0...v6.28.1",
+    "status": 200,
+    "sha256": "369c8421169b2454eafc6c006c3c2d766fb046e153fbd3a3d5d82779eb944fa7",
+    "bytes": 631832,
+    "fetchedAt": "2026-10-18T14:29:47.283987+00:00"
+  },
+  {
+    "name": "v24.22.0-undici-package",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.22.0/deps/undici/src/package.json",
+    "status": 200,
+    "sha256": "10e55f4adb6a43e72823ea235ff6a0c777db1ef68e3a1c810f0246e1b9332d8b",
+    "bytes": 6333
+  },
+  {
+    "name": "v24.21.0-undici-package",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/deps/undici/src/package.json",
+    "status": 200,
+    "sha256": "10e55f4adb6a43e72823ea235ff6a0c777db1ef68e3a1c810f0246e1b9332d8b",
+    "bytes": 6333
+  },
+  {
+    "name": "v24.20.0-undici-package",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.20.0/deps/undici/src/package.json",
+    "status": 200,
+    "sha256": "d2fb5736b5adad6a74c3fba9345d756258e1e953a3a2a13c03fca1bd6c9f6c52",
+    "bytes": 6333
+  },
+  {
+    "name": "node-fixed-min-bundle",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.21.0/deps/undici/undici.js",
+    "status": 200,
+    "sha256": "ef06587dd4fc6c2efa313c4d9fc6125565d2234343efd1dd6bf5d53dc7015fc1",
+    "bytes": 762914,
+    "fetchedAt": "2026-10-18T14:31:17.878519+00:00"
+  },
+  {
+    "name": "node-fixed-current-bundle",
+    "url": "https://raw.githubusercontent.com/nodejs/node/v24.22.0/deps/undici/undici.js",
+    "status": 200,
+    "sha256": "ef06587dd4fc6c2efa313c4d9fc6125565d2234343efd1dd6bf5d53dc7015fc1",
+    "bytes": 762914,
+    "fetchedAt": "2026-10-18T14:31:18.549448+00:00"
+  },
+  {
+    "name": "node-fixed-current-checksums",
+    "url": "https://nodejs.org/dist/v24.22.0/SHASUMS256.txt",
+    "status": 200,
+    "sha256": "8912ada1431af8390bb3e30328d30bca701b59c7a6d5396b491293515c092c46",
+    "bytes": 3171,
+    "fetchedAt": "2026-10-18T14:31:18.578891+00:00"
+  },
+  {
+    "name": "blob-advisory",
+    "url": "https://api.github.com/repos/nodejs/undici/security-advisories/GHSA-m8rv-5g2x-5cg5",
+    "status": 200,
+    "sha256": "23645d7320d2e32951e937393362f2dcf987d8b94df51b4d367f96838e59b683",
+    "bytes": 6843,
+    "fetchedAt": "2026-10-18T14:31:19.106119+00:00"
+  },
+  {
+    "name": "next-fetch-chain-advisory",
+    "url": "https://api.github.com/repos/nodejs/undici/security-advisories/GHSA-g9mf-h72j-4rw9",
+    "status": 200,
+    "sha256": "5164abcea8bc499f6c47a17475652f6ab015c88d0c2e05c217b193a61bef40e1",
+    "bytes": 5102,
+    "fetchedAt": "2026-10-18T14:31:19.631882+00:00"
+  }
+]

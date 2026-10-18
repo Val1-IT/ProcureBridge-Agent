@@ -1,5 +1,7 @@
 # DealTwin Requirement Traceability
 
+Latest applicability follow-up: [private Node demo Undici classification](UNDICI-DEMO-APPLICABILITY-20261018.md). At `29aebb2`, no reviewed affected advisory path was established reachable in the intended Node/PostgreSQL journey. Installed Cloudflare/Next Edge defects remain open; two Node WebSocket defects are not used by this journey, and eight other Node version matches concern modules absent from its built-in bundle. Official Node24.22.0 LTS is a concrete isolated-runtime proposal only. No waiver, dependency change, new audit/build/full-suite result or public-readiness claim.
+
 Latest local dependency review: [embedded Undici inventory and rebuild blockers](EMBEDDED-UNDICI-20261018.md) and [provisional final serial verification plan](FINAL-SERIAL-VERIFICATION-20261018.md). At code baseline `873abf7`, five installed bundle files were detected (two Cloudflare 7.28.0, three Next Edge 6.21.0 source-marker copies), plus Node built-in 7.29.0. Source/feature applicability remains unresolved; no patch or new full test/build run. Fresh npm audit remains eight high aggregates from the locally mitigated braces version finding. Task29/DT-042 stays PARTIAL.
 
 Scoped Sharp follow-up: [Miniflare image/storage evidence](SHARP-MINIFLARE-20261018.md)

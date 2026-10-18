@@ -1,5 +1,7 @@
 # Embedded Undici review — 2026-10-18
 
+Follow-up: [private Node demo applicability](UNDICI-DEMO-APPLICABILITY-20261018.md) narrows the reachability and Node runtime findings below without changing this inventory or waiving release findings.
+
 **UNRESOLVED.** Review candidate: `873abf7b4f39b242415945be0b533467ff8c87db`.
 No dependency, installed bundle, runtime, product code or security setting was
 changed. The earlier two-copy inventory was incomplete. There are five detected

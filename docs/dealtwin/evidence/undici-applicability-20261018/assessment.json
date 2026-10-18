@@ -1,0 +1,296 @@
+{
+  "candidateSha": "29aebb2c59f50ad0e849b410f520d99d85cb155c",
+  "recordedAt": "2026-10-18T14:34:37.939830+00:00",
+  "summary": "No reviewed affected advisory path established reachable in intended demo; installed affected code and release gate remain open.",
+  "classifications": [
+    {
+      "copy": "Cloudflare plugin embedded 7.28.0",
+      "classification": "affected-not-reached",
+      "scope": "intended private Node/PostgreSQL demo",
+      "sourceProof": "Pristine source-map comparison plus actual missing protocol null guard and raw blob-type sink; dedicated Node config excludes plugin."
+    },
+    {
+      "copy": "Wrangler embedded 7.28.0",
+      "classification": "affected-not-reached",
+      "scope": "intended private Node/PostgreSQL demo",
+      "sourceProof": "Actual missing WebSocket fixes and raw blob-type sink; no CLI invocation in demo startup."
+    },
+    {
+      "copy": "Next primitives/fetch.js",
+      "classification": "affected-not-reached",
+      "scope": "intended private Node/PostgreSQL demo",
+      "sourceProof": "Actual unbounded fetch encoding loop, missing protocol null guard, old frame length handling; no Edge runtime selection."
+    },
+    {
+      "copy": "Next primitives/load.js",
+      "classification": "affected-not-reached",
+      "scope": "intended private Node/PostgreSQL demo",
+      "sourceProof": "Same confirmed unfixed primitives; not loaded/called in Node target."
+    },
+    {
+      "copy": "Next edge-runtime/index.js",
+      "classification": "affected-not-reached",
+      "scope": "intended private Node/PostgreSQL demo",
+      "sourceProof": "Manual minified branch inspection confirms missing guard/old frame calculation; no Edge VM path."
+    },
+    {
+      "copy": "Node 24.19.0 built-in 7.29.0",
+      "classification": "affected-not-reached",
+      "scope": "intended private Node/PostgreSQL demo",
+      "sourceProof": "Actual runtime source matches official source after LF normalization; two WebSocket fixes missing, feature unused in demo."
+    },
+    {
+      "copy": "external Undici 7.29.1 / Miniflare resolution",
+      "classification": "verified-fixed",
+      "scope": "15 previously reviewed 7.28.0 advisory ranges; official 210-file byte match from prior review; not all possible defects"
+    }
+  ],
+  "unknown": [
+    "Individual custom-patch applicability of remaining Next version matches beyond branches checked",
+    "Future Cloudflare/Sites/Next Edge configuration and dynamic application additions",
+    "New candidate runtime/build execution; not performed"
+  ],
+  "nodeAffectedNotReached": [
+    "GHSA-rfgv-xxqx-mfg5",
+    "GHSA-3wwx-pv8p-q78v"
+  ],
+  "nodeVersionMatchesNotShipped": {
+    "GHSA-pmjh-fq2x-6v4x": "retry-handler",
+    "GHSA-r53p-7pc4-xj5r": "retry-handler",
+    "GHSA-3xpg-4rpp-hhhm": "decompress interceptor",
+    "GHSA-2jfj-6hjv-fm6j": "cache interceptor",
+    "GHSA-2gqq-gqf2-x968": "dump interceptor",
+    "GHSA-w293-vg96-wgc3": "BalancedPool",
+    "GHSA-8436-99hf-9mmv": "cache interceptor",
+    "GHSA-rx4f-c7p8-82vq": "WebSocketStream"
+  },
+  "nodeCheckedFixed": [
+    "GHSA-g9mf-h72j-4rw9 five-layer fetch encoding cap",
+    "GHSA-m8rv-5g2x-5cg5 positive isValidHeaderValue(contentTypeValue) validation before raw header serialization"
+  ],
+  "liveProviderEnabledObserved": false,
+  "sourceChecks": {
+    "nodeInstalled": {
+      "path": "output/undici-applicability-20261018/node-builtin-undici.js",
+      "sha256": "28b68c5c4e1336cbc31d4991d5291a02e70edce061e44af92f4f477d8ff4c908",
+      "normalizedLfSha256": "19e00833036e7d25f20da1bc70dd4b19dd3081c051bfc9eea8f70d026534cad4",
+      "checks": {
+        "wsNullProtocolGuard": false,
+        "wsInflaterDestroy": false,
+        "fetchEncodingChainLimitMessage": true,
+        "rawBlobHeaderPush": false,
+        "oldWsNullProtocolBranch": true
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": false,
+        "dispatcher/balanced-pool.js": false,
+        "interceptor/cache.js": false,
+        "interceptor/decompress.js": false,
+        "interceptor/dump.js": false,
+        "websocket/stream/websocketstream.js": false
+      }
+    },
+    "node24210": {
+      "path": "output/undici-applicability-20261018/node-fixed-min-bundle.txt",
+      "sha256": "ef06587dd4fc6c2efa313c4d9fc6125565d2234343efd1dd6bf5d53dc7015fc1",
+      "normalizedLfSha256": "ef06587dd4fc6c2efa313c4d9fc6125565d2234343efd1dd6bf5d53dc7015fc1",
+      "checks": {
+        "wsNullProtocolGuard": true,
+        "wsInflaterDestroy": true,
+        "fetchEncodingChainLimitMessage": true,
+        "rawBlobHeaderPush": false,
+        "oldWsNullProtocolBranch": false
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": false,
+        "dispatcher/balanced-pool.js": false,
+        "interceptor/cache.js": false,
+        "interceptor/decompress.js": false,
+        "interceptor/dump.js": false,
+        "websocket/stream/websocketstream.js": false
+      }
+    },
+    "node24220": {
+      "path": "output/undici-applicability-20261018/node-fixed-current-bundle.txt",
+      "sha256": "ef06587dd4fc6c2efa313c4d9fc6125565d2234343efd1dd6bf5d53dc7015fc1",
+      "normalizedLfSha256": "ef06587dd4fc6c2efa313c4d9fc6125565d2234343efd1dd6bf5d53dc7015fc1",
+      "checks": {
+        "wsNullProtocolGuard": true,
+        "wsInflaterDestroy": true,
+        "fetchEncodingChainLimitMessage": true,
+        "rawBlobHeaderPush": false,
+        "oldWsNullProtocolBranch": false
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": false,
+        "dispatcher/balanced-pool.js": false,
+        "interceptor/cache.js": false,
+        "interceptor/decompress.js": false,
+        "interceptor/dump.js": false,
+        "websocket/stream/websocketstream.js": false
+      }
+    },
+    "plugin": {
+      "path": "node_modules/@cloudflare/vite-plugin/dist/index.mjs",
+      "sha256": "d6c43f41b42e6930f5a02fe7e9568f1c4715f98318f3764c05fe637dde5ac419",
+      "normalizedLfSha256": "d6c43f41b42e6930f5a02fe7e9568f1c4715f98318f3764c05fe637dde5ac419",
+      "checks": {
+        "wsNullProtocolGuard": false,
+        "wsInflaterDestroy": false,
+        "fetchEncodingChainLimitMessage": true,
+        "rawBlobHeaderPush": true,
+        "oldWsNullProtocolBranch": false
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": true,
+        "dispatcher/balanced-pool.js": true,
+        "interceptor/cache.js": true,
+        "interceptor/decompress.js": true,
+        "interceptor/dump.js": true,
+        "websocket/stream/websocketstream.js": true
+      },
+      "manualReview": {
+        "unrequestedProtocol": "getDecodeSplit(...).includes(secProtocol) without null guard; source map matches pristine 7.28.0"
+      }
+    },
+    "wrangler": {
+      "path": "node_modules/wrangler/wrangler-dist/cli.js",
+      "sha256": "b3463ef8ab69da1d600bc694bc91df89dea8fa9179f6cf0fb020854b8d924bac",
+      "normalizedLfSha256": "b3463ef8ab69da1d600bc694bc91df89dea8fa9179f6cf0fb020854b8d924bac",
+      "checks": {
+        "wsNullProtocolGuard": false,
+        "wsInflaterDestroy": false,
+        "fetchEncodingChainLimitMessage": true,
+        "rawBlobHeaderPush": true,
+        "oldWsNullProtocolBranch": true
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": true,
+        "dispatcher/balanced-pool.js": true,
+        "interceptor/cache.js": true,
+        "interceptor/decompress.js": true,
+        "interceptor/dump.js": true,
+        "websocket/stream/websocketstream.js": true
+      }
+    },
+    "nextFetch": {
+      "path": "node_modules/next/dist/compiled/@edge-runtime/primitives/fetch.js",
+      "sha256": "1577109d1e286a11e66bb56ba3dfa07d53d6c0e0610c08fed994f82838bb7658",
+      "normalizedLfSha256": "1577109d1e286a11e66bb56ba3dfa07d53d6c0e0610c08fed994f82838bb7658",
+      "checks": {
+        "wsNullProtocolGuard": false,
+        "wsInflaterDestroy": false,
+        "fetchEncodingChainLimitMessage": false,
+        "rawBlobHeaderPush": true,
+        "oldWsNullProtocolBranch": true
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": true,
+        "dispatcher/balanced-pool.js": true,
+        "interceptor/cache.js": false,
+        "interceptor/decompress.js": false,
+        "interceptor/dump.js": true,
+        "websocket/stream/websocketstream.js": false
+      }
+    },
+    "nextLoad": {
+      "path": "node_modules/next/dist/compiled/@edge-runtime/primitives/load.js",
+      "sha256": "d36b91e07ff16e770688afc5578702030e7eccaa3de59303cd6b0cef0707d230",
+      "normalizedLfSha256": "d36b91e07ff16e770688afc5578702030e7eccaa3de59303cd6b0cef0707d230",
+      "checks": {
+        "wsNullProtocolGuard": false,
+        "wsInflaterDestroy": false,
+        "fetchEncodingChainLimitMessage": false,
+        "rawBlobHeaderPush": true,
+        "oldWsNullProtocolBranch": true
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": true,
+        "dispatcher/balanced-pool.js": true,
+        "interceptor/cache.js": false,
+        "interceptor/decompress.js": false,
+        "interceptor/dump.js": true,
+        "websocket/stream/websocketstream.js": false
+      }
+    },
+    "nextEdge": {
+      "path": "node_modules/next/dist/compiled/edge-runtime/index.js",
+      "sha256": "06703ed6b001b0f02f8043bb499f3716f2c3b76b7df628a1cea30d1ee671edb2",
+      "normalizedLfSha256": "06703ed6b001b0f02f8043bb499f3716f2c3b76b7df628a1cea30d1ee671edb2",
+      "checks": {
+        "wsNullProtocolGuard": false,
+        "wsInflaterDestroy": false,
+        "fetchEncodingChainLimitMessage": false,
+        "rawBlobHeaderPush": false,
+        "oldWsNullProtocolBranch": false
+      },
+      "optionalModuleMarkers": {
+        "handler/retry-handler.js": true,
+        "dispatcher/balanced-pool.js": true,
+        "interceptor/cache.js": false,
+        "interceptor/decompress.js": false,
+        "interceptor/dump.js": true,
+        "websocket/stream/websocketstream.js": false
+      },
+      "manualReview": {
+        "unrequestedProtocol": "if(!e.includes(g)) after getDecodeSplit; null guard absent",
+        "payloadLength": "upper-word shift computation retains old behavior",
+        "fetchEncodingChain": "content-encoding loop has no five-layer guard"
+      }
+    }
+  },
+  "fingerprintLimit": "Simple text check negatives are inconclusive for minified/renamed variables; manualReview fields and cited source comparison provide those conclusions.",
+  "currentSourceHashes": [
+    {
+      "path": "scripts/dealtwin/local-demo.mjs",
+      "sha256": "2cca148a45c87cfb46f446394405f8fbf7b385ff7c637d189f861163cc14cece"
+    },
+    {
+      "path": "scripts/dealtwin/node-server.mjs",
+      "sha256": "217e98443c09c119877135314185d52f974bbfbd1d681732ea7ad96e1a88650b"
+    },
+    {
+      "path": "scripts/dealtwin/bootstrap.ts",
+      "sha256": "698d7c7863f254e69ed9b67fa0a45b750b3b8658c2060a1f2117a714d0f4292e"
+    },
+    {
+      "path": "vite.dealtwin.config.ts",
+      "sha256": "ee76fcc26ff58d3e5736af1d7938eed4019292d23d68c1088e413dcb6ee80050"
+    },
+    {
+      "path": "next.config.ts",
+      "sha256": "a972c4f0ffa6dd714e7909b02d1ac19d2f2fe3d01f191efd2c5054bd6f142ec1"
+    },
+    {
+      "path": "lib/server/dealtwin/workflow-runtime.ts",
+      "sha256": "f4ec94cc9f81eb9605629426d804916f4374033376fcccded6e3617e2c7009bf"
+    },
+    {
+      "path": "lib/dealtwin/ai/nemotron-client.ts",
+      "sha256": "226fae06e5a958ff3db3da1dc70c2bf57e385048c00f1e265c73bce4d76699a1"
+    },
+    {
+      "path": "scripts/dealtwin/mcp-smoke.ts",
+      "sha256": "21e6b26509787fe5e83c826232530a3a6a9f88cdea276ad61e021ce2cc76d1b8"
+    }
+  ],
+  "minimalRemedyProposal": {
+    "runtime": "Node 24.22.0 LTS",
+    "minimumCheckedFixed24x": "24.21.0",
+    "builtinUndici": "7.29.1",
+    "url": "https://nodejs.org/dist/v24.22.0/node-v24.22.0-win-x64.zip",
+    "sha256": "f9683a19877e12a9b167305c8db71040d812876359de21f0d2e97c3f321f80c3",
+    "action": "Proposed isolated project-local executable, no global/PATH change",
+    "downloadedInstalledExecuted": false
+  },
+  "verification": {
+    "offlineImportProbe": "PASS; historical artifact only; no request execution",
+    "fullSuite": "NOT RUN",
+    "build": "NOT RUN",
+    "audit": "NOT RUN",
+    "exploit": "NOT RUN",
+    "productOrDependencyChanges": false,
+    "networkCalls": "official source/metadata reads only",
+    "lockSha256": "57ff2662a534dad8d712bb35271bbb9d20d0141f51c195211185bcf084a68228"
+  }
+}
