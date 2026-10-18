@@ -12,8 +12,12 @@ signed synthetic Judge sessions and PostgreSQL commitment ledger never turn a
 quote or reservation into confirmed bank cash. The locked specification and
 implementation plan live under docs/dealtwin and docs/superpowers/plans.
 
-Task29 is saved as a partial checkpoint; final coverage, benchmark, builds,
-browser, restore, fresh audit and the actual evidence packet remain pending.
+Task29 remains partial. Earlier full-suite/coverage, local PostgreSQL and Node
+build evidence is recorded at its tested commits; the final same-candidate
+release packet and browser/live integration gates remain incomplete. The current
+[Alexa-first readiness plan](docs/dealtwin/ALEXA-READINESS-20261018.md) separates
+scripted MCP evidence from real provider/Alexa integration and lists bounded
+decisions needed for the18-19October target.
 See [candidate evidence](docs/dealtwin/VERIFICATION.md)
 and [deployment boundary](docs/dealtwin/DEPLOYMENT.md). **Public release remains
 blocked** by unresolved dependency findings and missing external readiness

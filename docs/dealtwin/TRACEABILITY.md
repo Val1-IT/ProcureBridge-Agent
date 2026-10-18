@@ -1,5 +1,14 @@
 # DealTwin Requirement Traceability
 
+Current Alexa-first continuation: [MCP/provider readiness](ALEXA-READINESS-20261018.md)
+adds optional-argument interoperability, accurate external-provider discovery,
+and a scripted MCP/real-PostgreSQL lifecycle test. DT-015/DT-039 gain bounded
+local evidence; live provider, real Alexa and DT-038 browser remain unproven.
+Task29/DT-042 stay PARTIAL. Final commit-bound focused evidence belongs to the
+companion Library report; all14 gates and42 mappings below remain intact.
+The earlier full1276-suite result belongs to0abdb8e, not this later candidate.
+Older counts and environment statements below retain their historical scope.
+
 Follow-up [dependency source review and migration plan](DEPENDENCY-REVIEW-PLAN-20261018.md)
 preserves all14 base gate IDs and42 requirement mappings. No live provider,
 Alexa account, public identity, browser or Sites gate is waived or relabeled.
