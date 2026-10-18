@@ -1,5 +1,13 @@
 # DealTwin Requirement Traceability
 
+Scoped Sharp follow-up: [Miniflare image/storage evidence](SHARP-MINIFLARE-20261018.md)
+records official Sharp0.35.5 under unchanged Miniflare4.20260702.0 at9400db0.
+Clean-commit48/48 focused tests and10/10 selected upstream tests pass; the Sites
+build/client scan passes with prior artifacts preserved. Audit drops to8 high
+aggregates for the still-flagged, locally patched braces advisory. Embedded
+Undici is unchanged; Task29/DT-042 and external readiness gates remain PARTIAL.
+
+
 Scoped esbuild follow-up: [loader replacement evidence](ESBUILD-LOADER-20261018.md)
 records official0.25.12 under core-utils3.3.2 at7831e62,35/35 focused tests on
 that clean commit and a fresh isolated install. Only27 scoped lock records
