@@ -1,6 +1,8 @@
 import {test,expect,type Page} from '@playwright/test';
 import type {ServerWorkspace} from '../../../lib/dealtwin/ui/workspace';
 import {readdirSync} from 'node:fs';
+import {evidencePath} from '../evidence-path';
+const evidence=evidencePath('playwright','output/playwright/task24');
 import {bootstrapLocalJudge} from '../../../scripts/dealtwin/bootstrap';
 const base='http://127.0.0.1:4177';
 type State=ServerWorkspace&{businessSeedHash:string};
@@ -18,7 +20,7 @@ async function act(page:Page,kind:string,status=200){
 let canonicalHash:string|undefined;
 let lastCommit:{url:string;body:Record<string,unknown>}|undefined;
 test('workspace read outage is recoverable without resetting or mutating financial state',async({browser})=>{
- const context=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});
+ const context=await browser.newContext({storageState:evidence+'/auth/admin.json'});
  const page=await context.newPage();let mutations=0;
  try{
   const before=await state(page);
@@ -37,7 +39,7 @@ test('workspace read outage is recoverable without resetting or mutating financi
 });
 for(const width of [390,1440]){
  test('read-only navigation and tables remain usable at '+width+'px',async({browser})=>{
-  const context=await browser.newContext({viewport:{width,height:900},storageState:'output/playwright/task24/auth/admin.json'});
+  const context=await browser.newContext({viewport:{width,height:900},storageState:evidence+'/auth/admin.json'});
   const page=await context.newPage();
   try{
    await page.goto(base+'/dealtwin');await ready(page);const before=await state(page);
@@ -66,7 +68,7 @@ for(const width of [390,1440]){
  });
 }
 test('trusted local bootstrap mints signed sessions without resetting live synthetic state',async({browser})=>{
- const admin=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});const page=await admin.newPage();
+ const admin=await browser.newContext({storageState:evidence+'/auth/admin.json'});const page=await admin.newPage();
  try{
   const before=await state(page);const auth=await bootstrapLocalJudge(false);
   const fresh=await browser.newContext({storageState:auth.admin});
@@ -89,7 +91,7 @@ test('Node production target serves real hydration assets and denies traversal',
  expect((await request.post(base+'/assets/not-a-write')).status()).toBe(405);
 });
 test('declining an actual reset confirmation emits no mutation request',async({browser})=>{
- const context=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});const page=await context.newPage();
+ const context=await browser.newContext({storageState:evidence+'/auth/admin.json'});const page=await context.newPage();
  try{
   await page.goto(base+'/dealtwin/judge');await ready(page);const before=await state(page);let resets=0;
   page.on('request',request=>{if(request.url().endsWith('/judge/reset')&&request.method()==='POST')resets++;});
@@ -101,7 +103,7 @@ test('declining an actual reset confirmation emits no mutation request',async({b
 });
 for(const width of [1440,820,1024]){
  test('clean durable Judge journey at '+width+'px',async({browser})=>{
-  const context=await browser.newContext({viewport:{width,height:1000},storageState:'output/playwright/task24/auth/admin.json'});
+  const context=await browser.newContext({viewport:{width,height:1000},storageState:evidence+'/auth/admin.json'});
   const page=await context.newPage();const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   try{
    await page.goto(base+'/dealtwin/judge');await ready(page);
@@ -130,7 +132,7 @@ for(const width of [1440,820,1024]){
    expect(generated.after.approvals.some(row=>row.proof_id===proofId&&row.status==='pending')).toBe(true);
    await act(page,'reserve');
    const blocked=await act(page,'commit',409);expect(blocked.body).toMatchObject({error:{code:'APPROVAL_REQUIRED'}});
-   const approver=await browser.newContext({storageState:'output/playwright/task24/auth/approver.json'});
+   const approver=await browser.newContext({storageState:evidence+'/auth/approver.json'});
    try{
     const approvePage=await approver.newPage();await approvePage.goto(base+'/dealtwin/deals/judge-deal-a');await ready(approvePage);
     await expect(approvePage.getByTestId('server-role')).toHaveText('approver');
@@ -172,13 +174,13 @@ for(const width of [1440,820,1024]){
    await page.goto(base+'/dealtwin/judge');await ready(page);
    await expect(page.getByTestId('judge-status')).toHaveText('COMPLETE_REMEDIATION_PENDING');
    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-   await page.screenshot({path:'output/playwright/task24/evidence/judge-'+width+'.png',fullPage:true});
+   await page.screenshot({path:evidence+'/evidence/judge-'+width+'.png',fullPage:true});
    expect(errors).toEqual([]);
   }finally{await context.close();}
  });
 }
 test('unauthenticated mutations and injected identity are rejected without state change',async({browser})=>{
- const anonymous=await browser.newContext();const admin=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});
+ const anonymous=await browser.newContext();const admin=await browser.newContext({storageState:evidence+'/auth/admin.json'});
  try{
   const page=await admin.newPage();const before=await state(page);
   expect((await anonymous.request.get(base+'/api/dealtwin/judge/state')).status()).toBe(401);
@@ -198,7 +200,7 @@ test('unauthenticated mutations and injected identity are rejected without state
 });
 
 test('a lost mutation response retries the same request without a second state change',async({browser})=>{
- const context=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});
+ const context=await browser.newContext({storageState:evidence+'/auth/admin.json'});
  const page=await context.newPage();const bodies:unknown[]=[];let interrupted=false;
  try{
   await page.goto(base+'/dealtwin/erp');await ready(page);const before=await state(page);

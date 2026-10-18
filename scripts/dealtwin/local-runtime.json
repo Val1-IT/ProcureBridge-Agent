@@ -1,0 +1,12 @@
+{
+  "nodeVersion": "24.22.0",
+  "undiciVersion": "7.29.1",
+  "platform": "win32",
+  "architecture": "x64",
+  "archive": "node-v24.22.0-win-x64.zip",
+  "url": "https://nodejs.org/dist/v24.22.0/node-v24.22.0-win-x64.zip",
+  "checksumsUrl": "https://nodejs.org/dist/v24.22.0/SHASUMS256.txt",
+  "archiveSha256": "f9683a19877e12a9b167305c8db71040d812876359de21f0d2e97c3f321f80c3",
+  "nodeExeSha256": "ba93f9a70bd86fce3ebbb39ec758501458453467aa92a34a0a3602d1e3fc2b9c",
+  "directory": "node-v24.22.0-win-x64"
+}

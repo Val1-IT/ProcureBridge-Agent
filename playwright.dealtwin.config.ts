@@ -13,6 +13,6 @@ export default defineConfig({
  // Playwright otherwise supplies --no-sandbox. Keep sandboxing mandatory; an
  // unsupported runtime must fail instead of weakening browser isolation.
  use:{baseURL:'http://127.0.0.1:4177',browserName:'chromium',launchOptions:{chromiumSandbox:true},trace:'retain-on-failure',screenshot:'only-on-failure'},
- webServer:{command:'node scripts/dealtwin/local-demo.mjs',url:'http://127.0.0.1:4177/dealtwin',reuseExistingServer:false,timeout:120000,
+ webServer:{command:`"${process.execPath}" scripts/dealtwin/local-demo.mjs`,url:'http://127.0.0.1:4177/dealtwin',reuseExistingServer:false,timeout:120000,
   env:{DATABASE_URL:process.env.DATABASE_URL,DATABASE_SSL_MODE:'disable',DEALTWIN_JUDGE_RESET_DATABASE_URL:process.env.DEALTWIN_JUDGE_RESET_DATABASE_URL,DEALTWIN_JUDGE_SESSION_SIGNING_KEY:process.env.DEALTWIN_JUDGE_SESSION_SIGNING_KEY}},
 });

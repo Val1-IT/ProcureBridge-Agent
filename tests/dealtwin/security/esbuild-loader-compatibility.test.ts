@@ -3,6 +3,7 @@ import {createRequire} from 'node:module';
 import {mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {evidencePath} from '../evidence-path';
 import {pathToFileURL} from 'node:url';
 import {describe, expect, it} from 'vitest';
 
@@ -11,7 +12,7 @@ const coreFile = require.resolve('@esbuild-kit/core-utils');
 const coreRequire = createRequire(coreFile);
 const esbuildFile = coreRequire.resolve('esbuild');
 const runner = path.resolve('tests/dealtwin/security/fixtures/core-utils-probe.mjs');
-const evidence = path.resolve('output/esbuild-loader-20261018');
+const evidence = evidencePath('esbuild-loader','output/esbuild-loader-20261018');
 mkdirSync(evidence, {recursive: true});
 const temporary = () => mkdtempSync(path.join(os.tmpdir(), 'dealtwin-esbuild-'));
 const runNode = (args: string[], cwd = process.cwd()) => spawnSync(process.execPath, args, {

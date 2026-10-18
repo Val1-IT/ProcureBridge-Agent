@@ -2,13 +2,14 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
+import {evidencePath} from '../evidence-path';
 import {describe, expect, it} from 'vitest';
 import {applyBracesPatch} from '../../../scripts/security/apply-braces-patch.mjs';
 
 type PatchFile = {path: string; source?: string; originalSha256: string | null; patchedSha256: string; edits?: {before: string; after: string}[]};
 const manifest = JSON.parse(readFileSync('patches/braces-3.0.3/manifest.json', 'utf8')) as {version: string; integrity: string; resolved: string; files: PatchFile[]};
 const sha = (data: Buffer) => createHash('sha256').update(data).digest('hex');
-const output = path.resolve('output/braces-backport-20261018/install-fixtures');
+const output = evidencePath('braces/install-fixtures','output/braces-backport-20261018/install-fixtures');
 mkdirSync(output, {recursive: true});
 
 // Small isolated fixtures are retained under ignored output for inspection. No live
