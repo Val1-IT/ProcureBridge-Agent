@@ -5,13 +5,22 @@ import { demoReducer, type DemoAction } from "@/lib/demo/reducer";
 import { createSeedState } from "@/lib/demo/seed";
 import {
   DEMO_STORAGE_KEY,
-  loadDemoStateFromStorage,
+  LEGACY_DEMO_STORAGE_KEY,
+  PREVIOUS_DEMO_STORAGE_KEY,
+  V3_DEMO_STORAGE_KEY,
+  V4_DEMO_STORAGE_KEY,
+  V5_DEMO_STORAGE_KEY,
+  V6_DEMO_STORAGE_KEY,
+  V7_DEMO_STORAGE_KEY,
+  V8_DEMO_STORAGE_KEY,
+  V9_DEMO_STORAGE_KEY,
   type DemoRecoveryReason,
 } from "@/lib/demo/persistence";
 import {
   createDemoStoreEnvelope,
   DemoPersistenceCoordinator,
   deserializeDemoStoreEnvelope,
+  serializeDemoStoreEnvelope,
   type DemoStoreCommitKind,
   type DemoStoreCommitResult,
   type DemoStoreEnvelope,
@@ -76,8 +85,16 @@ function loadInitialEnvelope(storage: Storage): { envelope: DemoStoreEnvelope; r
   const current = deserializeDemoStoreEnvelope(storage.getItem(DEMO_STORAGE_KEY));
   if (current.envelope) return { envelope: current.envelope, recoveryReason: current.recoveryReason };
   if (current.recoveryReason) return { envelope: createFreshRecoveryEnvelope(), recoveryReason: current.recoveryReason };
-  const legacy = loadDemoStateFromStorage(storage);
-  return { envelope: createDemoStoreEnvelope(legacy.state), recoveryReason: legacy.recoveryReason };
+  const legacyKeys = [PREVIOUS_DEMO_STORAGE_KEY, V9_DEMO_STORAGE_KEY, V8_DEMO_STORAGE_KEY, V7_DEMO_STORAGE_KEY, V6_DEMO_STORAGE_KEY, V5_DEMO_STORAGE_KEY, V4_DEMO_STORAGE_KEY, V3_DEMO_STORAGE_KEY, LEGACY_DEMO_STORAGE_KEY];
+  for (const key of legacyKeys) {
+    const value = storage.getItem(key);
+    if (value === null) continue;
+    const legacy = deserializeDemoStoreEnvelope(value);
+    if (!legacy.envelope) return { envelope: createFreshRecoveryEnvelope(), recoveryReason: legacy.recoveryReason ?? "INVALID_SCHEMA" };
+    try { storage.setItem(DEMO_STORAGE_KEY, serializeDemoStoreEnvelope(legacy.envelope)); } catch { /* Retain and use the validated legacy value for this session. */ }
+    return { envelope: legacy.envelope, recoveryReason: null };
+  }
+  return { envelope: createDemoStoreEnvelope(createSeedState()), recoveryReason: null };
 }
 
 export function DemoStoreProvider({ children }: { children: React.ReactNode }) {

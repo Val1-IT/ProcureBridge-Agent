@@ -24,7 +24,7 @@ const seed: ErpState = {
   purchaseOrders: [{ id: "po-router-replenishment", orderNumber: "PO-2026-0001", supplierId: "supplier-utama", purchaseRequestId: null, supplierQuotationId: null, warehouseId: "warehouse-jakarta", status: "sent", lines: [{ productId: "product-router", quantity: 40, unitPrice: 1_050_000 }], confirmationDueAt: "2026-08-07T00:00:00.000Z", promisedDeliveryDate: null, createdAt: seededAt, updatedAt: seededAt }],
   goodsReceipts: [],
   salesOrders: [{ id: "so-router-shortage", orderNumber: "SO-2026-0001", customerId: "erp-customer-sinar", warehouseId: "warehouse-jakarta", status: "draft", lines: [{ productId: "product-router", quantity: 35, unitPrice: 1_500_000, deliveredQuantity: 0 }], createdAt: seededAt, updatedAt: seededAt }],
-  deliveryOrders: [], supplierInvoices: [], customerInvoices: [], payments: [],
+  deliveryOrders: [], supplierInvoices: [], customerInvoices: [], payments: [], cashAccounts: [], cashMovements: [],
   stockMovements: [
     { id: "stock-router-opening", type: "opening", productId: "product-router", warehouseId: "warehouse-jakarta", quantity: 30, direction: "in", sourceType: "seed", sourceId: "seed-opening", actorRole: "system", actorId: "system:seed", reason: "Demo opening balance", createdAt: seededAt, updatedAt: seededAt },
     { id: "stock-scanner-opening", type: "opening", productId: "product-scanner", warehouseId: "warehouse-jakarta", quantity: 15, direction: "in", sourceType: "seed", sourceId: "seed-opening", actorRole: "system", actorId: "system:seed", reason: "Demo opening balance", createdAt: seededAt, updatedAt: seededAt },

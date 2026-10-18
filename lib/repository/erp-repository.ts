@@ -12,6 +12,9 @@ import type { ErpAuditEvent, ErpState } from "../erp/types";
  * source status/parent/line/lifecycle and payment balances, exact one-to-one
  * receipt/delivery/adjustment movement evidence, non-negative chronological
  * stock and reservation coverage, and reciprocal call/approval/result status.
+ *
+ * The production PostgreSQL adapter is `lib/server/postgres/postgres-erp-repository.ts`.
+ * Browser demo persistence does not select that adapter.
  */
 export interface ErpRepository {
   loadWorkspace(tenantId: string): Promise<ErpState>;

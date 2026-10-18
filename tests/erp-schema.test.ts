@@ -148,10 +148,12 @@ describe("inactive distributor ERP SQL foundation", () => {
 
   it("keeps the migration byte-for-byte appended to schema.sql without activating a client", () => {
     const migration = readFileSync(migrationPath, "utf8");
+    const foundation = readFileSync("supabase/migrations/20260913150558_dealtwin_server_foundation.sql", "utf8");
     const schema = readFileSync("supabase/schema.sql", "utf8");
     const repositorySource = readFileSync("lib/repository/erp-repository.ts", "utf8");
 
-    expect(schema.endsWith(migration)).toBe(true);
+    expect(schema).toContain(migration);
+    expect(schema.endsWith(foundation)).toBe(true);
     expect(migration.toLowerCase()).toContain("data api exposure");
     expect(repositorySource).not.toMatch(/supabase|process\.env|next_public/i);
   });

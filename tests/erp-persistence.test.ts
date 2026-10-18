@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
 import type { DemoState } from "../lib/domain/types";
-import { deserializeDemoState, loadDemoState } from "../lib/demo/persistence";
+import {
+  DEMO_STORAGE_KEY,
+  PREVIOUS_DEMO_STORAGE_KEY,
+  deserializeDemoState,
+  loadDemoState,
+  loadDemoStateFromStorage,
+  migrateDemoStateStorage,
+} from "../lib/demo/persistence";
+import { deserializeDemoStoreEnvelope } from "../lib/demo/persistence-coordinator";
 import { createSeedState } from "../lib/demo/seed";
 import { createErpSeedState } from "../lib/erp/seed";
 import { selectAvailableStock, selectIncomingStock, selectPhysicalStock } from "../lib/erp/selectors";
 import { approveGoodsReceipt, approveStockAdjustment, createGoodsReceipt, proposeStockAdjustment } from "../lib/erp/commands/inventory";
 import { completeDelivery, confirmSalesOrder, createDeliveryOrder } from "../lib/erp/commands/sales";
 import { createCustomerInvoice, recordPayment, recordSupplierInvoice } from "../lib/erp/commands/finance";
+import { setOpeningCashBalance } from "../lib/erp/commands/cash";
 
 function createStateWithLinkedSelectedQuotation() {
   const state = createSeedState();
@@ -47,6 +56,77 @@ function createLegacyPostedReceiptState(actorRole: string, actorId: string) {
 }
 
 describe("ERP persistence foundation", () => {
+  it("migrates validated v10 state to v11 without inventing cash and retains the v10 key", () => {
+    const legacy = createSeedState("demo_v10_cash_migration_12345");
+    legacy.schemaVersion = 10;
+    delete (legacy.erp as { cashAccounts?: unknown }).cashAccounts;
+    delete (legacy.erp as { cashMovements?: unknown }).cashMovements;
+    legacy.erp.revision = 7;
+    const values = new Map<string, string>([[PREVIOUS_DEMO_STORAGE_KEY, JSON.stringify(legacy)]]);
+    const writes: string[] = [];
+
+    const loaded = migrateDemoStateStorage({
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => { writes.push(key); values.set(key, value); },
+    });
+
+    expect(loaded.recoveryReason).toBeNull();
+    expect(loaded.state).toMatchObject({
+      schemaVersion: 11,
+      demoSessionId: legacy.demoSessionId,
+      erp: { revision: 7, cashAccounts: [], cashMovements: [] },
+    });
+    expect(loaded.state.erp.products).toEqual(legacy.erp.products);
+    expect(writes).toEqual([DEMO_STORAGE_KEY]);
+    expect(values.get(PREVIOUS_DEMO_STORAGE_KEY)).toBe(JSON.stringify(legacy));
+  });
+
+  it("migrates a valid v10 envelope while preserving lineage and envelope identity", () => {
+    const legacy = createSeedState("demo_v10_envelope_migration_123");
+    legacy.schemaVersion = 10;
+    delete (legacy.erp as { cashAccounts?: unknown }).cashAccounts;
+    delete (legacy.erp as { cashMovements?: unknown }).cashMovements;
+    const envelope = {
+      envelopeVersion: 1,
+      kind: "mutation",
+      lineage: { demoSessionId: legacy.demoSessionId, resetGeneration: 3, writeSequence: 9, commitId: "commit-v10" },
+      state: legacy,
+    };
+
+    const restored = deserializeDemoStoreEnvelope(JSON.stringify(envelope));
+
+    expect(restored.recoveryReason).toBeNull();
+    expect(restored.envelope).toMatchObject({
+      envelopeVersion: 1,
+      kind: "mutation",
+      lineage: envelope.lineage,
+      state: { schemaVersion: 11, demoSessionId: legacy.demoSessionId, erp: { cashAccounts: [], cashMovements: [] } },
+    });
+  });
+
+  it("validates v10 before migration and refuses invalid v11 fallback", () => {
+    const invalidV10 = createSeedState("demo_invalid_v10_cash_12345");
+    invalidV10.schemaVersion = 10;
+    delete (invalidV10.erp as { cashAccounts?: unknown }).cashAccounts;
+    delete (invalidV10.erp as { cashMovements?: unknown }).cashMovements;
+    invalidV10.erp.products[0].salePrice = 0;
+    const validV10 = createSeedState("demo_valid_v10_fallback_12345");
+    validV10.schemaVersion = 10;
+    delete (validV10.erp as { cashAccounts?: unknown }).cashAccounts;
+    delete (validV10.erp as { cashMovements?: unknown }).cashMovements;
+    const invalidV11 = createSeedState("demo_invalid_v11_current_123");
+    invalidV11.schemaVersion = 11;
+    (invalidV11.erp as { cashAccounts?: unknown }).cashAccounts = [{ invalid: true }];
+    (invalidV11.erp as { cashMovements?: unknown }).cashMovements = [];
+    const values = new Map<string, string>([
+      [DEMO_STORAGE_KEY, JSON.stringify(invalidV11)],
+      [PREVIOUS_DEMO_STORAGE_KEY, JSON.stringify(validV10)],
+    ]);
+
+    expect(loadDemoState(JSON.stringify(invalidV10)).recoveryReason).toBe("INVALID_SCHEMA");
+    expect(loadDemoStateFromStorage({ getItem: (key) => values.get(key) ?? null }).recoveryReason).toBe("INVALID_SCHEMA");
+  });
+
   it.each([-1, 0.5, Number.MAX_SAFE_INTEGER + 1])("fails closed for unsafe ERP revision %s", (revision) => {
     const malformed = createSeedState();
     malformed.erp.revision = revision;
@@ -63,7 +143,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(10);
+    expect(migrated.schemaVersion).toBe(11);
     expect(migrated.erp.products.map((item) => item.sku)).toEqual(["SKU-ROUTER-01", "SKU-SCANNER-01", "SKU-PAPER-80"]);
     expect(migrated.erp.revision).toBe(0);
   });
@@ -77,7 +157,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(10);
+    expect(migrated.schemaVersion).toBe(11);
     expect(migrated.erp.requestForQuotations).toEqual([]);
     expect(migrated.erp.supplierQuotations).toEqual([]);
     expect(migrated.erp.purchaseOrders[0].supplierQuotationId).toBeNull();
@@ -90,7 +170,7 @@ describe("ERP persistence foundation", () => {
 
     const migrated = deserializeDemoState(JSON.stringify(legacy));
 
-    expect(migrated.schemaVersion).toBe(10);
+    expect(migrated.schemaVersion).toBe(11);
     expect(migrated.erp.stockAdjustments).toEqual([]);
   });
 
@@ -484,7 +564,7 @@ describe("sales persistence evidence", () => {
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(10);
+    expect(loaded.state.schemaVersion).toBe(11);
     expect(loaded.state.erp.salesOrders[0].lines[0]).not.toHaveProperty("reservedQuantity");
     expect(loaded.state.erp.stockMovements.every((movement) => movement.type === "opening")).toBe(true);
   });
@@ -653,6 +733,24 @@ function createFullyCoveredFinancePersistenceState() {
 }
 
 describe("finance persistence evidence", () => {
+  it("treats payments recorded before cash setup as historical opening evidence", () => {
+    const legacy = createFinancePersistenceState();
+    const migrated = loadDemoState(JSON.stringify(legacy));
+    expect(migrated.recoveryReason).toBeNull();
+
+    const opened = setOpeningCashBalance(migrated.state.erp, "finance", {
+      accountId: "cash-main", code: "CASH-IDR", name: "Kas utama",
+      openingBalanceRupiah: "30000000", openingBalanceDate: "2026-08-01",
+      sourceType: "verified_opening_balance", sourceId: "opening-2026-08-01", sourceRevision: "1",
+      actorId: "finance-a",
+    }, "2026-09-12T08:00:00.000Z");
+    if (!opened.ok) throw new Error(opened.error.message);
+
+    const reloaded = loadDemoState(JSON.stringify({ ...migrated.state, erp: opened.state }));
+    expect(reloaded.recoveryReason).toBeNull();
+    expect(reloaded.state.erp.cashMovements).toEqual([]);
+  });
+
   it("migrates an empty schema v6 finance slice into schema v9", () => {
     const legacy = createSeedState();
     legacy.schemaVersion = 6;
@@ -660,7 +758,7 @@ describe("finance persistence evidence", () => {
     const loaded = loadDemoState(JSON.stringify(legacy));
 
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(10);
+    expect(loaded.state.schemaVersion).toBe(11);
     expect(loaded.state.erp.supplierInvoices).toEqual([]);
     expect(loaded.state.erp.customerInvoices).toEqual([]);
     expect(loaded.state.erp.payments).toEqual([]);

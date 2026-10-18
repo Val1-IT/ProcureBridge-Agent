@@ -1,0 +1,288 @@
+{
+  "reviewed_utc": "2026-10-18T03:13:29.705519+00:00",
+  "files_scanned": 491,
+  "bytes_scanned": 3561966,
+  "methods": [
+    "source path/extension allowlist",
+    "UTF-8 text decoding and size bounds",
+    "private key/provider token/signed URL patterns",
+    "literal secret and URL-userinfo candidates reviewed by source context",
+    "excluded .git/env/secret files, databases, dependency trees, runtime logs and binary media"
+  ],
+  "real_secret_findings": 0,
+  "unresolved_candidates": 0,
+  "reviewed_synthetic_or_code_candidates": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "line": 32,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "docker-compose.dealtwin-test.yml",
+      "line": 5,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "lib/server/postgres/config.ts",
+      "line": 1,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "playwright.dealtwin.config.ts",
+      "line": 4,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "playwright.dealtwin.config.ts",
+      "line": 5,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "scripts/dealtwin/local-demo.mjs",
+      "line": 3,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "scripts/dealtwin/local-demo.mjs",
+      "line": 4,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "scripts/dealtwin/prepare-browser-fixture.ts",
+      "line": 5,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "scripts/dealtwin/prepare-browser-fixture.ts",
+      "line": 6,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/call-api.test.ts",
+      "line": 88,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/call-api.test.ts",
+      "line": 95,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/call-api.test.ts",
+      "line": 107,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/calle-provider.test.ts",
+      "line": 11,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/calle-provider.test.ts",
+      "line": 26,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/calle-provider.test.ts",
+      "line": 36,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/calle-provider.test.ts",
+      "line": 53,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/calle-provider.test.ts",
+      "line": 67,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/ai/constraint-extractor.test.ts",
+      "line": 48,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/ai/constraint-extractor.test.ts",
+      "line": 53,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/ai/constraint-extractor.test.ts",
+      "line": 57,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/ai/constraint-extractor.test.ts",
+      "line": 60,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/ai/constraint-extractor.test.ts",
+      "line": 63,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/ai/constraint-extractor.test.ts",
+      "line": 65,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 5,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 8,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 11,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 12,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 13,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 14,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/disposable-config.test.ts",
+      "line": 15,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/api/workflow-harness.ts",
+      "line": 15,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/api/workflow-harness.ts",
+      "line": 18,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/postgres/harness.ts",
+      "line": 17,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/postgres/harness.ts",
+      "line": 18,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/postgres/schema.test.ts",
+      "line": 89,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/schema.test.ts",
+      "line": 91,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 172,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 179,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 180,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 181,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 183,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 185,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 189,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/postgres/transaction.test.ts",
+      "line": 170,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/dealtwin/security/server-boundary.test.ts",
+      "line": 25,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/security/server-boundary.test.ts",
+      "line": 26,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/security/server-boundary.test.ts",
+      "line": 27,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/security/server-boundary.test.ts",
+      "line": 27,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/security/server-boundary.test.ts",
+      "line": 28,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/dealtwin/security/server-boundary.test.ts",
+      "line": 29,
+      "kind": "url_userinfo"
+    },
+    {
+      "path": "tests/judge-readiness.test.ts",
+      "line": 87,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/supplier-call-api.test.ts",
+      "line": 123,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/supplier-call-api.test.ts",
+      "line": 242,
+      "kind": "literal_secret"
+    },
+    {
+      "path": "tests/webhook.test.ts",
+      "line": 21,
+      "kind": "literal_secret"
+    }
+  ],
+  "review_rationale": "Candidates are deterministic test fixtures, mock fetch inputs, intentionally rejected example DB URLs, canary values, or fixed disposable loopback DB defaults. No credential/configuration files or live secret environment values were read. Synthetic fixture literals remain unchanged to preserve source behavior. This bounded scan is not an exhaustive security certification.",
+  "private_business_data": "Included source/docs describe synthetic fixtures. Raw artifacts, databases, dumps and binary screenshots excluded."
+}

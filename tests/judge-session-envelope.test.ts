@@ -7,7 +7,7 @@ import {
 import { createSeedState } from "../lib/demo/seed";
 
 describe("judge session envelope", () => {
-  it("round trips only a versioned session bound to its v10 snapshot and reset generation", () => {
+  it("round trips only a versioned session bound to its v11 snapshot and reset generation", () => {
     const before = createSeedState("demo_judge_bound_session_12345");
     const started = startErpJudgeSession(before);
     const envelope = createErpJudgeSessionEnvelope(started.session, {
@@ -26,7 +26,7 @@ describe("judge session envelope", () => {
 
   it.each([
     ["raw unversioned session", (value: unknown) => (value as { session: unknown }).session],
-    ["pre-v10 snapshot", (value: unknown) => { const copy = structuredClone(value) as { session: { preDemoSnapshot: { schemaVersion: number } } }; copy.session.preDemoSnapshot.schemaVersion = 9; return copy; }],
+    ["pre-v11 snapshot", (value: unknown) => { const copy = structuredClone(value) as { session: { preDemoSnapshot: { schemaVersion: number } } }; copy.session.preDemoSnapshot.schemaVersion = 10; return copy; }],
     ["zero product sale price", (value: unknown) => { const copy = structuredClone(value) as { session: { preDemoSnapshot: { erp: { products: Array<{ salePrice: number }> } } } }; copy.session.preDemoSnapshot.erp.products[0].salePrice = 0; return copy; }],
     ["zero product purchase price", (value: unknown) => { const copy = structuredClone(value) as { session: { preDemoSnapshot: { erp: { products: Array<{ purchasePrice: number }> } } } }; copy.session.preDemoSnapshot.erp.products[0].purchasePrice = 0; return copy; }],
     ["negative product reorder point", (value: unknown) => { const copy = structuredClone(value) as { session: { preDemoSnapshot: { erp: { products: Array<{ reorderPoint: number }> } } } }; copy.session.preDemoSnapshot.erp.products[0].reorderPoint = -1; return copy; }],

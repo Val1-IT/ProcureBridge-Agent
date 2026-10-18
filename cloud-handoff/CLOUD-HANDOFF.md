@@ -1,0 +1,13 @@
+# Cloud continuation preparation
+
+Target: an isolated private cloud workspace dedicated to DealTwin, never the ERP-Web/Arvanta environment.
+Runtime declaration: Node >=22.13.0; existing CI pins Node22.13.0/PostgreSQL16. Historical laptop tests used Node24.19.0/PostgreSQL15.4. Target compatibility is not yet tested.
+Use package-lock.json with npm ci later in cloud. Direct runtime dependencies: drizzle-orm0.45.2, next15.5.28, pg8.23.0, react/react-dom19.2.8, zod4.1.12. TypeScript5.9.3, vinext0.0.50, vite8.0.16, vitest3.2.7, Playwright1.64.0 are development tools.
+Private Judge target is npm run judge:build (dedicated Vite Node config), with loopback wrapper127.0.0.1:4177. Generic build is the separate Cloudflare/Sites target.
+Prepare a NEW disposable PostgreSQL database in the cloud environment, not a copy of the laptop cluster. Existing guard permits loopback, database dealtwin_test, port55432 or55632 only. Preserve these guards; do not substitute production or remote managed DB credentials. Three SQL migration files are included; application/reset roles must stay distinct and least privileged. Do not follow the old checkpoint's instruction to restart the laptop .cache cluster.
+Required environment variable NAMES from committed deployment documentation: DATABASE_URL, DATABASE_SSL_MODE, DEALTWIN_JUDGE_RESET_DATABASE_URL, DEALTWIN_JUDGE_SESSION_SIGNING_KEY. Tests use DEALTWIN_TEST_DATABASE_URL. No values copied. Optional NEBIUS_API_KEY/NEBIUS_MODEL and DEALTWIN_NEBIUS_LIVE_ENABLED must not activate live calls as part of this transfer. No .env template is tracked.
+After cloud access exists: verify ZIP and file hashes, extract into a new project directory, inspect AGENTS/locked spec/TRACEABILITY/current checkpoint, then provision runtime/dependencies and a disposable DB in cloud only under the continuation scope. Perform cloud verification before calling the environment ready.
+No .git history is included. The remote is not assumed to contain ff716d2. Use the snapshot as the source authority; if initializing a new cloud Git baseline, record that new commit separately from the source SHA and retained evidence. Do not claim laptop historical tests apply to a new commit automatically.
+Nonessential PNG social/submission images and .openai hosting metadata are omitted. Their references can be unresolved in cosmetic previews; original deployment identity is deliberately not transferred. build/sites-vite-plugin.ts is source code and IS included, despite its directory name.
+
+This is source preparation only. No application build, test, installation, server, restart, process kill, cleanup, reset, source edit, push, MR, merge or deployment was performed.

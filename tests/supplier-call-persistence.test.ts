@@ -42,13 +42,13 @@ const result = {
   createdAt: "2026-08-09T03:01:00.000Z", updatedAt: "2026-08-09T03:01:00.000Z",
 };
 
-describe("supplier call schema v10 persistence", () => {
+describe("supplier call schema v11 persistence", () => {
   it("migrates empty schema v7 supplier call collections into schema v9", () => {
     const legacy = createSeedState();
     legacy.schemaVersion = 7;
     const loaded = loadDemoState(JSON.stringify(legacy));
     expect(loaded.recoveryReason).toBeNull();
-    expect(loaded.state.schemaVersion).toBe(10);
+    expect(loaded.state.schemaVersion).toBe(11);
   });
 
   it("fails closed instead of inventing v8 approval and call provenance for stored v7 call records", () => {

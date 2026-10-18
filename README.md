@@ -4,6 +4,23 @@
 
 Arvanta Distributor Mini ERP is a browser-based, single-company distributor prototype. It connects purchasing, receiving, inventory, sales, delivery, trade invoices, payments, approvals, and audit evidence. It is not a production accounting or telephony system.
 
+## DealTwin private Judge and verification boundary
+
+DealTwin is the server-authoritative proof-carrying-commerce subsystem, separate
+from the browser-only distributor demo below. Its deterministic compiler,
+signed synthetic Judge sessions and PostgreSQL commitment ledger never turn a
+quote or reservation into confirmed bank cash. The locked specification and
+implementation plan live under docs/dealtwin and docs/superpowers/plans.
+
+Task29 is saved as a partial checkpoint; final coverage, benchmark, builds,
+browser, restore, fresh audit and the actual evidence packet remain pending.
+See [candidate evidence](docs/dealtwin/VERIFICATION.md)
+and [deployment boundary](docs/dealtwin/DEPLOYMENT.md). **Public release remains
+blocked** by unresolved dependency findings and missing external readiness
+evidence. A passing build or structurally complete JSON packet is not release
+authorization. No production data, live provider, public session issuer or
+deployment is required or authorized by the local Judge workflow.
+
 ## Implemented workflow
 
 `Sales shortage -> Purchase Request -> approved Purchase Order -> supplier follow-up -> partial Goods Receipt -> inventory -> partial Delivery -> payable / receivable -> partial payment -> audit`
@@ -111,7 +128,96 @@ The fresh ignored audit artifact remains unresolved at **22 vulnerabilities: 4 m
 
 A time-bounded waiver permits only this repository's local-loopback, mock-only Demo Data workflow through **2026-08-24**: do not run the Vitest UI server, do not bind test/dev tooling publicly, and do not use untrusted code or production/customer data. It expires automatically, does not apply to production, and does not make this repository production-ready. Remediation owner: **Repository maintainer**. See [Security](docs/security.md) for the required remediation and invalidation conditions.
 
-## Useful routes
+## DealTwin local PostgreSQL Judge
+
+DealTwin is a separate synthetic, server-authoritative namespace. The original ProcureBridge browser demo remains unchanged. No production, hosted deployment, real financial data or money movement is enabled.
+
+Prerequisites: the repository's disposable PostgreSQL fixture/migration gate has passed; use only loopback `dealtwin_test` on allowlisted55432 or55632 with distinct `dealtwin_app_login` and `dealtwin_reset_login` credentials. This Windows checkpoint uses55632 because Windows reserves55432. Never point tests or this launcher at another database.
+
+```powershell
+# With the disposable cluster already seeded and no competing build/test job:
+npm.cmd run judge:build
+npm.cmd run judge:demo
+```
+
+The dedicated Node production target binds only `127.0.0.1:4177`, preserves current synthetic business state and generates an in-memory signing key. Private HttpOnly/Secure/SameSite=Strict admin/approver cookie artifacts expire in one hour under ignored `output/playwright/demo/auth`. There is no public session issuer or browser role-grant control. Do not commit/share auth files or traces.
+
+Use separate named browser sessions through the trusted local Playwright CLI:
+
+```powershell
+npx.cmd --package @playwright/cli playwright-cli --session dealtwin-admin open http://127.0.0.1:4177/dealtwin/judge --headed
+npx.cmd --package @playwright/cli playwright-cli --session dealtwin-admin state-load output/playwright/demo/auth/admin.json
+npx.cmd --package @playwright/cli playwright-cli --session dealtwin-admin reload
+# Approval uses its own separately signed session, not a client role selector:
+npx.cmd --package @playwright/cli playwright-cli --session dealtwin-approver open http://127.0.0.1:4177/dealtwin/deals/judge-deal-a --headed
+npx.cmd --package @playwright/cli playwright-cli --session dealtwin-approver state-load output/playwright/demo/auth/approver.json
+npx.cmd --package @playwright/cli playwright-cli --session dealtwin-approver reload
+```
+
+Reset requires explicit UI confirmation and touches only `dealtwin-judge-v1`; it restores the canonical business seed, increments revision once and retains immutable operation receipts. The guide uses persisted compiler/proof/commitment evidence. Commit requires live approval; retry resends the original key and payload, then reads fresh server state. Committed remediation retains the original Sales Order/capacity and never creates a second COMMIT.
+
+`npm.cmd run judge:test` runs serial production-target browser tests and resets only the synthetic tenant. Run it separately from PostgreSQL Vitest suites and other project builds. Its three independent journeys cover1440/820/1024px, exact3m failure/25% amendment/27% remediation, genuine collision/replay, refresh, identity/storage denial and unchanged cash evidence. Persistent screenshots are under `output/playwright/task24/evidence`; runner scratch is separate. Local evidence is not hosted CI, a public release or provider integration.
+
+The browser test command explicitly prepares the synthetic fixture before its preserving server starts, even if a prior database suite left only migrated schema. It uses the existing reset service and separate reset login, never drops schema or runs migrations. Ordinary `judge:demo` startup still does not reset or auto-initialize state.
+
+## DealTwin private local MCP surface
+
+`POST /api/dealtwin/mcp` exposes seventeen strict application-service tools and
+JSON-RPC initialize/discovery/calls, under the signed Judge server session. The
+explicit compatibility profile is MCP2025-11-25 (also accepting2025-03-26 and
+2025-06-18), not latest2026/public Alexa/OAuth integration. Native clients accept
+JSON and event-stream media types; this stateless profile returns JSON only.
+
+Mutation `mode: prepare` validates request shape without a client/provider/write;
+it does not authorize or establish feasibility. `mode: execute` additionally
+needs a short-lived signed grant bound to the exact operation/payload/session.
+Only a trusted host that collected actual human intent may call the private
+confirmation helper; no public issuer/tool or model boolean provides consent.
+Conversation serialization stores identifiers/revision/pending intent only;
+PostgreSQL services remain business truth. Unknown proof owners and stale or
+historical responses demand refresh instead of reusing another Deal's capacity.
+
+The private native HTTP witness is `scripts/dealtwin/mcp-smoke.ts`; run it only
+against the owned4177Node target with disposable synthetic state, its private
+signing environment and ignored signed cookie. Do not run it concurrently with
+database test fixtures. Checkpoint commands/results/boundaries are recorded in
+[Task26 verification](docs/dealtwin/TASK26-VERIFICATION.md). This is not browser,
+public-client, live-provider or competition submission evidence.
+
+## DealTwin synthetic benchmark (local only)
+
+`npm.cmd run benchmark:dealtwin -- --run-id my-run` evaluates13 checked-in plus100
+seeded cases (seed27), independent exhaustive cash-prefix/amendment ground truth,
+the real compiler/recompiler/proof replay and the explicit margin/20%-deposit
+rule. Default execution also resets ONLY synthetic dealtwin-judge-v1 for three
+actual command flows/races; provide separate least-privilege
+`DEALTWIN_BENCHMARK_APP_DATABASE_URL` and `DEALTWIN_BENCHMARK_RESET_DATABASE_URL`
+pointing to the owned loopback dealtwin_test/55432 or55632 fixture. No owner or
+remote fallback, migrations, production access or provider calls are performed.
+Never overlap this command with PostgreSQL tests or a running Judge demo.
+
+`--no-services` runs pure evaluation only and labels missing service measurements
+NOT_MEASURED. `--count` is generated count (core fixtures are additional);
+`--seed` selects the reproducible generator. Output is ignored under
+output/dealtwin/task27/<run-id>; existing run directories are not overwritten.
+`npm.cmd run benchmark:dealtwin -- --replay my-run` independently reexecutes every
+reported mismatch against the same source fingerprint. A failed benchmark still
+retains its failure fixtures. Metric denominators, source SHA/tree hash/dirty
+state and versions are recorded; zero observed failures never imply universal
+safety. Offline extraction4fixture contracts are not live LLM accuracy, and
+LLM-only remains unmeasured without equivalent-context captured evidence.
+
+Observer v2 requires the complete declared flow/race/offline-case inventory,
+metric-specific payloads and code-owned invariants; caller expectations cannot
+redefine success. The fingerprint includes ERP persistence/money mappers and
+local schema/runner dependencies. Reports and mismatch fixtures are create-only.
+Known deferred Minor: repeating replay currently replaces replay.json; preserve
+that first replay externally if multiple replay attestations are required.
+
+See [Task27 checkpoint](docs/dealtwin/TASK27-VERIFICATION.md) for actual evidence,
+known scope and remaining gates. Nothing is published or submitted by this CLI.
+
+## Useful routes — original ProcureBridge
 
 - `/dashboard`, `/actions`, `/approvals`, `/audit` - operational/control surfaces.
 - `/sales/orders/so-router-shortage` - seeded shortage.

@@ -10,3 +10,12 @@ This directory is a local mirror of the ChatGPT project â€œProcureBridge Agentâ€
 ## Project instructions
 
 This project has no custom instructions.
+
+## DealTwin subsystem
+
+For DealTwin work, read `docs/dealtwin/LOCKED_PRODUCT_SPEC.md` and
+`docs/dealtwin/TRACEABILITY.md` before changing code. Execute approved work from
+`docs/superpowers/plans/2026-09-11-dealtwin-proof-carrying-commerce.md` in order.
+The product definition and architecture in those documents are locked; preserve
+existing ProcureBridge behavior and do not connect DealTwin work to production
+infrastructure or real financial data without separate explicit authorization.

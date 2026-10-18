@@ -12,6 +12,12 @@ import { JudgeDemoGuide } from "./judge-demo-guide";
 import { useJudgeDemo } from "./judge-demo-provider";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname=usePathname();
+  if(pathname==='/dealtwin'||pathname.startsWith('/dealtwin/'))return <>{children}</>;
+  return <LegacyAppShell>{children}</LegacyAppShell>;
+}
+
+function LegacyAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { state, hydrated, recoveryReason, dismissRecovery, persistenceConflict, dismissPersistenceConflict } = useDemoStore();
   const { session, start, startFallback, resetDemo, setSpeed } = useJudgeDemo();

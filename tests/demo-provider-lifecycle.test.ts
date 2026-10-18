@@ -107,7 +107,7 @@ describe("demo provider lifecycle", () => {
     const first = createFreshRecoveryEnvelope();
     const second = createFreshRecoveryEnvelope();
 
-    expect(first.state.schemaVersion).toBe(10);
+    expect(first.state.schemaVersion).toBe(11);
     expect(first.state.demoSessionId).not.toBe(second.state.demoSessionId);
     expect(first.lineage.demoSessionId).toBe(first.state.demoSessionId);
   });

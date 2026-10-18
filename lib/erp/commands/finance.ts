@@ -5,6 +5,7 @@ import { authorize } from "../permissions";
 import { selectPayableBalance, selectReceivableBalance } from "../selectors-finance";
 import { selectPhysicalStock, selectReservedStock } from "../selectors";
 import type { DeliveryOrder, ErpRole, ErpState, GoodsReceipt, Payment, QuantityLine, TradeInvoice } from "../types";
+import { createPaymentCashMovement, createPaymentCashReversal } from "./cash";
 import { appendErpAudit, commitErpState, isErpRole, rejectErpCommand } from "./shared";
 
 export interface SupplierInvoiceInput {
@@ -254,6 +255,10 @@ export function recordPayment(state: ErpState, role: ErpRole, input: PaymentInpu
   const salesOrder = invoice.salesOrderId ? state.salesOrders.find((order) => order.id === invoice.salesOrderId) : null;
   if (input.direction === "payable" && (!invoice.supplierId || invoice.customerId !== null || !purchaseOrder || purchaseOrder.supplierId !== invoice.supplierId || !state.suppliers.some((supplier) => supplier.id === invoice.supplierId))) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Payable invoice counterparty references are invalid." });
   if (input.direction === "receivable" && (!invoice.customerId || invoice.supplierId !== null || !salesOrder || salesOrder.customerId !== invoice.customerId || !state.customers.some((customer) => customer.id === invoice.customerId))) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Receivable invoice counterparty references are invalid." });
+  if (new Set(state.payments.map((payment) => payment.id)).size !== state.payments.length
+    || new Set(state.payments.map((payment) => payment.paymentNumber)).size !== state.payments.length) {
+    return rejectErpCommand(state, { code: "INVALID_STATE", message: "Existing payment identities are duplicated." });
+  }
   const relatedPayments = state.payments.filter((payment) => payment.invoiceId === invoice.id);
   if (relatedPayments.some((payment) => payment.direction !== input.direction || payment.supplierId !== invoice.supplierId || payment.customerId !== invoice.customerId || !Number.isSafeInteger(payment.amount) || payment.amount <= 0)) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Existing payment evidence does not match the invoice." });
   const calculatedTotal = total(invoice.lines);
@@ -285,9 +290,62 @@ export function recordPayment(state: ErpState, role: ErpRole, input: PaymentInpu
     payments: [...state.payments, payment],
     salesOrders,
   };
-  const next = appendErpAudit(staged, {
+  const cash = createPaymentCashMovement(staged, role, payment, now);
+  if (!cash.ok) return rejectErpCommand(state, cash.error);
+  const stagedWithCash: ErpState = cash.value ? { ...staged, cashMovements: [...(staged.cashMovements ?? []), cash.value] } : staged;
+  const next = appendErpAudit(stagedWithCash, {
     entityType: "payment", entityId: payment.id, action: "payment.recorded", actorRole: role, actorId: `role:${role}`,
     detail: { paymentNumber, invoiceId: invoice.id, direction: input.direction, amount: payment.amount, remainingBalance: nextBalance, counterpartyId: invoice.supplierId ?? invoice.customerId },
   }, now);
   return commitErpState(state, next, payment);
+}
+
+export function cancelPayment(
+  state: ErpState,
+  role: ErpRole,
+  paymentId: string,
+  now: string,
+): ErpCommandResult<Payment> {
+  const authorization = requireFinance<Payment>(state, role);
+  if (authorization) return authorization;
+  if (!hasValidNow(now) || !paymentId.trim()) return invalid(state, "Payment cancellation input is invalid.");
+  if (new Set(state.payments.map((payment) => payment.id)).size !== state.payments.length
+    || new Set(state.payments.map((payment) => payment.paymentNumber)).size !== state.payments.length) {
+    return rejectErpCommand(state, { code: "INVALID_STATE", message: "Existing payment identities are duplicated." });
+  }
+  const payment = state.payments.find((item) => item.id === paymentId);
+  if (!payment) return rejectErpCommand(state, { code: "NOT_FOUND", message: "Payment was not found." });
+  if (payment.status !== "posted") return rejectErpCommand(state, { code: "INVALID_STATE", message: "Only posted payments can be cancelled." });
+  const invoices = payment.direction === "payable" ? state.supplierInvoices : state.customerInvoices;
+  const invoice = invoices.find((item) => item.id === payment.invoiceId);
+  if (!invoice || invoice.status === "cancelled") return rejectErpCommand(state, { code: "INVALID_STATE", message: "Payment invoice evidence is invalid." });
+  const related = state.payments.filter((item) => item.invoiceId === invoice.id && item.direction === payment.direction);
+  if (related.some((item) => !Number.isSafeInteger(item.amount) || item.amount <= 0 || item.supplierId !== invoice.supplierId || item.customerId !== invoice.customerId)) {
+    return rejectErpCommand(state, { code: "INVALID_STATE", message: "Existing payment evidence does not match the invoice." });
+  }
+  const postedBefore = related.filter((item) => item.status === "posted").reduce((sum, item) => sum + item.amount, 0);
+  const expectedBefore = postedBefore === 0 ? "unpaid" : postedBefore === invoice.totalAmount ? "paid" : postedBefore < invoice.totalAmount ? "partially_paid" : null;
+  if (!expectedBefore || invoice.status !== expectedBefore) return rejectErpCommand(state, { code: "INVALID_STATE", message: "Invoice status does not match payment evidence." });
+  const cash = createPaymentCashReversal(state, role, payment, now);
+  if (!cash.ok) return rejectErpCommand(state, cash.error);
+  const cancelled: Payment = { ...payment, status: "cancelled", updatedAt: now };
+  const postedAfter = postedBefore - payment.amount;
+  const updatedInvoice: TradeInvoice = { ...invoice, status: postedAfter === 0 ? "unpaid" : postedAfter === invoice.totalAmount ? "paid" : "partially_paid", updatedAt: now };
+  let salesOrders = state.salesOrders;
+  if (payment.direction === "receivable" && updatedInvoice.status !== "paid" && updatedInvoice.salesOrderId) {
+    salesOrders = state.salesOrders.map((order) => order.id === updatedInvoice.salesOrderId && order.status === "completed" ? { ...order, status: "invoiced", updatedAt: now } : order);
+  }
+  const staged: ErpState = {
+    ...state,
+    supplierInvoices: payment.direction === "payable" ? state.supplierInvoices.map((item) => item.id === invoice.id ? updatedInvoice : item) : state.supplierInvoices,
+    customerInvoices: payment.direction === "receivable" ? state.customerInvoices.map((item) => item.id === invoice.id ? updatedInvoice : item) : state.customerInvoices,
+    payments: state.payments.map((item) => item.id === payment.id ? cancelled : item),
+    cashMovements: cash.value ? [...(state.cashMovements ?? []), cash.value] : state.cashMovements,
+    salesOrders,
+  };
+  const next = appendErpAudit(staged, {
+    entityType: "payment", entityId: payment.id, action: "payment.cancelled", actorRole: role, actorId: `role:${role}`,
+    detail: { invoiceId: invoice.id, direction: payment.direction, amount: payment.amount, remainingBalance: invoice.totalAmount - postedAfter, cashReversalId: cash.value?.id ?? null },
+  }, now);
+  return commitErpState(state, next, cancelled);
 }

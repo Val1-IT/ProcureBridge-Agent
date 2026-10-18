@@ -112,9 +112,14 @@ export function deserializeDemoStoreEnvelope(value: string | null): {
   try {
     const parsed: unknown = JSON.parse(value);
     if (isRecord(parsed) && Object.hasOwn(parsed, "envelopeVersion")) {
-      return isValidEnvelope(parsed)
-        ? { envelope: parsed, recoveryReason: null }
-        : { envelope: null, recoveryReason: "INVALID_SCHEMA" };
+      if (isValidEnvelope(parsed)) return { envelope: parsed, recoveryReason: null };
+      if (parsed.envelopeVersion === 1 && commitKinds.includes(parsed.kind as DemoStoreCommitKind) && isValidLineage(parsed.lineage)) {
+        const migrated = migrateDemoState(parsed.state);
+        if (migrated && migrated.demoSessionId === parsed.lineage.demoSessionId) {
+          return { envelope: { envelopeVersion: 1, kind: parsed.kind as DemoStoreCommitKind, lineage: parsed.lineage, state: migrated }, recoveryReason: null };
+        }
+      }
+      return { envelope: null, recoveryReason: "INVALID_SCHEMA" };
     }
     const migrated = migrateDemoState(parsed);
     return migrated

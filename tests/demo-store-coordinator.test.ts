@@ -82,8 +82,8 @@ describe("demo-store persistence coordinator", () => {
     expect(classifyDemoStorageEvent(current, reset)).toBe("remote_reset");
   });
 
-  it("loads a raw valid v10 state as a generation-zero compatibility envelope", () => {
-    const raw = createSeedState("demo_raw_v10_session_123456");
+  it("loads a raw valid v11 state as a generation-zero compatibility envelope", () => {
+    const raw = createSeedState("demo_raw_v11_session_123456");
 
     const loaded = deserializeDemoStoreEnvelope(JSON.stringify(raw));
 

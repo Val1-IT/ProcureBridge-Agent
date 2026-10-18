@@ -2,7 +2,7 @@
 
 ## Current posture
 
-This is a Demo Data prototype, not a production-approved ERP. State is browser-local, roles are selectable Demo Mode roles rather than authenticated identities, Supplier Agent telephony is simulated, and the optional Supabase schema is inactive. Do not load customer data, production credentials, or regulated records.
+This is Demo Data software, not a production-approved ERP. The original ProcureBridge demo remains browser-local with selectable roles and simulated Supplier Agent telephony. DealTwin is a separate signed-session, server-authoritative PostgreSQL synthetic Judge subsystem; legacy browser controls do not authorize its mutations. Its private disposable-only composition is not public identity/tenancy infrastructure. Do not load customer data, production credentials, or regulated records.
 
 ## Domain authorization and atomicity
 
@@ -64,7 +64,7 @@ Activation requires server-only secrets, identity-to-tenant mapping, atomic expe
 
 Task 14 tracked-file scans found no hard-coded local path or credential after excluding the implementation plan's literal hygiene command. The raw scan also matched only the worktree `.git` pointer and that literal example. Non-demo emails were package-lock metadata (`@xata.io` and the glob deprecation contact), not customer records.
 
-## Dependency audit snapshot
+## Historical dependency audit snapshot (not current)
 
 The ignored artifact `.superpowers/sdd/2026-08-09-balanced-distributor-mini-erp/npm-audit.json` records the fresh 11 August 2026 `npm.cmd audit --json` result (exit 1):
 
@@ -85,7 +85,7 @@ Direct non-major candidates reported by npm include `@cloudflare/vite-plugin@1.5
 
 These findings remain open release risk. Passing build/tests do not waive them, and the moderate/high findings remain unresolved alongside the critical pair.
 
-### Time-bounded local-demo waiver
+### Expired historical local-demo waiver — NOT renewed
 
 A narrow waiver covers only this repository's mock-only Demo Data workflow on local loopback through **2026-08-24**. Remediation owner: **Repository maintainer**. It is not a production waiver, does not cover customer/production data, and does not make the application production-ready.
 
@@ -100,5 +100,54 @@ The waiver expires automatically after **2026-08-24** and is immediately void if
 Before expiry, the Repository maintainer must upgrade both direct development dependencies to `3.2.7` together, evaluate the other direct non-major remediations, review the lockfile, and rerun typecheck, lint, full tests, configured-scope coverage, build, browser/security regression, and a fresh JSON audit. Remaining moderate/high findings require remediation or a new explicit dated risk decision. Any extension requires a new dated review of the advisory and exposure; it must never silently roll over.
 
 ## Required production work
+
+## DealTwin Task28 — current local disposition (2026-10-15)
+
+This section supersedes the historical audit/expired waiver above for DealTwin.
+Fresh audit before:35package aggregates (4critical,24high,7moderate). After the
+compatible patch groups:22 (2critical,14high,6moderate), audit exit1. Raw JSON:
+.cache/task28-audit-before-20261015.json and task28-audit-after-20261015.json.
+These are npm aggregate package counts, not35independently exploited defects.
+Public deployment remains BLOCKED. No waiver or acceptance is granted here.
+
+Pinned changes: Next15.5.22→15.5.28; React/DOM/RSC19.2.6→19.2.8; coordinated
+Vitest/coverage3.2.4→3.2.7; Vite8.0.13→8.0.16; ESLint Next15.5.28. Same-major
+overrides PostCSS8.5.23/image-size2.0.4 cover their multiple consumers. Named
+transitive updates stay within existing parent ranges; lockfile is retained.
+No audit fix --force, peer bypass, blind downgrade or major migration was used.
+
+| Current family / direct root | Scope and static evidence | Disposition |
+|---|---|---|
+| vitest/direct, tinypool/transitive critical; coverage/direct and mocker/transitive moderate | one-shot test runner in package.json/vitest.config.ts; no UI server started, but prototype/mocker preconditions are not proved absent universally | OPEN; newer safe runner line is a major change;3.2.7 alone is not complete remediation |
+| Cloudflare Vite plugin/direct, wrangler/direct, miniflare/undici/ws/transitive high | vite.config.ts loads Workers tooling separately from private Node Judge target; dev network/bindings features are conditional, not automatically harmless | OPEN; patched plugin1.47/1.64 needs Wrangler with workers-types5 while repository has4; peer conflict captured, no forced migration |
+| sharp/transitive high | optional Next image dependency and Miniflare chain; worker/index.ts explicitly routes image optimization, Node wrapper differs | OPEN; exact deployed decoder reachability unproven, installed0.34line remains affected; no unauthorized cross0.x upgrade |
+| eslint-config-next/direct, next ESLint plugin/fast-glob/micromatch/braces/transitive high | lint and Vite dynamic-import/commonjs build chain; vinext/direct and both Vite plugins inherit these aggregates | OPEN; braces3has no compatible patched release in queried registry; automatic Next14/Vinext downgrade rejected |
+| drizzle-kit/direct, esbuild-kit core-utils/esm-loader and esbuild/transitive moderate | optional SQLite Drizzle tooling; not the pg Judge repository; affected development-server feature is conditional | OPEN; no downgrade/removal of preserved ERP tooling; not a public waiver |
+
+Initial static triage retained all35input aggregates as needs_review with source
+IDs/versions/references and separate exploitability ranks. No runtime exploit
+or universal non-reachability was asserted. The plugin-managed triage artifact
+is artifacts/triage/task28-audit-before.json (SHA256
+dcecc198fc4a236cca525a4c464dc6e119012c8fd5dde409c55f984373a67553).
+Patch outcomes are the actual new audit, not duplicate triage or risk acceptance.
+Advisory examples: [Next Windows](https://github.com/advisories/GHSA-p293-qw3h-jr36),
+[Vitest UI](https://github.com/advisories/GHSA-5xrq-8626-4rwp),
+[Vite Windows](https://github.com/advisories/GHSA-fx2h-pf6j-xcff).
+
+New fail-closed controls: remote database plaintext rejected; verified TLS
+preserved; real app/reset role escalation denied; forced RLS includes non-bypass
+table owner; cross-tenant aggregate writes denied. Session tenant/role tampering
+and exception redaction regressions exercise actual implementation. Emitted
+client scanning catches tested synthetic server canaries, DB credential/token
+patterns and local machine paths, rejects missing/empty/symlinked artifact
+trees and prints no matching values. It is bounded, not an exhaustive secret
+or penetration scan. Both built targets passed actual scans (60and59files).
+
+evaluateReleaseGate requires complete pass/same-SHA/portable artifact metadata;
+missing/fail/skipped/duplicate/provenance errors block. It does not authenticate
+artifact contents or deploy anything. Real audit, TLS, backup/restore and
+authenticated target evidence must be independently verified by the authorized
+operator. This private profile has no public issuer or production DB support.
+See docs/dealtwin/DEPLOYMENT.md and TASK28-VERIFICATION.md. Task29 is not started.
 
 Before customer-data/production use: add enterprise identity and server tenant authorization; consent/calling/retention governance; official provider API/webhook signing with durable idempotency, queues, retries, dead letters, monitoring, and incident response; activate/test a tenant-safe repository; add rate/origin/abuse controls; connect ledger/tax/reconciliation; remediate audit findings; and run authorized security, migration, load, recovery, accessibility, and browser end-to-end tests.

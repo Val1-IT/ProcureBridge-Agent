@@ -1,0 +1,29 @@
+# Disposable DealTwin test PostgreSQL only.
+# Do not point this file at production, staging, remote Supabase, or any unrelated database.
+#
+# Start: docker compose -f docker-compose.dealtwin-test.yml up -d --wait
+# URL:   postgres://dealtwin:dealtwin@127.0.0.1:55432/dealtwin_test
+# Stop:  docker compose -f docker-compose.dealtwin-test.yml down --volumes
+#
+# Task 12 unit tests inject a fake PoolClient and do not start this service.
+# Task 13 integration tests set DEALTWIN_TEST_DATABASE_URL to the URL above.
+
+name: dealtwin-test
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: dealtwin_test
+    environment:
+      POSTGRES_USER: dealtwin
+      POSTGRES_PASSWORD: dealtwin
+      POSTGRES_DB: dealtwin_test
+    ports:
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dealtwin -d dealtwin_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+    tmpfs:
+      - /var/lib/postgresql/data

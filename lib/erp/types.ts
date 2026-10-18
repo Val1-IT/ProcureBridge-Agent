@@ -21,6 +21,26 @@ export interface SalesOrder { id: string; orderNumber: string; customerId: strin
 export interface DeliveryOrder { id: string; deliveryNumber: string; salesOrderId: string; warehouseId: string; status: "draft" | "posted" | "cancelled"; lines: QuantityLine[]; createdAt: string; updatedAt: string; }
 export interface TradeInvoice { id: string; invoiceNumber: string; purchaseOrderId: string | null; salesOrderId: string | null; supplierId: string | null; customerId: string | null; sourceDocumentIds: string[]; status: InvoiceStatus; lines: QuantityLine[]; totalAmount: number; dueDate: string; createdAt: string; updatedAt: string; }
 export interface Payment { id: string; paymentNumber: string; invoiceId: string; direction: "payable" | "receivable"; supplierId: string | null; customerId: string | null; amount: number; paymentDate: string; status: "posted" | "cancelled"; createdAt: string; updatedAt: string; }
+export interface ErpCashAccount {
+  id: string; code: string; name: string; currency: "IDR"; openingBalanceRupiah: string; openingBalanceDate: string;
+  openingSourceType: string; openingSourceId: string; openingSourceRevision: string; active: boolean; createdAt: string; updatedAt: string;
+}
+export interface ErpCashMovement {
+  id: string; accountId: string; effectiveDate: string; sameDayOrder: number; direction: "inflow" | "outflow"; amountRupiah: string;
+  entryKind: "original" | "reversal"; reversesMovementId: string | null; sourceType: string; sourceId: string; sourceRevision: string;
+  actorRole: ErpRole | "system"; actorId: string; reason: string; createdAt: string; updatedAt: string;
+}
+export interface OpeningCashBalanceInput {
+  accountId: string; code: string; name: string; openingBalanceRupiah: string; openingBalanceDate: string;
+  sourceType: string; sourceId: string; sourceRevision: string; actorId: string;
+}
+export interface CashMovementInput {
+  accountId: string; effectiveDate: string; sameDayOrder: number; direction: "inflow" | "outflow"; amountRupiah: string;
+  sourceType: string; sourceId: string; sourceRevision: string; actorId: string; reason: string;
+}
+export interface CashReversalInput {
+  originalMovementId: string; effectiveDate: string; sameDayOrder: number; actorId: string; reason: string;
+}
 export interface StockMovement { id: string; type?: "opening" | "receipt" | "delivery" | "adjustment"; productId: string; warehouseId: string; quantity: number; direction: "in" | "out" | "adjustment"; sourceType: "seed" | "goods_receipt" | "delivery_order" | "adjustment"; sourceId: string; actorRole: ErpRole | "system"; actorId: string; reason: string | null; createdAt: string; updatedAt: string; }
 export interface StockAdjustment { id: string; adjustmentNumber: string; productId: string; warehouseId: string; quantityDelta: number; reason: string; status: "pending" | "approved" | "rejected"; proposedByRole: ErpRole; approvedByRole: ErpRole | null; approvedAt: string | null; createdAt: string; updatedAt: string; }
 export type SupplierCallScenario = "delivery_commitment" | "partial_delivery" | "stock_unavailable" | "price_discrepancy" | "failed_contact";
@@ -50,6 +70,6 @@ export interface ErpAuditEvent { id: string; entityType: string; entityId: strin
 export interface ErpState {
   revision: number; activeRole: ErpRole; products: Product[]; suppliers: Supplier[]; customers: ErpCustomer[]; warehouses: Warehouse[];
   purchaseRequests: PurchaseRequest[]; requestForQuotations: RequestForQuotation[]; supplierQuotations: SupplierQuotation[]; purchaseOrders: PurchaseOrder[]; goodsReceipts: GoodsReceipt[]; salesOrders: SalesOrder[]; deliveryOrders: DeliveryOrder[];
-  supplierInvoices: TradeInvoice[]; customerInvoices: TradeInvoice[]; payments: Payment[]; stockMovements: StockMovement[]; stockAdjustments: StockAdjustment[]; supplierCalls: SupplierCall[];
+  supplierInvoices: TradeInvoice[]; customerInvoices: TradeInvoice[]; payments: Payment[]; cashAccounts: ErpCashAccount[]; cashMovements: ErpCashMovement[]; stockMovements: StockMovement[]; stockAdjustments: StockAdjustment[]; supplierCalls: SupplierCall[];
   supplierApprovals: SupplierCallApproval[]; supplierResults: SupplierCallResult[]; disputes: ErpDispute[]; followUps: ErpFollowUp[]; auditLogs: ErpAuditEvent[];
 }

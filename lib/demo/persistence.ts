@@ -9,9 +9,10 @@ import { normalizeLegacyExecutedParentStatuses } from "./legacy-execution-normal
 import { createSeedState } from "./seed";
 import { createDemoSessionId, isValidDemoSessionId } from "./session";
 
-export const DEMO_SCHEMA_VERSION = 10;
-export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v10";
-export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v9";
+export const DEMO_SCHEMA_VERSION = 11;
+export const DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v11";
+export const PREVIOUS_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v10";
+export const V9_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v9";
 export const V8_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v8";
 export const V7_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v7";
 export const V6_DEMO_STORAGE_KEY = "arvanta-distributor-mini-erp-demo-v6";
@@ -48,9 +49,10 @@ const hasRfqLine = (value: unknown): boolean => hasFields(value, ["productId"]) 
 const hasRfqLines = (value: unknown): boolean => Array.isArray(value) && value.every(hasRfqLine);
 const hasEntityDates = (value: unknown): value is Record<string, unknown> => hasFields(value, ["id", "createdAt", "updatedAt"]) && isStrictIsoInstant(value.createdAt) && isStrictIsoInstant(value.updatedAt);
 const hasOptionalLink = (value: Record<string, unknown>, field: string, ids: Set<unknown>): boolean => Object.hasOwn(value, field) && (value[field] === null || (hasString(value[field]) && ids.has(value[field])));
-function hasValidErpCollections(value: unknown): value is ErpState {
+function hasValidErpCollections(value: unknown, requireCash = true, requireDemoOpening = true): value is ErpState {
   if (!isRecord(value) || !Number.isSafeInteger(value.revision) || Number(value.revision) < 0 || !includes(erpRoles, value.activeRole)) return false;
   const arrays = ["products", "suppliers", "customers", "warehouses", "purchaseRequests", "requestForQuotations", "supplierQuotations", "purchaseOrders", "goodsReceipts", "salesOrders", "deliveryOrders", "supplierInvoices", "customerInvoices", "payments", "stockMovements", "stockAdjustments", "supplierCalls", "supplierApprovals", "supplierResults", "disputes", "followUps", "auditLogs"];
+  if (requireCash) arrays.push("cashAccounts", "cashMovements");
   if (!arrays.every((field) => isArrayField(value, field))) return false;
   if (!arrays.every((field) => { const items = value[field] as unknown[]; return items.every((item) => isRecord(item) && hasString(item.id)) && new Set(items.map((item) => (item as Record<string, unknown>).id)).size === items.length; })) return false;
   const products = value.products as unknown[];
@@ -168,7 +170,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   const stockAdjustmentById = new Map(stockAdjustments.map((item) => [item.id, item]));
   const stockMovements = value.stockMovements as Record<string, unknown>[];
   if (new Set(stockMovements.map((item) => item.id)).size !== stockMovements.length) return false;
-  if (stockMovements.filter((item) => item.sourceType === "seed").length !== trustedOpeningMovements.size) return false;
+  if (requireDemoOpening && stockMovements.filter((item) => item.sourceType === "seed").length !== trustedOpeningMovements.size) return false;
   if (!stockMovements.every((item) => {
     if (!(hasEntityDates(item) && hasFields(item, ["type", "productId", "warehouseId", "sourceType", "sourceId", "actorRole", "actorId"]) && activeProductIds.has(item.productId) && activeWarehouseIds.has(item.warehouseId) && hasNumber(item.quantity) && Number.isInteger(item.quantity) && item.quantity !== 0 && includes(["opening", "receipt", "delivery", "adjustment"], item.type) && includes(["in", "out", "adjustment"], item.direction) && includes(["seed", "goods_receipt", "delivery_order", "adjustment"], item.sourceType) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && (item.reason === null || typeof item.reason === "string") && !Number.isNaN(new Date(String(item.createdAt)).getTime()))) return false;
     if (item.sourceType === "seed") { const trusted = trustedOpeningMovements.get(String(item.id)); return Boolean(trusted && item.type === "opening" && item.productId === trusted.productId && item.warehouseId === trusted.warehouseId && item.direction === "in" && item.quantity === trusted.quantity && item.sourceId === "seed-opening" && item.actorRole === "system" && item.actorId === "system:seed"); }
@@ -258,6 +260,7 @@ function hasValidErpCollections(value: unknown): value is ErpState {
   if (new Set(currentResultCallIds).size !== currentResultCallIds.length) return false;
   if (!(value.disputes as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["reason"]) && includes(["open", "investigating", "resolved", "cancelled"], item.status))) return false;
   if (!(value.followUps as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["dueAt", "reason"]) && includes(["open", "completed", "cancelled"], item.status) && includes(["pending", "approved"], item.approvalStatus) && (item.approvedBy === null || hasString(item.approvedBy)) && (item.approvalStatus !== "approved" || hasString(item.approvedBy)))) return false;
+  if (requireCash && !hasValidCashCollections(value, payments)) return false;
   return (value.auditLogs as unknown[]).every((item) => hasEntityDates(item) && hasFields(item, ["entityType", "entityId", "action", "actorRole", "actorId"]) && (includes(erpRoles, item.actorRole) || item.actorRole === "system") && isRecord(item.detail) && Object.values(item.detail).every((detail) => detail === null || typeof detail === "string" || typeof detail === "boolean" || (typeof detail === "number" && Number.isFinite(detail))));
 }
 
@@ -265,36 +268,109 @@ export function isValidErpState(value: unknown): value is ErpState {
   return hasValidErpCollections(value);
 }
 
+/** Server workspaces need not contain the unrelated browser demo's opening-stock seed.
+ * All row, source-chain, finance, cash, chronology and reservation checks remain identical.
+ */
+export function isValidServerErpState(value: unknown): value is ErpState {
+  return hasValidErpCollections(value, true, false);
+}
+
+function hasCanonicalRupiah(value: unknown, allowZero: boolean): value is string {
+  if (typeof value !== "string" || !/^(0|[1-9]\d*)$/.test(value)) return false;
+  try {
+    const amount = BigInt(value);
+    return allowZero ? amount >= 0n : amount > 0n;
+  } catch {
+    return false;
+  }
+}
+
+function hasValidCashCollections(value: Record<string, unknown>, payments: Record<string, unknown>[]): boolean {
+  if (!Array.isArray(value.cashAccounts) || !Array.isArray(value.cashMovements)) return false;
+  const accounts = value.cashAccounts as Record<string, unknown>[];
+  const movements = value.cashMovements as Record<string, unknown>[];
+  if (new Set(accounts.map((item) => item.id)).size !== accounts.length || new Set(accounts.map((item) => item.code)).size !== accounts.length) return false;
+  if (!accounts.every((item) => hasEntityDates(item) && hasFields(item, ["code", "name", "openingBalanceRupiah", "openingBalanceDate", "openingSourceType", "openingSourceId", "openingSourceRevision"])
+    && item.currency === "IDR" && hasCanonicalRupiah(item.openingBalanceRupiah, true) && isStrictIsoDate(item.openingBalanceDate)
+    && /^(0|[1-9]\d*)$/.test(String(item.openingSourceRevision)) && typeof item.active === "boolean")) return false;
+  const activeAccounts = accounts.filter((item) => item.active === true);
+  if (accounts.length > 0 && activeAccounts.length !== 1) return false;
+  const activeAccount = activeAccounts[0];
+  const accountIds = new Set(accounts.map((item) => item.id));
+  if (new Set(movements.map((item) => item.id)).size !== movements.length) return false;
+  if (new Set(movements.map((item) => `${String(item.sourceType)}:${String(item.sourceId)}`)).size !== movements.length) return false;
+  const movementById = new Map(movements.map((item) => [item.id, item]));
+  const reversedIds = movements.filter((item) => item.reversesMovementId !== null).map((item) => item.reversesMovementId);
+  if (new Set(reversedIds).size !== reversedIds.length) return false;
+  if (!movements.every((item) => {
+    if (!(hasEntityDates(item) && hasFields(item, ["accountId", "effectiveDate", "direction", "amountRupiah", "entryKind", "sourceType", "sourceId", "sourceRevision", "actorRole", "actorId", "reason"])
+      && accountIds.has(item.accountId) && isStrictIsoDate(item.effectiveDate) && Number.isSafeInteger(item.sameDayOrder) && Number(item.sameDayOrder) > 0
+      && includes(["inflow", "outflow"], item.direction) && hasCanonicalRupiah(item.amountRupiah, false)
+      && includes(["original", "reversal"], item.entryKind) && /^(0|[1-9]\d*)$/.test(String(item.sourceRevision))
+      && (includes(erpRoles, item.actorRole) || item.actorRole === "system"))) return false;
+    const account = accounts.find((candidate) => candidate.id === item.accountId);
+    const openingDate = String(account?.openingBalanceDate ?? "");
+    if (!account || item.effectiveDate < openingDate || (item.effectiveDate === openingDate && Number(item.sameDayOrder) <= 0)) return false;
+    if (item.entryKind === "original") return item.reversesMovementId === null && item.sourceType !== "cash_movement_reversal";
+    if (!hasString(item.reversesMovementId) || item.sourceType !== "cash_movement_reversal" || item.sourceId !== item.reversesMovementId) return false;
+    const original = movementById.get(item.reversesMovementId);
+    if (!original || original.entryKind !== "original" || original.accountId !== item.accountId || original.amountRupiah !== item.amountRupiah || original.direction === item.direction) return false;
+    const originalKey = `${String(original.effectiveDate)}:${String(original.sameDayOrder).padStart(16, "0")}:${String(original.id)}`;
+    const reversalKey = `${String(item.effectiveDate)}:${String(item.sameDayOrder).padStart(16, "0")}:${String(item.id)}`;
+    return reversalKey > originalKey;
+  })) return false;
+  if (activeAccount) {
+    for (const payment of payments) {
+      if (!hasString(payment.id) || !isStrictIsoDate(payment.paymentDate)
+        || payment.paymentDate < String(activeAccount.openingBalanceDate)
+        || String(payment.createdAt) < String(activeAccount.createdAt)) continue;
+      const originals = movements.filter((item) => item.entryKind === "original" && item.sourceType === "erp_payment" && item.sourceId === payment.id);
+      if (originals.length !== 1) return false;
+      const original = originals[0];
+      const expectedDirection = payment.direction === "payable" ? "outflow" : "inflow";
+      if (original.accountId !== activeAccount.id || original.direction !== expectedDirection || original.amountRupiah !== String(payment.amount) || original.effectiveDate !== payment.paymentDate) return false;
+      const reversals = movements.filter((item) => item.reversesMovementId === original.id);
+      if ((payment.status === "posted" && reversals.length !== 0) || (payment.status === "cancelled" && reversals.length !== 1)) return false;
+    }
+    if (movements.some((item) => item.entryKind === "original" && item.sourceType === "erp_payment" && !payments.some((payment) => payment.id === item.sourceId))) return false;
+  }
+  return true;
+}
+
 export function migrateDemoState(value: unknown): DemoState | null {
   if (!isRecord(value) || !hasValidLegacyCollections(value)) return null;
-  const demoSessionId = value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) ? value.demoSessionId : createDemoSessionId();
+  const demoSessionId = (value.schemaVersion === DEMO_SCHEMA_VERSION || value.schemaVersion === 10) && isValidDemoSessionId(value.demoSessionId) ? value.demoSessionId : createDemoSessionId();
   if (value.schemaVersion === 2) return { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp: createErpSeedState() };
   if (value.schemaVersion === 3) {
-    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp)))))));
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(migrateErpV3(value.erp))))))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 4) {
-    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp))))));
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(migrateErpV4(value.erp)))))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 5) {
-    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(value.erp)))));
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(migrateErpV5(value.erp))))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 6) {
-    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(value.erp))));
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(migrateErpV6(value.erp)))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 7) {
-    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(value.erp)));
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses(migrateErpV8(migrateErpV7(value.erp))));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 8) {
-    const erp = normalizeLegacyExecutedParentStatuses(migrateErpV8(value.erp));
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses(migrateErpV8(value.erp)));
     return erp && hasValidErpCollections(erp) ? { ...(value as Omit<DemoState, "erp" | "schemaVersion">), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === 9 && isRecord(value.erp) && Array.isArray(value.erp.supplierApprovals)) {
-    const erp = normalizeLegacyExecutedParentStatuses({ ...value.erp, supplierApprovals: value.erp.supplierApprovals.map((item) => isRecord(item) ? { ...item, approvedAt: item.approvedAt ?? item.createdAt } : item) });
+    const erp = migrateErpV10(normalizeLegacyExecutedParentStatuses({ ...value.erp, supplierApprovals: value.erp.supplierApprovals.map((item) => isRecord(item) ? { ...item, approvedAt: item.approvedAt ?? item.createdAt } : item) }));
+    return erp && hasValidErpCollections(erp) ? { ...(value as unknown as DemoState), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
+  }
+  if (value.schemaVersion === 10) {
+    const erp = migrateErpV10(value.erp);
     return erp && hasValidErpCollections(erp) ? { ...(value as unknown as DemoState), schemaVersion: DEMO_SCHEMA_VERSION, demoSessionId, erp } : null;
   }
   if (value.schemaVersion === DEMO_SCHEMA_VERSION && isValidDemoSessionId(value.demoSessionId) && hasValidErpCollections(value.erp)) return value as unknown as DemoState;
@@ -317,7 +393,17 @@ export function loadDemoState(value: string | null): { state: DemoState; recover
 
 export function loadDemoStateFromStorage(storage: Pick<Storage, "getItem">): { state: DemoState; recoveryReason: DemoRecoveryReason } {
   const current = storage.getItem(DEMO_STORAGE_KEY);
-  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V8_DEMO_STORAGE_KEY) ?? storage.getItem(V7_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+  return loadDemoState(current ?? storage.getItem(PREVIOUS_DEMO_STORAGE_KEY) ?? storage.getItem(V9_DEMO_STORAGE_KEY) ?? storage.getItem(V8_DEMO_STORAGE_KEY) ?? storage.getItem(V7_DEMO_STORAGE_KEY) ?? storage.getItem(V6_DEMO_STORAGE_KEY) ?? storage.getItem(V5_DEMO_STORAGE_KEY) ?? storage.getItem(V4_DEMO_STORAGE_KEY) ?? storage.getItem(V3_DEMO_STORAGE_KEY) ?? storage.getItem(LEGACY_DEMO_STORAGE_KEY));
+}
+
+export function migrateDemoStateStorage(
+  storage: Pick<Storage, "getItem" | "setItem">,
+): { state: DemoState; recoveryReason: DemoRecoveryReason } {
+  const current = storage.getItem(DEMO_STORAGE_KEY);
+  if (current !== null) return loadDemoState(current);
+  const loaded = loadDemoStateFromStorage(storage);
+  if (loaded.recoveryReason === null) storage.setItem(DEMO_STORAGE_KEY, serializeDemoState(loaded.state));
+  return loaded;
 }
 
 export function serializeDemoState(state: DemoState): string { return JSON.stringify(state); }
@@ -503,6 +589,12 @@ function hasNonNegativeMovementHistory(stockMovements: Record<string, unknown>[]
     balances.set(key, balance);
   }
   return true;
+}
+
+function migrateErpV10(value: unknown): ErpState | null {
+  if (!hasValidErpCollections(value, false) || !isRecord(value)) return null;
+  const migrated = { ...value, cashAccounts: [], cashMovements: [] };
+  return hasValidErpCollections(migrated) ? migrated : null;
 }
 
 function migrateErpV3(value: unknown): ErpState | null {

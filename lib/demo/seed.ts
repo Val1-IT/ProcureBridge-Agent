@@ -179,7 +179,7 @@ import { createDemoSessionId, INITIAL_DEMO_SESSION_ID } from "./session";
 
 export function createSeedState(demoSessionId = INITIAL_DEMO_SESSION_ID): DemoState {
   return {
-    schemaVersion: 10,
+    schemaVersion: 11,
     demoSessionId,
     updatedAt: "2026-08-04T03:00:00.000Z",
     customers: structuredClone(customers),
