@@ -1,5 +1,10 @@
 # DealTwin Task29 checkpoint — PARTIAL / PUBLIC RELEASE BLOCKED
 
+Reviewed test-toolchain candidate: [Vitest migration](VITEST-MIGRATION-20261018.md).
+The approved Vitest/coverage4.1.11 batch preserves all126 test files and thresholds.
+Its final immutable-SHA results belong to the companion Library verification
+packet; the earlier snapshots below retain their original scope and counts.
+
 Latest source review: [remaining dependency plan](DEPENDENCY-REVIEW-PLAN-20261018.md).
 No migration or new runtime test was performed in that review. It preserves all14
 base gates and42DT mappings, distinguishes Node Judge requirements from the
