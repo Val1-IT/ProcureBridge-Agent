@@ -1,0 +1,226 @@
+[
+  {
+    "line": 32468,
+    "text": "response = await (0, import_undici.fetch)(url5.toString(), {"
+  },
+  {
+    "line": 32700,
+    "text": "response = await (0, import_undici.fetch)(url5, {"
+  },
+  {
+    "line": 33156,
+    "text": "const headers = cloneHeaders(new import_undici.Headers(init4.headers));"
+  },
+  {
+    "line": 33167,
+    "text": "if (init4.body instanceof import_undici.FormData) {"
+  },
+  {
+    "line": 33170,
+    "text": "await new import_undici.Response(init4.body).text(),"
+  },
+  {
+    "line": 33176,
+    "text": "return await (0, import_undici.fetch)("
+  },
+  {
+    "line": 33433,
+    "text": "const headers = new import_undici.Headers();"
+  },
+  {
+    "line": 33440,
+    "text": "const response = await (0, import_undici.fetch)(resource, {"
+  },
+  {
+    "line": 33463,
+    "text": "return new import_undici.Headers(headers);"
+  },
+  {
+    "line": 107264,
+    "text": "const output = await (0, import_undici2.fetch)(`https://${domain3}`, {"
+  },
+  {
+    "line": 107659,
+    "text": "const response = await (0, import_undici2.fetch)(getTokenUrlFromEnv(), {"
+  },
+  {
+    "line": 107939,
+    "text": "const response = await (0, import_undici2.fetch)(getTemporaryPreviewChallengeUrl(), {"
+  },
+  {
+    "line": 107981,
+    "text": "const response = await (0, import_undici2.fetch)(getTemporaryPreviewUrl(), {"
+  },
+  {
+    "line": 108228,
+    "text": "const response = await (0, import_undici2.fetch)(getRevokeUrlFromEnv(), {"
+  },
+  {
+    "line": 124061,
+    "text": "if (request4.body instanceof import_undici3.FormData) {"
+  },
+  {
+    "line": 124064,
+    "text": "await new import_undici3.Response(request4.body).text(),"
+  },
+  {
+    "line": 124090,
+    "text": "const request4 = new import_undici3.Request(url5, { ...init4, duplex: \"half\" });"
+  },
+  {
+    "line": 124101,
+    "text": "const response = await (0, import_undici3.fetch)(request4.url, request4);"
+  },
+  {
+    "line": 124135,
+    "text": "return new import_undici3.Headers(headers);"
+  },
+  {
+    "line": 124172,
+    "text": "const response = await (0, import_undici3.fetch)("
+  },
+  {
+    "line": 124214,
+    "text": "let response = await (0, import_undici3.fetch)("
+  },
+  {
+    "line": 124230,
+    "text": "response = new import_undici3.Response(await response.text(), response);"
+  },
+  {
+    "line": 149045,
+    "text": "const formData = new import_undici4.FormData();"
+  },
+  {
+    "line": 153029,
+    "text": "const serializedFormData = await new import_undici4.Response(workerBundle).arrayBuffer();"
+  },
+  {
+    "line": 153301,
+    "text": "const serializedFormData = await new import_undici4.Response(workerBundle).arrayBuffer();"
+  },
+  {
+    "line": 158944,
+    "text": "const payload = new import_undici4.FormData();"
+  },
+  {
+    "line": 166903,
+    "text": "const res = await (0, import_undici5.fetch)(SKILLS_REPO_CONTENTS_URL, {"
+  },
+  {
+    "line": 169248,
+    "text": "return (0, import_undici6.fetch)(`${SPARROW_URL}/api/v1/event`, {"
+  },
+  {
+    "line": 202411,
+    "text": "const gcResponse = await (0, import_undici7.fetch)(gcUrl, {"
+  },
+  {
+    "line": 202480,
+    "text": "const response = await (0, import_undici7.fetch)(catalogUrl, {"
+  },
+  {
+    "line": 202498,
+    "text": "const headResponse = await (0, import_undici7.fetch)(manifestUrl, {"
+  },
+  {
+    "line": 202515,
+    "text": "const deleteResponse = await (0, import_undici7.fetch)(deleteUrl, {"
+  },
+  {
+    "line": 211840,
+    "text": "const exchangeResponse = await (0, import_undici8.fetch)(switchedExchangeUrl, {"
+  },
+  {
+    "line": 214950,
+    "text": "const formdata = new import_undici9.FormData();"
+  },
+  {
+    "line": 216596,
+    "text": "const formData = new import_undici10.FormData();"
+  },
+  {
+    "line": 220772,
+    "text": "const gcResponse = await (0, import_undici11.fetch)(gcUrl, {"
+  },
+  {
+    "line": 220841,
+    "text": "const response = await (0, import_undici11.fetch)(catalogUrl, {"
+  },
+  {
+    "line": 220859,
+    "text": "const headResponse = await (0, import_undici11.fetch)(manifestUrl, {"
+  },
+  {
+    "line": 220876,
+    "text": "const deleteResponse = await (0, import_undici11.fetch)(deleteUrl, {"
+  },
+  {
+    "line": 233238,
+    "text": "await (0, import_undici14.fetch)(event[0], event[1]);"
+  },
+  {
+    "line": 233240,
+    "text": "const response = await (0, import_undici14.fetch)("
+  },
+  {
+    "line": 234628,
+    "text": "promise: (0, import_undici15.fetch)(upload_url, {"
+  },
+  {
+    "line": 234993,
+    "text": "const contents = await (0, import_undici16.fetch)(finalResponse.result.signed_url);"
+  },
+  {
+    "line": 292677,
+    "text": "const searchResp = await (0, import_undici17.fetch)("
+  },
+  {
+    "line": 300079,
+    "text": "return await new import_undici18.Response(workerBundleFormData).blob();"
+  },
+  {
+    "line": 302468,
+    "text": "const formData = new import_undici19.FormData();"
+  },
+  {
+    "line": 351182,
+    "text": "const response = await (0, import_undici20.fetch)(apiUrl, {"
+  },
+  {
+    "line": 354511,
+    "text": "const formData = new import_undici21.FormData();"
+  },
+  {
+    "line": 355030,
+    "text": "const formData = new import_undici22.FormData();"
+  },
+  {
+    "line": 357919,
+    "text": "response = await (0, import_undici23.fetch)(url5, {"
+  },
+  {
+    "line": 361457,
+    "text": "(0, import_undici24.setGlobalDispatcher)("
+  },
+  {
+    "line": 361458,
+    "text": "new import_undici24.EnvHttpProxyAgent({ noProxy: noProxy || \"localhost,127.0.0.1,::1\" })"
+  },
+  {
+    "line": 367808,
+    "text": "ProxyDispatcher = class _ProxyDispatcher extends import_undici25.Dispatcher {"
+  },
+  {
+    "line": 367816,
+    "text": "dispatcher = (0, import_undici25.getGlobalDispatcher)();"
+  },
+  {
+    "line": 368277,
+    "text": "return await (0, import_undici26.fetch)("
+  },
+  {
+    "line": 368290,
+    "text": "const forward = new import_undici26.Request(input, init4);"
+  }
+]

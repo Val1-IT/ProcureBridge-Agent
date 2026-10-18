@@ -1,0 +1,267 @@
+[
+  {
+    "source": "../../src/index.ts",
+    "matches": [
+      [
+        16,
+        "import { getGlobalDispatcher, Pool } from \"undici\";"
+      ],
+      [
+        166,
+        "import type { Dispatcher, Response as UndiciResponse } from \"undici\";"
+      ],
+      [
+        880,
+        "\t// Reverse of https://github.com/nodejs/undici/blob/48d9578f431cbbd6e74f77455ba92184f57096cf/lib/fetch/index.js#L1660"
+      ],
+      [
+        902,
+        "\t// Adapted from `undici`, catches errors from `next()` to avoid unhandled"
+      ],
+      [
+        904,
+        "\t// https://github.com/nodejs/undici/blob/dfaec78f7a29f07bb043f9006ed0ceb0d5220b55/lib/core/util.js#L369-L392"
+      ],
+      [
+        1524,
+        "\t\t\t// These headers are unsupported in undici fetch requests, they're added"
+      ],
+      [
+        2563,
+        "\t\t\t\t// slow uploads, long-polling) should not be killed by undici defaults."
+      ],
+      [
+        2901,
+        "\t\t// At this point, undici.fetch (used inside fetch, above)"
+      ],
+      [
+        2917,
+        "\t\t\t// consumed \"immediately\". `undici` may hang or throw socket errors if we"
+      ],
+      [
+        2919,
+        "\t\t\t// https://github.com/nodejs/undici/issues/583#issuecomment-1577468249"
+      ],
+      [
+        3210,
+        "\t\t\t// Close the undici Pool used for dispatching fetch requests to the"
+      ]
+    ]
+  },
+  {
+    "source": "../../../workers-utils/dist/index.mjs",
+    "matches": [
+      [
+        16,
+        "import { fetch, Headers, FormData, Response } from 'undici';"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/cf.ts",
+    "matches": [
+      [
+        6,
+        "import { fetch } from \"undici\";"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/http/fetch.ts",
+    "matches": [
+      [
+        2,
+        "import * as undici from \"undici\";"
+      ],
+      [
+        11,
+        "import type { UndiciHeaders } from \"undici/types/dispatcher\";"
+      ],
+      [
+        37,
+        "\t\tconst headers = new undici.Headers();"
+      ],
+      [
+        87,
+        "\tconst response = await undici.fetch(request, {"
+      ],
+      [
+        106,
+        "// See https://github.com/nodejs/undici/blob/main/docs/docs/api/Dispatcher.md?plain=1#L1151 for documentation"
+      ],
+      [
+        109,
+        "): undici.Headers {"
+      ],
+      [
+        110,
+        "\t// Array format: https://github.com/nodejs/undici/blob/main/docs/docs/api/Dispatcher.md?plain=1#L1157"
+      ],
+      [
+        114,
+        "\t\tconst standardHeaders = new undici.Headers();"
+      ],
+      [
+        129,
+        "\t\t// https://github.com/nodejs/undici/blob/main/docs/docs/api/Dispatcher.md?plain=1#L1157"
+      ],
+      [
+        133,
+        "\t\tconst standardHeaders = new undici.Headers();"
+      ],
+      [
+        150,
+        "\t\tconst standardHeaders = new undici.Headers();"
+      ],
+      [
+        175,
+        "export class DispatchFetchDispatcher extends undici.Dispatcher {"
+      ],
+      [
+        189,
+        "\t\tprivate readonly globalDispatcher: undici.Dispatcher,"
+      ],
+      [
+        190,
+        "\t\tprivate readonly runtimeDispatcher: undici.Dispatcher,"
+      ],
+      [
+        200,
+        "\t\t/* mut */ headers: undici.Headers,"
+      ],
+      [
+        214,
+        "\t\t/* mut */ options: undici.Dispatcher.DispatchOptions,"
+      ],
+      [
+        215,
+        "\t\thandler: undici.Dispatcher.DispatchHandler"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/http/request.ts",
+    "matches": [
+      [
+        1,
+        "import { Request as BaseRequest } from \"undici\";"
+      ],
+      [
+        9,
+        "} from \"undici\";"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/http/response.ts",
+    "matches": [
+      [
+        1,
+        "import { Response as BaseResponse } from \"undici\";"
+      ],
+      [
+        7,
+        "} from \"undici\";"
+      ],
+      [
+        16,
+        "\t// symbol here, but `undici` calls `this.status` in its constructor, which"
+      ],
+      [
+        63,
+        "\t\t// 101, but we can't store this because `undici` rightfully complains."
+      ]
+    ]
+  },
+  {
+    "source": "../../src/http/index.ts",
+    "matches": [
+      [
+        8,
+        "export { FormData, Headers } from \"undici\";"
+      ],
+      [
+        21,
+        "} from \"undici\";"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/plugins/core/index.ts",
+    "matches": [
+      [
+        18,
+        "import { MockAgent } from \"undici\";"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/plugins/core/proxy/client.ts",
+    "matches": [
+      [
+        7,
+        "import { Headers } from \"undici\";"
+      ],
+      [
+        730,
+        "\t\t// @ts-expect-error `...args` isn't type-safe here, but `undici` should"
+      ]
+    ]
+  },
+  {
+    "source": "../../src/plugins/core/proxy/fetch-sync.ts",
+    "matches": [
+      [
+        42,
+        "// When running Miniflare from Jest, regular 'require(\"undici\")' will fail here"
+      ],
+      [
+        43,
+        "// with \"Error: Cannot find module 'undici'\". Instead we need to create a"
+      ],
+      [
+        46,
+        "const { Pool, fetch } = actualRequire(\"undici\");"
+      ],
+      [
+        59,
+        "      // slow uploads, long-polling) should not be killed by undici defaults."
+      ]
+    ]
+  },
+  {
+    "source": "../../src/plugins/core/proxy/types.ts",
+    "matches": [
+      [
+        4,
+        "import { Headers } from \"undici\";"
+      ]
+    ]
+  },
+  {
+    "source": "../../package.json",
+    "matches": [
+      [
+        54,
+        "\t\t\"undici\": \"catalog:default\","
+      ]
+    ]
+  },
+  {
+    "source": "../../src/plugins/images/fetcher.ts",
+    "matches": [
+      [
+        7,
+        "import type { Request } from \"undici\";"
+      ],
+      [
+        49,
+        "\t// eslint-disable-next-line @typescript-eslint/no-deprecated -- formData() is the standard Workers API for parsing multipart bodies; only deprecated on undici's server-side Request"
+      ],
+      [
+        353,
+        "\t\t// eslint-disable-next-line @typescript-eslint/no-deprecated -- formData() is the standard Workers API for parsing multipart bodies; only deprecated on undici's server-side Request"
+      ]
+    ]
+  }
+]

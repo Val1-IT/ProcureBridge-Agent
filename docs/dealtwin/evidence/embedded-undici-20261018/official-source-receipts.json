@@ -1,0 +1,288 @@
+[
+  {
+    "name": "plugin-package",
+    "url": "https://registry.npmjs.org/@cloudflare%2fvite-plugin/1.43.1",
+    "status": 200,
+    "bytes": 3449,
+    "sha256": "cbb3f43f3927e16ee7884a717d09777e1080319a641287e477dd78b096d0a9b4",
+    "fetchedAt": "2026-10-18T14:20:08.003808+00:00"
+  },
+  {
+    "name": "wrangler-package",
+    "url": "https://registry.npmjs.org/wrangler/4.107.1",
+    "status": 200,
+    "bytes": 6656,
+    "sha256": "a6a8250571061f379a6727b48ee5016fe23e5c6d23d992440868eaa9fff7b006",
+    "fetchedAt": "2026-10-18T14:20:09.351017+00:00"
+  },
+  {
+    "name": "undici-package",
+    "url": "https://registry.npmjs.org/undici/7.29.1",
+    "status": 200,
+    "bytes": 6822,
+    "sha256": "685384f6b29949d971a2b3fe0a5460f7c87ee30bdc01471ec81d58d237dfab7f",
+    "fetchedAt": "2026-10-18T14:20:11.017641+00:00"
+  },
+  {
+    "name": "latest-plugin",
+    "url": "https://registry.npmjs.org/@cloudflare%2fvite-plugin/latest",
+    "status": 200,
+    "bytes": 3745,
+    "sha256": "ecc6cdbcca77f38700951ef8292ba9687b2e53d1c206e3fe79e9e22d61140f30",
+    "fetchedAt": "2026-10-18T14:20:11.352094+00:00"
+  },
+  {
+    "name": "latest-wrangler",
+    "url": "https://registry.npmjs.org/wrangler/latest",
+    "status": 200,
+    "bytes": 7042,
+    "sha256": "dd4330060ba4be180eced24fcc0fe73a909ccea2375f3fabaacc9beeacbbb323",
+    "fetchedAt": "2026-10-18T14:20:11.641640+00:00"
+  },
+  {
+    "name": "latest-miniflare",
+    "url": "https://registry.npmjs.org/miniflare/latest",
+    "status": 200,
+    "bytes": 5101,
+    "sha256": "0cc2baddd967efd18d33cba2b2cd1f05ca82803a81220d6094b738f44c86ae1c",
+    "fetchedAt": "2026-10-18T14:20:11.935769+00:00"
+  },
+  {
+    "name": "plugin-build",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/%40cloudflare%2Fvite-plugin%401.43.1/packages/vite-plugin/tsdown.config.ts",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "wrangler-build",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/packages/wrangler/tsup.config.ts",
+    "status": 200,
+    "bytes": 4812,
+    "sha256": "d3936fa6c33669a6c8b3eebd52acbd67209f329e12d47d42740b3f89119f0d39",
+    "fetchedAt": "2026-10-18T14:20:12.717920+00:00"
+  },
+  {
+    "name": "workspace-package",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/package.json",
+    "status": 200,
+    "bytes": 2822,
+    "sha256": "7f13057d580acbdb3f76468e4e6c9dffb58f37307c841718ad9f098f382455cb",
+    "fetchedAt": "2026-10-18T14:20:13.155278+00:00"
+  },
+  {
+    "name": "workspace-pnpm",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/pnpm-workspace.yaml",
+    "status": 200,
+    "bytes": 6862,
+    "sha256": "5acde3d422443111669fd8b78dc8ddd3f19d9c788df49b0f07c6ff25e51fd5f7",
+    "fetchedAt": "2026-10-18T14:20:13.508661+00:00"
+  },
+  {
+    "name": "undici-release",
+    "url": "https://api.github.com/repos/nodejs/undici/releases/tags/v7.29.1",
+    "status": 200,
+    "bytes": 7687,
+    "sha256": "8cc1f63ca92007521549bc5dd8c8d7cf87f67f0b259f72182e46c8e15cc33c69",
+    "fetchedAt": "2026-10-18T14:20:13.881950+00:00"
+  },
+  {
+    "name": "plugin-build-correct-path",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/packages/vite-plugin-cloudflare/tsdown.config.ts",
+    "status": 200,
+    "bytes": 2241,
+    "sha256": "7704f375b6452660d012e3dd0439ef2c97fe0d75ae5c931730736121addfb07f",
+    "fetchedAt": "2026-10-18T14:20:53.651471+00:00"
+  },
+  {
+    "name": "plugin-source-package",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/packages/vite-plugin-cloudflare/package.json",
+    "status": 200,
+    "bytes": 2444,
+    "sha256": "ccb2f1d84aa242b60987c766df1a4fad53e0e542332e876e9a8fd4c76611cad9",
+    "fetchedAt": "2026-10-18T14:20:54.071248+00:00"
+  },
+  {
+    "name": "wrangler-external-deps",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/packages/wrangler/scripts/deps.ts",
+    "status": 200,
+    "bytes": 2683,
+    "sha256": "4dafd6c9bb635ecfd2a3355c99a5ec105ed9ff48f1bbd63e2a1ee9288795830c",
+    "fetchedAt": "2026-10-18T14:20:55.134827+00:00"
+  },
+  {
+    "name": "utils-package",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/packages/workers-utils/package.json",
+    "status": 200,
+    "bytes": 2562,
+    "sha256": "69aed84c132ee4b0b323019fa0888d079b9434060b561941bfe5b1f2f86c7ac2",
+    "fetchedAt": "2026-10-18T14:20:56.258690+00:00"
+  },
+  {
+    "name": "workspace-lock",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/pnpm-lock.yaml",
+    "status": 200,
+    "bytes": 926290,
+    "sha256": "66e3a5dc3eed5f3436e8c4b19dfa3be17b974e618223dc4876c5607cb59f6aab",
+    "fetchedAt": "2026-10-18T14:20:57.322956+00:00"
+  },
+  {
+    "name": "wrangler-tag",
+    "url": "https://api.github.com/repos/cloudflare/workers-sdk/git/ref/tags/wrangler%404.107.1",
+    "status": 200,
+    "bytes": 373,
+    "sha256": "f33a8c315de2db28f4710c904058d7978828361097adb43370ba6bf41fb5c6cf",
+    "fetchedAt": "2026-10-18T14:20:57.728301+00:00"
+  },
+  {
+    "name": "undici-compare",
+    "url": "https://api.github.com/repos/nodejs/undici/compare/v7.28.0...v7.29.1",
+    "status": 200,
+    "bytes": 432552,
+    "sha256": "38c99f57e360d4a7e68829d088ef12de551cdde368dfebebaddd927871451f24",
+    "fetchedAt": "2026-10-18T14:20:58.619696+00:00"
+  },
+  {
+    "name": "undici-728-package",
+    "url": "https://registry.npmjs.org/undici/7.28.0",
+    "status": 200,
+    "bytes": 6655,
+    "sha256": "c935434c9c680a90cd4380219ab7460f81bd60bbe12ea48b328b2095136da8d2",
+    "fetchedAt": "2026-10-18T14:20:58.896243+00:00"
+  },
+  {
+    "name": "undici-decompress-advisory",
+    "url": "https://api.github.com/repos/nodejs/undici/security-advisories/GHSA-3xpg-4rpp-hhhm",
+    "status": 200,
+    "bytes": 5920,
+    "sha256": "42de579bd5b6162a589ced6312170bd9f7dc1658d3f98de925f420017761cd3c",
+    "fetchedAt": "2026-10-18T14:20:59.343125+00:00"
+  },
+  {
+    "name": "plugin-package-archive",
+    "url": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.43.1.tgz",
+    "status": 200,
+    "bytes": 1803245,
+    "sha256": "1d7f79e1441909a0ad5bd2c111063f9b07144f939c68bf7b8e0467b2dcb612c6",
+    "fetchedAt": "2026-10-18T14:21:50.814176+00:00"
+  },
+  {
+    "name": "wrangler-package-archive",
+    "url": "https://registry.npmjs.org/wrangler/-/wrangler-4.107.1.tgz",
+    "status": 200,
+    "bytes": 2949128,
+    "sha256": "dba98cccb3345a83d0ad08c621d5df1fde53578e36092e9d202f1f309d477744",
+    "fetchedAt": "2026-10-18T14:21:52.051169+00:00"
+  },
+  {
+    "name": "undici-package-archive",
+    "url": "https://registry.npmjs.org/undici/-/undici-7.29.1.tgz",
+    "status": 200,
+    "bytes": 400243,
+    "sha256": "93b3abe22a9d2858938b5f3829a9fd8952392348ffed9057662ae846e2e46d54",
+    "fetchedAt": "2026-10-18T14:21:52.262879+00:00"
+  },
+  {
+    "name": "undici-728-package-archive",
+    "url": "https://registry.npmjs.org/undici/-/undici-7.28.0.tgz",
+    "status": 200,
+    "bytes": 393676,
+    "sha256": "2b39f83d6c479b8172188ad690c4af1c10dd6fecbfb084fd3ffdf59de5187d5f",
+    "fetchedAt": "2026-10-18T14:21:52.512981+00:00"
+  },
+  {
+    "name": "wrangler-tag-object",
+    "url": "https://api.github.com/repos/cloudflare/workers-sdk/git/tags/6f5febb4ad4b08439e2a7ad3090bc2101ff3a312",
+    "status": 200,
+    "bytes": 727,
+    "sha256": "84c518ea4a12cf7e02e4fe82164e52a49f376d5930edb303bdbacbf21843d539",
+    "fetchedAt": "2026-10-18T14:21:52.892846+00:00"
+  },
+  {
+    "name": "utils-build-correct",
+    "url": "https://raw.githubusercontent.com/cloudflare/workers-sdk/wrangler%404.107.1/packages/workers-utils/tsup.config.ts",
+    "status": 200,
+    "bytes": 785,
+    "sha256": "cd835683db5f14768a46e1639cd7452ccd1a28b31f2c34fdfccd6bd9df84cb92",
+    "fetchedAt": "2026-10-18T14:21:53.299404+00:00"
+  },
+  {
+    "name": "wrangler-provenance",
+    "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.107.1",
+    "status": 200,
+    "bytes": 14726,
+    "sha256": "b64da582bda68a83b23fb783417eac279e8dba10ebedc99fca1fa294818cce9a",
+    "fetchedAt": "2026-10-18T14:21:55.250711+00:00"
+  },
+  {
+    "name": "plugin-provenance",
+    "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.43.1",
+    "status": 200,
+    "bytes": 14547,
+    "sha256": "55f82671016ee067f6ce26f9fc10bb805ba580c996088dcabe04845ffb037515",
+    "fetchedAt": "2026-10-18T14:21:56.327180+00:00"
+  },
+  {
+    "name": "next-fetch-source",
+    "url": "https://raw.githubusercontent.com/vercel/next.js/v15.5.28/packages/next/src/compiled/%40edge-runtime/primitives/fetch.js",
+    "status": 200,
+    "bytes": 796597,
+    "sha256": "1577109d1e286a11e66bb56ba3dfa07d53d6c0e0610c08fed994f82838bb7658",
+    "fetchedAt": "2026-10-18T14:22:35.330881+00:00"
+  },
+  {
+    "name": "next-load-source",
+    "url": "https://raw.githubusercontent.com/vercel/next.js/v15.5.28/packages/next/src/compiled/%40edge-runtime/primitives/load.js",
+    "status": 200,
+    "bytes": 800754,
+    "sha256": "d36b91e07ff16e770688afc5578702030e7eccaa3de59303cd6b0cef0707d230",
+    "fetchedAt": "2026-10-18T14:22:36.027923+00:00"
+  },
+  {
+    "name": "next-edge-source",
+    "url": "https://raw.githubusercontent.com/vercel/next.js/v15.5.28/packages/next/src/compiled/edge-runtime/index.js",
+    "status": 200,
+    "bytes": 525805,
+    "sha256": "06703ed6b001b0f02f8043bb499f3716f2c3b76b7df628a1cea30d1ee671edb2",
+    "fetchedAt": "2026-10-18T14:22:36.758732+00:00"
+  },
+  {
+    "name": "next-package",
+    "url": "https://registry.npmjs.org/next/15.5.28",
+    "status": 200,
+    "bytes": 3107,
+    "sha256": "2df36373e1e1e18249bc463e92252ae8d7fd19a0eae91adf3a3f660cf32e9503",
+    "fetchedAt": "2026-10-18T14:22:37.076747+00:00"
+  },
+  {
+    "name": "undici-advisories-bulk",
+    "url": "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk",
+    "request": {
+      "undici": [
+        "6.21.0",
+        "7.28.0",
+        "7.29.0",
+        "7.29.1"
+      ]
+    },
+    "method": "POST read-only audit",
+    "status": 200,
+    "bytes": 10495,
+    "sha256": "6bc5bc92013d1645c15fbcf757c4ff2377b5dad31fe2a10982f26cfaed7d1357",
+    "fetchedAt": "2026-10-18T14:23:22.275343+00:00"
+  },
+  {
+    "name": "next-source-package",
+    "url": "https://raw.githubusercontent.com/vercel/next.js/v15.5.28/packages/next/package.json",
+    "status": 200,
+    "bytes": 10962,
+    "sha256": "1879aaf7419a0b3ca8d396abdcaafd65e0ebe3b8a8f6603e27946415f7c073d7",
+    "fetchedAt": "2026-10-18T14:23:22.864690+00:00"
+  },
+  {
+    "name": "next-taskfile",
+    "url": "https://raw.githubusercontent.com/vercel/next.js/v15.5.28/packages/next/taskfile.js",
+    "status": 200,
+    "bytes": 99231,
+    "sha256": "373543d1c25262e9ff0e080ae64e26dbda8167c33e06f447d7194cd73a536bf9",
+    "fetchedAt": "2026-10-18T14:23:23.953652+00:00"
+  }
+]

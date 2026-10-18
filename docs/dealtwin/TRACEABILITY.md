@@ -1,5 +1,7 @@
 # DealTwin Requirement Traceability
 
+Latest local dependency review: [embedded Undici inventory and rebuild blockers](EMBEDDED-UNDICI-20261018.md) and [provisional final serial verification plan](FINAL-SERIAL-VERIFICATION-20261018.md). At code baseline `873abf7`, five installed bundle files were detected (two Cloudflare 7.28.0, three Next Edge 6.21.0 source-marker copies), plus Node built-in 7.29.0. Source/feature applicability remains unresolved; no patch or new full test/build run. Fresh npm audit remains eight high aggregates from the locally mitigated braces version finding. Task29/DT-042 stays PARTIAL.
+
 Scoped Sharp follow-up: [Miniflare image/storage evidence](SHARP-MINIFLARE-20261018.md)
 records official Sharp0.35.5 under unchanged Miniflare4.20260702.0 at9400db0.
 Clean-commit48/48 focused tests and10/10 selected upstream tests pass; the Sites

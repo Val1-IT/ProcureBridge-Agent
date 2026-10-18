@@ -1,0 +1,445 @@
+{
+  "schemaVersion": "dealtwin.embedded-dependency-review.v1",
+  "candidateSha": "873abf7b4f39b242415945be0b533467ff8c87db",
+  "recordedAt": "2026-10-18T14:24:45.246512+00:00",
+  "lockSha256": "57ff2662a534dad8d712bb35271bbb9d20d0141f51c195211185bcf084a68228",
+  "decision": "UNRESOLVED: no validated maintained source rebuild; no package or runtime changes",
+  "scan": {
+    "filesScanned": 14915,
+    "matches": [
+      {
+        "path": "node_modules/@cloudflare/vite-plugin/dist/index.mjs",
+        "bytes": 2492160,
+        "sha256": "d6c43f41b42e6930f5a02fe7e9568f1c4715f98318f3764c05fe637dde5ac419",
+        "pnpmVersions": [
+          "7.28.0"
+        ],
+        "undiciModulePath": true
+      },
+      {
+        "path": "node_modules/next/dist/compiled/@edge-runtime/primitives/fetch.js",
+        "bytes": 796597,
+        "sha256": "1577109d1e286a11e66bb56ba3dfa07d53d6c0e0610c08fed994f82838bb7658",
+        "pnpmVersions": [
+          "6.21.0"
+        ],
+        "undiciModulePath": true
+      },
+      {
+        "path": "node_modules/next/dist/compiled/@edge-runtime/primitives/load.js",
+        "bytes": 800754,
+        "sha256": "d36b91e07ff16e770688afc5578702030e7eccaa3de59303cd6b0cef0707d230",
+        "pnpmVersions": [
+          "6.21.0"
+        ],
+        "undiciModulePath": true
+      },
+      {
+        "path": "node_modules/next/dist/compiled/edge-runtime/index.js",
+        "bytes": 525805,
+        "sha256": "06703ed6b001b0f02f8043bb499f3716f2c3b76b7df628a1cea30d1ee671edb2",
+        "pnpmVersions": [
+          "6.21.0"
+        ],
+        "undiciModulePath": true
+      },
+      {
+        "path": "node_modules/wrangler/wrangler-dist/cli.js",
+        "bytes": 14744486,
+        "sha256": "b3463ef8ab69da1d600bc694bc91df89dea8fa9179f6cf0fb020854b8d924bac",
+        "pnpmVersions": [
+          "7.28.0"
+        ],
+        "undiciModulePath": true
+      }
+    ]
+  },
+  "scanLimit": "Literal Undici path/version markers and Undici+WebSocketStream+BalancedPool signatures in installed .js/.mjs/.cjs only; not an exhaustive semantic SBOM. Source maps and saved output are excluded.",
+  "runtime": {
+    "node": "24.19.0",
+    "builtinUndiciReported": "7.29.0",
+    "externalUndici": "7.29.1",
+    "miniflareResolvedExternalUndici": "7.29.1",
+    "builtinVersionMatchesAreNotApiReachabilityProof": true
+  },
+  "officialArchiveChecks": {
+    "plugin-package": {
+      "archiveSha256": "1d7f79e1441909a0ad5bd2c111063f9b07144f939c68bf7b8e0467b2dcb612c6",
+      "integrityVerified": true,
+      "checkedInstalledFiles": 20,
+      "mismatches": []
+    },
+    "wrangler-package": {
+      "archiveSha256": "dba98cccb3345a83d0ad08c621d5df1fde53578e36092e9d202f1f309d477744",
+      "integrityVerified": true,
+      "checkedInstalledFiles": 48,
+      "mismatches": []
+    },
+    "undici-package": {
+      "archiveSha256": "93b3abe22a9d2858938b5f3829a9fd8952392348ffed9057662ae846e2e46d54",
+      "integrityVerified": true,
+      "checkedInstalledFiles": 210,
+      "mismatches": []
+    },
+    "undici-728-package": {
+      "archiveSha256": "2b39f83d6c479b8172188ad690c4af1c10dd6fecbfb084fd3ffdf59de5187d5f",
+      "integrityVerified": true,
+      "checkedInstalledFiles": 0,
+      "mismatches": []
+    },
+    "pluginSourceMapVerification": {
+      "count": 112,
+      "mismatches": []
+    }
+  },
+  "nextOfficialTaggedCompiledSourcesMatch": true,
+  "cloudflarePublishedSourceCommit": "c5d5e893e575b00a62a886d1da395b6246948d18",
+  "provenanceLimit": "Registry attestation payloads decoded and cross-checked with official tag; Sigstore signatures were not independently verified. npm archive SRI was verified.",
+  "undiciDiff": {
+    "base": "f9eba0ad9134e1c0977848476bba9d49734696e4",
+    "head": "d39a83e7b0d631590c3b85b5cc0dbeab66c3a1d8",
+    "commits": 30,
+    "changedFiles": 54,
+    "implementationFiles": [
+      "lib/cache/memory-cache-store.js",
+      "lib/cache/sqlite-cache-store.js",
+      "lib/core/request.js",
+      "lib/dispatcher/balanced-pool.js",
+      "lib/dispatcher/client-h1.js",
+      "lib/dispatcher/client-h2.js",
+      "lib/dispatcher/client.js",
+      "lib/handler/cache-handler.js",
+      "lib/handler/cache-revalidation-handler.js",
+      "lib/handler/retry-handler.js",
+      "lib/interceptor/cache.js",
+      "lib/interceptor/decompress.js",
+      "lib/interceptor/dump.js",
+      "lib/util/cache.js",
+      "lib/util/date.js",
+      "lib/web/cookies/util.js",
+      "lib/web/eventsource/eventsource-stream.js",
+      "lib/web/websocket/connection.js",
+      "lib/web/websocket/permessage-deflate.js",
+      "lib/web/websocket/stream/websocketstream.js"
+    ],
+    "upstreamTestFiles": [
+      "test/cache-interceptor/cache-tests.mjs",
+      "test/cache-interceptor/cache-utils.js",
+      "test/cache-interceptor/utils.js",
+      "test/cookie/cookies.js",
+      "test/cookie/validate-cookie-domain.js",
+      "test/cookie/validate-cookie-path.js",
+      "test/fixtures/h2-no-streams-client.js",
+      "test/header-function-crlf.js",
+      "test/http2-headers-timeout.js",
+      "test/http2-max-concurrent-streams-zero-unref.js",
+      "test/http2-stream-cancel.js",
+      "test/http2-timeout.js",
+      "test/interceptors/cache.js",
+      "test/interceptors/decompress.js",
+      "test/interceptors/dump-interceptor.js",
+      "test/interceptors/retry.js",
+      "test/issue-5404.js",
+      "test/issue-5638.js",
+      "test/node-test/balanced-pool.js",
+      "test/node-test/keep-alive-reuse.js",
+      "test/request-crlf.js",
+      "test/retry-handler.js",
+      "test/retry-handler2.js",
+      "test/types/index.test-d.ts",
+      "test/utils/date.js",
+      "test/websocket/opening-handshake.js",
+      "test/websocket/permessage-deflate-limit.js",
+      "test/websocket/stream/close-locked-writable.js"
+    ]
+  },
+  "advisoryVersionMatches": {
+    "6.21.0": [
+      {
+        "id": "GHSA-c76h-2ccp-4975",
+        "url": "https://github.com/advisories/GHSA-c76h-2ccp-4975",
+        "severity": "moderate",
+        "range": ">=6.0.0 <6.21.1"
+      },
+      {
+        "id": "GHSA-g9mf-h72j-4rw9",
+        "url": "https://github.com/advisories/GHSA-g9mf-h72j-4rw9",
+        "severity": "moderate",
+        "range": "<6.23.0"
+      },
+      {
+        "id": "GHSA-cxrh-j4jr-qwg3",
+        "url": "https://github.com/advisories/GHSA-cxrh-j4jr-qwg3",
+        "severity": "low",
+        "range": ">=6.0.0 <6.21.2"
+      },
+      {
+        "id": "GHSA-f269-vfmq-vjvj",
+        "url": "https://github.com/advisories/GHSA-f269-vfmq-vjvj",
+        "severity": "high",
+        "range": ">=6.0.0 <6.24.0"
+      },
+      {
+        "id": "GHSA-2mjp-6q6p-2qxm",
+        "url": "https://github.com/advisories/GHSA-2mjp-6q6p-2qxm",
+        "severity": "moderate",
+        "range": "<6.24.0"
+      },
+      {
+        "id": "GHSA-vrm6-8vpv-qv8q",
+        "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q",
+        "severity": "high",
+        "range": "<6.24.0"
+      },
+      {
+        "id": "GHSA-v9p9-hfj2-hcw8",
+        "url": "https://github.com/advisories/GHSA-v9p9-hfj2-hcw8",
+        "severity": "high",
+        "range": "<6.24.0"
+      },
+      {
+        "id": "GHSA-4992-7rv2-5pvq",
+        "url": "https://github.com/advisories/GHSA-4992-7rv2-5pvq",
+        "severity": "moderate",
+        "range": "<6.24.0"
+      },
+      {
+        "id": "GHSA-8xcm-r25x-g524",
+        "url": "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+        "severity": "moderate",
+        "range": "<6.28.0"
+      },
+      {
+        "id": "GHSA-m8rv-5g2x-5cg5",
+        "url": "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+        "severity": "moderate",
+        "range": "<6.28.0"
+      },
+      {
+        "id": "GHSA-v3r7-h72x-cjcm",
+        "url": "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+        "severity": "moderate",
+        "range": "<6.28.0"
+      },
+      {
+        "id": "GHSA-p88m-4jfj-68fv",
+        "url": "https://github.com/advisories/GHSA-p88m-4jfj-68fv",
+        "severity": "moderate",
+        "range": "<6.27.0"
+      },
+      {
+        "id": "GHSA-vxpw-j846-p89q",
+        "url": "https://github.com/advisories/GHSA-vxpw-j846-p89q",
+        "severity": "high",
+        "range": "<6.27.0"
+      },
+      {
+        "id": "GHSA-g8m3-5g58-fq7m",
+        "url": "https://github.com/advisories/GHSA-g8m3-5g58-fq7m",
+        "severity": "low",
+        "range": "<6.27.0"
+      },
+      {
+        "id": "GHSA-35p6-xmwp-9g52",
+        "url": "https://github.com/advisories/GHSA-35p6-xmwp-9g52",
+        "severity": "low",
+        "range": "<6.27.0"
+      },
+      {
+        "id": "GHSA-r53p-7pc4-xj5r",
+        "url": "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+        "severity": "low",
+        "range": "<6.28.1"
+      },
+      {
+        "id": "GHSA-rfgv-xxqx-mfg5",
+        "url": "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+        "severity": "high",
+        "range": ">=6.7.0 <6.28.1"
+      }
+    ],
+    "7.28.0": [
+      {
+        "id": "GHSA-8xcm-r25x-g524",
+        "url": "https://github.com/advisories/GHSA-8xcm-r25x-g524",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.0"
+      },
+      {
+        "id": "GHSA-4cwx-7wf7-3272",
+        "url": "https://github.com/advisories/GHSA-4cwx-7wf7-3272",
+        "severity": "high",
+        "range": ">=7.0.0 <7.29.0"
+      },
+      {
+        "id": "GHSA-m8rv-5g2x-5cg5",
+        "url": "https://github.com/advisories/GHSA-m8rv-5g2x-5cg5",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.0"
+      },
+      {
+        "id": "GHSA-jr45-8vmc-qm54",
+        "url": "https://github.com/advisories/GHSA-jr45-8vmc-qm54",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.0"
+      },
+      {
+        "id": "GHSA-v3r7-h72x-cjcm",
+        "url": "https://github.com/advisories/GHSA-v3r7-h72x-cjcm",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.0"
+      },
+      {
+        "id": "GHSA-3wwx-pv8p-q78v",
+        "url": "https://github.com/advisories/GHSA-3wwx-pv8p-q78v",
+        "severity": "moderate",
+        "range": ">=7.28.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-pmjh-fq2x-6v4x",
+        "url": "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+        "severity": "moderate",
+        "range": ">=7.11.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-r53p-7pc4-xj5r",
+        "url": "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+        "severity": "low",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-rfgv-xxqx-mfg5",
+        "url": "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+        "severity": "high",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-3xpg-4rpp-hhhm",
+        "url": "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+        "severity": "moderate",
+        "range": ">=7.15.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-2jfj-6hjv-fm6j",
+        "url": "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-2gqq-gqf2-x968",
+        "url": "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+        "severity": "low",
+        "range": ">=7.1.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-w293-vg96-wgc3",
+        "url": "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+        "severity": "high",
+        "range": ">=7.24.1 <7.29.1"
+      },
+      {
+        "id": "GHSA-8436-99hf-9mmv",
+        "url": "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+        "severity": "low",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-rx4f-c7p8-82vq",
+        "url": "https://github.com/advisories/GHSA-rx4f-c7p8-82vq",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.1"
+      }
+    ],
+    "7.29.0": [
+      {
+        "id": "GHSA-3wwx-pv8p-q78v",
+        "url": "https://github.com/advisories/GHSA-3wwx-pv8p-q78v",
+        "severity": "moderate",
+        "range": ">=7.28.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-pmjh-fq2x-6v4x",
+        "url": "https://github.com/advisories/GHSA-pmjh-fq2x-6v4x",
+        "severity": "moderate",
+        "range": ">=7.11.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-r53p-7pc4-xj5r",
+        "url": "https://github.com/advisories/GHSA-r53p-7pc4-xj5r",
+        "severity": "low",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-rfgv-xxqx-mfg5",
+        "url": "https://github.com/advisories/GHSA-rfgv-xxqx-mfg5",
+        "severity": "high",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-3xpg-4rpp-hhhm",
+        "url": "https://github.com/advisories/GHSA-3xpg-4rpp-hhhm",
+        "severity": "moderate",
+        "range": ">=7.15.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-2jfj-6hjv-fm6j",
+        "url": "https://github.com/advisories/GHSA-2jfj-6hjv-fm6j",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-2gqq-gqf2-x968",
+        "url": "https://github.com/advisories/GHSA-2gqq-gqf2-x968",
+        "severity": "low",
+        "range": ">=7.1.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-w293-vg96-wgc3",
+        "url": "https://github.com/advisories/GHSA-w293-vg96-wgc3",
+        "severity": "high",
+        "range": ">=7.24.1 <7.29.1"
+      },
+      {
+        "id": "GHSA-8436-99hf-9mmv",
+        "url": "https://github.com/advisories/GHSA-8436-99hf-9mmv",
+        "severity": "low",
+        "range": ">=7.0.0 <7.29.1"
+      },
+      {
+        "id": "GHSA-rx4f-c7p8-82vq",
+        "url": "https://github.com/advisories/GHSA-rx4f-c7p8-82vq",
+        "severity": "moderate",
+        "range": ">=7.0.0 <7.29.1"
+      }
+    ],
+    "7.29.1": []
+  },
+  "advisoryLimit": "Not counts of demonstrated exploitable paths. Next contains custom Undici patches and Node does not expose every package API. No security regression test or exploit executed.",
+  "freshNpmAudit": {
+    "exitCode": 1,
+    "counts": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 8,
+      "critical": 0,
+      "total": 8
+    },
+    "urls": [
+      "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+    ],
+    "sha256": "05ff5fc1d54e68201c79f274e803a2823afcc0bbe37f9a2e6ffc3b7964e0e70a"
+  },
+  "preservedFixChecks": {
+    "bracesInstalledByteCheck": "PASS; 1 copy, 0 changed files",
+    "esbuildLoaderResolved": "0.25.12",
+    "sharpMiniflareResolved": "0.35.5"
+  },
+  "verificationThisTask": {
+    "fullSuite": "NOT RUN",
+    "builds": "NOT RUN",
+    "upstreamSecurityRegressions": "NOT RUN: no candidate patch",
+    "dependencyChanges": false,
+    "servicesStarted": false
+  }
+}

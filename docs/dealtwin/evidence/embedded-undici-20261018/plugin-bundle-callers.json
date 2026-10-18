@@ -1,0 +1,38 @@
+[
+  {
+    "line": 26082,
+    "text": "var import_undici = require_undici();"
+  },
+  {
+    "line": 33926,
+    "text": "\t\tresponse = await (0, import_undici.fetch)(url.toString(), { headers: { \"User-Agent\": \"wrangler\" } });"
+  },
+  {
+    "line": 34123,
+    "text": "\t\tresponse = await (0, import_undici.fetch)(url, { headers: { \"User-Agent\": \"wrangler\" } });"
+  },
+  {
+    "line": 34472,
+    "text": "\tconst headers = cloneHeaders(new import_undici.Headers(init.headers));"
+  },
+  {
+    "line": 34481,
+    "text": "\tif (init.body instanceof import_undici.FormData) logger.debugWithSanitization?.(\"BODY:\", await new import_undici.Response(init.body).text(), null, 2);"
+  },
+  {
+    "line": 34483,
+    "text": "\treturn await (0, import_undici.fetch)(`${getCloudflareApiBaseUrl(complianceConfig)}${resource}${queryString}`, {"
+  },
+  {
+    "line": 34664,
+    "text": "\tconst headers = new import_undici.Headers();"
+  },
+  {
+    "line": 34671,
+    "text": "\tconst response = await (0, import_undici.fetch)(resource, {"
+  },
+  {
+    "line": 34690,
+    "text": "\treturn new import_undici.Headers(headers);"
+  }
+]
