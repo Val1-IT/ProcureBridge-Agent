@@ -21,7 +21,8 @@ describe('DealTwin surfaces render only exact server DTO evidence',()=>{
   expect(html).not.toMatch(/AI confidence|probably safe|99%/i);
  });
  it('never hardcodes the Judge result when the server returns different money/date/outcome',()=>{
-  const changed={...result(),outcome:'DOES_NOT_COMPILE' as const,shortfallRupiah:'1234',cashFloorRupiah:'9876543',firstViolationDate:'2027-01-02'};
+  const changed={...result(),outcome:'DOES_NOT_COMPILE' as const,shortfallRupiah:'1234',cashFloorRupiah:'9876543',firstViolationDate:'2027-01-02',
+   evaluations:result().evaluations.map(row=>row.status==='fail'?{...row,shortfallRupiah:'1234',violationDate:'2027-01-02'}:row)};
   const html=renderToStaticMarkup(createElement(DealCompiler,{result:changed}));
   expect(html).toContain('Rp1.234');expect(html).toContain('Rp9.876.543');expect(html).toContain('2027-01-02');expect(html).not.toContain('Rp3.000.000');
  });
