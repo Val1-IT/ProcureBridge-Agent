@@ -6,8 +6,10 @@ control), including durable Judge journeys at 1440/1024/820px and keyboard
 navigation at 390/1440px. DT-038 gains real local browser evidence. The report
 binds results to base06f7505 plus the exact test-only correction hash; it does
 not claim a clean-HEAD run or new cloud/whole-suite PostgreSQL evidence.
-Task29/DT-042 remain PARTIAL with dependency, Sites, live-provider, public
-identity and final evidence-packet gates open. Older browser-blocker statements
+Task29/DT-042 remain PARTIAL with dependency, live-provider, public identity
+and final evidence-packet gates open. The preserved Sites build subsequently
+passed locally at9ca9e68, with66 client files and zero scan issues.
+Older browser-blocker statements
 below retain their historical environment scope.
 
 Current Alexa-first continuation: [MCP/provider readiness](ALEXA-READINESS-20261018.md)

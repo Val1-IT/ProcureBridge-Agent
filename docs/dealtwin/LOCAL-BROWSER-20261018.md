@@ -89,6 +89,19 @@ Follow-up: matching existing `.openai/hosting.json` files were found in both
 older local DealTwin checkouts. The exact file was reused locally; its SHA256 is
 `2ec610496f6c1ef295ce519a8b6477c148618d00e288d98bb9dc3ce1cbdd18ef`.
 It contains a project identifier and null optional D1/R2 fields, no credentials.
-The separate Sites build still needs validation; metadata was not invented and
-no site/resource was created. Sites is optional for the private Node Judge,
-while the repository's current CI still requires its preserved build target.
+The preserved Sites build subsequently **passed locally** on clean
+`9ca9e6896531ae3b84afbede2e8fdba6c1f3a964`; its client scan passed 66 files
+with zero issues. All 128 prior Node output files were restored with matching
+hashes. No site/resource was created or hosting contacted. Metadata matches the
+approved repository baseline semantically; only Windows line endings differ.
+Sites is optional for the private Node Judge but remains a required CI build.
+
+[Sites build and audit evidence](../../output/sites-local-20261018/verification.json)
+records the exact source and artifact hashes. Fresh npm audit still fails:
+16 affected package aggregates (0 critical, 12 high, 4 moderate), five distinct
+advisories, plus the separately recorded embedded Undici evidence. Official npm
+metadata confirms no complete compatible stable upgrade in the current chains:
+braces3.0.3 remains latest; stable Miniflare4.20260730.0 still pins Sharp0.35.2;
+latest Wrangler/plugin require Miniflare5 beta; DrizzleKit0.31.11 retains the
+old esbuild-kit loader. No package or lockfile was changed. Maintained backports
+require an explicit ownership/compatibility decision; no finding was waived.
