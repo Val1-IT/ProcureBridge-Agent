@@ -1,0 +1,49 @@
+{
+  "suiteFiles": 1,
+  "cases": 11,
+  "browserCases": 10,
+  "requestOnlyCases": 1,
+  "method": "TypeScript AST only; no config execution, credentials, globalSetup, browser, or test body invoked",
+  "tests": [
+    {
+      "nameExpression": "'workspace read outage is recoverable without resetting or mutating financial state'",
+      "cases": 1,
+      "usesBrowser": true
+    },
+    {
+      "nameExpression": "'read-only navigation and tables remain usable at '+width+'px'",
+      "cases": 2,
+      "usesBrowser": true
+    },
+    {
+      "nameExpression": "'trusted local bootstrap mints signed sessions without resetting live synthetic state'",
+      "cases": 1,
+      "usesBrowser": true
+    },
+    {
+      "nameExpression": "'Node production target serves real hydration assets and denies traversal'",
+      "cases": 1,
+      "usesBrowser": false
+    },
+    {
+      "nameExpression": "'declining an actual reset confirmation emits no mutation request'",
+      "cases": 1,
+      "usesBrowser": true
+    },
+    {
+      "nameExpression": "'clean durable Judge journey at '+width+'px'",
+      "cases": 3,
+      "usesBrowser": true
+    },
+    {
+      "nameExpression": "'unauthenticated mutations and injected identity are rejected without state change'",
+      "cases": 1,
+      "usesBrowser": true
+    },
+    {
+      "nameExpression": "'a lost mutation response retries the same request without a second state change'",
+      "cases": 1,
+      "usesBrowser": true
+    }
+  ]
+}

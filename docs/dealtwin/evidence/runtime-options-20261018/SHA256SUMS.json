@@ -1,0 +1,26 @@
+[
+  {
+    "path": "browser-inventory.json",
+    "sha256": "7eaf3725a9212375f5364a418a7fc4cd695672eb97fc0e8260db33e5d3c79c5b"
+  },
+  {
+    "path": "browser-sandbox-config-green.log",
+    "sha256": "b3016ae697f064405a077dcf0a66255ed3d948e6c906d0d9bd7832df741bde1d"
+  },
+  {
+    "path": "browser-sandbox-config-red.log",
+    "sha256": "a3a4e140cc6bf2653a2bc5c2222b871dc60f5a1c7b5bf946d9e3a16798c1c119"
+  },
+  {
+    "path": "browser-sandbox-lint.log",
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "browser-sandbox-typecheck.log",
+    "sha256": "efbff35e0bde159a472f415e7138aa1dc50263091630e64d8a07dd14a1a59ce6"
+  },
+  {
+    "path": "inventory.json",
+    "sha256": "8f4ebfd11944c783157d41d6527f7fadd33d9ec92421518d629a7c13a2a5cc71"
+  }
+]

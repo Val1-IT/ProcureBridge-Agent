@@ -1,5 +1,13 @@
 # DealTwin — local execution status
 
+Runtime diagnosis continued in the **same environment**. See
+[minimum runtime options](docs/dealtwin/RUNTIME-OPTIONS-20261018.md) for official
+PostgreSQL16.15 source/size/domain, workspace-only provisioning proposal, browser
+platform prerequisites and Sites scope. No install/download/credential creation
+occurred. `7287630` requires Chromium sandboxing explicitly; its one focused
+regression, typecheck and lint pass. Remaining:25 DB-dependent Vitest files and
+1 Playwright file with11 cases (10 browser,1 HTTP-only), all unrun here.
+
 ## Current continuation — fresh cloud recovered, 2026-10-18
 
 The three original commits through `0c6a421` were restored exactly and verified.
