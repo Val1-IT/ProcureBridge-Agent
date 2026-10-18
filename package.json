@@ -39,7 +39,7 @@
     "esbuild@~0.28.0": "0.28.1"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.37.1",
+    "@cloudflare/vite-plugin": "1.43.1",
     "@cloudflare/workers-types": "4.20260702.1",
     "@playwright/test": "1.64.0",
     "@tailwindcss/postcss": "4.2.1",
@@ -60,7 +60,7 @@
     "vite": "8.0.16",
     "vite-node": "3.2.4",
     "vitest": "4.1.11",
-    "wrangler": "4.92.0"
+    "wrangler": "4.107.1"
   },
   "type": "module"
 }

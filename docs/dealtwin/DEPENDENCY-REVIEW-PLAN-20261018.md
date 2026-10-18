@@ -218,9 +218,9 @@ Project-relevant changes/risks: worker pool implementation changes from Tinypool
 4.1.11 still documents `fileParallelism:false`→one worker and default forks.
 No current poolOptions/workspace/custom-pool configuration needs translation.
 Mock factories/hoisting, reset/restore behavior, fake timers and stubbed env affect
-existing UI/API/MCP suites. Coverage uses ast-v8-to-istanbul1.x instead of0.3.x;
-the project already uses AST coverage, so do not describe this as a first switch
-from the older coverage engine. Includes and global/five-module thresholds stay
+existing UI/API/MCP suites. Correction verified during the approved Vitest migration: although3.2.7
+installed ast-v8-to-istanbul0.3.x, experimentalAstAwareRemapping was not enabled;
+it used legacy v8-to-istanbul. Version4.1.11 uses AST remapping unconditionally. Includes and global/five-module thresholds stay
 unchanged; new branch accounting must be investigated, not hidden. Node engines
 fit current Node24 and pinned CI22.13; both still need actual candidate checks.
 
