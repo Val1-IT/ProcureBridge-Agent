@@ -1,7 +1,12 @@
-import { Pool } from "pg";
+import { Pool, type PoolConfig } from "pg";
 import { parsePostgresConfig, type PostgresConfig } from "./config";
 
 let processPool: Pool | undefined;
+
+/** pg deliberately hides passwords from enumeration; object spread alone loses authentication. */
+export function createIndependentPostgresPool(pool: Pool, options: Pick<PoolConfig, "max" | "application_name"> = {}): Pool {
+  return new Pool({ ...pool.options, password: pool.options.password, ...options });
+}
 
 export function createPostgresPool(config: PostgresConfig): Pool {
   return new Pool({

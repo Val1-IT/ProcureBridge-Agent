@@ -1,5 +1,5 @@
 import type {BenchmarkReport,RunMetadata,ServiceEvidence} from './run-benchmark';
-import {Pool} from 'pg';
+import type {Pool} from 'pg';
 import {randomUUID} from 'node:crypto';
 import {createPostgresJudgeRuntime} from '../../lib/server/dealtwin/runtime';
 import {createPostgresWorkflowRuntime} from '../../lib/server/dealtwin/workflow-runtime';
@@ -19,7 +19,7 @@ import {fileURLToPath} from 'node:url';
 import {generateScenarios} from './generate-scenarios';
 import {parseScenarios} from './scenario-schema';
 import {parsePostgresConfig} from '../../lib/server/postgres/config';
-import {createPostgresPool} from '../../lib/server/postgres/pool';
+import {createPostgresPool,createIndependentPostgresPool} from '../../lib/server/postgres/pool';
 import {runBenchmark} from './run-benchmark';
 import {z} from 'zod';
 import {isDeepStrictEqual} from 'node:util';
@@ -33,7 +33,7 @@ export async function measureDisposableServices(app:Pool,reset:Pool,metadata:Run
  const appTarget=poolTarget(app),resetTarget=poolTarget(reset);
  assertDisposableJudgeDatabaseUrl(appTarget.toString());assertDisposableJudgeDatabaseUrl(resetTarget.toString());
  if(appTarget.hostname!==resetTarget.hostname||appTarget.port!==resetTarget.port||appTarget.pathname!==resetTarget.pathname)throw new Error('INVALID_SERVICE_OBSERVER');
- const otherApp=new Pool({...app.options}); // Distinct pool => independent race client.
+ const otherApp=createIndependentPostgresPool(app); // Distinct pool => independent authenticated race client.
  try{
   const judge=createPostgresJudgeRuntime(app,reset),otherJudge=createPostgresJudgeRuntime(otherApp,reset),workflow=createPostgresWorkflowRuntime(app);
   const actor={tenantId:JUDGE_TENANT_ID,actorId:'evaluation-'+randomUUID(),role:'admin' as const};

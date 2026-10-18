@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { createIndependentPostgresPool } from '../../../lib/server/postgres/pool';
 import { expect } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { createPostgresCommitmentService } from '../../../lib/server/postgres/postgres-commitment-service';
@@ -11,8 +11,8 @@ export interface ReservationRequest { readonly context: MutationContext; readonl
 // Test-only resource/control code. Every service query still uses real pg clients and app credentials.
 export async function runLockedOperations(harness: PostgresHarness, requests: readonly [ReservationRequest, ReservationRequest], operation: 'reserve' | 'commit'): Promise<readonly [OperationResponse, OperationResponse]> {
   expect(requests.map(request => request.context.tenantId)).toEqual([JUDGE_TENANT_ID, JUDGE_TENANT_ID]);
-  const pools = [new Pool({ ...harness.appPool.options, max: 1, application_name: `task18-left-${randomUUID()}` }),
-    new Pool({ ...harness.appPool.options, max: 1, application_name: `task18-right-${randomUUID()}` })] as const;
+  const pools = [createIndependentPostgresPool(harness.appPool, { max: 1, application_name: `task18-left-${randomUUID()}` }),
+    createIndependentPostgresPool(harness.appPool, { max: 1, application_name: `task18-right-${randomUUID()}` })] as const;
   const gate = await harness.appPool.connect();
   let began = false;
   let operations: readonly Promise<OperationResponse>[] = [];
