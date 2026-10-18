@@ -1,0 +1,317 @@
+[
+  {
+    "id": "core-judge20",
+    "tags": [
+      "judge"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 2000,
+      "balanceDays": 14,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 4000,
+      "minBalanceDays": 2,
+      "maxCostDays": 14,
+      "allowSupplier": true,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-judge25",
+    "tags": [
+      "judge"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 2500,
+      "balanceDays": 14,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 2600,
+      "minBalanceDays": 14,
+      "maxCostDays": 6,
+      "allowSupplier": false,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-ap19",
+    "tags": [
+      "judge"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "19000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 2000,
+      "balanceDays": 14,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 4000,
+      "minBalanceDays": 2,
+      "maxCostDays": 14,
+      "allowSupplier": true,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-deposit24-no-solution",
+    "tags": [
+      "judge"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 2000,
+      "balanceDays": 14,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 2400,
+      "minBalanceDays": 14,
+      "maxCostDays": 6,
+      "allowSupplier": false,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-same-day",
+    "tags": [
+      "same_day"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 2000,
+      "balanceDays": 14,
+      "costDays": 4
+    },
+    "amendment": {
+      "maxDepositBps": 2200,
+      "minBalanceDays": 14,
+      "maxCostDays": 4,
+      "allowSupplier": false,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-late-cost",
+    "tags": [
+      "late"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "105000000",
+      "depositBps": 2000,
+      "balanceDays": 14,
+      "costDays": 31
+    },
+    "amendment": {
+      "maxDepositBps": 2000,
+      "minBalanceDays": 14,
+      "maxCostDays": 31,
+      "allowSupplier": false,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-rounding",
+    "tags": [
+      "rounding"
+    ],
+    "cash": {
+      "openingRupiah": "5",
+      "floorRupiah": "1",
+      "payableRupiah": "1",
+      "receivableRupiah": "1"
+    },
+    "deal": {
+      "revenueRupiah": "7",
+      "directCostRupiah": "5",
+      "depositBps": 3333,
+      "balanceDays": 2,
+      "costDays": 1
+    },
+    "amendment": {
+      "maxDepositBps": 3333,
+      "minBalanceDays": 2,
+      "maxCostDays": 1,
+      "allowSupplier": false,
+      "receiptDelayDays": 0
+    }
+  },
+  {
+    "id": "core-pre-acceptance-floor",
+    "tags": [],
+    "cash": {
+      "openingRupiah": "20000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 2000,
+      "balanceDays": 14,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 2000,
+      "minBalanceDays": 14,
+      "maxCostDays": 6,
+      "allowSupplier": false,
+      "receiptDelayDays": 3
+    }
+  },
+  {
+    "id": "core-large-exact",
+    "tags": [
+      "large"
+    ],
+    "cash": {
+      "openingRupiah": "9007199254740993",
+      "floorRupiah": "0",
+      "payableRupiah": "1",
+      "receivableRupiah": "1"
+    },
+    "deal": {
+      "revenueRupiah": "9007199254740993",
+      "directCostRupiah": "9007199254740993",
+      "depositBps": 0,
+      "balanceDays": 14,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 0,
+      "minBalanceDays": 14,
+      "maxCostDays": 6,
+      "allowSupplier": false,
+      "receiptDelayDays": 0
+    }
+  },
+  {
+    "id": "core-full-deposit-order",
+    "tags": [
+      "same_day"
+    ],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 10000,
+      "balanceDays": 14,
+      "costDays": 0
+    },
+    "amendment": {
+      "maxDepositBps": 10000,
+      "minBalanceDays": 14,
+      "maxCostDays": 0,
+      "allowSupplier": false,
+      "receiptDelayDays": 0
+    }
+  },
+  {
+    "id": "core-floor-equality",
+    "tags": [
+      "rounding"
+    ],
+    "cash": {
+      "openingRupiah": "5",
+      "floorRupiah": "0",
+      "payableRupiah": "1",
+      "receivableRupiah": "1"
+    },
+    "deal": {
+      "revenueRupiah": "10",
+      "directCostRupiah": "9",
+      "depositBps": 5000,
+      "balanceDays": 2,
+      "costDays": 1
+    },
+    "amendment": {
+      "maxDepositBps": 5000,
+      "minBalanceDays": 2,
+      "maxCostDays": 1,
+      "allowSupplier": false,
+      "receiptDelayDays": 0
+    }
+  },
+  {
+    "id": "core-early-balance",
+    "tags": [],
+    "cash": {
+      "openingRupiah": "30000000",
+      "floorRupiah": "5000000",
+      "payableRupiah": "18000000",
+      "receivableRupiah": "20000000"
+    },
+    "deal": {
+      "revenueRupiah": "60000000",
+      "directCostRupiah": "42000000",
+      "depositBps": 0,
+      "balanceDays": 2,
+      "costDays": 6
+    },
+    "amendment": {
+      "maxDepositBps": 0,
+      "minBalanceDays": 2,
+      "maxCostDays": 6,
+      "allowSupplier": false,
+      "receiptDelayDays": 0
+    }
+  },
+  {
+    "id": "core-zero-opening",
+    "tags": ["judge"],
+    "cash": {"openingRupiah":"0","floorRupiah":"5000000","payableRupiah":"18000000","receivableRupiah":"20000000"},
+    "deal": {"revenueRupiah":"60000000","directCostRupiah":"42000000","depositBps":2000,"balanceDays":14,"costDays":6},
+    "amendment": {"maxDepositBps":2600,"minBalanceDays":14,"maxCostDays":6,"allowSupplier":false,"receiptDelayDays":3}
+  }
+]

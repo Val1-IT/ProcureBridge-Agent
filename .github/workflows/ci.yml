@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: dealtwin
+          POSTGRES_PASSWORD: dealtwin
+          POSTGRES_DB: dealtwin_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U dealtwin -d dealtwin_test"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      # Disposable CI owner only bootstraps schema; harness operations use distinct least-privilege logins.
+      DEALTWIN_TEST_DATABASE_URL: postgres://dealtwin:dealtwin@127.0.0.1:55432/dealtwin_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Candidate provenance (runner-local files only)
+        run: |
+          mkdir -p artifacts
+          git rev-parse HEAD > artifacts/candidate-sha.txt
+          node --version > artifacts/node-version.txt
+          npm --version > artifacts/npm-version.txt
+      # One serial coverage run includes the whole suite and real PostgreSQL cases.
+      - name: Required full regression and per-module coverage
+        run: npm run test:coverage -- --testTimeout=60000 --hookTimeout=60000 --reporter=dot --reporter=json --outputFile=artifacts/tests.json
+      - name: Preserved Cloudflare target (build only)
+        run: npm run build
+      - name: Cloudflare public-client artifact hygiene
+        run: npm run security:client
+      - name: Node PostgreSQL Judge target (build only)
+        run: npm run judge:build
+      - name: Node public-client artifact hygiene
+        run: npm run security:client
+      - name: Current dependency audit — high/critical block
+        run: npm audit --audit-level=high --json > artifacts/npm-audit.json
+      # No automatic artifact upload or external publication is authorized here.

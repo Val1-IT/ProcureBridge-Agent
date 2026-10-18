@@ -1,0 +1,21 @@
+import {it,expect} from 'vitest';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {existsSync,readFileSync} from 'node:fs';
+import {join} from 'node:path';
+import {randomUUID} from 'node:crypto';
+const run=promisify(execFile);
+it('runs the actual local CLI, fingerprints source, writes measured artifacts and independently replays every baseline mismatch',async()=>{
+ const id='cli-test-'+randomUUID();const args=['node_modules/vite-node/vite-node.mjs','--config','vitest.config.ts','evaluation/dealtwin/cli.ts','--'];
+ await run(process.execPath,[...args,'--no-services','--count','2','--seed','27','--run-id',id],{cwd:process.cwd()});
+ const folder=join(process.cwd(),'output/dealtwin/task27',id);expect(existsSync(join(folder,'report.json'))).toBe(true);
+ const report=JSON.parse(readFileSync(join(folder,'report.json'),'utf8'));
+ expect(report.metadata).toMatchObject({sourceSha:expect.stringMatching(/^[0-9a-f]{40}$/),sourceTreeHash:expect.stringMatching(/^[0-9a-f]{64}$/),seed:27});
+ expect(report.cases).toHaveLength(15);expect(report.methods.llmOnly).toEqual({status:'NOT_MEASURED',reason:'PROVIDER_EVIDENCE_MISSING'});
+ expect(report.metrics.duplicateCommitment).toMatchObject({status:'NOT_MEASURED',numerator:null});
+ expect(report.mismatches.some((row:{method:string})=>row.method==='compiler')).toBe(false);
+ expect(report.mismatches.filter((row:{method:string})=>row.method==='fixed_rule').length).toBeGreaterThan(0);
+ await run(process.execPath,[...args,'--replay',id],{cwd:process.cwd()});
+ const replay=JSON.parse(readFileSync(join(folder,'replay.json'),'utf8'));
+ expect(replay.replayed).toBe(report.mismatches.length);expect(replay.failed).toBe(0);expect(replay.results.every((row:{reproduced:boolean})=>row.reproduced)).toBe(true);
+},60000);
