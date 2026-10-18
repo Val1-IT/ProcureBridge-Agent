@@ -129,6 +129,9 @@ export async function runBenchmarkCommand(args:readonly string[]):Promise<void>{
  const corePath=join(fileURLToPath(new URL('.',import.meta.url)),'fixtures/core-scenarios.json');
  const core=parseScenarios(JSON.parse(readFileSync(corePath,'utf8')));const scenarios=parseScenarios([...core,...generateScenarios(seed,count)]);
  const metadata:RunMetadata={sourceSha:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),sourceTreeHash:sourceFingerprint(),dirty:execFileSync('git',['status','--porcelain=v1'],{encoding:'utf8'}).trim().length>0,seed,generatedAt:new Date().toISOString()};
+ // Atomically reserve the evidence destination before service observations can
+ // reset/mutate the fixture. Preserve failed run directories; never reuse an ID.
+ mkdirSync(resolve(folder,'..'),{recursive:true});mkdirSync(folder);
  let serviceEvidence:ServiceEvidence|undefined;
  if(!noServices){
   const appUrl=process.env.DEALTWIN_BENCHMARK_APP_DATABASE_URL,resetUrl=process.env.DEALTWIN_BENCHMARK_RESET_DATABASE_URL;
@@ -138,8 +141,6 @@ export async function runBenchmarkCommand(args:readonly string[]):Promise<void>{
   try{serviceEvidence=await measureDisposableServices(app,reset,metadata);}finally{await app.end();await reset.end();}
  }
  const report=runBenchmark(scenarios,{metadata,...(serviceEvidence?{serviceEvidence}:{})});const json=renderBenchmarkReport(report);
- // Immutable run directory: do not overwrite evidence from a prior successful run.
- mkdirSync(resolve(folder,'..'),{recursive:true});mkdirSync(folder);
  writeFileSync(join(folder,'report.json'),json,{flag:'wx'});
  writeFileSync(join(folder,'mismatch-fixtures.json'),JSON.stringify(report.mismatches.map(row=>({...row,scenario:scenarios.find(s=>s.id===row.scenarioId)})),null,2),{flag:'wx'});
  console.log(JSON.stringify({sourceSha:metadata.sourceSha,sourceTreeHash:metadata.sourceTreeHash,dirty:metadata.dirty,core:core.length,generated:count,total:scenarios.length,compiler:report.methods.compiler,fixedRule:report.methods.fixedRule,metrics:report.metrics,llmOnly:report.methods.llmOnly,mismatches:report.mismatches.length,artifact:relative(process.cwd(),join(folder,'report.json'))}));
