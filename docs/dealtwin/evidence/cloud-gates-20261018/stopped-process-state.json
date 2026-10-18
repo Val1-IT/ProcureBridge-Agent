@@ -1,0 +1,21 @@
+{
+  "55432": {
+    "accepting": false
+  },
+  "55632": {
+    "accepting": false
+  },
+  "4177": {
+    "accepting": false
+  },
+  "pg16-data": {
+    "pgCtlStatusExit": 3,
+    "output": "pg_ctl: no server running",
+    "pidFilePresent": false
+  },
+  "pg16-restore-data": {
+    "pgCtlStatusExit": 3,
+    "output": "pg_ctl: no server running",
+    "pidFilePresent": false
+  }
+}

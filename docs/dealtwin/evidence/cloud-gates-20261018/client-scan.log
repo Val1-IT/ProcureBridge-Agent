@@ -1,0 +1,5 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 security:client
+> node scripts/dealtwin/check-client-artifacts.mjs dist/client
+
+{"filesScanned":60,"issues":[]}

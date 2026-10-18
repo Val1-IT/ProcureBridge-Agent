@@ -1,0 +1,5 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 benchmark:dealtwin
+> node node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/cli.ts -- --replay cloud-gates-413c0e4-20261018
+
+{"replayed":57,"failed":0,"artifact":"output/dealtwin/task27/cloud-gates-413c0e4-20261018/replay.json"}

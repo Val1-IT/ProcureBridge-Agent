@@ -1,0 +1,25 @@
+from pathlib import Path
+import os,subprocess,json,time,sys
+root=Path('/workspace/dealtwin-runtime');repo=Path('/workspace/ProcureBridge-Agent');out=root/'gates-20261018'
+name=sys.argv[1];port=sys.argv[2];args=sys.argv[3:]
+password=(root/'owner-password').read_text().strip()
+env={**os.environ,'DEALTWIN_TEST_DATABASE_URL':f'postgres://dealtwin:{password}@127.0.0.1:{port}/dealtwin_test','PGHOST':'127.0.0.1','PGPORT':port,'PGUSER':'dealtwin','PGPASSWORD':password,'PGDATABASE':'dealtwin_test','NPM_CONFIG_CACHE':'/workspace/dealtwin-npm-cache'}
+if name.startswith('http-'):
+ os.umask(0o077)
+ env['DATABASE_URL']=f'postgres://dealtwin_app_login:dealtwin_app_login@127.0.0.1:{port}/dealtwin_test'
+ env['DEALTWIN_JUDGE_RESET_DATABASE_URL']=f'postgres://dealtwin_reset_login:dealtwin_reset_login@127.0.0.1:{port}/dealtwin_test'
+ env['DATABASE_SSL_MODE']='disable'
+ env['DEALTWIN_JUDGE_SESSION_SIGNING_KEY']=(root/'http-session-key').read_text().strip()
+ env['PLAYWRIGHT_JSON_OUTPUT_FILE']=str(out/'http-test.json')
+if name=='client-scan':
+ env['DATABASE_URL']=f'postgres://dealtwin:{password}@127.0.0.1:{port}/dealtwin_test'
+ env['DEALTWIN_JUDGE_SESSION_SIGNING_KEY']=(root/'http-session-key').read_text().strip()
+if name in ['source','source-canonical','prepare-target','verify']:env['RESTORE_PHASE']=name
+if name.startswith('verify-'):env['RESTORE_PHASE']='verify'
+if name=='benchmark':
+ env['DEALTWIN_BENCHMARK_APP_DATABASE_URL']=f'postgres://dealtwin_app_login:dealtwin_app_login@127.0.0.1:{port}/dealtwin_test'
+ env['DEALTWIN_BENCHMARK_RESET_DATABASE_URL']=f'postgres://dealtwin_reset_login:dealtwin_reset_login@127.0.0.1:{port}/dealtwin_test'
+start=time.time();sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip();dirty=subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True).strip()
+with (out/(name+'.log')).open('x') as f:r=subprocess.run(args,cwd=repo,env=env,stdout=f,stderr=subprocess.STDOUT)
+(out/(name+'-run.json')).write_text(json.dumps({'sourceSha':sha,'dirty':bool(dirty),'command':args,'port':int(port),'exitCode':r.returncode,'durationSeconds':round(time.time()-start,3)},indent=2)+'\n')
+print(name,'exit',r.returncode,flush=True);sys.exit(r.returncode)

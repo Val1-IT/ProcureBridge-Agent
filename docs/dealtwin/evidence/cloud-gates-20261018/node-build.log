@@ -1,0 +1,159 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 judge:build
+> vite build --config vite.dealtwin.config.ts
+
+[1/5] analyze client references...
+vite v8.0.16 building rsc environment for production...
+
+transforming...✓ 396 modules transformed.
+rendering chunks...
+✓ built in 1.21s
+[2/5] analyze server references...
+vite v8.0.16 building ssr environment for production...
+
+transforming...✓ 218 modules transformed.
+rendering chunks...
+✓ built in 306ms
+[3/5] build rsc environment...
+vite v8.0.16 building rsc environment for production...
+
+transforming...✓ 402 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/assets/index-Xl9_kJV4.css     48.81 kB │ gzip:  10.88 kB
+dist/server/index.js                   1,347.56 kB │ gzip: 286.54 kB
+
+✓ built in 997ms
+[4/5] build client environment...
+vite v8.0.16 building client environment for production...
+
+transforming...✓ 230 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/index-Xl9_kJV4.css                   48.81 kB │ gzip: 10.88 kB
+dist/client/assets/demo-badge-i0Zyrqky.js                0.20 kB │ gzip:  0.17 kB
+dist/client/assets/layout-segment-context-DVaY-ljU.js    0.28 kB │ gzip:  0.22 kB
+dist/client/assets/simulation-f-M0O-eh.js                0.29 kB │ gzip:  0.20 kB
+dist/client/assets/use-dashboard-clock-DS_mr-7X.js       0.42 kB │ gzip:  0.28 kB
+dist/client/assets/format-C25fsIdy.js                    0.52 kB │ gzip:  0.27 kB
+dist/client/assets/status-chip-8YPBmOvv.js               0.61 kB │ gzip:  0.31 kB
+dist/client/assets/rolldown-runtime-QTnfLwEv.js          0.69 kB │ gzip:  0.42 kB
+dist/client/assets/workspace-navigation-CvyjxU08.js      0.78 kB │ gzip:  0.39 kB
+dist/client/assets/page-B1qhTWF1.js                      2.11 kB │ gzip:  0.82 kB
+dist/client/assets/page-e1J9oewi2.js                     2.36 kB │ gzip:  1.12 kB
+dist/client/assets/page-BdtyKb7F.js                      2.39 kB │ gzip:  1.00 kB
+dist/client/assets/line-items-editor-Cs7CElMz.js         2.49 kB │ gzip:  0.94 kB
+dist/client/assets/page-C2U2U-MU.js                      2.79 kB │ gzip:  1.08 kB
+dist/client/assets/page-DnlmWIDO.js                      2.90 kB │ gzip:  1.28 kB
+dist/client/assets/page-DYYU-WYe.js                      3.05 kB │ gzip:  1.32 kB
+dist/client/assets/page-BAEUdNB1.js                      3.16 kB │ gzip:  1.22 kB
+dist/client/assets/page-CO-3686r.js                      3.23 kB │ gzip:  1.23 kB
+dist/client/assets/entity-table-ClMwWC9G.js              3.24 kB │ gzip:  1.27 kB
+dist/client/assets/page-CiMwRQ6i.js                      3.24 kB │ gzip:  1.42 kB
+dist/client/assets/judge-workspace-C06VNNEP.js           3.38 kB │ gzip:  1.56 kB
+dist/client/assets/page-C2Ek6zyv.js                      3.74 kB │ gzip:  1.24 kB
+dist/client/assets/page-8Mg-yc48.js                      3.96 kB │ gzip:  1.27 kB
+dist/client/assets/page-BWI2ZVkp.js                      4.11 kB │ gzip:  1.28 kB
+dist/client/assets/page-D3rHx9oo.js                      4.26 kB │ gzip:  1.53 kB
+dist/client/assets/page-C_txVOVP.js                      4.33 kB │ gzip:  1.58 kB
+dist/client/assets/page-DOXmumwa.js                      4.39 kB │ gzip:  1.44 kB
+dist/client/assets/page-CDg4ytiB.js                      4.40 kB │ gzip:  1.62 kB
+dist/client/assets/page-CDqAJE4y.js                      4.54 kB │ gzip:  1.58 kB
+dist/client/assets/page-B0wiF7-u.js                      4.62 kB │ gzip:  1.65 kB
+dist/client/assets/page-DYICsdB12.js                     4.97 kB │ gzip:  1.72 kB
+dist/client/assets/page-D12myNpc.js                      4.97 kB │ gzip:  1.69 kB
+dist/client/assets/page-DcqaiqOQ2.js                     5.04 kB │ gzip:  1.82 kB
+dist/client/assets/page-DmY7hdmd.js                      5.49 kB │ gzip:  1.86 kB
+dist/client/assets/page-BSXBrLst2.js                     5.69 kB │ gzip:  2.07 kB
+dist/client/assets/page-C6kRlIse.js                      6.52 kB │ gzip:  2.01 kB
+dist/client/assets/page-Cu-FnDsA.js                      6.66 kB │ gzip:  2.27 kB
+dist/client/assets/workspace-provider-DGCEyY8L.js        6.71 kB │ gzip:  2.77 kB
+dist/client/assets/page-DtgvSSFw2.js                     7.28 kB │ gzip:  2.33 kB
+dist/client/assets/dashboard-8XyOx7tw.js                 7.97 kB │ gzip:  2.41 kB
+dist/client/assets/page-DJrljgLg2.js                     8.43 kB │ gzip:  2.60 kB
+dist/client/assets/page-DwU_ZXgJ.js                      8.75 kB │ gzip:  2.53 kB
+dist/client/assets/page-DJLFTTEA2.js                     8.76 kB │ gzip:  2.46 kB
+dist/client/assets/router-BM_QFUE5.js                    9.06 kB │ gzip:  3.08 kB
+dist/client/assets/page-RVKT81tJ.js                      9.18 kB │ gzip:  3.11 kB
+dist/client/assets/link-oU8DIk7J.js                      9.60 kB │ gzip:  3.73 kB
+dist/client/assets/page-CG9SpOSb.js                     12.60 kB │ gzip:  4.15 kB
+dist/client/assets/page-DP0OA_fX2.js                    13.68 kB │ gzip:  4.45 kB
+dist/client/assets/app-shell-t-QfS9IA.js                14.22 kB │ gzip:  4.33 kB
+dist/client/assets/page-D1ftyPSt.js                     15.37 kB │ gzip:  5.21 kB
+dist/client/assets/workflow-view-xJAlT626.js            22.73 kB │ gzip:  5.83 kB
+dist/client/assets/image-KWGqmtj0.js                    43.66 kB │ gzip: 13.99 kB
+dist/client/assets/judge-demo-provider-Za08LSHi.js      74.55 kB │ gzip: 19.25 kB
+dist/client/assets/demo-store-provider-DGad8vQf.js      91.08 kB │ gzip: 21.35 kB
+dist/client/assets/index-BbMvnP9H.js                    92.38 kB │ gzip: 27.52 kB
+dist/client/assets/framework-ItqtACJ4.js               189.80 kB │ gzip: 59.72 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/vinext/dist/shims/error-boundary.js is dynamically imported by \0virtual:vite-rsc/client-references but also statically imported by node_modules/vinext/dist/server/app-browser-entry.js, dynamic import will not move module into another chunk.
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/vinext/dist/shims/slot.js is dynamically imported by \0virtual:vite-rsc/client-references but also statically imported by node_modules/vinext/dist/server/app-browser-entry.js, node_modules/vinext/dist/server/app-browser-visible-commit.js, dynamic import will not move module into another chunk.
+
+✓ built in 443ms
+[5/5] build ssr environment...
+vite v8.0.16 building ssr environment for production...
+
+transforming...✓ 219 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/ssr/assets/demo-badge-JO-YA0Qu.js                0.29 kB │ gzip:  0.22 kB
+dist/server/ssr/assets/simulation-l-UE5-ib.js                0.53 kB │ gzip:  0.29 kB
+dist/server/ssr/assets/format-CvHdqSgS.js                    0.82 kB │ gzip:  0.35 kB
+dist/server/ssr/assets/use-dashboard-clock-BccMSVIW.js       0.94 kB │ gzip:  0.46 kB
+dist/server/ssr/assets/status-chip-D7oFBsEI.js               1.00 kB │ gzip:  0.44 kB
+dist/server/ssr/assets/workspace-navigation-CiA653B6.js      1.22 kB │ gzip:  0.48 kB
+dist/server/ssr/assets/layout-segment-context-Dh41IB1Z.js    1.66 kB │ gzip:  0.77 kB
+dist/server/ssr/assets/page-DIF9oufJ.js                      3.09 kB │ gzip:  0.99 kB
+dist/server/ssr/assets/page-Dtd1okLo.js                      3.53 kB │ gzip:  1.23 kB
+dist/server/ssr/assets/page-DpwwPxBJ2.js                     3.63 kB │ gzip:  1.37 kB
+dist/server/ssr/assets/url-utils-GEhRtWpk.js                 4.18 kB │ gzip:  1.39 kB
+dist/server/ssr/assets/page-4-6efIpn.js                      4.18 kB │ gzip:  1.30 kB
+dist/server/ssr/assets/line-items-editor-p92Dgh1K.js         4.36 kB │ gzip:  1.26 kB
+dist/server/ssr/assets/page-DWILOQlt.js                      4.62 kB │ gzip:  1.57 kB
+dist/server/ssr/assets/page-D42gdfBm.js                      4.69 kB │ gzip:  1.46 kB
+dist/server/ssr/assets/page-N1yDbpr4.js                      4.84 kB │ gzip:  1.62 kB
+dist/server/ssr/assets/judge-workspace-CYNZaY3X.js           5.06 kB │ gzip:  1.87 kB
+dist/server/ssr/assets/entity-table-BkW8v1Cx.js              5.14 kB │ gzip:  1.57 kB
+dist/server/ssr/assets/page-CaAWk5Ql.js                      5.14 kB │ gzip:  1.60 kB
+dist/server/ssr/assets/page-DRt8SznN.js                      5.22 kB │ gzip:  1.75 kB
+dist/server/ssr/assets/page-B8YRnN8z.js                      5.93 kB │ gzip:  1.51 kB
+dist/server/ssr/assets/page-8o_R3-WQ.js                      5.97 kB │ gzip:  1.48 kB
+dist/server/ssr/assets/page-CRz--2kc.js                      5.99 kB │ gzip:  1.77 kB
+dist/server/ssr/assets/page-BIMY_WZh.js                      6.15 kB │ gzip:  1.51 kB
+dist/server/ssr/assets/page-Cuk9qm_w.js                      6.96 kB │ gzip:  1.80 kB
+dist/server/ssr/assets/page-5l0XtAP6.js                      7.16 kB │ gzip:  2.03 kB
+dist/server/ssr/assets/page-geTWqCM4.js                      7.19 kB │ gzip:  2.06 kB
+dist/server/ssr/assets/page-CkEv990q.js                      7.60 kB │ gzip:  2.09 kB
+dist/server/ssr/assets/page-0rJ6UJpr.js                      7.66 kB │ gzip:  2.08 kB
+dist/server/ssr/assets/page-BjRMUVeU.js                      7.72 kB │ gzip:  2.04 kB
+dist/server/ssr/assets/error-boundary-CFFwSb2k.js            8.09 kB │ gzip:  1.92 kB
+dist/server/ssr/assets/page-FYzd253g2.js                     8.25 kB │ gzip:  2.15 kB
+dist/server/ssr/assets/page-BJP4T49f2.js                     8.30 kB │ gzip:  2.29 kB
+dist/server/ssr/assets/page-DfXK5qgk.js                      8.82 kB │ gzip:  2.26 kB
+dist/server/ssr/assets/page-DckH8HEK2.js                     8.89 kB │ gzip:  2.59 kB
+dist/server/ssr/assets/page-B83ckFAX.js                     10.69 kB │ gzip:  2.60 kB
+dist/server/ssr/assets/workspace-provider-giRQ_sLL.js       11.02 kB │ gzip:  3.49 kB
+dist/server/ssr/assets/page-Cy_OXwNx.js                     11.30 kB │ gzip:  2.91 kB
+dist/server/ssr/assets/page-CAVfO_w4.js                     11.96 kB │ gzip:  2.97 kB
+dist/server/ssr/assets/dashboard-D8Uvy7QB.js                12.09 kB │ gzip:  3.14 kB
+dist/server/ssr/assets/page-ezx23pIa2.js                    13.63 kB │ gzip:  3.04 kB
+dist/server/ssr/assets/page-B-_J2H0J.js                     13.76 kB │ gzip:  3.16 kB
+dist/server/ssr/assets/page-B98rthzY.js                     14.01 kB │ gzip:  3.72 kB
+dist/server/ssr/assets/page-CZpNVPvQ2.js                    14.59 kB │ gzip:  3.32 kB
+dist/server/ssr/assets/page-ChfUGeNs.js                     18.27 kB │ gzip:  4.93 kB
+dist/server/ssr/assets/app-shell-DiRJjZy8.js                20.47 kB │ gzip:  5.10 kB
+dist/server/ssr/assets/page-CiNuz7Hz2.js                    22.15 kB │ gzip:  5.52 kB
+dist/server/ssr/assets/page-D8AZAZha.js                     22.60 kB │ gzip:  6.01 kB
+dist/server/ssr/assets/router-sahGWINi.js                   23.14 kB │ gzip:  6.85 kB
+dist/server/ssr/assets/link-BLtBnlrP.js                     24.37 kB │ gzip:  7.49 kB
+dist/server/ssr/assets/workflow-view-DNyivbEl.js            33.97 kB │ gzip:  7.02 kB
+dist/server/ssr/assets/image-B-U1SILo.js                    67.03 kB │ gzip: 16.72 kB
+dist/server/ssr/assets/judge-demo-provider-BeKSlYwR.js     129.08 kB │ gzip: 26.08 kB
+dist/server/ssr/index.js                                   139.56 kB │ gzip: 34.58 kB
+dist/server/ssr/assets/demo-store-provider-D8XBa4NA.js     153.55 kB │ gzip: 28.14 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] node_modules/vinext/dist/shims/slot.js is dynamically imported by \0virtual:vite-rsc/client-references but also statically imported by node_modules/vinext/dist/server/app-ssr-entry.js, dynamic import will not move module into another chunk.
+
+✓ built in 483ms

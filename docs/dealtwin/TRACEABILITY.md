@@ -1,6 +1,13 @@
 # DealTwin Requirement Traceability
 
-Latest cloud DB update: [PostgreSQL verification](POSTGRES-CLOUD-20261018.md)
+Latest local gate evidence: [cloud gates](CLOUD-GATES-20261018.md) at clean413c0e4
+adds1264/1264 full coverage, real45-table restore with payment/receipt/SO checks,
+44-table cross-tenant read checks, three benchmark races, and57/57 replay.
+This supports local DB/financial/restore requirements. DT-038 browser and DT-042
+release closure remain incomplete: audit22, Sites configuration and external
+readiness gates are unresolved. No threshold or assertion was weakened.
+
+Earlier cloud DB update: [PostgreSQL verification](POSTGRES-CLOUD-20261018.md)
 records25 actual DB suites /224PASS and1HTTP PASS at523c9ed, including race,
 RLS, rollback, idempotency and real service observations. A non-enumerable pool
 password cloning defect was reproduced and fixed with regression coverage.

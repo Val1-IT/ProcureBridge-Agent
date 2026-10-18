@@ -1,0 +1,1 @@
+{"version" : "PostgreSQL 16.15 on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit", "database" : "dealtwin_test", "address" : "127.0.0.1", "port" : 55632, "listen_addresses" : "127.0.0.1", "data_directory" : "/workspace/dealtwin-runtime/pg16-restore-data", "fsync" : "on"}

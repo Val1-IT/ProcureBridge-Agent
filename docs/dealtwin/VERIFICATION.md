@@ -1,6 +1,14 @@
 # DealTwin Task29 checkpoint — PARTIAL / PUBLIC RELEASE BLOCKED
 
-Latest same-cloud evidence: [POSTGRES-CLOUD-20261018.md](POSTGRES-CLOUD-20261018.md).
+Latest gate checkpoint: [CLOUD-GATES-20261018.md](CLOUD-GATES-20261018.md).
+Clean413c0e4 passes full coverage1264/1264,45-table restore,113-case benchmark,
+57/57 mismatch replay, typecheck/lint, Node build/scan and1HTTP case. Current
+audit fails22 aggregates (2critical/14high/6moderate). Ten browser cases, Sites
+configuration/build and required external release evidence remain blocked.
+The stable checklist in that report supersedes pending coverage/restore labels
+below; all historical evidence is retained. Both PG clusters are stopped.
+
+Earlier same-cloud evidence: [POSTGRES-CLOUD-20261018.md](POSTGRES-CLOUD-20261018.md).
 At523c9ede29afa3abed32e84023a6edbf728d579d,25 actual PostgreSQL suites pass224
 tests after preserving hidden passwords in independent pools; one HTTP case also
 passes without a browser. Ten browser cases, full coverage, backup/restore,

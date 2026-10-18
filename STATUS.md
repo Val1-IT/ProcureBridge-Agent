@@ -1,6 +1,17 @@
 # DealTwin — local execution status
 
-## Current continuation — PostgreSQL verified, 2026-10-18
+## Current continuation — coverage and restore verified, 2026-10-18
+
+On clean413c0e4, full coverage passed **1264/1264 tests in124 files**,0fail/skip;
+45-table synthetic backup/restore, repeated service races,113-case benchmark
+and57/57 independent mismatch replay passed. Typecheck, full lint, Node build,
+60-file client scan and1HTTP case pass. Audit remains22 aggregates
+(2critical/14high/6moderate);10 browser cases and configured Sites build remain
+blocked. Both local PG clusters and web/test processes are stopped, data retained.
+See [current gate checklist](docs/dealtwin/CLOUD-GATES-20261018.md).
+Task29 remains PARTIAL; no public-readiness or video claim.
+
+## Earlier continuation — PostgreSQL verified, 2026-10-18
 
 Same session/container. PostgreSQL16.15 built and installed only under workspace.
 Actual SCRAM authentication exposed a pool-cloning defect; fixed in

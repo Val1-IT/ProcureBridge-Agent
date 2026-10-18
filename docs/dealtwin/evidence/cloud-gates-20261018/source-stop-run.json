@@ -1,0 +1,18 @@
+{
+  "sourceSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+  "dirty": false,
+  "command": [
+    "/workspace/dealtwin-runtime/pgsql-16.15/bin/pg_ctl",
+    "-D",
+    "/workspace/dealtwin-runtime/pg16-data",
+    "-m",
+    "fast",
+    "-w",
+    "-t",
+    "30",
+    "stop"
+  ],
+  "port": 55432,
+  "exitCode": 0,
+  "durationSeconds": 7.625
+}

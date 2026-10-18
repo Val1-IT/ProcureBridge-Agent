@@ -1,0 +1,97 @@
+{
+  "candidateSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+  "ready": false,
+  "task29": "PARTIAL",
+  "notAPassingReleasePacket": true,
+  "checks": [
+    {
+      "id": "dependency_audit",
+      "status": "fail",
+      "evidence": "npm-audit.json",
+      "scope": "22 affected aggregates; 2 critical,14 high,6 moderate"
+    },
+    {
+      "id": "migration_restore",
+      "status": "pass_local",
+      "evidence": "migration-restore-inventory.json",
+      "scope": "3 migration file digests;45 tables; no migration tracking table exists"
+    },
+    {
+      "id": "rls",
+      "status": "pass_local",
+      "evidence": "coverage-tests.json",
+      "scope": "real PostgreSQL suite and restored roles/policies"
+    },
+    {
+      "id": "cross_tenant_api",
+      "status": "pass_local",
+      "evidence": "coverage-tests.json",
+      "scope": "actual app-role API tests; restored44 tenant-table isolation separately"
+    },
+    {
+      "id": "secret_scan",
+      "status": "pass_bounded",
+      "evidence": "source-config-scan.json",
+      "scope": "literal/pattern source scan +60-file public client scan; shared report sanitized"
+    },
+    {
+      "id": "typecheck",
+      "status": "pass",
+      "evidence": "typecheck-run.json",
+      "scope": "exit0"
+    },
+    {
+      "id": "lint",
+      "status": "pass",
+      "evidence": "lint-run.json",
+      "scope": "full lint exit0"
+    },
+    {
+      "id": "tests",
+      "status": "pass",
+      "evidence": "test-summary.json",
+      "scope": "1264 tests in124 files;0failed/0skipped"
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "evidence": "coverage-groups.json",
+      "scope": "unchanged overall and per-module thresholds"
+    },
+    {
+      "id": "build",
+      "status": "blocked",
+      "evidence": "sites-build-run.json",
+      "scope": "Node passed; Sites requires canonical hosting metadata"
+    },
+    {
+      "id": "authenticated_judge_smoke",
+      "status": "blocked",
+      "evidence": "http-test.json",
+      "scope": "1 HTTP case passed;10 browser cases not selected"
+    },
+    {
+      "id": "tls",
+      "status": "not_proven",
+      "evidence": null,
+      "scope": "no public endpoint authorized"
+    },
+    {
+      "id": "least_privilege",
+      "status": "pass_local",
+      "evidence": "restore-final-state.log",
+      "scope": "synthetic app/reset NOSUPERUSER NOBYPASSRLS; not public deployment certification"
+    },
+    {
+      "id": "backup_restore",
+      "status": "pass_local",
+      "evidence": "restore-verification.json",
+      "scope": "separate synthetic target; full rows/canonical catalog plus behavior"
+    }
+  ],
+  "additionalPending": [
+    "10 sandboxed browser cases and UX inspection",
+    "live provider/public identity/TLS/hosted-CI evidence as required and specifically authorized",
+    "final42-ID exact-candidate artifact packet"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "sourceSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+  "command": [
+    "npm",
+    "audit",
+    "--audit-level=high",
+    "--json",
+    "--cache",
+    "/workspace/dealtwin-npm-cache"
+  ],
+  "exitCode": 1,
+  "durationSeconds": null,
+  "durationNote": "Not measured by wrapper; successful registry response and advisory findings retained",
+  "networkHost": "registry.npmjs.org"
+}

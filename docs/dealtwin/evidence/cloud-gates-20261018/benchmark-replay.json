@@ -1,0 +1,351 @@
+{
+  "schemaVersion": "dealtwin.benchmark-replay.v1",
+  "sourceSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+  "sourceTreeHash": "19e06ca6b2aed71f4861b133282a0c2cdf903b6136f0af61b834e6d4cc505c73",
+  "replayed": 57,
+  "failed": 0,
+  "results": [
+    {
+      "scenarioId": "core-judge20",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-ap19",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-deposit24-no-solution",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-same-day",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-pre-acceptance-floor",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-large-exact",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-full-deposit-order",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-early-balance",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "core-zero-opening",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-1",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-2",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-3",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-4",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-6",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-10",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-11",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-12",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-13",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-21",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-23",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-24",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-26",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-27",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-29",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-33",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-36",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-37",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-41",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-42",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-43",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-44",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-46",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-49",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-51",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-53",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-54",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-55",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-59",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-62",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-63",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-67",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-68",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-69",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-70",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-71",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-77",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-78",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-79",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-80",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-85",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-87",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-90",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-92",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-93",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-96",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-97",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    },
+    {
+      "scenarioId": "generated-27-98",
+      "method": "fixed_rule",
+      "reason": "CLASSIFICATION_MISMATCH",
+      "reproduced": true
+    }
+  ]
+}

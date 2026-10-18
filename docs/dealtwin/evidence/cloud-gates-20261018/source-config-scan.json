@@ -1,0 +1,30 @@
+{
+  "sourceSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+  "trackedFilesScannedExcludingReadonlySources": 571,
+  "patternHitsPathsOnly": {
+    "private_key": [],
+    "live_token": [],
+    "personal_machine_path": [
+      "STATUS.md",
+      "cloud-handoff/CHECKPOINT.md",
+      "cloud-handoff/MANIFEST.json",
+      "docs/dealtwin/PAUSED-20261013.md",
+      "docs/dealtwin/TASK16-VERIFICATION.md",
+      "docs/dealtwin/TASK17-VERIFICATION.md",
+      "docs/dealtwin/TASK23-VERIFICATION.md",
+      "tests/dealtwin/security/server-boundary.test.ts"
+    ]
+  },
+  "privateRuntimeSecretHits": [],
+  "networkPolicy": "exact two authorized HTTP domains; no additional TCP domains/IPs",
+  "scope": "bounded literal/pattern scan; not exhaustive secret or production readiness certification",
+  "lockfileSha256": "be4c7d6db1ea524f4a236d3fd6f7ef932fd0c2badc9fd323d3f0436048e2fa54",
+  "pathHitReview": "Seven historical documentation/handoff files and one security test containing deliberately malicious path fixtures; no active laptop path used. Preserved historical evidence.",
+  "reviewedControls": {
+    "disposableDbGuard": "lib/server/postgres/config.ts requires loopback, dealtwin_test, ports 55432/55632",
+    "remoteDbTls": "remote URLs require verify-full; URL ssl parameters rejected",
+    "localHttpServer": "scripts/dealtwin/node-server.mjs binds 127.0.0.1:4177; exact Host and origin; asset methods GET/HEAD only",
+    "browserSandbox": "playwright.dealtwin.config.ts chromiumSandbox:true; no bypass added",
+    "sitesMetadata": "build/hosting-bindings.ts fails closed when canonical hosting metadata absent"
+  }
+}

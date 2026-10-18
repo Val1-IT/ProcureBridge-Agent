@@ -1,0 +1,80 @@
+{
+  "migrations": [
+    {
+      "path": "supabase/migrations/20260809_000001_distributor_mini_erp.sql",
+      "sha256": "e53730197184ed496b0018f8e72eb6b963322d7f8877cf7cbbfe4679a81b3b22"
+    },
+    {
+      "path": "supabase/migrations/20260913150558_dealtwin_server_foundation.sql",
+      "sha256": "5966c6f351a76d37682818290b4e254cda9d3b651c118c440392e4231356f52e"
+    },
+    {
+      "path": "supabase/migrations/20261013043307_dealtwin_constraint_source.sql",
+      "sha256": "7c70f62c2ff141b442119a244c28c80714d7bc300cd0186ee40a3f8b0362c38e"
+    }
+  ],
+  "databaseMigrationTable": "None: repository harness executes sorted SQL files transactionally; file digests and complete catalog retained, no fabricated migration rows",
+  "tables": {
+    "dealtwin_approvals": 1,
+    "dealtwin_compile_runs": 1,
+    "dealtwin_constraints": 10,
+    "dealtwin_deal_versions": 3,
+    "dealtwin_deals": 3,
+    "dealtwin_erp_snapshots": 1,
+    "dealtwin_liquidity_commitments": 1,
+    "dealtwin_proofs": 1,
+    "erp_audit_events": 6,
+    "erp_cash_accounts": 1,
+    "erp_cash_movements": 2,
+    "erp_customers": 1,
+    "erp_delivery_order_lines": 1,
+    "erp_delivery_orders": 1,
+    "erp_disputes": 0,
+    "erp_follow_ups": 0,
+    "erp_goods_receipt_lines": 1,
+    "erp_goods_receipts": 1,
+    "erp_payments": 1,
+    "erp_products": 2,
+    "erp_purchase_order_lines": 1,
+    "erp_purchase_orders": 1,
+    "erp_purchase_request_lines": 0,
+    "erp_purchase_requests": 0,
+    "erp_request_for_quotations": 0,
+    "erp_rfq_lines": 0,
+    "erp_rfq_suppliers": 0,
+    "erp_sales_order_lines": 2,
+    "erp_sales_orders": 2,
+    "erp_stock_adjustments": 0,
+    "erp_stock_movements": 2,
+    "erp_supplier_call_approval_products": 0,
+    "erp_supplier_call_approvals": 0,
+    "erp_supplier_call_results": 0,
+    "erp_supplier_call_transcript_segments": 0,
+    "erp_supplier_calls": 0,
+    "erp_supplier_quotation_lines": 0,
+    "erp_supplier_quotations": 0,
+    "erp_suppliers": 1,
+    "erp_tenants": 1,
+    "erp_trade_invoice_lines": 2,
+    "erp_trade_invoice_sources": 2,
+    "erp_trade_invoices": 2,
+    "erp_warehouses": 1,
+    "erp_workspaces": 1
+  },
+  "rawConstraintCanonicalization": [
+    {
+      "sourceRaw": {
+        "relation": "dealtwin_constraints",
+        "conname": "dealtwin_constraints_source_text_check",
+        "definition": "CHECK (((source_text IS NULL) OR (((char_length(source_text) >= 1) AND (char_length(source_text) <= 3000)) AND (source_text = btrim(source_text)))))"
+      },
+      "postgresReparsed": {
+        "relation": "dealtwin_constraints",
+        "conname": "dealtwin_constraints_source_text_check",
+        "definition": "CHECK (((source_text IS NULL) OR ((char_length(source_text) >= 1) AND (char_length(source_text) <= 3000) AND (source_text = btrim(source_text)))))"
+      }
+    }
+  ],
+  "canonicalization": "All CHECK constraints parsed via ALTER TABLE on temporary LIKE tables by PostgreSQL16.15; canonical definitions compared exactly; all other catalog fields and every row compared exactly",
+  "dumpSha256": "5f10853db32610f48e8657b09906186303131c70cbdf493a6dd4f71dec4946ce"
+}

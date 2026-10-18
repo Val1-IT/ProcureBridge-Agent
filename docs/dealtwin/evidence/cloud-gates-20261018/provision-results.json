@@ -1,0 +1,22 @@
+[
+  {
+    "step": "initdb",
+    "exitCode": 0,
+    "durationSeconds": 1.234
+  },
+  {
+    "step": "pg-start",
+    "exitCode": 0,
+    "durationSeconds": 0.132
+  },
+  {
+    "step": "createdb",
+    "exitCode": 0,
+    "durationSeconds": 0.154
+  },
+  {
+    "step": "database-identity",
+    "exitCode": 0,
+    "durationSeconds": 0.042
+  }
+]

@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ✓ ../dealtwin-runtime/gates-20261018/restore.test.ts (1 test) 884ms
+   ✓ synthetic backup/restore phase source  883ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  06:16:03
+   Duration  2.22s (transform 695ms, setup 0ms, collect 1.03s, tests 884ms, environment 0ms, prepare 73ms)
+
+JSON report written to /workspace/dealtwin-runtime/gates-20261018/source-tests.json

@@ -1,0 +1,46 @@
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ❯ ../dealtwin-runtime/gates-20261018/restore.test.ts (1 test | 1 failed) 267ms
+   × synthetic backup/restore phase verify 267ms
+     → expected { rows: { …(45) }, catalog: { …(10) } } to deeply equal { rows: { …(45) }, catalog: { …(10) } }
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../dealtwin-runtime/gates-20261018/restore.test.ts > synthetic backup/restore phase verify
+AssertionError: expected { rows: { …(45) }, catalog: { …(10) } } to deeply equal { rows: { …(45) }, catalog: { …(10) } }
+
+- Expected
++ Received
+
+@@ -4132,11 +4132,11 @@
+          "definition": "CHECK ((resolution = ANY (ARRAY['confirmed'::text, 'pending_confirmation'::text, 'unresolved'::text])))",
+          "relation": "dealtwin_constraints",
+        },
+        {
+          "conname": "dealtwin_constraints_source_text_check",
+-         "definition": "CHECK (((source_text IS NULL) OR (((char_length(source_text) >= 1) AND (char_length(source_text) <= 3000)) AND (source_text = btrim(source_text)))))",
++         "definition": "CHECK (((source_text IS NULL) OR ((char_length(source_text) >= 1) AND (char_length(source_text) <= 3000) AND (source_text = btrim(source_text)))))",
+          "relation": "dealtwin_constraints",
+        },
+        {
+          "conname": "dealtwin_constraints_tenant_id_deal_version_id_fkey",
+          "definition": "FOREIGN KEY (tenant_id, deal_version_id) REFERENCES dealtwin_deal_versions(tenant_id, id) ON DELETE RESTRICT",
+
+ ❯ ../dealtwin-runtime/gates-20261018/restore.test.ts:60:57
+     58|  try{
+     59|   const source=JSON.parse(readFileSync(`${folder}/source-snapshot.json…
+     60|   const restored=await snapshot(owner);expect(restored).toEqual(source…
+       |                                                         ^
+     61|   const fixture=JSON.parse(readFileSync(`${folder}/restore-context.jso…
+     62|   const repo=new PostgresErpRepository(app);const state=await repo.loa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  06:16:31
+   Duration  1.32s (transform 577ms, setup 0ms, collect 826ms, tests 267ms, environment 0ms, prepare 60ms)
+
+JSON report written to /workspace/dealtwin-runtime/gates-20261018/verify-restored-tests.json

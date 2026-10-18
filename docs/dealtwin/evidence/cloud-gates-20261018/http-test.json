@@ -1,0 +1,161 @@
+{
+  "config": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/ProcureBridge-Agent/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config=playwright.dealtwin.config.ts",
+      "--grep",
+      "Node production target serves real hydration assets and denies traversal",
+      "--reporter=list,json",
+      "--output=output/playwright/cloud-gates-20261018/results"
+    ],
+    "configFile": "/workspace/ProcureBridge-Agent/playwright.dealtwin.config.ts",
+    "rootDir": "/workspace/ProcureBridge-Agent/tests/dealtwin/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/workspace/ProcureBridge-Agent/tests/dealtwin/e2e/setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/ProcureBridge-Agent/output/playwright/cloud-gates-20261018/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/ProcureBridge-Agent/tests/dealtwin/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "judge-mode.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/workspace/ProcureBridge-Agent/output/playwright/cloud-gates-20261018/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/workspace/ProcureBridge-Agent/tests/dealtwin/e2e",
+        "snapshotDir": "/workspace/ProcureBridge-Agent/tests/dealtwin/e2e",
+        "testIgnore": [],
+        "testMatch": "judge-mode.spec.ts",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4177",
+          "browserName": "chromium",
+          "launchOptions": {
+            "chromiumSandbox": true
+          },
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node scripts/dealtwin/local-demo.mjs",
+      "url": "http://127.0.0.1:4177/dealtwin",
+      "reuseExistingServer": false,
+      "timeout": 120000,
+      "env": {
+        "DATABASE_URL": "[REDACTED_LOCAL_DATABASE_URL]",
+        "DATABASE_SSL_MODE": "disable",
+        "DEALTWIN_JUDGE_RESET_DATABASE_URL": "[REDACTED_LOCAL_DATABASE_URL]",
+        "DEALTWIN_JUDGE_SESSION_SIGNING_KEY": "[REDACTED_PRIVATE_RUNTIME_VALUE]"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "judge-mode.spec.ts",
+      "file": "judge-mode.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Node production target serves real hydration assets and denies traversal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 102,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:18:34.510Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "343f2070cedc3af4785b-07c3c4f865d8e9de4eb7",
+          "file": "judge-mode.spec.ts",
+          "line": 71,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-18T06:18:30.529Z",
+    "duration": 4239.817,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

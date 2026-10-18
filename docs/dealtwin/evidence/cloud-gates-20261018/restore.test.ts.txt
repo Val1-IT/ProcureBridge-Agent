@@ -1,0 +1,108 @@
+import {it,expect} from 'vitest';
+import {Pool} from 'pg';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {PostgresHarness,JUDGE_TENANT_ID,requiredTestDatabaseUrl,probeTenantAccess,DEAL_TWIN_APP_ROLE} from '/workspace/ProcureBridge-Agent/tests/dealtwin/postgres/harness';
+import {seed,proofFixture,context} from '/workspace/ProcureBridge-Agent/tests/dealtwin/postgres/commitment-fixture';
+import {recordPayment,cancelPayment} from '/workspace/ProcureBridge-Agent/lib/erp/commands/finance';
+import {PostgresErpRepository} from '/workspace/ProcureBridge-Agent/lib/server/postgres/postgres-erp-repository';
+import {createPostgresCommitmentService} from '/workspace/ProcureBridge-Agent/lib/server/postgres/postgres-commitment-service';
+import {createPostgresJudgeRuntime} from '/workspace/ProcureBridge-Agent/lib/server/dealtwin/runtime';
+import {withTransaction} from '/workspace/ProcureBridge-Agent/lib/server/postgres/transaction';
+import {replayProof} from '/workspace/ProcureBridge-Agent/lib/dealtwin/proof/replay-proof';
+const folder='/workspace/dealtwin-runtime/gates-20261018';
+const hash=(v:unknown)=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
+const save=(name:string,v:unknown)=>writeFileSync(`${folder}/${name}.json`,JSON.stringify(v,null,2)+'\n');
+async function snapshot(pool:Pool){
+ const out:Record<string,unknown>={};
+ const tables=(await pool.query("select tablename from pg_tables where schemaname='public' order by tablename")).rows;
+ for(const {tablename} of tables){if(!/^[a-z0-9_]+$/.test(tablename))throw Error('UNSAFE_TABLE');out[tablename]=(await pool.query(`select to_jsonb(t) row from public.${tablename} t order by to_jsonb(t)::text`)).rows;}
+ const queries={
+  tables:"select c.relname,c.relkind,c.relrowsecurity,c.relforcerowsecurity,pg_get_userbyid(c.relowner) owner,c.relacl::text from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','S','v') order by c.relname",
+  columns:"select table_name,column_name,ordinal_position,column_default,is_nullable,data_type,udt_name from information_schema.columns where table_schema='public' order by table_name,ordinal_position",
+  constraints:"select c.conrelid::regclass::text relation,c.conname,pg_get_constraintdef(c.oid) definition from pg_constraint c join pg_namespace n on n.oid=c.connamespace where n.nspname='public' order by relation,c.conname",
+  policies:"select schemaname,tablename,policyname,permissive,roles,cmd,qual,with_check from pg_policies where schemaname='public' order by tablename,policyname",
+  triggers:"select c.relname,t.tgname,pg_get_triggerdef(t.oid) definition from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and not t.tgisinternal order by c.relname,t.tgname",
+  functions:"select p.proname,pg_get_function_identity_arguments(p.oid) args,pg_get_functiondef(p.oid) definition,pg_get_userbyid(p.proowner) owner,p.proacl::text from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' order by p.proname,args",
+  indexes:"select tablename,indexname,indexdef from pg_indexes where schemaname='public' order by tablename,indexname",
+  grants:"select grantee,table_name,privilege_type,is_grantable from information_schema.table_privileges where table_schema='public' order by grantee,table_name,privilege_type",
+  roles:"select rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls from pg_roles where rolname not like 'pg_%' order by rolname",
+  memberships:"select r.rolname role,m.rolname member,a.admin_option from pg_auth_members a join pg_roles r on r.oid=a.roleid join pg_roles m on m.oid=a.member order by role,member"
+ };
+ const catalog:Record<string,unknown>={};for(const [name,sql] of Object.entries(queries))catalog[name]=(await pool.query(sql)).rows;
+ // PostgreSQL flattens associative Boolean AND nodes when reparsing a dump.
+ // Compare every CHECK through the same server parser; do not strip parentheses or omit constraints.
+ const client=await pool.connect();try{
+  for(const row of catalog.constraints as Array<{relation:string;conname:string;definition:string}>){
+   if(!row.definition.startsWith('CHECK '))continue;
+   if(!/^[a-z0-9_]+$/.test(row.relation))throw Error('UNSAFE_RELATION');
+   await client.query(`create temp table restore_constraint_probe (like public.${row.relation})`);
+   try{await client.query(`alter table restore_constraint_probe add constraint canonical_check ${row.definition}`);
+    row.definition=(await client.query("select pg_get_constraintdef(oid) definition from pg_constraint where conrelid='pg_temp.restore_constraint_probe'::regclass and conname='canonical_check'")).rows[0].definition;
+   }finally{await client.query('drop table restore_constraint_probe');}
+  }
+ }finally{client.release();}
+ return {rows:out,catalog};
+}
+it('synthetic backup/restore phase '+process.env.RESTORE_PHASE,async()=>{
+ const phase=process.env.RESTORE_PHASE;
+ if(phase==='prepare-target'){const h=await PostgresHarness.connect();try{await h.ownerPool.query('drop schema public cascade; create schema public authorization dealtwin');}finally{await h.close();}return;}
+ if(phase==='source-canonical'){
+  const owner=new Pool({connectionString:requiredTestDatabaseUrl(),max:2});try{
+   const current=await snapshot(owner);const raw=JSON.parse(readFileSync(`${folder}/source-snapshot.json`,'utf8'));expect(current.rows).toEqual(raw.rows);save('source-canonical-snapshot',current);
+  }finally{await owner.end();}return;
+ }
+ if(phase==='source'){
+  const h=await PostgresHarness.connect();try{
+   await seed(h);const canonicalSeed=(await createPostgresJudgeRuntime(h.appPool,h.resetPool).loadJudgeState(context(1,'seed-read'))).businessSeedHash;const repo=new PostgresErpRepository(h.appPool);const baseline=await repo.loadWorkspace(JUDGE_TENANT_ID);
+   const paid=recordPayment(baseline,'finance',{direction:'payable',invoiceId:'judge-existing-ap',amount:6000000},'2026-09-13T12:00:00.000Z');expect(paid.ok).toBe(true);if(!paid.ok)throw Error(paid.error.message);
+   await repo.saveAtomic(JUDGE_TENANT_ID,1,paid.state);
+   const cancelled=cancelPayment(await repo.loadWorkspace(JUDGE_TENANT_ID),'finance',paid.value.id,'2026-09-14T12:00:00.000Z');expect(cancelled.ok).toBe(true);if(!cancelled.ok)throw Error(cancelled.error.message);
+   await repo.saveAtomic(JUDGE_TENANT_ID,2,cancelled.state);
+   const a=await proofFixture(h,'restore',true);const service=createPostgresCommitmentService(h.appPool);
+   const reserved=await service.reserveLiquidity(context(3,'restore-reserve'),a.input);expect(reserved.httpStatus).toBe(200);
+   const committed=await service.commitDeal(context(4,'restore-commit'),a.input);expect(committed.httpStatus).toBe(200);
+   const state=await repo.loadWorkspace(JUDGE_TENANT_ID);expect(state.revision).toBe(5);expect(state.cashMovements).toHaveLength(2);
+   save('restore-context',{input:a.input,reserved,committed,baselineHash:hash(baseline),canonicalSeed,revisions:[1,2,3,4,5]});
+   save('source-snapshot',await snapshot(h.ownerPool));
+  }finally{await h.close();}return;
+ }
+ expect(phase).toBe('verify');
+ const url=new URL(requiredTestDatabaseUrl());
+ const owner=new Pool({connectionString:url.toString(),max:2});
+ const app=new Pool({host:'127.0.0.1',port:Number(url.port),database:'dealtwin_test',user:'dealtwin_app_login',password:'dealtwin_app_login',max:2});
+ const reset=new Pool({host:'127.0.0.1',port:Number(url.port),database:'dealtwin_test',user:'dealtwin_reset_login',password:'dealtwin_reset_login',max:2});
+ try{
+  const source=JSON.parse(readFileSync(`${folder}/source-canonical-snapshot.json`,'utf8'));
+  const restored=await snapshot(owner);expect(restored).toEqual(source);save('restored-snapshot',restored);
+  const fixture=JSON.parse(readFileSync(`${folder}/restore-context.json`,'utf8'));
+  const repo=new PostgresErpRepository(app);const state=await repo.loadWorkspace(JUDGE_TENANT_ID);
+  expect(state.revision).toBe(5);expect(state.payments).toHaveLength(1);expect(state.payments[0].status).toBe('cancelled');
+  const original=state.cashMovements.find(r=>r.entryKind==='original')!;const reversal=state.cashMovements.find(r=>r.entryKind==='reversal')!;
+  expect(original).toBeDefined();expect(reversal.reversesMovementId).toBe(original.id);expect(reversal.amountRupiah).toBe(original.amountRupiah);
+  const service=createPostgresCommitmentService(app);
+  expect(await service.reserveLiquidity(context(3,'restore-reserve'),fixture.input)).toEqual(fixture.reserved);
+  expect(await service.commitDeal(context(4,'restore-commit'),fixture.input)).toEqual(fixture.committed);
+  expect(await snapshot(owner)).toEqual(restored);
+  const links=await owner.query("select c.id,c.status,d.committed_sales_order_id,s.id order_id from dealtwin_liquidity_commitments c join dealtwin_deal_versions v on v.tenant_id=c.tenant_id and v.id=c.deal_version_id join dealtwin_deals d on d.tenant_id=v.tenant_id and d.id=v.deal_id join erp_sales_orders s on s.tenant_id=d.tenant_id and s.id=d.committed_sales_order_id");
+  expect(links.rows).toHaveLength(1);expect(links.rows[0].status).toBe('committed');expect(links.rows[0].order_id).toBe(links.rows[0].committed_sales_order_id);
+  const isolation=await withTransaction(app,'synthetic-other-tenant',async tx=>{
+   const result:Record<string,number>={};for(const table of Object.keys(source.rows)){const cols=source.catalog.columns.filter((c:any)=>c.table_name===table&&c.column_name==='tenant_id');if(!cols.length)continue;const count=Number((await tx.query(`select count(*) from public.${table}`)).rows[0].count);expect(count).toBe(0);result[table]=count;}return result;
+  });
+  const access=await probeTenantAccess(url.toString(),DEAL_TWIN_APP_ROLE,JUDGE_TENANT_ID);
+  expect(access.outcomes.find(r=>r.action==='insert_other')?.allowed).toBe(false);
+  expect(access.outcomes.find(r=>r.action==='update_other')?.allowed).toBe(false);
+  expect(await snapshot(owner)).toEqual(restored);
+  for(const row of source.rows.dealtwin_proofs)expect(replayProof(row.row.proof_json).ok).toBe(true);
+  await expect(withTransaction(app,JUDGE_TENANT_ID,tx=>tx.query("update public.erp_audit_events set detail='{}'::jsonb where tenant_id=$1",[JUDGE_TENANT_ID]))).rejects.toThrow(/permission|append-only/);
+  expect(await snapshot(owner)).toEqual(restored);
+  const receipts=source.rows.erp_audit_events.filter((r:any)=>[true,'true'].includes(r.row.detail?.operationSucceeded));expect(receipts.length).toBeGreaterThan(0);
+  const runtime=createPostgresJudgeRuntime(app,reset);const resetReply=await runtime.resetJudgeTenant(context(5,'restore-reset'));
+  expect(resetReply.httpStatus).toBe(200);const after=await repo.loadWorkspace(JUDGE_TENANT_ID);expect(after.revision).toBe(6);expect(after.cashMovements).toHaveLength(0);
+  expect((await runtime.loadJudgeState(context(6,'after-reset-read'))).businessSeedHash).toBe(fixture.canonicalSeed);
+  const payment=recordPayment(after,'finance',{direction:'receivable',invoiceId:'judge-existing-ar',amount:7000000},'2026-09-13T12:00:00.000Z');expect(payment.ok).toBe(true);if(!payment.ok)throw Error(payment.error.message);await repo.saveAtomic(JUDGE_TENANT_ID,6,payment.state);
+  const cancel=cancelPayment(await repo.loadWorkspace(JUDGE_TENANT_ID),'finance',payment.value.id,'2026-09-14T12:00:00.000Z');expect(cancel.ok).toBe(true);if(!cancel.ok)throw Error(cancel.error.message);await repo.saveAtomic(JUDGE_TENANT_ID,7,cancel.state);
+  expect((await repo.loadWorkspace(JUDGE_TENANT_ID)).cashMovements).toHaveLength(2);
+  save('restore-verification',{status:'pass',tableCount:Object.keys(source.rows).length,rowHash:hash(restored.rows),catalogHash:hash(restored.catalog),receiptCount:receipts.length,revisionBefore:5,revisionAfterReset:6,originalReversalCount:2,commitmentLinks:links.rows,crossTenantTables:Object.keys(isolation).length,access,seedHashBeforeBackup:fixture.canonicalSeed,postRestorePaymentAndCancellationRevisions:[7,8],proofReplayCount:source.rows.dealtwin_proofs.length,appendOnlyReceiptUpdateDenied:true});
+ }finally{await owner.end();await app.end();await reset.end();}
+});

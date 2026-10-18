@@ -1,0 +1,4 @@
+{
+  "http-test.json": "Playwright serializes webServer.env; private session-signing value and local credential URLs redacted in committed/shared copy. Original report retained only in private runtime directory and excluded from package. Assertions/counts unchanged.",
+  "raw-artifacts.json": "Hashes reference original private runtime bytes; shared sanitized files have separate SHA256SUMS."
+}

@@ -1,0 +1,52 @@
+{
+  "status": "pass",
+  "tableCount": 45,
+  "rowHash": "7e39956c0c49115e581f0419460429bb01356d9756b1e1bb90c092c2566e2d7d",
+  "catalogHash": "5e168018d709f4c52ecfc6134a41325a9660425716982e11b05f481c8d0a6617",
+  "receiptCount": 3,
+  "revisionBefore": 5,
+  "revisionAfterReset": 6,
+  "originalReversalCount": 2,
+  "commitmentLinks": [
+    {
+      "id": "commitment:8468b63da1375af9a0c2285608d4479d50f5ae81ef3c489fa4a65f62de761894",
+      "status": "committed",
+      "committed_sales_order_id": "sales-order-so-2026-0001",
+      "order_id": "sales-order-so-2026-0001"
+    }
+  ],
+  "crossTenantTables": 44,
+  "access": {
+    "role": "dealtwin_app",
+    "tenantId": "dealtwin-judge-v1",
+    "outcomes": [
+      {
+        "action": "select",
+        "allowed": true
+      },
+      {
+        "action": "insert_own",
+        "allowed": true
+      },
+      {
+        "action": "insert_other",
+        "allowed": false
+      },
+      {
+        "action": "update_other",
+        "allowed": false
+      },
+      {
+        "action": "delete",
+        "allowed": false
+      }
+    ]
+  },
+  "seedHashBeforeBackup": "64d53829e3755c1c872680d05e82adfc170f985702cbfa50582aedd1505eca85",
+  "postRestorePaymentAndCancellationRevisions": [
+    7,
+    8
+  ],
+  "proofReplayCount": 1,
+  "appendOnlyReceiptUpdateDenied": true
+}

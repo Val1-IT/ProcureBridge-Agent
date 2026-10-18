@@ -1,0 +1,12 @@
+{
+  "sourceSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+  "dirty": false,
+  "command": [
+    "npm",
+    "run",
+    "lint"
+  ],
+  "port": 55432,
+  "exitCode": 0,
+  "durationSeconds": 12.278
+}

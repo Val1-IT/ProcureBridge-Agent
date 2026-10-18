@@ -1,0 +1,14 @@
+from pathlib import Path
+import os, json, subprocess, time
+repo = Path('/workspace/ProcureBridge-Agent')
+root = Path('/workspace/dealtwin-runtime')
+selection = []
+env = {**os.environ, 'DEALTWIN_TEST_DATABASE_URL': 'postgres://dealtwin:'+ (root/'owner-password').read_text().strip() +'@127.0.0.1:55432/dealtwin_test'}
+sha = subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
+args = ['npm','run','test:coverage','--',*selection,'--testTimeout=60000','--hookTimeout=60000','--reporter=default','--reporter=json','--outputFile=/workspace/dealtwin-runtime/gates-20261018/coverage-tests.json']
+start=time.time()
+with (root/'gates-20261018/coverage-tests.log').open('w') as log:
+    result=subprocess.run(args,cwd=repo,env=env,stdout=log,stderr=subprocess.STDOUT)
+(root/'gates-20261018/coverage-run.json').write_text(json.dumps({'sourceSha':sha,'command':args,'exitCode':result.returncode,'durationSeconds':round(time.time()-start,3),'database':'dealtwin_test','host':'127.0.0.1','port':55432,'selection':'all configured test files; unchanged coverage thresholds'},indent=2)+'\n')
+print('PostgreSQL suite exit',result.returncode,flush=True)
+raise SystemExit(result.returncode)

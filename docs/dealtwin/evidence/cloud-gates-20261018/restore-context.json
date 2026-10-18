@@ -1,0 +1,48 @@
+{
+  "input": {
+    "proofId": "t16-proof-restore",
+    "dealVersionId": "t16-version-restore",
+    "canonicalEventHash": "03db132574a24e3b375f0adc089a7a0db1f7ff2d2f49031173954be1844b3205"
+  },
+  "reserved": {
+    "httpStatus": 200,
+    "body": {
+      "ok": true,
+      "action": "dealtwin.commitment.reserved",
+      "dealId": "t16-deal-restore",
+      "proofId": "t16-proof-restore",
+      "dealVersionId": "t16-version-restore",
+      "canonicalEventHash": "03db132574a24e3b375f0adc089a7a0db1f7ff2d2f49031173954be1844b3205",
+      "commitmentId": "commitment:8468b63da1375af9a0c2285608d4479d50f5ae81ef3c489fa4a65f62de761894",
+      "status": "reserved",
+      "salesOrderId": null,
+      "revision": 4,
+      "minimumProjectedBalanceRupiah": "5000000"
+    }
+  },
+  "committed": {
+    "httpStatus": 200,
+    "body": {
+      "ok": true,
+      "action": "dealtwin.commitment.committed",
+      "dealId": "t16-deal-restore",
+      "proofId": "t16-proof-restore",
+      "dealVersionId": "t16-version-restore",
+      "canonicalEventHash": "03db132574a24e3b375f0adc089a7a0db1f7ff2d2f49031173954be1844b3205",
+      "commitmentId": "commitment:8468b63da1375af9a0c2285608d4479d50f5ae81ef3c489fa4a65f62de761894",
+      "status": "committed",
+      "salesOrderId": "sales-order-so-2026-0001",
+      "revision": 5,
+      "minimumProjectedBalanceRupiah": "5000000"
+    }
+  },
+  "baselineHash": "b972a37a9dbc31d6b1c1ba079603236b29596e7aba348f5b8443aa3ec434eed5",
+  "canonicalSeed": "64d53829e3755c1c872680d05e82adfc170f985702cbfa50582aedd1505eca85",
+  "revisions": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ]
+}

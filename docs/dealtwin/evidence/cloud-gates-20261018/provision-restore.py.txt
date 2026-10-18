@@ -1,0 +1,32 @@
+from pathlib import Path
+import os, secrets, socket, subprocess, json, time
+
+root = Path('/workspace/dealtwin-runtime')
+bin_dir = root / 'pgsql-16.15/bin'
+data = root / 'pg16-restore-data'
+socket_dir = root / 'pg16-restore-socket'
+logs = root / 'gates-20261018'
+assert not data.exists(), 'Refusing to replace an existing database cluster'
+with socket.socket() as probe:
+    probe.bind(('127.0.0.1', 55632))
+socket_dir.mkdir(mode=0o700, exist_ok=True)
+assert socket_dir.stat().st_uid == os.getuid() and socket_dir.stat().st_mode & 0o777 == 0o700
+password_path = root / 'owner-password'
+env = {**os.environ, 'PGHOST': '127.0.0.1', 'PGPORT': '55632', 'PGUSER': 'dealtwin', 'PGPASSWORD': password_path.read_text().strip()}
+commands = []
+def run(args, name):
+    start = time.time()
+    with (logs / (name + '.log')).open('w') as log:
+        result = subprocess.run(args, env=env, stdout=log, stderr=subprocess.STDOUT)
+    commands.append({'step': name, 'exitCode': result.returncode, 'durationSeconds': round(time.time()-start, 3)})
+    (logs / 'provision-results.json').write_text(json.dumps(commands, indent=2)+'\n')
+    print(name, 'exit', result.returncode, flush=True)
+    if result.returncode:
+        raise SystemExit(result.returncode)
+
+run([str(bin_dir/'initdb'), '-D', str(data), '-U', 'dealtwin', '--pwfile='+str(password_path), '--auth-local=scram-sha-256', '--auth-host=scram-sha-256', '--no-locale', '--encoding=UTF8'], 'initdb')
+with (data/'postgresql.conf').open('a') as f:
+    f.write("\nlisten_addresses = '127.0.0.1'\nport = 55632\nunix_socket_directories = '/workspace/dealtwin-runtime/pg16-restore-socket'\nmax_connections = 60\nshared_buffers = '128MB'\nwork_mem = '4MB'\nmaintenance_work_mem = '64MB'\nmax_worker_processes = 4\nmax_parallel_workers = 2\n")
+run([str(bin_dir/'pg_ctl'), '-D', str(data), '-l', str(logs/'postgres.log'), '-w', '-t', '30', 'start'], 'pg-start')
+run([str(bin_dir/'createdb'), 'dealtwin_test'], 'createdb')
+run([str(bin_dir/'psql'), '-d', 'dealtwin_test', '-X', '-A', '-t', '-c', "select json_build_object('version',version(),'database',current_database(),'address',inet_server_addr(),'port',inet_server_port(),'listen_addresses',current_setting('listen_addresses'),'data_directory',current_setting('data_directory'),'fsync',current_setting('fsync'));"], 'database-identity')
