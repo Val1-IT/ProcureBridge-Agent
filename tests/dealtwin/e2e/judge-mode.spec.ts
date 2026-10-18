@@ -17,6 +17,46 @@ async function act(page:Page,kind:string,status=200){
 }
 let canonicalHash:string|undefined;
 let lastCommit:{url:string;body:Record<string,unknown>}|undefined;
+test('workspace read outage is recoverable without resetting or mutating financial state',async({browser})=>{
+ const context=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});
+ const page=await context.newPage();let mutations=0;
+ try{
+  const before=await state(page);
+  page.on('request',request=>{if(request.url().startsWith(base+'/api/dealtwin/')&&['POST','PATCH','DELETE'].includes(request.method()))mutations++;});
+  await context.route('**/api/dealtwin/judge/state',route=>route.abort('failed'));
+  await page.goto(base+'/dealtwin');
+  await expect(page.getByRole('alert')).toContainText('NETWORK_UNAVAILABLE');
+  await expect(page.locator('[data-action]')).toHaveCount(0);
+  // A repeated failed read must retain an honest recovery action, never a local success.
+  await page.getByRole('button',{name:'Try loading workspace again',exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('NETWORK_UNAVAILABLE');
+  await context.unroute('**/api/dealtwin/judge/state');
+  await page.getByRole('button',{name:'Try loading workspace again',exact:true}).click();
+  await ready(page);expect(await state(page)).toEqual(before);expect(mutations).toBe(0);
+ }finally{await context.close();}
+});
+for(const width of [390,1440]){
+ test('read-only navigation and tables remain usable at '+width+'px',async({browser})=>{
+  const context=await browser.newContext({viewport:{width,height:900},storageState:'output/playwright/task24/auth/admin.json'});
+  const page=await context.newPage();
+  try{
+   await page.goto(base+'/dealtwin');await ready(page);const before=await state(page);
+   await page.keyboard.press('Tab');await expect(page.getByRole('link',{name:'Skip to workspace',exact:true})).toBeFocused();
+   await page.keyboard.press('Enter');await expect(page.locator('#dealtwin-main')).toBeFocused();
+   for(const [label,path] of [['ERP Sandbox','/dealtwin/erp'],['Commitment Ledger','/dealtwin/commitments']] as const){
+    const link=page.getByRole('navigation',{name:'DealTwin workflows'}).getByRole('link',{name:label,exact:true});
+    await link.click();await ready(page);expect(new URL(page.url()).pathname).toBe(path);
+    await expect(link).toHaveAttribute('aria-current','page');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    for(const region of await page.getByRole('region').all()){
+     await region.focus();await expect(region).toBeFocused();
+    }
+   }
+   await page.goBack();await ready(page);expect(new URL(page.url()).pathname).toBe('/dealtwin/erp');
+   expect(await state(page)).toEqual(before);
+  }finally{await context.close();}
+ });
+}
 test('trusted local bootstrap mints signed sessions without resetting live synthetic state',async({browser})=>{
  const admin=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});const page=await admin.newPage();
  try{

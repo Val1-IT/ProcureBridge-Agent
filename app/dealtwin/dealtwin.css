@@ -7,3 +7,21 @@
 .dt-warning{background:#fff5e8;border:1px solid #edcd95;border-radius:9px;padding:16px;margin:14px 0;overflow-wrap:anywhere}.dt-success{background:#edf9f3;border:1px solid #b2dcc7;border-radius:9px;padding:16px}.dt-hashes{font-size:12px;color:var(--dt-muted)}.dt-hashes code{display:block;color:#344b62;overflow-wrap:anywhere;padding:7px;background:#f4f7fa;margin:5px 0}.dt-panel pre{font:12px/1.6 ui-monospace,monospace;background:#f3f6f9;border:1px solid #e1e7ee;border-radius:8px;padding:14px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:440px;overflow:auto}.dt-panel details{margin:16px 0}.dt-panel summary{cursor:pointer;font-size:13px;font-weight:650}.dt-deal-list{display:grid;gap:10px}.dt-deal-row{border:1px solid var(--dt-line);border-radius:8px;padding:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.dt-deal-row:hover{border-color:var(--dt-blue);background:#f7faff}.dt-deal-row>div{flex:1;display:grid;gap:6px}.dt-deal-row small{font-size:11px;color:var(--dt-muted);overflow-wrap:anywhere}.dt-approval{display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--dt-line);padding:14px 0;flex-wrap:wrap}.dt-approval code{font-size:11px;overflow-wrap:anywhere}.dt-footer{font-size:11px;color:var(--dt-muted);padding:20px 32px;text-align:center}.dt-state-error{border-color:#e2b5a6}.dt-state-loading{color:var(--dt-muted)}
 @media(max-width:700px){.dt-main{padding:14px}.dt-header{padding:16px;gap:18px}.dt-header nav{order:3;min-width:100%;font-size:13px;gap:14px}.dt-panel{padding:16px}.dt-metrics strong{font-size:18px}.dt-table{min-width:620px}}
 .dt-judge-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;list-style:none;padding:0}.dt-judge-steps li{display:grid;gap:8px;border:1px solid var(--dt-line);border-radius:8px;padding:12px;font-size:12px}.dt-judge-steps li[aria-current=step]{border-color:var(--dt-blue);background:#eef5ff}.dt-judge-steps span{color:var(--dt-muted)}
+
+/* Workspace navigation and recovery stay usable at narrow widths and by keyboard. */
+.dt-root{line-height:1.5}
+.dt-root a,.dt-root summary,.dt-root button{-webkit-tap-highlight-color:transparent}
+.dt-header nav{flex-wrap:wrap;gap:6px 12px;min-width:0}
+.dt-header nav a{display:inline-flex;align-items:center;min-height:44px;padding:8px 10px;border-radius:6px}
+.dt-header nav a[aria-current=page]{background:#263f53;box-shadow:inset 0 -3px #66e5c7;font-weight:700}
+.dt-button{min-height:44px}
+.dt-root :where(a,button,summary,[tabindex]):focus-visible{outline:3px solid #a94c00;outline-offset:3px}
+.dt-header a:focus-visible{outline-color:#ffcc80}
+.dt-skip-link{position:absolute;left:16px;top:12px;z-index:10;transform:translateY(-180%);background:#fff;color:#162433;padding:12px 16px;border-radius:6px;font-weight:700}
+.dt-skip-link:focus{transform:translateY(0)}
+.dt-facts>div{min-width:0;max-width:100%}
+.dt-panel .dt-section-heading{margin-top:24px;font-size:16px}
+.dt-table-scroll{max-width:100%;overscroll-behavior-x:contain}
+.dt-warning pre{font:12px/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto}
+.dt-warning summary{cursor:pointer;font-weight:650}
+@media(max-width:700px){.dt-header nav{min-width:100%;gap:4px}.dt-workspace-strip>div{min-width:0;overflow-wrap:anywhere}.dt-workspace-strip .dt-button{width:100%}.dt-actions .dt-button{flex:1 1 180px}.dt-judge-steps{grid-template-columns:1fr}}

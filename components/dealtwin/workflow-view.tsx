@@ -13,7 +13,7 @@ import type { UiAction } from '../../lib/dealtwin/ui/commands';
 export function WorkflowView({mode='deal'}:{mode?:'inbox'|'deal'|'proof'|'commitments'|'erp'}){
  const {snapshot,loading,busy,error,commandError,lastResponse,detail,selectedDealId,refresh,run,canRetry,retryLast}=useWorkspace();const params=useParams<{proofId?:string}>();
  if(loading&&!snapshot)return <WorkspaceStatus state="loading"/>;
- if(error||!snapshot)return <WorkspaceStatus state="error" message={error??'Signed Judge session required. Use the trusted local test launcher; no public session issuance is provided.'}/>;
+ if(error||!snapshot)return <WorkspaceStatus state="error" message={error??'Signed Judge session required. Use the trusted local test launcher; no public session issuance is provided.'} onRetry={()=>void refresh()} retrying={loading}/>;
  const actor=snapshot.actor;const deal=snapshot.deals.find(row=>row.id===selectedDealId);const version=snapshot.versions.find(row=>row.id===deal?.currentVersionId);
  const proofs=snapshot.proofs.filter(row=>row.proof_json.dealId===deal?.id).sort((a,b)=>b.proof_json.dealVersion-a.proof_json.dealVersion||b.proof_json.generatedAt.localeCompare(a.proof_json.generatedAt));
  const proof=mode==='proof'?snapshot.proofs.find(row=>row.id===params.proofId):proofs[0];
@@ -28,7 +28,7 @@ export function WorkflowView({mode='deal'}:{mode?:'inbox'|'deal'|'proof'|'commit
    {canRetry?<button className="dt-button dt-secondary" onClick={()=>void retryLast()} disabled={blocked}>Retry original successful request</button>:null}
   </section>
   <p className="dt-boundary">Synthetic tenant · planning reservations are not bank transfers · no production or real money. Browser storage is not Judge authority.</p>
-  {commandError?<section className="dt-warning" role="alert"><h2 data-testid="operation-error">{commandError.code}</h2>{commandError.body?<pre>{JSON.stringify(commandError.body,null,2)}</pre>:null}</section>:null}
+  {commandError?<section className="dt-warning" role="alert"><h2 data-testid="operation-error">{commandError.code}</h2><p>The request did not return a successful result. Check the current workspace before taking another action.</p>{commandError.body?<details><summary>Server response details</summary><pre>{JSON.stringify(commandError.body,null,2)}</pre></details>:null}</section>:null}
   {mode==='inbox'?<DealInbox deals={snapshot.deals}/>:null}
   {!deal?<WorkspaceStatus state="empty" message="Selected server Deal or Proof not found. No other Deal is substituted."/>:null}
   {deal&&mode!=='commitments'&&mode!=='erp'?<>
@@ -36,7 +36,9 @@ export function WorkflowView({mode='deal'}:{mode?:'inbox'|'deal'|'proof'|'commit
     <dl className="dt-facts"><div><dt>Current operational version</dt><dd>{deal.currentVersionId}</dd></div><div><dt>Linked Sales Order</dt><dd data-testid="linked-sales-order">{deal.committedSalesOrderId??'Not committed'}</dd></div>
      <div><dt>Fixed current deposit</dt><dd data-testid="current-deposit">{version?.terms.customerPaymentEvents[0].basisPoints} basis points</dd></div><div><dt>Customer balance timing</dt><dd>{version?.terms.customerPaymentEvents[1].daysFromAcceptance} days</dd></div></dl>
     {proof&&proof.proof_json.dealVersionId!==deal.currentVersionId&&deal.committedSalesOrderId?<div className="dt-warning" data-testid="remediation-pending"><strong>REMEDIATION_PENDING</strong><p>Proposed version {proof.proof_json.dealVersion}: {JSON.stringify(proof.proof_json.terms)}. Original Sales Order and occupied capacity remain unchanged.</p></div>:null}
+    <h2 className="dt-section-heading">Compile and prove</h2><p className="dt-muted">Confirm the constraints, check feasibility, then inspect the smallest permitted amendment and its proof.</p>
     <div className="dt-actions">{action('confirm','Confirm all material constraints',!sales||!!deal.committedSalesOrderId)}{action('compile','Compile current Deal',!sales)}{action('recompile','Find smallest amendment',!sales)}{action('proof','Generate immutable Proof',!sales||!!deal.committedSalesOrderId)}</div>
+    <h2 className="dt-section-heading">Reserve and commit</h2><p className="dt-muted">Reservation occupies planning capacity. Commit requires an eligible reservation and all required approvals, and creates one Sales Order.</p>
     <div className="dt-actions">{action('reserve','RESERVE planning liquidity',!sales||!proof||!!active||!!deal.committedSalesOrderId)}{action('commit','COMMIT to Sales Order',!sales||!proof||!active||!!deal.committedSalesOrderId)}
      {action('replace','Replace reserved version atomically',!sales||!proof||active?.status!=='reserved'||!!deal.committedSalesOrderId||active.proof_id===proof.id)}
      {action('replay','Replay immutable Proof',!sales||!proof)}{action('ap19','Set allowlisted AP to Rp19m',actor?.role!=='admin'&&actor?.role!=='finance')}</div>
@@ -53,7 +55,7 @@ export function WorkflowView({mode='deal'}:{mode?:'inbox'|'deal'|'proof'|'commit
     </section></>:null}
   </>:null}
   {mode==='commitments'?<section className="dt-panel"><h1>Commitment Ledger</h1><p>Immutable planning events, not cash movements. Lifecycle cleanup does not rewrite a Sales Order.</p>
-   <table className="dt-table"><thead><tr><th>Commitment / proof</th><th>Status</th><th>Planning amount</th><th>Deadline</th></tr></thead><tbody>{snapshot.commitments.map(row=><tr key={row.id}><td>{row.id}<small>{row.proof_id}</small></td><td>{row.status}</td><td>{formatRupiah(row.amount_rupiah)} · {row.direction}</td><td>{row.expires_at??'No stored deadline'}</td></tr>)}</tbody></table>
+   {snapshot.commitments.length===0?<p role="status">No planning capacity has been reserved. Generate an eligible proof before reserving liquidity.</p>:<div className="dt-table-scroll" role="region" aria-label="Commitment ledger" tabIndex={0}><table className="dt-table"><thead><tr><th>Commitment / proof</th><th>Status</th><th>Planning amount</th><th>Deadline</th></tr></thead><tbody>{snapshot.commitments.map(row=><tr key={row.id}><td>{row.id}<small>{row.proof_id}</small></td><td>{row.status}</td><td>{formatRupiah(row.amount_rupiah)} · {row.direction}</td><td>{row.expires_at??'No stored deadline'}</td></tr>)}</tbody></table></div>}
    <h2>Selected Deal capacity</h2><p>{deal?.title??'No selected Deal'}</p><div className="dt-actions">{action('release','Release exact selected owner',!sales||!active)}{action('cancel','Cancel exact selected owner',!sales||!active)}{action('expire','Request server expiry',!sales||!active?.expires_at)}</div>
   </section>:null}
   {mode==='erp'?<><ErpEvidence openingCashRupiah={snapshot.cash.openingBalanceRupiah} asOfDate={snapshot.cash.asOfDate} events={snapshot.timeline.erpEvents} revision={snapshot.revision}/>
