@@ -1,5 +1,13 @@
 # DealTwin Requirement Traceability
 
+Scoped esbuild follow-up: [loader replacement evidence](ESBUILD-LOADER-20261018.md)
+records official0.25.12 under core-utils3.3.2 at7831e62,35/35 focused tests on
+that clean commit and a fresh isolated install. Only27 scoped lock records
+change; braces remains patched and bundled source is unchanged. Audit drops
+to12 high aggregates,0 moderate/critical, with four advisory URLs plus embedded
+Undici still open. Task29/DT-042 remains PARTIAL.
+
+
 Maintained braces follow-up: [backport evidence](BRACES-BACKPORT-20261018.md)
 records the owner-approved local mitigation at6e9911b,31/31 focused tests on
 that clean commit, passing Sites/Node builds and unchanged dependency pins.
