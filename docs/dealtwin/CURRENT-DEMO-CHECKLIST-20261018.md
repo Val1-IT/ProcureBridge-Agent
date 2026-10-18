@@ -4,6 +4,13 @@ Source review baseline: `3e74db3c781688e638b19bab9a066fd1c05a80a3`.
 Its product code is unchanged from `99ef77b45700d7e96686273972ab2b088c20e363`.
 This document is preparation, not a completed demo or release approval.
 
+Verification update: [17b5c75 results](LOCAL-VALIDATION-17B5C75-20261018.md)
+now establish full tests/coverage, runtime checks, typecheck/lint and both
+builds/client scans. The [23:31 UTC resumed checkpoint](CHECKPOINT-20261018-2331UTC.md)
+confirms unchanged product/runtime/build hashes; browser validation still cannot
+start below the unchanged 4096 MiB guard. Earlier pending statements below are
+superseded for those completed checks only, not for browser or external evidence.
+
 ## UI review
 
 No concrete defect found in the minimal failure display during source review:

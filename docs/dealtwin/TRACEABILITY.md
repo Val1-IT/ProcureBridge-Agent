@@ -1,5 +1,11 @@
 # DealTwin Requirement Traceability
 
+Owner-authorized resume: [23:31 UTC checkpoint](CHECKPOINT-20261018-2331UTC.md)
+verified clean c21f00e, the preserved 1328-test report and all 128 Node artifact
+hashes. Four RAM samples stayed below 4096 MiB, so no browser/database/test
+process was started. Local environment/validation gaps remain distinct from
+external provider, Alexa and public-identity authorization gaps.
+
 Latest local checkpoint: [candidate 17b5c75 validation](LOCAL-VALIDATION-17B5C75-20261018.md)
 records 1328/1328 tests in 135 files with coverage thresholds met, 4/4 native
 runtime checks, typecheck/lint and both builds/client scans passing. The fresh
