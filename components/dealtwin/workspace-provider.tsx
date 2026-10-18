@@ -2,7 +2,7 @@
 import { createContext,useContext,useEffect,useRef,useState,useCallback,type ReactNode } from 'react';
 import { usePathname,useSearchParams } from 'next/navigation';
 import { selectDeal } from '../../lib/dealtwin/ui/selection';
-import { ApiClientError,readWorkspace,readResource,sendCommand } from '../../lib/dealtwin/ui/api-client';
+import { ApiClientError,readWorkspace,readResource,sendCommand,sendCommandAttempt } from '../../lib/dealtwin/ui/api-client';
 import { decodeWorkspace,type ServerWorkspace } from '../../lib/dealtwin/ui/workspace';
 import { buildCommand,type UiAction } from '../../lib/dealtwin/ui/commands';
 import type { CompileResultDto } from '../../lib/dealtwin/ui/contracts';
@@ -34,14 +34,14 @@ export function WorkspaceProvider({children}:{children:ReactNode}){
  },[pathname,queryDeal]);
  useEffect(()=>{const controller=new AbortController();void refresh(controller.signal);return()=>controller.abort();},[refresh]); // Server fetch cache only; URL selection is the sole local business navigation.
  async function run(action:UiAction,dealId=selectedDealId){
-  if(!snapshot||busy||loading)return;setBusy(true);setCommandError(null);
+  if(!snapshot||busy||loading)return;setBusy(true);setCommandError(null);setLastCommand(null);setLastResponse(null);
   try{const requestedProofId=pathname.startsWith('/dealtwin/proofs/')?snapshot.proofs.find(row=>'/dealtwin/proofs/'+encodeURIComponent(row.id)===pathname)?.id:undefined;
-   const command=buildCommand(snapshot,dealId,action,'ui-'+crypto.randomUUID(),requestedProofId);const response=await sendCommand(command.path,command.body,fetch,command.method);setLastResponse(response);setLastCommand(command);}
+   const command=buildCommand(snapshot,dealId,action,'ui-'+crypto.randomUUID(),requestedProofId);const response=await sendCommandAttempt(command,setLastCommand);setLastResponse(response);}
   catch(cause){setCommandError(cause instanceof ApiClientError?cause:new ApiClientError(cause instanceof Error?cause.message:'REQUEST_FAILED'));}
   finally{await refresh();setBusy(false);} // Never adopt response revision/state: retries may replay a historical receipt.
  }
  async function retryLast(){
-  if(!lastCommand||!snapshot||busy||loading)return;setBusy(true);setCommandError(null);
+  if(!lastCommand||!snapshot||busy||loading)return;setBusy(true);setCommandError(null);setLastResponse(null);
   try{setLastResponse(await sendCommand(lastCommand.path,lastCommand.body,fetch,lastCommand.method));}
   catch(cause){setCommandError(cause instanceof ApiClientError?cause:new ApiClientError('REQUEST_FAILED'));}
   finally{await refresh();setBusy(false);}

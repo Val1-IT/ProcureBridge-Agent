@@ -25,10 +25,10 @@ export function WorkflowView({mode='deal'}:{mode?:'inbox'|'deal'|'proof'|'commit
  return <div className="dt-workflow" aria-busy={blocked} data-testid="server-workspace">
   <section className="dt-workspace-strip"><div><strong>PostgreSQL source</strong><span data-testid="workspace-revision">Revision {snapshot.revision}</span></div><div>Signed server role: <strong data-testid="server-role">{actor?.role??'unavailable'}</strong><small>{actor?.actorId}</small></div>
    <button className="dt-button dt-secondary" onClick={()=>void refresh()} disabled={blocked}>Refresh server state</button>{action('reset','Reset synthetic Judge',actor?.role!=='admin')}
-   {canRetry?<button className="dt-button dt-secondary" onClick={()=>void retryLast()} disabled={blocked}>Retry original successful request</button>:null}
+   {canRetry?<button className="dt-button dt-secondary" onClick={()=>void retryLast()} disabled={blocked}>{commandError?'Retry original request':'Retry original successful request'}</button>:null}
   </section>
   <p className="dt-boundary">Synthetic tenant · planning reservations are not bank transfers · no production or real money. Browser storage is not Judge authority.</p>
-  {commandError?<section className="dt-warning" role="alert"><h2 data-testid="operation-error">{commandError.code}</h2><p>The request did not return a successful result. Check the current workspace before taking another action.</p>{commandError.body?<details><summary>Server response details</summary><pre>{JSON.stringify(commandError.body,null,2)}</pre></details>:null}</section>:null}
+  {commandError?<section className="dt-warning" role="alert"><h2 data-testid="operation-error">{commandError.code}</h2><p>{commandError.code==='NETWORK_UNAVAILABLE'||commandError.code==='INVALID_SERVER_RESPONSE'?'The response was interrupted. The operation may already have completed. Review the refreshed workspace, then retry the original request to check its outcome using the same request identity.':'The request did not return a successful result. Check the current workspace before taking another action.'}</p>{commandError.body?<details><summary>Server response details</summary><pre>{JSON.stringify(commandError.body,null,2)}</pre></details>:null}</section>:null}
   {mode==='inbox'?<DealInbox deals={snapshot.deals}/>:null}
   {!deal?<WorkspaceStatus state="empty" message="Selected server Deal or Proof not found. No other Deal is substituted."/>:null}
   {deal&&mode!=='commitments'&&mode!=='erp'?<>

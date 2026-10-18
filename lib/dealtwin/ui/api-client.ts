@@ -1,3 +1,5 @@
+import type { UiCommand } from './commands';
+
 export class ApiClientError extends Error {
  constructor(readonly code:string,readonly status=0,readonly body:unknown=null){super(code);}
 }
@@ -23,4 +25,10 @@ export async function readWorkspace(fetcher:typeof fetch=fetch):Promise<unknown>
 export function readResource(path:string,fetcher:typeof fetch=fetch):Promise<unknown>{return request(path,{method:'GET'},fetcher);}
 export function sendCommand(path:string,body:unknown,fetcher:typeof fetch=fetch,method:'POST'|'PATCH'='POST'):Promise<unknown>{
  return request(path,{method,headers:{'content-type':'application/json'},body:JSON.stringify(body)},fetcher);
+}
+export async function sendCommandAttempt(command:UiCommand,remember:(command:UiCommand)=>void,fetcher:typeof fetch=fetch):Promise<unknown>{
+ // A missing response does not mean the server rejected the operation.
+ // Keep its exact identity before dispatch so recovery never repeats an older action.
+ remember(command);
+ return sendCommand(command.path,command.body,fetcher,command.method);
 }

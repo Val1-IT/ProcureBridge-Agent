@@ -188,3 +188,25 @@ test('unauthenticated mutations and injected identity are rejected without state
   await expect(page.locator('[data-action="reserve"]')).toHaveCount(0);
  }finally{await anonymous.close();await admin.close();}
 });
+
+test('a lost mutation response retries the same request without a second state change',async({browser})=>{
+ const context=await browser.newContext({storageState:'output/playwright/task24/auth/admin.json'});
+ const page=await context.newPage();const bodies:unknown[]=[];let interrupted=false;
+ try{
+  await page.goto(base+'/dealtwin/erp');await ready(page);const before=await state(page);
+  await context.route('**/api/dealtwin/judge/obligations/judge-existing-ap',async route=>{
+   bodies.push(route.request().postDataJSON());
+   if(!interrupted){
+    interrupted=true;const accepted=await route.fetch();expect(accepted.status()).toBe(200);
+    await route.abort('failed');
+   }else await route.continue();
+  });
+  await page.locator('[data-action="ap19"]').click();await ready(page);
+  await expect(page.getByRole('alert')).toContainText('The operation may already have completed');
+  const after=await state(page);expect(after.revision).toBe(before.revision+1);
+  await page.getByRole('button',{name:'Retry original request',exact:true}).click();await ready(page);
+  expect(bodies).toHaveLength(2);expect(bodies[1]).toEqual(bodies[0]);
+  expect(await state(page)).toEqual(after);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+ }finally{await context.close();}
+});
