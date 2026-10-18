@@ -1,5 +1,15 @@
 # DealTwin Requirement Traceability
 
+Local continuation: [Windows browser verification](LOCAL-BROWSER-20261018.md)
+adds 11/11 measured local Playwright results (ten browser cases plus one HTTP
+control), including durable Judge journeys at 1440/1024/820px and keyboard
+navigation at 390/1440px. DT-038 gains real local browser evidence. The report
+binds results to base06f7505 plus the exact test-only correction hash; it does
+not claim a clean-HEAD run or new cloud/whole-suite PostgreSQL evidence.
+Task29/DT-042 remain PARTIAL with dependency, Sites, live-provider, public
+identity and final evidence-packet gates open. Older browser-blocker statements
+below retain their historical environment scope.
+
 Current Alexa-first continuation: [MCP/provider readiness](ALEXA-READINESS-20261018.md)
 adds optional-argument interoperability, accurate external-provider discovery,
 and a scripted MCP/real-PostgreSQL lifecycle test. DT-015/DT-039 gain bounded

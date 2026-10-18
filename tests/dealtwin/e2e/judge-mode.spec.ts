@@ -45,14 +45,22 @@ for(const width of [390,1440]){
    await page.keyboard.press('Enter');await expect(page.locator('#dealtwin-main')).toBeFocused();
    for(const [label,path] of [['ERP Sandbox','/dealtwin/erp'],['Commitment Ledger','/dealtwin/commitments']] as const){
     const link=page.getByRole('navigation',{name:'DealTwin workflows'}).getByRole('link',{name:label,exact:true});
-    await link.click();await ready(page);expect(new URL(page.url()).pathname).toBe(path);
+    await link.click();await expect(page).toHaveURL(url=>url.pathname===path);await ready(page);
     await expect(link).toHaveAttribute('aria-current','page');
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-    for(const region of await page.getByRole('region').all()){
+    // Named sections are also implicit regions, but are not scroll controls.
+    // Check every actual table's wrapper, including its accessible name.
+    const tables=page.getByRole('table');
+    if(path==='/dealtwin/erp')await expect(tables).toHaveCount(1);
+    for(const table of await tables.all()){
+     const region=table.locator('..');
+     await expect(region).toHaveAttribute('role','region');
+     await expect(region).toHaveAttribute('aria-label',/\S/);
+     await expect(region).toHaveAttribute('tabindex','0');
      await region.focus();await expect(region).toBeFocused();
     }
    }
-   await page.goBack();await ready(page);expect(new URL(page.url()).pathname).toBe('/dealtwin/erp');
+   await page.goBack();await expect(page).toHaveURL(url=>url.pathname==='/dealtwin/erp');await ready(page);
    expect(await state(page)).toEqual(before);
   }finally{await context.close();}
  });
