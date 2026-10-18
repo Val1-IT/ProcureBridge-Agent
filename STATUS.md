@@ -1,5 +1,19 @@
 # DealTwin — local execution status
 
+## Current continuation — PostgreSQL verified, 2026-10-18
+
+Same session/container. PostgreSQL16.15 built and installed only under workspace.
+Actual SCRAM authentication exposed a pool-cloning defect; fixed in
+`523c9ede29afa3abed32e84023a6edbf728d579d`. Final **25 DB files /224 PASS**,
+0fail/0skip; **1 HTTP PASS** without launching a browser. Focused20 tests,
+typecheck, lint, Judge build and60-file client scan pass. Database/web-server/test
+processes are stopped; runtime/data retained for reuse. Ten browser cases and
+remaining Task29 release checks are still pending. See
+[PostgreSQL evidence](docs/dealtwin/POSTGRES-CLOUD-20261018.md) for source SHA,
+commands, failure/fix evidence and exact limits. Task29 remains PARTIAL.
+
+## Earlier runtime diagnosis — superseded by the DB validation above
+
 Runtime diagnosis continued in the **same environment**. See
 [minimum runtime options](docs/dealtwin/RUNTIME-OPTIONS-20261018.md) for official
 PostgreSQL16.15 source/size/domain, workspace-only provisioning proposal, browser
@@ -8,7 +22,7 @@ occurred. `7287630` requires Chromium sandboxing explicitly; its one focused
 regression, typecheck and lint pass. Remaining:25 DB-dependent Vitest files and
 1 Playwright file with11 cases (10 browser,1 HTTP-only), all unrun here.
 
-## Current continuation — fresh cloud recovered, 2026-10-18
+## Earlier continuation — fresh cloud recovered, 2026-10-18
 
 The three original commits through `0c6a421` were restored exactly and verified.
 Locked dependency installation now succeeds without lifecycle scripts. Two local

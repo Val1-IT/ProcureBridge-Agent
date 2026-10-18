@@ -1,0 +1,6 @@
+{
+  "command": "make install",
+  "prefix": "/workspace/dealtwin-runtime/pgsql-16.15",
+  "exitCode": 0,
+  "durationSeconds": 2.335
+}

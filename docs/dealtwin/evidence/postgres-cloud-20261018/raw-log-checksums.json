@@ -1,0 +1,22 @@
+[
+  {
+    "localPath": "/workspace/dealtwin-runtime/logs/build.log",
+    "sha256": "078cd9b63cc32a7a47ca3fff6e1678acc13045ddbf465a6afe07a6807e7c2659"
+  },
+  {
+    "localPath": "/workspace/dealtwin-runtime/logs/install.log",
+    "sha256": "483b63e3f8d7cb4e3ba6d093d89db7299e3bb69d1499127aa02afd00c0701e2a"
+  },
+  {
+    "localPath": "/workspace/dealtwin-runtime/logs/postgres-tests-before-fix.json",
+    "sha256": "687216ddd4f8af32ef68e7b8091afd770451d7d4f4613de3614aee5a240544e4"
+  },
+  {
+    "localPath": "/workspace/dealtwin-runtime/logs/postgres-tests.json",
+    "sha256": "c5d32d044e7db7d14ff0f4bbe32a035d19781c4bfafe325282fa3ca75fffdac1"
+  },
+  {
+    "localPath": "/workspace/dealtwin-runtime/logs/http-test.json",
+    "sha256": "a56df52d98fe7c1fd58943ef082336bb005bf5528a05474b73827eeacfd9664a"
+  }
+]

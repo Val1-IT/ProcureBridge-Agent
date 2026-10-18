@@ -1,0 +1,29 @@
+{
+  "sourceBeforeFix": "88d214a16efcb0210b4c123786efceb8546da40d",
+  "testedCodeHead": "523c9ede29afa3abed32e84023a6edbf728d579d",
+  "testedCodeTree": "14d7d58f3af7f4a8d86d75061730594669a6c049",
+  "finalDatabaseRunStartedClean": true,
+  "sameSessionAndContainer": true,
+  "allowedTransferHost": "sdmntprwestcentralus.oaiusercontent.com",
+  "networkPolicyChanged": false,
+  "lifecycleScriptsRun": false,
+  "osOrBrowserSandboxChanged": false,
+  "postgresVersion": "16.15",
+  "configureExitCode": 0,
+  "configureCommand": "../postgresql-16.15/configure --prefix=/workspace/dealtwin-runtime/pgsql-16.15 --without-icu --without-readline --with-openssl",
+  "firstProvisionHelperAttempt": {
+    "exitCode": 1,
+    "reason": "Path.open does not accept opener; fixed to built-in open",
+    "initdbExecuted": false,
+    "credentialCreated": false
+  },
+  "setupFixedBeforeProvision": true,
+  "fullNonDatabaseSuiteRerun": false,
+  "coverageRun": false,
+  "backupRestoreDrillRun": false,
+  "browserCasesRun": 0,
+  "task29": "PARTIAL",
+  "publicReadiness": false,
+  "automaticApprovalDenials": 0,
+  "activeTestProcesses": 0
+}

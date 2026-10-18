@@ -1,0 +1,114 @@
+[
+  {
+    "file": "build-result.json",
+    "sha256": "11830318615d5e41138119fc1e8d4a00917f0fe3a00e6646f0ad71453ab85bf2"
+  },
+  {
+    "file": "configure.log",
+    "sha256": "046ca07dd308ef04d5994c9d9031e468fca2c0e81598c437c802a7cc34e57be5"
+  },
+  {
+    "file": "database-identity.log",
+    "sha256": "5456b5f51c1bf16f1d36b96f2166a4a1de84880401b3c8ae96eb213837b8842e"
+  },
+  {
+    "file": "final-database-state.json",
+    "sha256": "3f35f6e00c649499f8d1275e1655a243819fb135c5df3c32e757e75119d3932f"
+  },
+  {
+    "file": "http-fixture.log",
+    "sha256": "cba08ad3c70e8a8a22e2fe30e3280df9d1dcf4f77fc8aa51ffd0ec2b742b2b0f"
+  },
+  {
+    "file": "http-run.json",
+    "sha256": "98e9e436dbb066728a9f942645ec06e23ad1eaa33d92a23b51420d7e43700178"
+  },
+  {
+    "file": "http-test.log",
+    "sha256": "516547cd2c183b57ef62c6fe68eafa7cd8693310bda33607e9082e0d4f358d0e"
+  },
+  {
+    "file": "initdb.log",
+    "sha256": "a149646ece6a26e4516f1ceb70db9c48e714e11b3bfd5717e7bc0100e2bc0040"
+  },
+  {
+    "file": "install-result.json",
+    "sha256": "505d47812acbed7ba7ee214adf2f2bb13e86e450bf38cbd895c00633235508fc"
+  },
+  {
+    "file": "installed-binaries.json",
+    "sha256": "d37222ca15c0768a5c84be6a2066bae4d99088e1842323dc499d4585ae5d3dfc"
+  },
+  {
+    "file": "judge-build-pg.log",
+    "sha256": "c30a3e36ee422cfc92b5c44fe480cd4b90f528915ca313bc80a7784ec8ce5258"
+  },
+  {
+    "file": "judge-client-scan-pg.log",
+    "sha256": "c3312184b6de196511147be378e92006458db73c4ff17e35312bea62cb8ed23b"
+  },
+  {
+    "file": "lint-pool-fix.log",
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "file": "migration-source-manifest.json",
+    "sha256": "de78d735790bae4808fbedd919c5dd98bbef7a89187a9358a7b3722d2bca2725"
+  },
+  {
+    "file": "pg-start.log",
+    "sha256": "66afd0411ccc09366e99fdd99b85f21899c8d2d064f5835126859618802153ad"
+  },
+  {
+    "file": "pg-stop.log",
+    "sha256": "34825e03037f264d35622670dcddeb4e46626fd09ae03b6dc3f0ed0584808cd7"
+  },
+  {
+    "file": "pool-regression.log",
+    "sha256": "7a148107a536668cd71123fd626622f000c480bc94e4117f095a243d77aa7e6f"
+  },
+  {
+    "file": "postgres-run-before-fix.json",
+    "sha256": "3b90cb1c549db824579537a9442294237ec5e0f62367da209707e2e0fa4f134d"
+  },
+  {
+    "file": "postgres-run.json",
+    "sha256": "965c3043441d42a469c879900f2992a958338d106332c636e1343c1b836ce8cc"
+  },
+  {
+    "file": "postgres-tests-before-fix.log",
+    "sha256": "eaafa2df0335acd88c8aa7831c921beba4b1a9cf5aa10588978531dc985891ac"
+  },
+  {
+    "file": "postgres-tests.log",
+    "sha256": "76b137468110b7b434b8ac7cbd4905c1200f8f8f5705d593d4bda090008a9ec3"
+  },
+  {
+    "file": "process-status.json",
+    "sha256": "1d2693193bec29f33acff030ef4dbdb3df35c30ac91cf321f53b634cb0205504"
+  },
+  {
+    "file": "provenance.json",
+    "sha256": "87926b062a883017f25fc0ef58a9db9808e4848293495bcd2f8b0cb6b90d043a"
+  },
+  {
+    "file": "provision-results.json",
+    "sha256": "09a420079623feb300dbb8acf5f5ce66d64dc092ae769377d6ac9302a982e9df"
+  },
+  {
+    "file": "raw-log-checksums.json",
+    "sha256": "3ec6156da46318f5cd630f784e47c47616dcd746adfbc8e402d057795ffda58f"
+  },
+  {
+    "file": "source-verification.json",
+    "sha256": "ecd57bec5f2ffd24075ada447e26b11e4c0d2169e7a70df60009595a48511236"
+  },
+  {
+    "file": "test-summary.json",
+    "sha256": "f05e2d860a9b3c28436b753db5abe7882d0d82047aee84b59ac473bec4ee2dbb"
+  },
+  {
+    "file": "typecheck-pool-fix.log",
+    "sha256": "efbff35e0bde159a472f415e7138aa1dc50263091630e64d8a07dd14a1a59ce6"
+  }
+]

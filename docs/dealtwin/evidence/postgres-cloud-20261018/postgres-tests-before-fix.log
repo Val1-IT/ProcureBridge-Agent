@@ -1,0 +1,368 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/api/approval-decision.test.ts tests/dealtwin/api/constraint-confirmation.test.ts tests/dealtwin/api/constraint-route.test.ts tests/dealtwin/api/deal-routes.test.ts tests/dealtwin/api/judge-bootstrap.test.ts tests/dealtwin/api/judge-guide-state.test.ts tests/dealtwin/api/judge-obligation.test.ts tests/dealtwin/api/judge-profile.test.ts tests/dealtwin/evaluation/benchmark-postgres.test.ts tests/dealtwin/mcp/multi-turn.test.ts tests/dealtwin/mcp/route.test.ts tests/dealtwin/mcp/tool-handlers.test.ts tests/dealtwin/postgres/commitment-failure-injection.test.ts tests/dealtwin/postgres/commitment-lifecycle.test.ts tests/dealtwin/postgres/commitment-race.test.ts tests/dealtwin/postgres/commitment-transaction.test.ts tests/dealtwin/postgres/idempotency-audit-store.test.ts tests/dealtwin/postgres/judge-financial-reset.test.ts tests/dealtwin/postgres/judge-reset.test.ts tests/dealtwin/postgres/payment-lifecycle.test.ts tests/dealtwin/postgres/proof-invalidation-primitive.test.ts tests/dealtwin/postgres/proof-invalidation.test.ts tests/dealtwin/postgres/repositories.test.ts tests/dealtwin/postgres/rls.test.ts tests/dealtwin/postgres/schema.test.ts --testTimeout=60000 --hookTimeout=60000 --reporter=default --reporter=json --outputFile=/workspace/dealtwin-runtime/logs/postgres-tests.json
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ✓ tests/dealtwin/postgres/commitment-transaction.test.ts (28 tests) 26486ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > reserves fixed conditional terms, counts self once, then uses current approval to create exactly one SO/audit/revision  742ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > rejects stale expected revision and same key with changed target or actor without writes  547ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > persists stale dependency evidence only and creates no commitment or order  471ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > rejects B capacity collision after A without a second commitment, bank movement or revision increment  514ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > requires exact stored self tuple and denies duplicate RESERVE with a new key  647ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > rolls back every row after injected write-back failure  723ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > rolls back every row after injected operational-audit failure  829ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > rolls back every row after injected receipt failure  1200ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > does not exclude a corrupted stored self hash  468ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > does not exclude a corrupted stored self payload  532ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > reads rejected current approval rather than rewriting or trusting approved historical proof  459ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > denies direct commit, wrong route target, foreign context, and owner/reset database credentials  569ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > retains actual reserve/commit receipts across reset, but removed proofs cannot authorize a new key  593ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > reserves a valid fixed deal with no new procurement cash outflow without inventing a cost  488ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > denies reserve when one approval row cannot prove coverage of multiple required codes  586ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > denies commit when one approval row cannot prove coverage of multiple required codes  452ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > atomically replaces a STALE still-reserved owner with a newly proved version, preserving historical events and one revision  1698ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement rolls back all writes when failure occurs after retire  1473ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement rolls back all writes when failure occurs after insert  1385ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement rolls back all writes when failure occurs after revision  1517ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement rolls back all writes when failure occurs after receipt  1513ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement never exempts an old tuple whose internally consistent events/hash differ from its immutable historical proof  1288ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement enforces tenant/role/revision/old identity and replays its original receipt after lifecycle and Judge reset  1324ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement uses server-required stress only: 'missing'  1215ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement uses server-required stress only: 'optional-failure'  1182ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement refuses newly stale ERP dependencies and leaves the old occupied reservation intact  1252ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > replacement detects a zero-row conditional retirement and rolls back without a capacity gap  1208ms
+   ✓ atomic reserve and commit with real PostgreSQL app role > a committed Deal receives a projection only, retains its occupied row/SO, and cannot replace or COMMIT twice  1253ms
+ ✓ tests/dealtwin/api/deal-routes.test.ts (15 tests) 17216ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > compiles real20% shortfall, solves/persists25% v2 proof, survives fresh reads and preserves original-response retries  1810ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > lists persisted synthetic deals and edits immutable versions without overwriting the previous terms  463ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > creates a durable draft with exact money DTOs and rejects numeric/oversized/AI money without writes  443ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > denies unauthenticated/session-role/body-tenant injection and stale revision before any workflow write  409ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > editing cannot persist a draft version with foreign/missing ERP product or warehouse references  463ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > HTTP boundaries reject missing targets, cross-origin, nonJSON and duplicate/invalid stress without business writes  459ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > persists a real no-solution run rather than inventing a feasible proof or changing cash  585ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > an out-of-policy draft gets a bounded validation reason, not a database-unavailable error or partial evidence  449ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > persists named stress over immutable historical inputs, hashes scenarios distinctly, retries once and never moves cash  488ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > committed AP19m recompile persists a27% proposal only, retaining original current terms/SO/capacity and denying secondCOMMIT  1381ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > reserved AP19m workflow replaces atomically through signed route, preserves original retry even afterJudge reset  1350ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > workflow rollback after injectedversion leaves no partial version/proof or adopted revision  2668ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > workflow rollback after injectedproof leaves no partial version/proof or adopted revision  2430ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > workflow rollback after injectedreceipt leaves no partial version/proof or adopted revision  2414ms
+   ✓ persistent Deal workflow routes with real app-role PostgreSQL > a supplier-timing amendment binds both fixed-term requirements and cannot COMMIT after approving only one  1030ms
+ ✓ tests/dealtwin/postgres/commitment-lifecycle.test.ts (37 tests) 20227ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'reserved' → 'release' follows the transition table and preserves immutable history  735ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'reserved' → 'expire' follows the transition table and preserves immutable history  564ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'reserved' → 'cancel' follows the transition table and preserves immutable history  644ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'committed' → 'release' follows the transition table and preserves immutable history  518ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'committed' → 'expire' follows the transition table and preserves immutable history  601ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'committed' → 'cancel' follows the transition table and preserves immutable history  637ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'released' → 'release' follows the transition table and preserves immutable history  532ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'released' → 'expire' follows the transition table and preserves immutable history  536ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'released' → 'cancel' follows the transition table and preserves immutable history  483ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'expired' → 'release' follows the transition table and preserves immutable history  503ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'expired' → 'expire' follows the transition table and preserves immutable history  571ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'expired' → 'cancel' follows the transition table and preserves immutable history  541ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'cancelled' → 'release' follows the transition table and preserves immutable history  505ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'cancelled' → 'expire' follows the transition table and preserves immutable history  479ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > 'cancelled' → 'cancel' follows the transition table and preserves immutable history  436ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > expiry requires a configured deadline, denies early execution, and admits exact equality  539ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > expiry does not truncate a PostgreSQL microsecond deadline to JavaScript milliseconds  578ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > release original receipt survives Judge reset and repository recreation  503ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > expire original receipt survives Judge reset and repository recreation  540ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > cancel original receipt survives Judge reset and repository recreation  521ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > permits cleanup when proof is STALE without rewriting proof, cash evidence, or the Deal  631ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > denies foreign context, wrong identity/revision, missing target, unauthorized replay and non-app credentials  525ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'release' at 'after-update' and leaves its key retryable  520ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'release' at 'before-audit' and leaves its key retryable  481ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'release' at 'after-receipt' and leaves its key retryable  480ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'expire' at 'after-update' and leaves its key retryable  494ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'expire' at 'before-audit' and leaves its key retryable  971ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'expire' at 'after-receipt' and leaves its key retryable  499ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'cancel' at 'after-update' and leaves its key retryable  449ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'cancel' at 'before-audit' and leaves its key retryable  435ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back 'cancel' at 'after-receipt' and leaves its key retryable  459ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > a conditional UPDATE that returns zero rows is not treated as success  540ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > release invalidates dependent external proofs but exempts only its exact owner tuple  454ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > expire invalidates dependent external proofs but exempts only its exact owner tuple  493ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > cancel invalidates dependent external proofs but exempts only its exact owner tuple  471ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > rolls back dependent proof invalidation and its audit if the success receipt fails  466ms
+   ✓ Task17 PostgreSQL lifecycle and immutable operation replay > cannot address a real foreign-tenant commitment even when every target ID is known  431ms
+ ✓ tests/dealtwin/postgres/rls.test.ts (10 tests) 571ms
+ ✓ tests/dealtwin/postgres/repositories.test.ts (5 tests) 2744ms
+   ✓ DealTwin PostgreSQL repositories > persists the complete canonical Judge invoice source chain and rejects invalid state atomically  414ms
+   ✓ DealTwin PostgreSQL repositories > does not silently accept a rewrite of append-only ERP audit evidence  504ms
+   ✓ DealTwin PostgreSQL repositories > round-trips ERP seed state with exact string/bigint cash mapping and revision conflict  387ms
+   ✓ DealTwin PostgreSQL repositories > round-trips proof JSON, keeps versions immutable, and denies cross-tenant reads  403ms
+   ✓ DealTwin PostgreSQL repositories > binds ApplicationPorts.transact to one client, locks the workspace, and rolls back mutation without a receipt  656ms
+ ✓ tests/dealtwin/postgres/schema.test.ts (11 tests) 407ms
+ ✓ tests/dealtwin/postgres/judge-financial-reset.test.ts (3 tests) 2373ms
+   ✓ Judge reset with real financial history and linked active commitment > restores canonical seed atomically and preserves historical receipts after payments, reversal, commitment and linked Sales Order  684ms
+   ✓ Judge reset with real financial history and linked active commitment > rolls back every financial and linked row when reset fails at 'payments-delete'  590ms
+   ✓ Judge reset with real financial history and linked active commitment > rolls back every financial and linked row when reset fails at 'final-receipt'  627ms
+ ✓ tests/dealtwin/postgres/proof-invalidation.test.ts (16 tests) 7974ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > stock adjustment commands round-trip through the real application repository  536ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > snapshot-scoped invalidation cannot stale a different proof merely sharing a query key  490ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > new invoice stales the current proof inside its save without changing immutable proof/replay  434ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > invoice timing stales the current proof inside its save without changing immutable proof/replay  414ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > cancelled invoice stales the current proof inside its save without changing immutable proof/replay  436ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > partial payment stales the current proof inside its save without changing immutable proof/replay  432ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > cash movement stales the current proof inside its save without changing immutable proof/replay  420ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > supplier terms stales the current proof inside its save without changing immutable proof/replay  501ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > payment cancellation keeps original cash evidence and stales on compensating change  645ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > cash reversal keeps original cash evidence and stales on compensating change  469ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > confirmed inventory reservation invalidates stock dependencies without inventing a cash movement  493ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > an unrelated product label change advances revision but preserves current proof and adds no stale audit  471ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > a valid legacy fractional credit limit still saves but cannot leave an exact-money proof current  518ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > failure after the stale audit rolls back payment, cash, revision, proof status and all audit evidence  448ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > fresh repository instances retain current STALE separately from the historical proof result  482ms
+   ✓ Task19 every server ERP save publishes atomic financial dependency changes > an ERP save never invalidates another tenant proof sharing every business ID  451ms
+ ✓ tests/dealtwin/postgres/idempotency-audit-store.test.ts (3 tests) 2499ms
+   ✓ DealTwin idempotency audit store > replays the original success response after later mutable approval status changes  335ms
+   ✓ DealTwin idempotency audit store > scopes lookup by tenant and action and rejects a corrupted response hash  391ms
+   ✓ DealTwin idempotency audit store > wires decideApproval idempotency through PostgreSQL including concurrent same-key races  1476ms
+ ✓ tests/dealtwin/postgres/proof-invalidation-primitive.test.ts (4 tests) 2008ms
+   ✓ DealTwin proof invalidation primitive > preserves immutable invalidation evidence through reload, legitimate ERP mutation and save  493ms
+   ✓ DealTwin proof invalidation primitive > stales intersecting proofs but exempts only the exact self reservation-capacity delta  371ms
+   ✓ DealTwin proof invalidation primitive > stales a proof when a new-obligation query-set hash changes  424ms
+   ✓ DealTwin proof invalidation primitive > does not stale a non-intersecting proof  385ms
+ ✓ tests/dealtwin/mcp/multi-turn.test.ts (16 tests) 6323ms
+   ✓ actual durable service conversation across executor instances > carries persisted A/version/proof, retained constraints and stale ERP evidence without storing balances  2393ms
+   ✓ actual durable service conversation across executor instances > prepare-only commit is harmless; reserve/release retry keeps original receipt and refreshes newer conversation  1951ms
+   ✓ actual durable service conversation across executor instances > cross-deal historical replay retains B proof without attaching A identity  1631ms
+ ✓ tests/dealtwin/postgres/judge-reset.test.ts (6 tests) 3876ms
+   ✓ durable synthetic Judge reset > repeats canonical business state while increasing revision and survives a new runtime/repository  627ms
+   ✓ durable synthetic Judge reset > replays old immutable reset receipts before revision checks and rejects changed payload or actor  590ms
+   ✓ durable synthetic Judge reset > rolls back deletion, seed, revision and receipt when the final audit insert fails  577ms
+   ✓ durable synthetic Judge reset > rejects foreign tenants/roles and app or owner credentials used for reset  562ms
+   ✓ durable synthetic Judge reset > serializes simultaneous same-key reset and does not erase retained audit evidence  487ms
+   ✓ durable synthetic Judge reset > removes old proof/version authorization and retains receipts from other operation namespaces  713ms
+(node:18344) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ ✓ tests/dealtwin/api/constraint-route.test.ts (9 tests) 5211ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > persists review-only candidates/source and old constraints; only explicit human confirmation permits evaluation  637ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > reads immutable success before revision/version/provider, even after confirmation and reset  554ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > rejects authoritative/model-malformed output, missing information and policy contradictions without writes  425ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > does not hold workspace lock during provider and refuses stale write after a concurrent ordinary command  462ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > rejects anonymous/role/body/target/size bypasses before any provider call  437ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > rejects invented inventory references without writing a review version  653ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > rolls back candidate/version/revision/receipt on an unexpected constraint write failure  701ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > rolls back all writes when dealtwin_deal_versions fails  514ms
+   ✓ constraint extraction HTTP / actual PostgreSQL app-role writes > rolls back all writes when erp_audit_events fails  466ms
+ ✓ tests/dealtwin/mcp/route.test.ts (8 tests) 4503ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > negotiates pinned compatibility revision, lists real schema tools and accepts initialized notification without writes  472ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > returns durable graph references with no write, and refuses an unknown selected proof  755ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > requires actual server-bound human consent; prepare and a missing/forged grant never mutate  530ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > executes exactly one service operation and returns original data on retry; modified success payload is denied  582ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > denies anonymous, role, raw SQL and body identity before service writes  499ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > bounds body/protocol/origin and rejects batch/raw database methods without writes  376ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > sanitizes unexpected write failure and rolls back the actual operation  415ms
+   ✓ authenticated stateless MCP HTTP / real PostgreSQL services > allows authenticated non-browser MCP without Origin but refuses browser-shaped origin omission  466ms
+ ❯ tests/dealtwin/postgres/commitment-race.test.ts (23 tests | 23 failed) 10259ms
+   × Task18 real independently pooled-client liquidity races > independently seeded race 1 serializes 4m/5m against 7m capacity and rejects the refreshed loser 556ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 2 serializes 4m/5m against 7m capacity and rejects the refreshed loser 452ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 3 serializes 4m/5m against 7m capacity and rejects the refreshed loser 437ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 4 serializes 4m/5m against 7m capacity and rejects the refreshed loser 358ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 5 serializes 4m/5m against 7m capacity and rejects the refreshed loser 417ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 6 serializes 4m/5m against 7m capacity and rejects the refreshed loser 434ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 7 serializes 4m/5m against 7m capacity and rejects the refreshed loser 404ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 8 serializes 4m/5m against 7m capacity and rejects the refreshed loser 402ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 9 serializes 4m/5m against 7m capacity and rejects the refreshed loser 481ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 10 serializes 4m/5m against 7m capacity and rejects the refreshed loser 462ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 11 serializes 4m/5m against 7m capacity and rejects the refreshed loser 420ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 12 serializes 4m/5m against 7m capacity and rejects the refreshed loser 419ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 13 serializes 4m/5m against 7m capacity and rejects the refreshed loser 413ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 14 serializes 4m/5m against 7m capacity and rejects the refreshed loser 384ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 15 serializes 4m/5m against 7m capacity and rejects the refreshed loser 397ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 16 serializes 4m/5m against 7m capacity and rejects the refreshed loser 418ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 17 serializes 4m/5m against 7m capacity and rejects the refreshed loser 406ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 18 serializes 4m/5m against 7m capacity and rejects the refreshed loser 405ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 19 serializes 4m/5m against 7m capacity and rejects the refreshed loser 422ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > independently seeded race 20 serializes 4m/5m against 7m capacity and rejects the refreshed loser 408ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > concurrent same-key RESERVE returns exactly the original response and one success receipt 423ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > concurrent same-key COMMIT uses the real ERP command once and returns the identical linked SO response 510ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+   × Task18 real independently pooled-client liquidity races > concurrent changed payload with the same successful key is rejected before revision or mutable proof status 424ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ✓ tests/dealtwin/postgres/payment-lifecycle.test.ts (2 tests) 1287ms
+   ✓ PostgreSQL real ERP payment lifecycle > persists partial 'payable' payment and its cancellation without rewriting cash or double-incrementing revision  493ms
+   ✓ PostgreSQL real ERP payment lifecycle > persists partial 'receivable' payment and its cancellation without rewriting cash or double-incrementing revision  437ms
+ ✓ tests/dealtwin/mcp/tool-handlers.test.ts (9 tests) 3380ms
+   ✓ service tools / actual PostgreSQL role > delegates compile with server clock/identity and original-response idempotency  532ms
+   ✓ service tools / actual PostgreSQL role > prepares without writes, and cannot turn a model boolean into user confirmation  420ms
+   ✓ service tools / actual PostgreSQL role > denies raw database, body identity, foreign tenant and unsuitable role  460ms
+   ✓ service tools / actual PostgreSQL role > reports stale revision without changing durable identifiers or constraints  510ms
+   ✓ service tools / actual PostgreSQL role > read tools return current persisted graph/timeline without receipts or mutations  481ms
+   ✓ service tools / actual PostgreSQL role > retains historical receipts after reset with a fresh executor instance  573ms
+ ✓ tests/dealtwin/api/constraint-confirmation.test.ts (3 tests) 2628ms
+   ✓ server constraint confirmation with real PostgreSQL > creates one immutable confirmed version, preserves history and replays the original result  803ms
+   ✓ server constraint confirmation with real PostgreSQL > rejects partial/unknown confirmation and stale version/revision without writes  501ms
+   ✓ server constraint confirmation with real PostgreSQL > rejects absent session, finance role, identity injection and oversized payloads  486ms
+ ✓ tests/dealtwin/postgres/commitment-failure-injection.test.ts (7 tests) 5114ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'reserve' rolls back all rows after 'commitment insert' and its unoccupied key remains retryable  990ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'reserve' rolls back all rows after 'revision update' and its unoccupied key remains retryable  612ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'reserve' rolls back all rows after 'success audit insert' and its unoccupied key remains retryable  649ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'commit' rolls back all rows after 'Sales Order insert' and its unoccupied key remains retryable  595ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'commit' rolls back all rows after 'revision update' and its unoccupied key remains retryable  599ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'commit' rolls back all rows after 'operational audit insert' and its unoccupied key remains retryable  657ms
+   ✓ Task18 atomic rollback after actual PostgreSQL writes > 'commit' rolls back all rows after 'success audit insert' and its unoccupied key remains retryable  576ms
+ ✓ tests/dealtwin/api/approval-decision.test.ts (3 tests) 1801ms
+   ✓ fixed proof/version approval HTTP contract > only authenticated approver decides fixed terms, once, without rewriting historical proof  541ms
+   ✓ fixed proof/version approval HTTP contract > rejects wrong proof/version and spoofed tenant/role without writes  443ms
+   ✓ fixed proof/version approval HTTP contract > the approval adapter rejects owner/reset credentials as well as enforcing the approver session role  408ms
+ ✓ tests/dealtwin/api/judge-obligation.test.ts (2 tests) 1387ms
+   ✓ allowlisted synthetic Judge obligation HTTP mutation > persists exact19m source-chain change, stales proofs, advances once and preserves historic replay/cash  609ms
+   ✓ allowlisted synthetic Judge obligation HTTP mutation > denies absent/unauthorized session, other invoice and malformed/AI-shaped amounts  415ms
+ ❯ tests/dealtwin/evaluation/benchmark-postgres.test.ts (1 test | 1 failed) 3478ms
+   × actual application-role benchmark observations, no inferred metric pass > measures real commit/retry/stale/two-client race plus offline extraction contracts with honest denominators 2747ms
+     → SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ✓ tests/dealtwin/api/judge-guide-state.test.ts (1 test) 1028ms
+   ✓ Judge guide exposes actual durable run evidence > retains exact compile evidence across reads, and reset clears current runs but not receipt history  646ms
+ ✓ tests/dealtwin/api/judge-bootstrap.test.ts (1 test) 1959ms
+   ✓ explicit disposable browser fixture preparation > initializes only an explicitly requested empty synthetic fixture and normal bootstrap preserves it  1568ms
+ ✓ tests/dealtwin/api/judge-profile.test.ts (1 test) 891ms
+   ✓ Judge caller profile is server presentation metadata, never body authority > echoes only the authenticated actor/role for UI without changing its tenant/business seed  501ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 24 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/dealtwin/evaluation/benchmark-postgres.test.ts > actual application-role benchmark observations, no inferred metric pass > measures real commit/retry/stale/two-client race plus offline extraction contracts with honest denominators
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ lib/server/postgres/transaction.ts:34:20
+     32|   }
+     33|   return activeTransaction.run(true, async () => {
+     34|     const client = await pool.connect();
+       |                    ^
+     35|     let began = false;
+     36|     try {
+ ❯ measureDisposableServices evaluation/dealtwin/report.ts:71:16
+ ❯ tests/dealtwin/evaluation/benchmark-postgres.test.ts:12:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/24]⎯
+
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 1 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 2 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 3 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 4 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 5 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 6 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 7 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 8 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 11 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 12 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 13 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 14 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 15 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 16 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 17 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 18 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 19 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ tests/dealtwin/postgres/race-harness.ts:20:67
+     18|   let operations: readonly Promise<OperationResponse>[] = [];
+     19|   try {
+     20|     const identities = await Promise.all(pools.map(async pool => (awai…
+       |                                                                   ^
+     21|       r.rolsuper,r.rolbypassrls from pg_roles r where r.rolname=curren…
+     22|     const pids = identities.map(identity => identity.pid as number);
+ ❯ runLockedOperations tests/dealtwin/postgres/race-harness.ts:20:24
+ ❯ tests/dealtwin/postgres/commitment-race.test.ts:30:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/24]⎯
+
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 9 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 10 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > independently seeded race 20 serializes 4m/5m against 7m capacity and rejects the refreshed loser
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ tests/dealtwin/postgres/race-harness.ts:20:67
+     18|   let operations: readonly Promise<OperationResponse>[] = [];
+     19|   try {
+     20|     const identities = await Promise.all(pools.map(async pool => (awai…
+       |                                                                   ^
+     21|       r.rolsuper,r.rolbypassrls from pg_roles r where r.rolname=curren…
+     22|     const pids = identities.map(identity => identity.pid as number);
+ ❯ runLockedOperations tests/dealtwin/postgres/race-harness.ts:20:24
+ ❯ tests/dealtwin/postgres/commitment-race.test.ts:30:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/24]⎯
+
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > concurrent same-key RESERVE returns exactly the original response and one success receipt
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ tests/dealtwin/postgres/race-harness.ts:20:67
+     18|   let operations: readonly Promise<OperationResponse>[] = [];
+     19|   try {
+     20|     const identities = await Promise.all(pools.map(async pool => (awai…
+       |                                                                   ^
+     21|       r.rolsuper,r.rolbypassrls from pg_roles r where r.rolname=curren…
+     22|     const pids = identities.map(identity => identity.pid as number);
+ ❯ runLockedOperations tests/dealtwin/postgres/race-harness.ts:20:24
+ ❯ tests/dealtwin/postgres/commitment-race.test.ts:55:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/24]⎯
+
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > concurrent same-key COMMIT uses the real ERP command once and returns the identical linked SO response
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ tests/dealtwin/postgres/race-harness.ts:20:67
+     18|   let operations: readonly Promise<OperationResponse>[] = [];
+     19|   try {
+     20|     const identities = await Promise.all(pools.map(async pool => (awai…
+       |                                                                   ^
+     21|       r.rolsuper,r.rolbypassrls from pg_roles r where r.rolname=curren…
+     22|     const pids = identities.map(identity => identity.pid as number);
+ ❯ runLockedOperations tests/dealtwin/postgres/race-harness.ts:20:24
+ ❯ tests/dealtwin/postgres/commitment-race.test.ts:67:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/24]⎯
+
+ FAIL  tests/dealtwin/postgres/commitment-race.test.ts > Task18 real independently pooled-client liquidity races > concurrent changed payload with the same successful key is rejected before revision or mutable proof status
+Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+ ❯ node_modules/pg-pool/index.js:45:11
+ ❯ tests/dealtwin/postgres/race-harness.ts:20:67
+     18|   let operations: readonly Promise<OperationResponse>[] = [];
+     19|   try {
+     20|     const identities = await Promise.all(pools.map(async pool => (awai…
+       |                                                                   ^
+     21|       r.rolsuper,r.rolbypassrls from pg_roles r where r.rolname=curren…
+     22|     const pids = identities.map(identity => identity.pid as number);
+ ❯ runLockedOperations tests/dealtwin/postgres/race-harness.ts:20:24
+ ❯ tests/dealtwin/postgres/commitment-race.test.ts:80:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/24]⎯
+
+
+ Test Files  2 failed | 23 passed (25)
+      Tests  24 failed | 200 passed (224)
+   Start at  05:59:10
+   Duration  146.29s (transform 1.35s, setup 0ms, collect 5.64s, tests 135.63s, environment 4ms, prepare 1.47s)
+
+JSON report written to /workspace/dealtwin-runtime/logs/postgres-tests.json
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

@@ -1,0 +1,42 @@
+[
+  {
+    "file": "postgres",
+    "bytes": 10482944,
+    "sha256": "d185e18f3adb9bf1a5511221d3ebe4995489994ed55fbe7ecbfb8ea5046491af"
+  },
+  {
+    "file": "initdb",
+    "bytes": 214088,
+    "sha256": "a274820e1a58838c676d30d94b430c36552e91e790b384d4b35fcaa84b87086a"
+  },
+  {
+    "file": "pg_ctl",
+    "bytes": 84832,
+    "sha256": "634db09c4a24e01c8b991ac049ec5311b9c135e1597ea5fb293427b75c82eb09"
+  },
+  {
+    "file": "psql",
+    "bytes": 613072,
+    "sha256": "1dabe7d51fd34f0346be3c9850a107ef95ddda72497b02ea77de1b4bff20d3e8"
+  },
+  {
+    "file": "pg_dump",
+    "bytes": 491976,
+    "sha256": "14c4dcf7f6c6a2e734ebb1eed86f659a8711e7f71cc27f5ab6bf8aedb4dd15f2"
+  },
+  {
+    "file": "pg_restore",
+    "bytes": 262264,
+    "sha256": "46f66b3eed6613e9adaaf83ae1fd359673f258f4091f832be84de9158cec4259"
+  },
+  {
+    "file": "createdb",
+    "bytes": 128528,
+    "sha256": "209a26a632ada557b1076d3109fbc8d1da07909b5c2bf188554ca447475f1905"
+  },
+  {
+    "file": "pg_config",
+    "bytes": 50816,
+    "sha256": "ee574e50c3188f2077a4ff5df9a1e48d87797720fdff59e02414ec476776f438"
+  }
+]

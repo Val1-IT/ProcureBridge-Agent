@@ -1,6 +1,14 @@
 # DealTwin Task29 checkpoint — PARTIAL / PUBLIC RELEASE BLOCKED
 
-Current linked-cloud continuation (2026-10-18): see
+Latest same-cloud evidence: [POSTGRES-CLOUD-20261018.md](POSTGRES-CLOUD-20261018.md).
+At523c9ede29afa3abed32e84023a6edbf728d579d,25 actual PostgreSQL suites pass224
+tests after preserving hidden passwords in independent pools; one HTTP case also
+passes without a browser. Ten browser cases, full coverage, backup/restore,
+configured Sites build/audit and final packet remain pending. Runtime test
+processes are stopped; workspace binaries/data retained. This supersedes the
+old npm/PostgreSQL availability blockers below, not their historical evidence.
+
+Earlier linked-cloud continuation (2026-10-18): see
 [CLOUD-CONTINUATION-20261018.md](CLOUD-CONTINUATION-20261018.md).
 Baseline491/491hashes verified; supplemental actual pure-core smoke11/11PASS
 on656018f. Full Task29 execution is blocked by unavailable offline npm packages

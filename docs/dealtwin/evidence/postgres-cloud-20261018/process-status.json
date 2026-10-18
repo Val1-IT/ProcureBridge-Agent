@@ -1,0 +1,11 @@
+{
+  "postgresStopExitCode": 0,
+  "postgresStatusExitCode": 3,
+  "postmasterPidFileExists": false,
+  "portsAcceptingConnections": {
+    "55432": false,
+    "4177": false
+  },
+  "testRunnersCompleted": true,
+  "browserLaunched": false
+}

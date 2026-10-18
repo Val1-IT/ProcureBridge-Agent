@@ -1,5 +1,12 @@
 # DealTwin Requirement Traceability
 
+Latest cloud DB update: [PostgreSQL verification](POSTGRES-CLOUD-20261018.md)
+records25 actual DB suites /224PASS and1HTTP PASS at523c9ed, including race,
+RLS, rollback, idempotency and real service observations. A non-enumerable pool
+password cloning defect was reproduced and fixed with regression coverage.
+DT-038 browser evidence and DT-042 release closure remain pending; no full
+candidate coverage, restore drill or public-readiness claim is made.
+
 Fresh-cloud update (2026-10-18): original commits restored exactly; dependency
 installation, 97 non-DB suites / 1,037 tests, typecheck, lint, Judge build and
 bounded client scan pass after two fixes. See [recovery evidence](CLOUD-RECOVERY-20261018.md).

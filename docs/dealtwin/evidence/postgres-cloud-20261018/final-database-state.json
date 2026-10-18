@@ -1,0 +1,35 @@
+{
+  "serverVersion": "16.15",
+  "database": "dealtwin_test",
+  "publicTables": 45,
+  "tenantWorkspaces": [
+    "dealtwin-judge-v1"
+  ],
+  "roles": [
+    {
+      "name": "dealtwin_app",
+      "superuser": false,
+      "bypassRls": false,
+      "login": false
+    },
+    {
+      "name": "dealtwin_app_login",
+      "superuser": false,
+      "bypassRls": false,
+      "login": true
+    },
+    {
+      "name": "dealtwin_judge_reset",
+      "superuser": false,
+      "bypassRls": false,
+      "login": false
+    },
+    {
+      "name": "dealtwin_reset_login",
+      "superuser": false,
+      "bypassRls": false,
+      "login": true
+    }
+  ],
+  "otherClientConnections": 0
+}

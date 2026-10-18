@@ -1,0 +1,14 @@
+[
+  {
+    "file": "20260809_000001_distributor_mini_erp.sql",
+    "sha256": "e53730197184ed496b0018f8e72eb6b963322d7f8877cf7cbbfe4679a81b3b22"
+  },
+  {
+    "file": "20260913150558_dealtwin_server_foundation.sql",
+    "sha256": "5966c6f351a76d37682818290b4e254cda9d3b651c118c440392e4231356f52e"
+  },
+  {
+    "file": "20261013043307_dealtwin_constraint_source.sql",
+    "sha256": "7c70f62c2ff141b442119a244c28c80714d7bc300cd0186ee40a3f8b0362c38e"
+  }
+]

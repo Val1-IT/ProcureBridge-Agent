@@ -1,0 +1,335 @@
+{
+  "beforeFix": {
+    "files": 25,
+    "passed": 200,
+    "failed": 24,
+    "skipped": 0,
+    "suites": [
+      {
+        "file": "tests/dealtwin/api/approval-decision.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/constraint-confirmation.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/constraint-route.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/deal-routes.test.ts",
+        "status": "passed",
+        "passed": 15,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-bootstrap.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-guide-state.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-obligation.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-profile.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/evaluation/benchmark-postgres.test.ts",
+        "status": "failed",
+        "passed": 0,
+        "failed": 1
+      },
+      {
+        "file": "tests/dealtwin/mcp/multi-turn.test.ts",
+        "status": "passed",
+        "passed": 16,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/mcp/route.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/mcp/tool-handlers.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-failure-injection.test.ts",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-lifecycle.test.ts",
+        "status": "passed",
+        "passed": 37,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-race.test.ts",
+        "status": "failed",
+        "passed": 0,
+        "failed": 23
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-transaction.test.ts",
+        "status": "passed",
+        "passed": 28,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/idempotency-audit-store.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/judge-financial-reset.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/judge-reset.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/payment-lifecycle.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/proof-invalidation-primitive.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/proof-invalidation.test.ts",
+        "status": "passed",
+        "passed": 16,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/repositories.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/rls.test.ts",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/schema.test.ts",
+        "status": "passed",
+        "passed": 11,
+        "failed": 0
+      }
+    ]
+  },
+  "afterFix": {
+    "files": 25,
+    "passed": 224,
+    "failed": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "file": "tests/dealtwin/api/approval-decision.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/constraint-confirmation.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/constraint-route.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/deal-routes.test.ts",
+        "status": "passed",
+        "passed": 15,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-bootstrap.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-guide-state.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-obligation.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/api/judge-profile.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/evaluation/benchmark-postgres.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/mcp/multi-turn.test.ts",
+        "status": "passed",
+        "passed": 16,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/mcp/route.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/mcp/tool-handlers.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-failure-injection.test.ts",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-lifecycle.test.ts",
+        "status": "passed",
+        "passed": 37,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-race.test.ts",
+        "status": "passed",
+        "passed": 23,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/commitment-transaction.test.ts",
+        "status": "passed",
+        "passed": 28,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/idempotency-audit-store.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/judge-financial-reset.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/judge-reset.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/payment-lifecycle.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/proof-invalidation-primitive.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/proof-invalidation.test.ts",
+        "status": "passed",
+        "passed": 16,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/repositories.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/rls.test.ts",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "file": "tests/dealtwin/postgres/schema.test.ts",
+        "status": "passed",
+        "passed": 11,
+        "failed": 0
+      }
+    ]
+  },
+  "http": {
+    "startTime": "2026-10-18T06:05:34.170Z",
+    "duration": 4049.5059999999994,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "deselectedBrowserCases": 10,
+    "browserLaunched": false
+  },
+  "focusedNonDatabase": {
+    "files": 2,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "newRegressionCases": 2
+  }
+}

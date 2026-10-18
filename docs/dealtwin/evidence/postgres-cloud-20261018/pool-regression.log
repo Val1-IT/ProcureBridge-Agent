@@ -1,0 +1,20 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/postgres/pool.test.ts tests/dealtwin/postgres/transaction.test.ts
+
+
+ RUN  v3.2.7 /workspace/ProcureBridge-Agent
+
+ ✓ tests/dealtwin/postgres/transaction.test.ts (18 tests) 14ms
+ ✓ tests/dealtwin/postgres/pool.test.ts (2 tests) 5ms
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  06:02:22
+   Duration  560ms (transform 78ms, setup 0ms, collect 130ms, tests 19ms, environment 0ms, prepare 121ms)
+
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

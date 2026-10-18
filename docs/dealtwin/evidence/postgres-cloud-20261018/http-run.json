@@ -1,0 +1,49 @@
+[
+  {
+    "step": "http-fixture",
+    "command": [
+      "node",
+      "node_modules/vite-node/vite-node.mjs",
+      "--config",
+      "vitest.config.ts",
+      "/workspace/dealtwin-runtime/prepare-http.ts"
+    ],
+    "exitCode": 0,
+    "durationSeconds": 1.486
+  },
+  {
+    "step": "judge-build-pg",
+    "command": [
+      "npm",
+      "run",
+      "judge:build"
+    ],
+    "exitCode": 0,
+    "durationSeconds": 3.782
+  },
+  {
+    "step": "judge-client-scan-pg",
+    "command": [
+      "npm",
+      "run",
+      "security:client"
+    ],
+    "exitCode": 0,
+    "durationSeconds": 0.268
+  },
+  {
+    "step": "http-test",
+    "command": [
+      "node",
+      "node_modules/@playwright/test/cli.js",
+      "test",
+      "--config=playwright.dealtwin.config.ts",
+      "--grep",
+      "Node production target serves real hydration assets and denies traversal",
+      "--reporter=list,json",
+      "--output=output/playwright/cloud-pg-20261018/results"
+    ],
+    "exitCode": 0,
+    "durationSeconds": 4.902
+  }
+]
