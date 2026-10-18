@@ -15,7 +15,7 @@ const metadata=z.record(z.string().max(128),z.unknown()).optional();
 const empty=z.strictObject({_meta:metadata});
 const initialize=z.strictObject({protocolVersion:z.string().min(1).max(32),capabilities:z.record(z.string(),z.unknown()),
  clientInfo:z.strictObject({name:z.string().min(1).max(128),version:z.string().min(1).max(64),title:z.string().max(128).optional()}),_meta:metadata});
-const call=z.strictObject({name:z.string().regex(/^[A-Za-z0-9_.-]{1,128}$/),arguments:z.unknown(),_meta:metadata});
+const call=z.strictObject({name:z.string().regex(/^[A-Za-z0-9_.-]{1,128}$/),arguments:z.unknown().optional(),_meta:metadata});
 const headers={'cache-control':'no-store'};
 function response(id:string|number,result:unknown){return Response.json({jsonrpc:'2.0',id,result},{headers});}
 function error(id:string|number|null,status:number,code:number,message:string){return Response.json({jsonrpc:'2.0',id,error:{code,message}},{status,headers});}
@@ -71,7 +71,9 @@ export async function POST(request:Request):Promise<Response>{
    }
    case 'tools/call':{
     const input=parse(call,rpc.params);let tool;
-    try{tool=parseToolRequest({tool:input.name,arguments:input.arguments});}catch{throw new JudgeHttpError(422,'INVALID_TOOL_REQUEST');}
+    // MCP permits omitted arguments. Only omission becomes an empty object;
+    // null and missing required tool fields still fail the strict tool schema.
+    try{tool=parseToolRequest({tool:input.name,arguments:input.arguments===undefined?{}:input.arguments});}catch{throw new JudgeHttpError(422,'INVALID_TOOL_REQUEST');}
     const result=await executeDealTwinTool(actor,tool);
     return response(id,{content:[{type:'text',text:JSON.stringify(result)}],structuredContent:result,isError:result.httpStatus<200||result.httpStatus>=300});
    }

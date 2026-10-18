@@ -23,6 +23,17 @@ function call(value=command,id=1){return rpc('tools/call',{name:value.tool,argum
 async function body(response:Response){return await response.json() as {id:number|string|null;result:{isError:boolean;structuredContent:{httpStatus:number;data:unknown;references:unknown;prepared?:boolean};content:{type:string;text:string}[];tools:{name:string}[];protocolVersion:string};error?:{code:number;message:string}};}
 describe('authenticated stateless MCP HTTP / real PostgreSQL services',()=>{
  db=workspace();
+ it('accepts omitted arguments for parameterless reads while retaining required-input and null rejection',async()=>{
+  const before=await evidence(db());
+  for(const name of ['list_deals','inspect_timeline']){
+   const response=await POST(rpc('tools/call',{name}));expect(response.status).toBe(200);
+   expect((await body(response)).result.structuredContent.httpStatus).toBe(200);
+  }
+  for(const params of [{name:'get_deal'},{name:'compile_deal'},{name:'list_deals',arguments:null}]){
+   expect((await POST(rpc('tools/call',params))).status).toBe(422);
+  }
+  expect(await evidence(db())).toEqual(before);
+ });
  it('negotiates pinned compatibility revision, lists real schema tools and accepts initialized notification without writes',async()=>{
   const before=await evidence(db());const init=await POST(rpc('initialize',{protocolVersion:'2026-07-28',capabilities:{},clientInfo:{name:'local-fixture',version:'1'}}));
   expect(init.status).toBe(200);expect((await body(init)).result.protocolVersion).toBe(version);

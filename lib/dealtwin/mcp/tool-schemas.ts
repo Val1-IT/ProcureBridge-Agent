@@ -27,10 +27,29 @@ export function parseToolRequest(value:unknown):DealTwinToolRequest{
  return requestSchema.parse(value) as DealTwinToolRequest;
 }
 export function isMutatingTool(name:ToolName):boolean{return !['list_deals','get_deal','get_proof','inspect_timeline'].includes(name);}
+const descriptions:Record<ToolName,string>={
+ list_deals:'List persisted synthetic deals and the current workspace revision.',
+ get_deal:'Read one durable deal, its current version, constraints and proof history. Refresh after a revision conflict.',
+ get_proof:'Read a selected proof belonging to the specified deal, including its current validity; historical proof bytes are not present-day eligibility.',
+ inspect_timeline:'Read the server-owned synthetic cash timeline and revision; conversation memory is not financial truth.',
+ draft_deal:'Create a durable synthetic draft from exact commercial terms; drafting does not reserve capacity or create a Sales Order.',
+ update_deal:'Create a new immutable terms version for an existing deal; the prior version remains historical.',
+ extract_constraints:'On execution, request commercial-language extraction from external Nebius/Nemotron only when explicitly enabled. Persist review-only pending candidates; unavailable live access fails closed. Human confirmation remains required.',
+ confirm_constraints:'Confirm selected constraint IDs on the current deal version after human review; AI extraction cannot confirm its own candidates.',
+ compile_deal:'Run the deterministic financial compiler against authoritative ERP state; return violations or conditional feasibility, never an AI verdict.',
+ generate_proof:'Persist a replayable Deal Proof for the selected current version; pending non-arithmetic approvals do not authorize commitment.',
+ stress_deal:'Evaluate explicit stress scenarios against a historical proof without changing the commercial terms or committing liquidity.',
+ replay_proof:'Genuinely recompute a historical proof; replay success does not make a stale proof currently eligible.',
+ recompile_deal:'Search bounded deterministic amendments against current ERP state; a committed deal produces pending remediation without a second Sales Order.',
+ reserve_liquidity:'Reserve shared liquidity for the exact deal/version/proof/event-hash tuple; reject stale evidence and competing capacity collisions.',
+ commit_deal:'Commit the exact reserved proof only after its required approval; create one linked Sales Order and preserve original-response idempotency.',
+ release_commitment:'Release the identified reservation using its exact proof owner tuple; do not infer cancellation of a committed Sales Order.',
+ mutate_judge_obligation:'Change only the allowlisted synthetic Judge AP obligation to Rp19m and invalidate affected proofs; never a general ERP mutation.',
+};
 export function listToolDefinitions(){
- return toolNames.map(name=>({name,description:isMutatingTool(name)
-  ?'Synthetic service only. Prepare is read-free/write-free; execution requires server-signed human consent, revision and operation key.'
-  :'Read-only synthetic application service; persisted source of truth, not a permission grant.',
+ return toolNames.map(name=>({name,description:descriptions[name]+(isMutatingTool(name)
+  ?' Prepare only validates shape: no read, write or provider call. Execute requires server-signed human confirmation, current revision and an idempotency key; a model cannot issue the grant.'
+  :' Read-only application service, not a permission grant.'),
   inputSchema:z.toJSONSchema(toolArgumentSchemas[name]),
-  annotations:{readOnlyHint:!isMutatingTool(name),idempotentHint:true,destructiveHint:['commit_deal','release_commitment','mutate_judge_obligation'].includes(name),openWorldHint:false}}));
+  annotations:{readOnlyHint:!isMutatingTool(name),idempotentHint:true,destructiveHint:['commit_deal','release_commitment','mutate_judge_obligation'].includes(name),openWorldHint:name==='extract_constraints'}}));
 }
