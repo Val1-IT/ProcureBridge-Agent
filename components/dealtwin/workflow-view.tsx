@@ -20,7 +20,9 @@ export function WorkflowView({mode='deal'}:{mode?:'inbox'|'deal'|'proof'|'commit
  const owned=snapshot.commitments.filter(row=>snapshot.proofs.some(item=>item.id===row.proof_id&&item.proof_json.dealId===deal?.id));
  const active=owned.find(row=>row.status==='reserved'||row.status==='committed');const sales=actor?.role==='admin'||actor?.role==='sales';
  const blocked=busy||loading;const result=detail?.compileRuns.filter(row=>row.kind!=='stress').at(-1)?.violation_data as CompileResultDto|undefined;
- const response=lastResponse as {replayed?:boolean;historical?:{resultHash:string;recomputedResultHash:string};scope?:string;runs?:{id:string;result:CompileResultDto}[]}|null;
+ const originalResponse=lastResponse as {proofId?:string;replayed?:boolean;historical?:{resultHash:string;recomputedResultHash:string};scope?:string;runs?:{id:string;result:CompileResultDto}[]}|null;
+ // Navigation can retain the last receipt; its diagnostics belong only to its exact proof.
+ const response=proof&&originalResponse?.proofId===proof.id?originalResponse:null;
  const action=(kind:UiAction['kind'],label:string,disabled=false)=><button type="button" className="dt-button" data-action={kind} disabled={blocked||disabled} onClick={()=>{if(kind==='reset'&&!window.confirm('Reset only the synthetic Judge tenant? Business seed is restored; revision and immutable receipts are retained.'))return;void run({kind} as UiAction);}}>{label}</button>;
  return <div className="dt-workflow" aria-busy={blocked} data-testid="server-workspace">
   <section className="dt-workspace-strip"><div><strong>PostgreSQL source</strong><span data-testid="workspace-revision">Revision {snapshot.revision}</span></div><div>Signed server role: <strong data-testid="server-role">{actor?.role??'unavailable'}</strong><small>{actor?.actorId}</small></div>
