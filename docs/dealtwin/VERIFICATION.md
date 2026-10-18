@@ -1,5 +1,13 @@
 # DealTwin Task29 checkpoint — PARTIAL / PUBLIC RELEASE BLOCKED
 
+Current linked-cloud continuation (2026-10-18): see
+[CLOUD-CONTINUATION-20261018.md](CLOUD-CONTINUATION-20261018.md).
+Baseline491/491hashes verified; supplemental actual pure-core smoke11/11PASS
+on656018f. Full Task29 execution is blocked by unavailable offline npm packages
+and PostgreSQL. This does not close the release packet or replace any required
+gate. Historical laptop evidence and resume directions below are retained as
+history. Video remains deferred until the project is ready.
+
 Base: `2df63edc2279ebe1d6a8542ff1526517bd4ea102`.
 Aggregation source: `f709b5864cd47981417c4e40f09b58a7888c3bd8`.
 Full-unit tested source: `ddf099214a5908a3812d417b032433e263738379`.

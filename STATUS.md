@@ -1,5 +1,20 @@
 # DealTwin — local execution status
 
+## Current continuation — linked cloud, 2026-10-18
+
+The owner authorized continuation in the linked cloud from verified snapshot
+`6f51368a674953bdcc9cdb8031f76e1da6081875`; all491manifest hashes match.
+Supplemental pure-core smoke at `656018f`:11/11PASS,0skip. Runtime is NOT ready:
+offline npm install returns ENOTCACHED, Vite/Vitest and PostgreSQL are absent.
+Task29 remains PARTIAL; full regression/coverage/build/database/browser/MCP
+and public readiness are unverified here. Video is deferred until project
+readiness is verified, per the latest owner instruction. A subsequent bounded
+UX package adds active navigation, keyboard/scroll access, read-error recovery
+and clearer workflow groups; its three new browser cases are NOT RUN. See
+[cloud continuation](docs/dealtwin/CLOUD-CONTINUATION-20261018.md) for exact
+commands, evidence and blockers. Historical laptop sections below are retained
+as history; their stop/restart directions do not control this cloud session.
+
 Updated: 2026-10-15 (Asia/Yerevan). Host verified: **LENOVO-VT**. This is the existing local DealTwin session; no cloud execution or Arvanta writer is used.
 
 Historical product context: [Notion P0 / three editions](https://app.notion.com/p/3f0416df922f8150bfaae5d00fb5ba70), recorded during an earlier continuation. Current authority is `docs/dealtwin/LOCKED_PRODUCT_SPEC.md`, `TRACEABILITY.md` and the 29-task locked implementation plan. Task29 was authorized from2df63ed, then the owner requested a checkpoint after active tests. Stop for review now; no external publishing, production, real-money or submission-declaration gates are authorized.

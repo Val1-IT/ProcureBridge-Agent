@@ -1,0 +1,5 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 test
+> vitest run tests/dealtwin/evaluation/release-evidence.test.ts
+
+sh: 1: vitest: not found

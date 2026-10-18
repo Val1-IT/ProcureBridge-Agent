@@ -1,0 +1,5 @@
+
+> arvanta-procurebridge-recovery-agent@0.2.0 judge:build
+> vite build --config vite.dealtwin.config.ts
+
+sh: 1: vite: not found

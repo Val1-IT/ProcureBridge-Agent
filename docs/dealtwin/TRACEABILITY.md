@@ -72,6 +72,13 @@ Each payload includes `schemaVersion`, `tenantId`, aggregate IDs, actor, operati
 
 ## Evidence policy
 
+Linked-cloud2026-10-18: [continuation evidence](CLOUD-CONTINUATION-20261018.md)
+adds11actual pure-core smoke checks on656018f with0fail/0skip. This is bounded
+supplemental evidence, not closure of any PostgreSQL/browser/provider or
+full-regression gate. Missing npm cache/PostgreSQL leave runtime not ready and
+Task29PARTIAL. All existing42requirement mappings and historical evidence below
+retain their original scope.
+
 Task29's partial-checkpoint literal42-ID/check mapping and candidate verification
 protocol are recorded in `VERIFICATION.md`. Task29 is NOT complete; pending checks are not PASS;
 external live/provider/account/public readiness remains explicitly unproven.
