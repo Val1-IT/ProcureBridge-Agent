@@ -1,0 +1,2 @@
+# Hash-verified patch payload must retain identical bytes on Windows and Linux.
+patches/braces-3.0.3/depth-guard.cjs text eol=lf

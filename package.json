@@ -18,7 +18,9 @@
     "security:client": "node scripts/dealtwin/check-client-artifacts.mjs dist/client",
     "benchmark:dealtwin": "node node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/cli.ts --",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "deps:patch": "node scripts/security/apply-braces-patch.mjs",
+    "postinstall": "npm run deps:patch"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

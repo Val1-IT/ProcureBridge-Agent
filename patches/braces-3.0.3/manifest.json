@@ -1,0 +1,110 @@
+{
+  "revision": 1,
+  "version": "3.0.3",
+  "resolved": "https://registry.npmjs.org/braces/-/braces-3.0.3.tgz",
+  "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==",
+  "advisory": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+  "source": "https://github.com/micromatch/braces/tree/3.0.3",
+  "files": [
+    {
+      "path": "lib/depth-guard.js",
+      "source": "depth-guard.cjs",
+      "originalSha256": null,
+      "patchedSha256": "19387b0c4157a11bdf570e0043908b2b5f7e1a8802cf2876b52eb9b4c81cc33a"
+    },
+    {
+      "path": "LICENSE",
+      "originalSha256": "35bdd8a44339719441900fb50fbefc5e2dca1ca662cbaed7a687de842c8b70f2",
+      "patchedSha256": "35bdd8a44339719441900fb50fbefc5e2dca1ca662cbaed7a687de842c8b70f2",
+      "edits": []
+    },
+    {
+      "path": "lib/compile.js",
+      "originalSha256": "dc98f22eee3d511785d92a00758d5f0d48efed5f5813bdecc2de430c529b5c9f",
+      "patchedSha256": "d2cf8ab1b39e4e112d035d11b89783d1e11e7742ac3f931ba316af7d611dbdf3",
+      "edits": [
+        {
+          "before": "const utils = require('./utils');",
+          "after": "const utils = require('./utils');\nconst { assertAst } = require('./depth-guard');"
+        },
+        {
+          "before": "const compile = (ast, options = {}) => {",
+          "after": "const compile = (ast, options = {}) => {\n  assertAst(ast);"
+        }
+      ]
+    },
+    {
+      "path": "lib/constants.js",
+      "originalSha256": "c18ac5adb57308f1ce42a28552da3a31f5d83709743ebd9a636336813a744d4b",
+      "patchedSha256": "c18ac5adb57308f1ce42a28552da3a31f5d83709743ebd9a636336813a744d4b",
+      "edits": []
+    },
+    {
+      "path": "lib/expand.js",
+      "originalSha256": "41ccc196ebfa7b7781a634e721eb744e4e7bcb54cba427a7e3d6806a1b9e58f7",
+      "patchedSha256": "590ee87e44f3796748bf4381f749281ba7af1f1a5c201d5dc8a0772bc7b06af1",
+      "edits": [
+        {
+          "before": "const utils = require('./utils');",
+          "after": "const utils = require('./utils');\nconst { assertAst } = require('./depth-guard');"
+        },
+        {
+          "before": "const expand = (ast, options = {}) => {",
+          "after": "const expand = (ast, options = {}) => {\n  assertAst(ast);"
+        }
+      ]
+    },
+    {
+      "path": "index.js",
+      "originalSha256": "332ea07c7b006361aad12aa994ca75dc1db8e8382b884909e2f38f10b85c88a4",
+      "patchedSha256": "332ea07c7b006361aad12aa994ca75dc1db8e8382b884909e2f38f10b85c88a4",
+      "edits": []
+    },
+    {
+      "path": "lib/parse.js",
+      "originalSha256": "e572166565f15fa6ad9865ae49d678218e32aabfd1b3720f6d0d43d39800d310",
+      "patchedSha256": "0d0c2059e33adf638cc22adb3fe26ee01109817955ff368ab1e28fcc915ecfe0",
+      "edits": [
+        {
+          "before": "const stringify = require('./stringify');",
+          "after": "const stringify = require('./stringify');\nconst { assertDepth } = require('./depth-guard');"
+        },
+        {
+          "before": "    if (value === CHAR_LEFT_PARENTHESES) {",
+          "after": "    if (value === CHAR_LEFT_PARENTHESES) {\n      assertDepth(stack.length);"
+        },
+        {
+          "before": "    if (value === CHAR_LEFT_CURLY_BRACE) {",
+          "after": "    if (value === CHAR_LEFT_CURLY_BRACE) {\n      assertDepth(stack.length);"
+        }
+      ]
+    },
+    {
+      "path": "lib/stringify.js",
+      "originalSha256": "379f22d77bfa1478341ccd49c5e4267464aabcbba03558bab332aac23fc6f23a",
+      "patchedSha256": "828f5d07ebb8a3f18979e6ea05f4fc1a01850c388753f37103fcb9bf37a89668",
+      "edits": [
+        {
+          "before": "const utils = require('./utils');",
+          "after": "const utils = require('./utils');\nconst { assertAst } = require('./depth-guard');"
+        },
+        {
+          "before": "module.exports = (ast, options = {}) => {",
+          "after": "module.exports = (ast, options = {}) => {\n  assertAst(ast);"
+        }
+      ]
+    },
+    {
+      "path": "lib/utils.js",
+      "originalSha256": "b5a7596aa67730412b3c029ef09e84e6b67b8e445cffd35d1d295549c89066c7",
+      "patchedSha256": "b5a7596aa67730412b3c029ef09e84e6b67b8e445cffd35d1d295549c89066c7",
+      "edits": []
+    },
+    {
+      "path": "package.json",
+      "originalSha256": "56f08b888a4f30dc7cf8a7dbb36ffe92b737912ba36abe9d069d32167c957ac7",
+      "patchedSha256": "56f08b888a4f30dc7cf8a7dbb36ffe92b737912ba36abe9d069d32167c957ac7",
+      "edits": []
+    }
+  ]
+}
