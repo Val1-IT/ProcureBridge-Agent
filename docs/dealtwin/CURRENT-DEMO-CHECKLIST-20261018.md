@@ -5,11 +5,12 @@ Its product code is unchanged from `99ef77b45700d7e96686273972ab2b088c20e363`.
 This document is preparation, not a completed demo or release approval.
 
 Verification update: [17b5c75 results](LOCAL-VALIDATION-17B5C75-20261018.md)
-now establish full tests/coverage, runtime checks, typecheck/lint and both
-builds/client scans. The [23:31 UTC resumed checkpoint](CHECKPOINT-20261018-2331UTC.md)
-confirms unchanged product/runtime/build hashes; browser validation still cannot
-start below the unchanged 4096 MiB guard. Earlier pending statements below are
-superseded for those completed checks only, not for browser or external evidence.
+establish full tests/coverage, runtime checks, typecheck/lint and both builds/client
+scans. After the owner closed Chrome, [the browser and benchmark review](BROWSER-BENCHMARK-REVIEW-20261018.md)
+records 11/11 browser/HTTP checks and a measured 113-case synthetic benchmark
+with independent replay. The 4096 MiB guard remains unchanged. Physical restore,
+dependency disposition, exact-candidate release aggregation and external evidence
+remain outstanding; the historical blocked checkpoints retain their own scope.
 
 ## UI review
 
@@ -76,9 +77,9 @@ are planning capacity; ERP COMMIT is not a real or sponsor-integrated payment.
 | Requirement | Exact outstanding decision or acceptance evidence |
 |---|---|
 | Stable local validation resources | Sufficient sustained headroom above the 4096 MiB guard; run stages serially with the pinned local Node 24.22.0, preserving all interrupted evidence. No process kills or settings changes to obtain it. |
-| Current-candidate engineering packet | Full tests and coverage with no required DB skips; global and five DealTwin-module thresholds; typecheck/full lint; fresh Sites and Node builds and client scans; 10 browser cases plus HTTP control with Chromium sandbox enabled; responsive/keyboard/error recovery review. Bind every result to actual code SHA, lock, runtime and artifacts. Old builds/browser results do not cover 99ef77b. |
-| Database/benchmark acceptance | Fresh disposable migrations and canonical seed; least-privilege/RLS/cross-tenant checks, repeated two-client races, idempotency/rollback and replay; candidate-bound physical backup/restore comparison; measured benchmark/report. Preserve all 14 base-gate and 42 requirement mappings. Local PostgreSQL 15 is not CI PostgreSQL 16 evidence. |
-| Dependency release gate | Latest completed audit on d286f8f reports 8 high package entries from the published braces advisory despite checked local mitigation. Cloudflare/Wrangler bundled Undici and older Next Edge source remain unresolved. Isolated Node fixes do not patch those bundles. Need supported remediation or a separately explicit policy-compliant disposition; no waiver exists. |
+| Current-candidate engineering packet | Completed: 1328 tests/coverage and source/build checks on 17b5c75; 11 browser/HTTP checks on 5376bf0 with unrelated untracked draft and hash-equivalent application/build; focused 32 tests for the benchmark CLI correction. Preserve these actual source scopes. The mixed-source packet is not a final single-candidate release pass; consolidate after remaining changes/gates settle. |
+| Database/benchmark acceptance | Real PostgreSQL RLS/race/idempotency/rollback/replay evidence remains in the 17b5c75 suite. Clean d9ae617 passed a standalone 113-case benchmark, three actual service/race iterations and 57/57 baseline replays. Physical migration/backup-restore still needs a distinct authorized disposable target and Windows-adapted harness. Preserve 14 gates/42 mappings. Local PostgreSQL 15 is not CI PostgreSQL 16 evidence. |
+| Dependency release gate | Latest completed audit on 17b5c75 reports 8 high package entries from the published braces advisory despite checked local mitigation. All 10 braces file hashes and five embedded bundle hashes were reverified during source review. Cloudflare/Wrangler bundled Undici and older Next Edge disposition remain open. Need supported remediation or a separately explicit policy-compliant disposition; no waiver exists. |
 | Nebius/Nemotron live evidence | Owner-authorized account/secret injection, currently available exact Nemotron model, confirmed pricing and explicit spending/request budget, and approved endpoint access. Existing client permits only `https://api.studio.nebius.com/v1/chat/completions`, 2048 output tokens, 5s timeout, 64 KiB response, no automatic retry. The older at-most-3-request proposal is **not authorization**. Record actual model, bounded input/prompt/schema hashes, response validity, latency and usage where returned; prove output stays pending and cannot approve/reserve/commit. No live call has been made here. |
 | Alexa | The locked Alexa+ requirement remains. Real evidence needs authorized account access, actual transport/profile compatibility, identity/account binding and consent handling. Scripted MCP calls prove local services only; label them simulated. Organizer acceptance of simulation needs a separate confirmed decision and cannot silently change the locked product requirement. |
 | Public identity and hosting | Authorized public identity-to-tenant/session design, HTTPS/TLS, consent and deployment/security evidence. Local Sites metadata and build capability do not establish public ownership or a deployed integration. Existing private session issuer must not become public. No publishing authorization exists. |
@@ -86,6 +87,6 @@ are planning capacity; ERP COMMIT is not a real or sponsor-integrated payment.
 
 Historical cloud-only/download blockers in older reports retain their original
 scope. Local continuation is now authorized, Chromium and local Sites metadata
-are present, and the isolated runtime is installed; their **fresh candidate
-verification** remains pending. No production data, paid API, credential
+are present, and the isolated runtime is installed. Completed local evidence and
+remaining exact-candidate/restore/external gaps are distinguished above. No production data, paid API, credential
 change, push, deployment or final video is part of this checklist.

@@ -20,6 +20,26 @@ Three regression assertions use the real CLI function and real temporary output 
 
 Evidence: `output/benchmark-reservation-20261018/red-2.json`, `green.json`, `verification.json`. The passing run is bound to base `5376bf0` plus the exact source/test hashes in that receipt; it is not a new whole-suite claim. Typecheck and changed-file lint both completed with exit 0, recorded in `source-checks.json`. A standalone service benchmark has not yet been claimed by this section.
 
+## Completed standalone benchmark and replay
+
+The correction was committed as **`d9ae617793449ffd0ba9a8a553bbcf655ef324ce`**. The standalone benchmark then ran from that clean commit with the existing disposable PostgreSQL fixture, a 512 MiB heap cap and no live provider. Both benchmark and independent replay exited 0. Source fingerprint: `ae25978d111697ce248603d98f06f005a9f5e181bd0bedd86aff2bb9f3ffbd98`.
+
+| Measured result | Actual value |
+|---|---:|
+| Corpus | 13 core + 100 generated = **113 cases** |
+| Compiler false-feasible / false-infeasible | **0/68**, **0/45** |
+| Same-day ordering mismatch | **0/40** |
+| Canonical proof replay / amendment mismatch | **0/113**, **0/113** |
+| Duplicate commitment / missed staleness / idempotency / race failures | **0/3 each**, actual service observations |
+| Offline extraction contract checks | **4/4**; not live model accuracy |
+| Fixed-rule false-feasible / false-infeasible baseline | **35/68**, **22/45** |
+| Independent mismatch replay | **57/57 reproduced**, zero failed; all are fixed-rule baseline mismatches |
+| Live LLM-only baseline | **NOT_MEASURED: PROVIDER_EVIDENCE_MISSING** |
+
+The report and independent replay are in `output/dealtwin/task27/final-d9ae617-20261018/`. Command logs, exit receipts, summary, resource samples and cleanup are in `output/benchmark-d9ae617-20261018/`. This closes the bounded standalone synthetic benchmark gap, not physical restore or live extraction evidence. The three measured two-pool races are not exhaustive scheduling evidence.
+
+PostgreSQL was gracefully stopped after completion (stop 0, authorized status 3), and no process using this project's pinned Node executable remained. No browser, database or test session is left active. The `readiness-packet.json` retains all **14 base gates and 42 requirement mappings**, explicitly labels mixed source scopes, and returns `ready: false`, `exactShaComplete: false`. It must not be passed off as an immutable single-candidate release-gate success. The isolated CLI fix does not justify repeating the 18-minute application suite now; schedule any required consolidated exact-candidate pass after remaining changes and gates are settled.
+
 ## Dependency disposition review
 
 - All **10 installed braces files** match the maintained patch manifest's expected SHA256 bytes, including unchanged source/license/package files. The installer preflights every locked copy/file before writes, rejects unknown provenance/bytes, and atomically replaces individual files. Interrupted batches can be repaired from known original/patched states. No additional installer defect was established by this review.
@@ -48,4 +68,4 @@ A dump listing, current reset test, historical restore, or browser pass cannot c
 
 ## Remaining boundaries
 
-Task 29 / DT-042 remain PARTIAL. Browser execution is now evidenced for the unchanged application tree. The standalone measured benchmark/replay and physical restore must each carry their own actual result. Dependency audit/embedded-source disposition, real Nebius model/access/budget evidence, real Alexa account/profile/consent, public identity/TLS and hosting ownership/deployment evidence remain open. No push, publication, deployment, paid call, credential or security/network-setting change, or final video occurred.
+Task 29 / DT-042 remain PARTIAL. Browser execution is now evidenced for the unchanged application tree, and the standalone synthetic benchmark/replay passed on clean d9ae617. Physical restore, dependency audit/embedded-source disposition, real Nebius model/access/budget evidence, real Alexa account/profile/consent, public identity/TLS and hosting ownership/deployment evidence remain open. No push, publication, deployment, paid call, credential or security/network-setting change, or final video occurred.

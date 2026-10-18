@@ -1,5 +1,15 @@
 # DealTwin Requirement Traceability
 
+Latest substantive verification: [browser, benchmark and restore review](BROWSER-BENCHMARK-REVIEW-20261018.md)
+records 11/11 browser/HTTP checks on the unchanged application tree, including
+responsive/keyboard and durable recovery paths. A benchmark output-reservation
+defect was reproduced and fixed in d9ae617 with 32/32 focused tests, typecheck
+and lint. Clean d9ae617 then passed 113 synthetic benchmark cases, three actual
+service/race iterations and 57/57 independent baseline mismatch replays.
+Earlier full 1328-test/coverage evidence remains at 17b5c75; the mixed-source
+packet preserves 14 gates/42 mappings and is not exact-SHA release approval.
+Physical restore, dependency and external integration gates remain open.
+
 Owner-authorized resume: [23:31 UTC checkpoint](CHECKPOINT-20261018-2331UTC.md)
 verified clean c21f00e, the preserved 1328-test report and all 128 Node artifact
 hashes. Four RAM samples stayed below 4096 MiB, so no browser/database/test
