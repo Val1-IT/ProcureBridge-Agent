@@ -9,7 +9,7 @@ readiness and a supported user-directed transfer; no laptop execution now.
 
 The existing17 MCP tools already use real PostgreSQL application services,
 durable IDs, exact arithmetic, role-bound sessions and operation receipts.
-This batch fixes two narrow integration gaps:
+This batch fixes three narrow integration gaps:
 
 - A native MCP call may omit `arguments`. Previously even `list_deals` returned
   422. Omission now maps to an empty object; explicit null, missing required
@@ -20,6 +20,11 @@ This batch fixes two narrow integration gaps:
   `extract_constraints` explicitly describes external Nebius/Nemotron access,
   pending candidates and human confirmation, with `openWorldHint:true`.
   Other tool hints do not grant authority; server enforcement is unchanged.
+- A subsequent real-socket check found native calls without Origin returned503
+  on the built app: copying vinext's tracked Request proxy triggered Node's
+  private-state brand error. A regression using the actual vinext wrapper
+  reproduced503. Normalize from public URL/method/headers/body/signal fields
+  instead; preserve streamed size limits and all prior origin/auth checks.
 
 The initial regression reproduced422 instead of200 for an omitted-argument
 read and only2 distinct descriptions for17 tools. Both then passed. Existing

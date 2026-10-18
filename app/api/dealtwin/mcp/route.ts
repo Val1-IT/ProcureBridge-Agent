@@ -53,7 +53,13 @@ export async function POST(request:Request):Promise<Response>{
   // checks above already ran; normalize only this private protocol boundary so
   // the common byte/JSON parser remains unchanged for browser ERP routes.
   let bounded=request;
-  if(!request.headers.has('origin')){const normalized=new Headers(request.headers);normalized.set('origin',new URL(request.url).origin);bounded=new Request(request,{headers:normalized});}
+  if(!request.headers.has('origin')){
+   const normalized=new Headers(request.headers);normalized.set('origin',new URL(request.url).origin);
+   // Framework-tracked Requests can be proxies without Node's internal brand.
+   // Copy public fields, preserving the streamed body, cancellation and byte cap.
+   const init:RequestInit&{duplex:'half'}={method:request.method,headers:normalized,body:request.body,signal:request.signal,duplex:'half'};
+   bounded=new Request(request.url,init);
+  }
   const rpc=await parseBoundedJson(bounded,envelope);id=rpc.id??null;
   if(rpc.method==='notifications/initialized'){
    if(id!==null)throw new JudgeHttpError(400,'INVALID_NOTIFICATION');parse(empty,rpc.params??{});return new Response(null,{status:202,headers});

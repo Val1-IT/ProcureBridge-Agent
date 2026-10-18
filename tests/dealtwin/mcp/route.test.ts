@@ -2,6 +2,7 @@ import {describe,it,expect,vi} from 'vitest';
 import {POST,GET} from '../../../app/api/dealtwin/mcp/route';
 import {workspace,request,evidence,JUDGE_TENANT_ID} from '../api/workflow-harness';
 import {createMcpConfirmation} from '../../../lib/server/auth/mcp-confirmation';
+import {createTrackedAppRouteRequest} from '../../../node_modules/vinext/dist/server/app-route-handler-runtime.js';
 let db:ReturnType<typeof workspace>;
 vi.mock('../../../lib/server/dealtwin/workflow-runtime',async()=>{
  const actual=await vi.importActual<typeof import('../../../lib/server/dealtwin/workflow-runtime')>('../../../lib/server/dealtwin/workflow-runtime');
@@ -23,6 +24,18 @@ function call(value=command,id=1){return rpc('tools/call',{name:value.tool,argum
 async function body(response:Response){return await response.json() as {id:number|string|null;result:{isError:boolean;structuredContent:{httpStatus:number;data:unknown;references:unknown;prepared?:boolean};content:{type:string;text:string}[];tools:{name:string}[];protocolVersion:string};error?:{code:number;message:string}};}
 describe('authenticated stateless MCP HTTP / real PostgreSQL services',()=>{
  db=workspace();
+ it('accepts native calls through the actual vinext tracked Request without losing body limits',async()=>{
+  const before=await evidence(db());
+  const tracked=(base:Request)=>{
+   const headers=new Headers(base.headers);headers.delete('origin');
+   return createTrackedAppRouteRequest(new Request(base,{headers})).request;
+  };
+  for(const base of [rpc('tools/list',{}),rpc('tools/call',{name:'list_deals'})]){
+   const response=await POST(tracked(base));expect(response.status).toBe(200);
+  }
+  expect((await POST(tracked(rpc('tools/list',{_meta:{oversized:'x'.repeat(5000)}})))).status).toBe(413);
+  expect(await evidence(db())).toEqual(before);
+ });
  it('accepts omitted arguments for parameterless reads while retaining required-input and null rejection',async()=>{
   const before=await evidence(db());
   for(const name of ['list_deals','inspect_timeline']){
