@@ -1,5 +1,13 @@
 # DealTwin Requirement Traceability
 
+Current local review: [demo checklist and remaining evidence](CURRENT-DEMO-CHECKLIST-20261018.md)
+records the source review of 3e74db3, with product code 99ef77b unchanged and its
+14/14 focused UI tests plus changed-file lint passing. Node 24.22.0 is installed
+locally with checked runtime regressions, not merely proposed. Full validation
+was interrupted on df83051 and remains incomplete for 99ef77b; historical entries
+below retain their own SHA/scope. Task29/DT-042 and public/provider/Alexa gates
+remain PARTIAL. No product requirement or architecture is changed.
+
 Latest applicability follow-up: [private Node demo Undici classification](UNDICI-DEMO-APPLICABILITY-20261018.md). At `29aebb2`, no reviewed affected advisory path was established reachable in the intended Node/PostgreSQL journey. Installed Cloudflare/Next Edge defects remain open; two Node WebSocket defects are not used by this journey, and eight other Node version matches concern modules absent from its built-in bundle. Official Node24.22.0 LTS is a concrete isolated-runtime proposal only. No waiver, dependency change, new audit/build/full-suite result or public-readiness claim.
 
 Latest local dependency review: [embedded Undici inventory and rebuild blockers](EMBEDDED-UNDICI-20261018.md) and [provisional final serial verification plan](FINAL-SERIAL-VERIFICATION-20261018.md). At code baseline `873abf7`, five installed bundle files were detected (two Cloudflare 7.28.0, three Next Edge 6.21.0 source-marker copies), plus Node built-in 7.29.0. Source/feature applicability remains unresolved; no patch or new full test/build run. Fresh npm audit remains eight high aggregates from the locally mitigated braces version finding. Task29/DT-042 stays PARTIAL.
