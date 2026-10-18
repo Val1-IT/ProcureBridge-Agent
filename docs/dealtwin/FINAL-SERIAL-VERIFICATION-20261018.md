@@ -1,6 +1,9 @@
 # Final serial verification plan — 2026-10-18
 
-Status: **PREPARED, NOT EXECUTED; dependency prerequisites unresolved.**
+Status: **PARTIAL; full validation interrupted by the RAM guard, release blocked.**
+The `df83051` attempt produced incomplete coverage only. The later UI change
+`99ef77b` has focused evidence in `UI-CONSTRAINT-FAILURES-20261018.md`; it still
+requires a complete new-candidate final pass when resources permit.
 Planning baseline is `873abf7b4f39b242415945be0b533467ff8c87db`, lock SHA256
 `57ff2662a534dad8d712bb35271bbb9d20d0141f51c195211185bcf084a68228`.
 This is not a cleared release candidate. The same report's documentation-only
@@ -40,9 +43,13 @@ baseline in the run manifest. Do not run a full suite on each dependency step.
    role setup, then run **one whole-suite coverage invocation**:
 
    ```text
-   npm run test:coverage -- --maxWorkers=1 --minWorkers=1 --testTimeout=60000 --hookTimeout=60000 --reporter=dot --reporter=json --outputFile=output/final-<sha>/tests.json
+   npm run test:coverage -- --maxWorkers=1 --no-file-parallelism --testTimeout=60000 --hookTimeout=60000 --reporter=dot --reporter=json --outputFile=output/final-<sha>/tests.json
    ```
 
+   Installed Vitest 4.1.11 rejects `--minWorkers`; the supported explicit serial
+   controls above were confirmed by its local CLI help. The earlier rejected
+   invocation loaded no tests. Use the pinned local Node launcher for the actual
+   Vitest entry point as described in `LOCAL-NODE-RUNTIME-20261018.md`.
    `vitest.config.ts` already disables file parallelism. Preserve JSON counts,
    logs and coverage summary with the candidate SHA. All required PostgreSQL
    cases must run: skips are not passes. Retain existing overall and per-module
