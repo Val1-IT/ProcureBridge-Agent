@@ -1,0 +1,53 @@
+[
+  {
+    "archive": "cloudflare-vite-plugin-1.43.1",
+    "embeddedMarkers": {
+      "undici": [
+        "7.28.0"
+      ],
+      "ws": []
+    }
+  },
+  {
+    "archive": "cloudflare-vite-plugin-1.49.0",
+    "embeddedMarkers": {
+      "undici": [
+        "7.28.0"
+      ],
+      "ws": []
+    }
+  },
+  {
+    "archive": "wrangler-4.107.1",
+    "embeddedMarkers": {
+      "undici": [
+        "7.28.0"
+      ],
+      "ws": [
+        "8.21.0"
+      ]
+    }
+  },
+  {
+    "archive": "cloudflare-vite-plugin-1.63.1",
+    "embeddedMarkers": {
+      "undici": [
+        "7.29.1"
+      ],
+      "ws": [
+        "8.21.0"
+      ]
+    }
+  },
+  {
+    "archive": "wrangler-4.116.0",
+    "embeddedMarkers": {
+      "undici": [
+        "7.28.0"
+      ],
+      "ws": [
+        "8.21.0"
+      ]
+    }
+  }
+]

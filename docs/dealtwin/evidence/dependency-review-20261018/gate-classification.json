@@ -1,0 +1,435 @@
+{
+  "reviewedSha": "7cd8abaf24d7529efa5cc2446230c3dff6520cc3",
+  "ready": false,
+  "task29": "PARTIAL",
+  "policyChanged": false,
+  "checks": [
+    {
+      "id": "dependency_audit",
+      "status": "fail",
+      "evidence": "final-audit.json",
+      "scope": "20 affected package aggregates:2critical12high6moderate;9 reported GHSA URLs; embedded old ws/Undici remain separately open",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "all-public-targets",
+      "policyBasis": "Spec14/16; unresolved high/critical requires remediation or explicit current dated owner decision",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "migration_restore",
+      "status": "historical_pass",
+      "evidence": "../cloud-gates-20261018/migration-restore-inventory.json",
+      "scope": "Prior45-table synthetic restore preserved; no SQL/PG application source changed; not a new same-candidate restore",
+      "testedSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+      "requiredScope": "durable-judge-and-public",
+      "policyBasis": "Spec9/16; Task29 disposable migration and restore",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "rls",
+      "status": "pass_local",
+      "evidence": "final-coverage-tests.json",
+      "scope": "real PostgreSQL suite and restored roles/policies",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "durable-judge-and-public",
+      "policyBasis": "Spec9/14/16",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "cross_tenant_api",
+      "status": "pass_local",
+      "evidence": "final-coverage-tests.json",
+      "scope": "actual app-role API tests; restored44 tenant-table isolation separately",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "durable-judge-and-public",
+      "policyBasis": "Spec14/16",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "secret_scan",
+      "status": "pass_bounded",
+      "evidence": "final-client-scan.log",
+      "scope": "60 emitted client files/0issues; new shared evidence checked for private runtime values",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "all-targets",
+      "policyBasis": "Spec14/16",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "typecheck",
+      "status": "pass",
+      "evidence": "final-typecheck-run.json",
+      "scope": "exit0",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "product-and-repository-completion",
+      "policyBasis": "Spec15/16 and Task29",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "lint",
+      "status": "pass",
+      "evidence": "final-lint-run.json",
+      "scope": "full lint exit0",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "product-and-repository-completion",
+      "policyBasis": "Spec15/16 and Task29",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "tests",
+      "status": "pass",
+      "evidence": "test-summary.json",
+      "scope": "1274/1274 tests in126 files;0failed/0skipped",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "product-and-repository-completion",
+      "policyBasis": "Spec15/16 and Task29",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "evidence": "final-coverage-summary.json",
+      "scope": "unchanged overall and per-module thresholds",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "product-and-repository-completion",
+      "policyBasis": "Spec15/16 and Task29",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "build",
+      "status": "blocked",
+      "evidence": "final-sites-build-run.json",
+      "scope": "Node passed; Sites requires canonical hosting metadata",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "selected-target-plus-preserved-repo-obligation",
+      "policyBasis": "Node Judge required; Cloudflare/Sites separate target but current Task29/CI still require both",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "authenticated_judge_smoke",
+      "status": "blocked",
+      "evidence": "final-http-test.log",
+      "scope": "1 HTTP case passed;10 browser cases not selected",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "judge-product-and-public",
+      "policyBasis": "Spec15/16; Task29 desktop/1024/820 with persistent state",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "tls",
+      "status": "not_proven",
+      "evidence": null,
+      "scope": "no public endpoint authorized",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "public-or-non-loopback",
+      "policyBasis": "Spec14; not required for loopback synthetic fixture",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "least_privilege",
+      "status": "pass_local",
+      "evidence": "final-database-state.json",
+      "scope": "synthetic app/reset NOSUPERUSER NOBYPASSRLS; not public deployment certification",
+      "testedSha": "cd1d8bdfa808395355bd66c3dd69e2286aecc84f",
+      "requiredScope": "durable-judge-and-public",
+      "policyBasis": "Spec9/14; local proof distinct from deployed credentials",
+      "mandatoryInCurrentReleaseValidator": true
+    },
+    {
+      "id": "backup_restore",
+      "status": "historical_pass",
+      "evidence": "../cloud-gates-20261018/restore-verification.json",
+      "scope": "Prior45-table synthetic restore preserved; no SQL/PG application source changed; not a new same-candidate restore",
+      "testedSha": "413c0e42c9bc42c5ede838dbb24f8f914df9af38",
+      "requiredScope": "task29-and-public",
+      "policyBasis": "Spec14; explicit Task29 drill",
+      "mandatoryInCurrentReleaseValidator": true
+    }
+  ],
+  "traceabilityPolicy": [
+    {
+      "id": "DT-001",
+      "requiredCheckIds": [
+        "deal_lifecycle",
+        "judge_journey"
+      ]
+    },
+    {
+      "id": "DT-002",
+      "requiredCheckIds": [
+        "deal_lifecycle",
+        "judge_journey"
+      ]
+    },
+    {
+      "id": "DT-003",
+      "requiredCheckIds": [
+        "exact_money"
+      ]
+    },
+    {
+      "id": "DT-004",
+      "requiredCheckIds": [
+        "exact_money"
+      ]
+    },
+    {
+      "id": "DT-005",
+      "requiredCheckIds": [
+        "same_day_order"
+      ]
+    },
+    {
+      "id": "DT-006",
+      "requiredCheckIds": [
+        "same_day_order"
+      ]
+    },
+    {
+      "id": "DT-007",
+      "requiredCheckIds": [
+        "cash_normalization"
+      ]
+    },
+    {
+      "id": "DT-008",
+      "requiredCheckIds": [
+        "cash_foundation",
+        "pg_schema"
+      ]
+    },
+    {
+      "id": "DT-009",
+      "requiredCheckIds": [
+        "cash_foundation",
+        "payment_reset_restore"
+      ]
+    },
+    {
+      "id": "DT-010",
+      "requiredCheckIds": [
+        "cash_normalization"
+      ]
+    },
+    {
+      "id": "DT-011",
+      "requiredCheckIds": [
+        "cash_normalization",
+        "payment_reset_restore"
+      ]
+    },
+    {
+      "id": "DT-012",
+      "requiredCheckIds": [
+        "inventory_normalization"
+      ]
+    },
+    {
+      "id": "DT-013",
+      "requiredCheckIds": [
+        "inventory_normalization"
+      ]
+    },
+    {
+      "id": "DT-014",
+      "requiredCheckIds": [
+        "horizon"
+      ]
+    },
+    {
+      "id": "DT-015",
+      "requiredCheckIds": [
+        "ai_contract",
+        "constraint_api",
+        "nebius_live"
+      ]
+    },
+    {
+      "id": "DT-016",
+      "requiredCheckIds": [
+        "ai_contract",
+        "secret_scan"
+      ]
+    },
+    {
+      "id": "DT-017",
+      "requiredCheckIds": [
+        "compiler"
+      ]
+    },
+    {
+      "id": "DT-018",
+      "requiredCheckIds": [
+        "stress"
+      ]
+    },
+    {
+      "id": "DT-019",
+      "requiredCheckIds": [
+        "proof"
+      ]
+    },
+    {
+      "id": "DT-020",
+      "requiredCheckIds": [
+        "replay"
+      ]
+    },
+    {
+      "id": "DT-021",
+      "requiredCheckIds": [
+        "invalidation"
+      ]
+    },
+    {
+      "id": "DT-022",
+      "requiredCheckIds": [
+        "invalidation"
+      ]
+    },
+    {
+      "id": "DT-023",
+      "requiredCheckIds": [
+        "recompiler"
+      ]
+    },
+    {
+      "id": "DT-024",
+      "requiredCheckIds": [
+        "recompiler"
+      ]
+    },
+    {
+      "id": "DT-025",
+      "requiredCheckIds": [
+        "commitment"
+      ]
+    },
+    {
+      "id": "DT-026",
+      "requiredCheckIds": [
+        "races"
+      ]
+    },
+    {
+      "id": "DT-027",
+      "requiredCheckIds": [
+        "idempotency"
+      ]
+    },
+    {
+      "id": "DT-028",
+      "requiredCheckIds": [
+        "rollback"
+      ]
+    },
+    {
+      "id": "DT-029",
+      "requiredCheckIds": [
+        "commitment"
+      ]
+    },
+    {
+      "id": "DT-030",
+      "requiredCheckIds": [
+        "deal_lifecycle"
+      ]
+    },
+    {
+      "id": "DT-031",
+      "requiredCheckIds": [
+        "approval",
+        "judge_journey"
+      ]
+    },
+    {
+      "id": "DT-032",
+      "requiredCheckIds": [
+        "idempotency"
+      ]
+    },
+    {
+      "id": "DT-033",
+      "requiredCheckIds": [
+        "repository",
+        "judge_journey"
+      ]
+    },
+    {
+      "id": "DT-034",
+      "requiredCheckIds": [
+        "commitment"
+      ]
+    },
+    {
+      "id": "DT-035",
+      "requiredCheckIds": [
+        "races"
+      ]
+    },
+    {
+      "id": "DT-036",
+      "requiredCheckIds": [
+        "judge_reset",
+        "payment_reset_restore"
+      ]
+    },
+    {
+      "id": "DT-037",
+      "requiredCheckIds": [
+        "legacy_regression"
+      ]
+    },
+    {
+      "id": "DT-038",
+      "requiredCheckIds": [
+        "judge_journey"
+      ]
+    },
+    {
+      "id": "DT-039",
+      "requiredCheckIds": [
+        "mcp_contract",
+        "alexa_account"
+      ]
+    },
+    {
+      "id": "DT-040",
+      "requiredCheckIds": [
+        "judge_reset",
+        "cross_tenant_api"
+      ]
+    },
+    {
+      "id": "DT-041",
+      "requiredCheckIds": [
+        "benchmark"
+      ]
+    },
+    {
+      "id": "DT-042",
+      "requiredCheckIds": [
+        "dependency_audit",
+        "migration_restore",
+        "rls",
+        "cross_tenant_api",
+        "secret_scan",
+        "typecheck",
+        "lint",
+        "tests",
+        "coverage",
+        "build",
+        "authenticated_judge_smoke",
+        "tls",
+        "least_privilege",
+        "backup_restore",
+        "public_identity"
+      ]
+    }
+  ],
+  "additional": {
+    "nebius_live": "Required by current DT-015 packet and live integration claim; canonical Judge is explicitly offline-capable",
+    "alexa_account": "Required by current DT-039 packet and actual Alexa claim; local MCP tests insufficient",
+    "public_identity": "Required DT-042 public composition; not certified by private signed-session fixtures",
+    "hosted_ci": "Existing repository validation; not a separate literal base ID; local equivalent is not hosted proof"
+  }
+}

@@ -1,0 +1,2198 @@
+[
+  {
+    "source": "https://registry.npmjs.org/vitest",
+    "retrievedAt": "2026-10-18T06:49:22.196067+00:00",
+    "responseSha256": "68e3e488d9e81d0f4dbfecbb1b9a73072c7d05b714911018c7729153d8e8f83a",
+    "dist-tags": {
+      "V3": "3.2.7",
+      "beta": "5.0.0-beta.7",
+      "V4": "4.1.12",
+      "rc": "5.0.0-rc.4",
+      "latest": "5.0.5"
+    },
+    "selectedMetadata": {
+      "3.2.7": {
+        "name": "vitest",
+        "version": "3.2.7",
+        "dependencies": {
+          "chai": "^5.2.0",
+          "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+          "debug": "^4.4.1",
+          "pathe": "^2.0.3",
+          "std-env": "^3.9.0",
+          "tinyexec": "^0.3.2",
+          "tinypool": "^1.1.1",
+          "picomatch": "^4.0.2",
+          "tinybench": "^2.9.0",
+          "vite-node": "3.2.4",
+          "tinyglobby": "^0.2.14",
+          "@types/chai": "^5.2.2",
+          "@vitest/spy": "3.2.7",
+          "expect-type": "^1.2.1",
+          "tinyrainbow": "^2.0.0",
+          "magic-string": "^0.30.17",
+          "@vitest/utils": "3.2.7",
+          "@vitest/expect": "3.2.7",
+          "@vitest/mocker": "3.2.7",
+          "@vitest/runner": "3.2.7",
+          "@vitest/snapshot": "3.2.7",
+          "why-is-node-running": "^2.3.0",
+          "@vitest/pretty-format": "^3.2.7"
+        },
+        "peerDependencies": {
+          "jsdom": "*",
+          "happy-dom": "*",
+          "@vitest/ui": "3.2.7",
+          "@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0",
+          "@types/debug": "^4.1.12",
+          "@vitest/browser": "3.2.7",
+          "@edge-runtime/vm": "*"
+        },
+        "peerDependenciesMeta": {
+          "jsdom": {
+            "optional": true
+          },
+          "happy-dom": {
+            "optional": true
+          },
+          "@vitest/ui": {
+            "optional": true
+          },
+          "@types/node": {
+            "optional": true
+          },
+          "@types/debug": {
+            "optional": true
+          },
+          "@vitest/browser": {
+            "optional": true
+          },
+          "@edge-runtime/vm": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+        },
+        "dist": {
+          "shasum": "1944b6ed013a25fd26a73d18e1af92c10a57af6c",
+          "tarball": "https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz",
+          "fileCount": 106,
+          "integrity": "sha512-KrxIJ62Fd89gfysR4WotlgZABiz2dqFPgqGzX7s+CwsqLFomRH7777ZcrOD6+WVAh7khPQP41A+BKbpcJFrdEg==",
+          "signatures": [
+            {
+              "sig": "MEYCIQC6GhvbNHuv1H4YV9ytH9vlXsHB2MDPZV+80OaOnA24rAIhANcyR878s1L/uJOfWQuQXVrOAaRvKdPj2UK1BD+wkG59",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/vitest@3.2.7",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 1381329
+        }
+      },
+      "4.1.11": {
+        "name": "vitest",
+        "version": "4.1.11",
+        "dependencies": {
+          "obug": "^2.1.1",
+          "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+          "pathe": "^2.0.3",
+          "std-env": "^4.0.0-rc.1",
+          "tinyexec": "^1.0.2",
+          "picomatch": "^4.0.3",
+          "tinybench": "^2.9.0",
+          "tinyglobby": "^0.2.15",
+          "@vitest/spy": "4.1.11",
+          "expect-type": "^1.3.0",
+          "tinyrainbow": "^3.1.0",
+          "magic-string": "^0.30.21",
+          "@vitest/utils": "4.1.11",
+          "@vitest/expect": "4.1.11",
+          "@vitest/mocker": "4.1.11",
+          "@vitest/runner": "4.1.11",
+          "es-module-lexer": "^2.0.0",
+          "@vitest/snapshot": "4.1.11",
+          "why-is-node-running": "^2.3.0",
+          "@vitest/pretty-format": "4.1.11"
+        },
+        "peerDependencies": {
+          "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+          "jsdom": "*",
+          "happy-dom": "*",
+          "@vitest/ui": "4.1.11",
+          "@types/node": "^20.0.0 || ^22.0.0 || >=24.0.0",
+          "@edge-runtime/vm": "*",
+          "@opentelemetry/api": "^1.9.0",
+          "@vitest/coverage-v8": "4.1.11",
+          "@vitest/browser-preview": "4.1.11",
+          "@vitest/coverage-istanbul": "4.1.11",
+          "@vitest/browser-playwright": "4.1.11",
+          "@vitest/browser-webdriverio": "4.1.11"
+        },
+        "peerDependenciesMeta": {
+          "vite": {
+            "optional": false
+          },
+          "jsdom": {
+            "optional": true
+          },
+          "happy-dom": {
+            "optional": true
+          },
+          "@vitest/ui": {
+            "optional": true
+          },
+          "@types/node": {
+            "optional": true
+          },
+          "@edge-runtime/vm": {
+            "optional": true
+          },
+          "@opentelemetry/api": {
+            "optional": true
+          },
+          "@vitest/coverage-v8": {
+            "optional": true
+          },
+          "@vitest/browser-preview": {
+            "optional": true
+          },
+          "@vitest/coverage-istanbul": {
+            "optional": true
+          },
+          "@vitest/browser-playwright": {
+            "optional": true
+          },
+          "@vitest/browser-webdriverio": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+        },
+        "dist": {
+          "shasum": "1653c1521ae917f960d9b21877797c47dfd8bf21",
+          "tarball": "https://registry.npmjs.org/vitest/-/vitest-4.1.11.tgz",
+          "fileCount": 114,
+          "integrity": "sha512-fhACrNXUidIbGSBr5FlbuBkO7VWC1ZyLl0DO4CU2DrQoAPxX84Ysxs+HeGQpii5lZWV1Q4gBZTTu49mF+A6Edw==",
+          "signatures": [
+            {
+              "sig": "MEUCIBSU996mnW6tNJuA1U7CRmR/Ukpn/bd/zIY/j5QMSIkrAiEA533Mf1NVfToeCZQA9EXozqd37DRbe6ZzDbSFdgHQNVo=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/vitest@4.1.11",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 1909160
+        }
+      },
+      "4.1.12": {
+        "name": "vitest",
+        "version": "4.1.12",
+        "dependencies": {
+          "obug": "^2.1.1",
+          "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+          "pathe": "^2.0.3",
+          "std-env": "^4.0.0-rc.1",
+          "tinyexec": "^1.0.2",
+          "picomatch": "^4.0.3",
+          "tinybench": "^2.9.0",
+          "tinyglobby": "^0.2.15",
+          "@vitest/spy": "4.1.12",
+          "expect-type": "^1.3.0",
+          "tinyrainbow": "^3.1.0",
+          "magic-string": "^0.30.21",
+          "@vitest/utils": "4.1.12",
+          "@vitest/expect": "4.1.12",
+          "@vitest/mocker": "4.1.12",
+          "@vitest/runner": "4.1.12",
+          "es-module-lexer": "^2.0.0",
+          "@vitest/snapshot": "4.1.12",
+          "why-is-node-running": "^2.3.0",
+          "@vitest/pretty-format": "4.1.12"
+        },
+        "peerDependencies": {
+          "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
+          "jsdom": "*",
+          "happy-dom": "*",
+          "@vitest/ui": "4.1.12",
+          "@types/node": "^20.0.0 || ^22.0.0 || >=24.0.0",
+          "@edge-runtime/vm": "*",
+          "@opentelemetry/api": "^1.9.0",
+          "@vitest/coverage-v8": "4.1.12",
+          "@vitest/browser-preview": "4.1.12",
+          "@vitest/coverage-istanbul": "4.1.12",
+          "@vitest/browser-playwright": "4.1.12",
+          "@vitest/browser-webdriverio": "^4.1.11"
+        },
+        "peerDependenciesMeta": {
+          "vite": {
+            "optional": false
+          },
+          "jsdom": {
+            "optional": true
+          },
+          "happy-dom": {
+            "optional": true
+          },
+          "@vitest/ui": {
+            "optional": true
+          },
+          "@types/node": {
+            "optional": true
+          },
+          "@edge-runtime/vm": {
+            "optional": true
+          },
+          "@opentelemetry/api": {
+            "optional": true
+          },
+          "@vitest/coverage-v8": {
+            "optional": true
+          },
+          "@vitest/browser-preview": {
+            "optional": true
+          },
+          "@vitest/coverage-istanbul": {
+            "optional": true
+          },
+          "@vitest/browser-playwright": {
+            "optional": true
+          },
+          "@vitest/browser-webdriverio": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
+        },
+        "dist": {
+          "shasum": "b372587e9c000f165f1757793178ea6b5631f82e",
+          "tarball": "https://registry.npmjs.org/vitest/-/vitest-4.1.12.tgz",
+          "integrity": "sha512-5eWdz2yb3ajxWF3C8C4TjkXl7FGm3n2E/VlazALrQHzK7nYMSGFnCZto0bbPNl77AwkOZVLk0YnBAejUu0NiWA==",
+          "fileCount": 114,
+          "unpackedSize": 1909161,
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/vitest@4.1.12",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "signatures": [
+            {
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+              "sig": "MEYCIQDulUNwzB3qqhu8t0RvO7j6n3fUlqNGQOqax59XuVdJsgIhAK1sblDGZXyJx1SuLr6BtugpU/VrRohgEbSgjzjH1XGJ"
+            }
+          ]
+        }
+      }
+    },
+    "allPublishedVersionCount": 489,
+    "publishedVersionFilter": "All stable3.x releases; selected4.x metadata separately retained",
+    "publishedVersionsInReviewScope": [
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.0.5",
+      "3.0.6",
+      "3.0.7",
+      "3.0.8",
+      "3.0.9",
+      "3.1.0",
+      "3.1.1",
+      "3.1.2",
+      "3.1.3",
+      "3.1.4",
+      "3.2.0",
+      "3.2.1",
+      "3.2.2",
+      "3.2.3",
+      "3.2.4",
+      "3.2.5",
+      "3.2.6",
+      "3.2.7"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/%40vitest%2Fcoverage-v8",
+    "retrievedAt": "2026-10-18T06:49:22.444243+00:00",
+    "responseSha256": "c029dc3b442284f1a49b00c292c191ae29cd60f78a05a1e11fc9a5569f93f69b",
+    "dist-tags": {
+      "V3": "3.2.7",
+      "beta": "5.0.0-beta.7",
+      "rc": "5.0.0-rc.4",
+      "latest": "5.0.5",
+      "V4": "4.1.12"
+    },
+    "selectedMetadata": {
+      "3.2.7": {
+        "name": "@vitest/coverage-v8",
+        "version": "3.2.7",
+        "dependencies": {
+          "debug": "^4.4.1",
+          "std-env": "^3.9.0",
+          "magicast": "^0.3.5",
+          "tinyrainbow": "^2.0.0",
+          "magic-string": "^0.30.17",
+          "test-exclude": "^7.0.1",
+          "istanbul-reports": "^3.1.7",
+          "@bcoe/v8-coverage": "^1.0.2",
+          "ast-v8-to-istanbul": "^0.3.3",
+          "istanbul-lib-report": "^3.0.1",
+          "@ampproject/remapping": "^2.3.0",
+          "istanbul-lib-coverage": "^3.2.2",
+          "istanbul-lib-source-maps": "^5.0.6"
+        },
+        "peerDependencies": {
+          "vitest": "3.2.7",
+          "@vitest/browser": "3.2.7"
+        },
+        "peerDependenciesMeta": {
+          "@vitest/browser": {
+            "optional": true
+          }
+        },
+        "dist": {
+          "shasum": "2e9ce1103445c237aaa420a7f0058125fe4a7854",
+          "tarball": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-3.2.7.tgz",
+          "fileCount": 9,
+          "integrity": "sha512-NEGWJS2XNu2PfRLQwOO3CTKj1tTETxNBdk454vDxVBhxJYhPaA/eS0nAI0c+1El1P7a60z8+i+ZrQoGESweGKg==",
+          "signatures": [
+            {
+              "sig": "MEYCIQCVX3iJnM5X36pXyn7i5J+Qtk+m+TKeFJCtX0nRntW12AIhAKnsJV0NDW7sujlJ81V+kbZ0UuEcdmHDzRYMkNKv7Sxx",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@vitest%2fcoverage-v8@3.2.7",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 117278
+        }
+      },
+      "4.1.11": {
+        "name": "@vitest/coverage-v8",
+        "version": "4.1.11",
+        "dependencies": {
+          "obug": "^2.1.1",
+          "std-env": "^4.0.0-rc.1",
+          "magicast": "^0.5.2",
+          "tinyrainbow": "^3.1.0",
+          "@vitest/utils": "4.1.11",
+          "istanbul-reports": "^3.2.0",
+          "@bcoe/v8-coverage": "^1.0.2",
+          "ast-v8-to-istanbul": "^1.0.0",
+          "istanbul-lib-report": "^3.0.1",
+          "istanbul-lib-coverage": "^3.2.2"
+        },
+        "peerDependencies": {
+          "vitest": "4.1.11",
+          "@vitest/browser": "4.1.11"
+        },
+        "peerDependenciesMeta": {
+          "@vitest/browser": {
+            "optional": true
+          }
+        },
+        "dist": {
+          "shasum": "6f0636abe7e23e86dd35127244554be2c60bc2a5",
+          "tarball": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-4.1.11.tgz",
+          "fileCount": 11,
+          "integrity": "sha512-8MVGEFnJIcdGjcbfKmeq8z0pZHH0JlVtoVZH9Q/qwUp6wyFnEJUBMrw9DCaj+ra3vShGmhavjalMIhPNxZAUcw==",
+          "signatures": [
+            {
+              "sig": "MEQCIFJjji4foMUg/PysvZ9FD+UnaR3jcMhjnulNmDloHmPJAiB0/b8bMkd0pA7UV6Aka9lrsce1jkwOl7qIhomLwqOrLA==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@vitest%2fcoverage-v8@4.1.11",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 23647
+        }
+      }
+    },
+    "allPublishedVersionCount": 183,
+    "publishedVersionFilter": "All stable3.x releases; selected4.x metadata separately retained",
+    "publishedVersionsInReviewScope": [
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.0.5",
+      "3.0.6",
+      "3.0.7",
+      "3.0.8",
+      "3.0.9",
+      "3.1.0",
+      "3.1.1",
+      "3.1.2",
+      "3.1.3",
+      "3.1.4",
+      "3.2.0",
+      "3.2.1",
+      "3.2.2",
+      "3.2.3",
+      "3.2.4",
+      "3.2.5",
+      "3.2.6",
+      "3.2.7"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/%40vitest%2Fmocker",
+    "retrievedAt": "2026-10-18T06:49:22.581534+00:00",
+    "responseSha256": "5bb206d0bf7c64564d1569dffa8ff8dbf96f6c50d19d5019c748da7164976c2a",
+    "dist-tags": {
+      "V3": "3.2.7",
+      "beta": "5.0.0-beta.7",
+      "rc": "5.0.0-rc.4",
+      "latest": "5.0.5",
+      "V4": "4.1.12"
+    },
+    "selectedMetadata": {
+      "3.2.7": {
+        "name": "@vitest/mocker",
+        "version": "3.2.7",
+        "dependencies": {
+          "@vitest/spy": "3.2.7",
+          "magic-string": "^0.30.17",
+          "estree-walker": "^3.0.3"
+        },
+        "peerDependencies": {
+          "msw": "^2.4.9",
+          "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0"
+        },
+        "peerDependenciesMeta": {
+          "msw": {
+            "optional": true
+          },
+          "vite": {
+            "optional": true
+          }
+        },
+        "dist": {
+          "shasum": "331be944cb783c642dd42bd743411aca24ea0466",
+          "tarball": "https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz",
+          "fileCount": 23,
+          "integrity": "sha512-Trr0hYO9CM3Wj6ksWHRhK9IZpIY6wTMO5u/MqXurMxT57sWBaOPEtP3Oq60ihZuh5JsiagKfz95OcxdEP6dBrA==",
+          "signatures": [
+            {
+              "sig": "MEYCIQC+wZre+D+iqRWvqjD57xXS30bpfk5uP66/oBxrm/RthgIhAIFeeRSgB81W5AUkWGn5vWZ/mTHa6nf8WloMx3ZZz4Hk",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@vitest%2fmocker@3.2.7",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 162105
+        }
+      },
+      "4.1.11": {
+        "name": "@vitest/mocker",
+        "version": "4.1.11",
+        "dependencies": {
+          "@vitest/spy": "4.1.11",
+          "magic-string": "^0.30.21",
+          "estree-walker": "^3.0.3"
+        },
+        "peerDependencies": {
+          "msw": "^2.4.9",
+          "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
+        },
+        "peerDependenciesMeta": {
+          "msw": {
+            "optional": true
+          },
+          "vite": {
+            "optional": true
+          }
+        },
+        "dist": {
+          "shasum": "8e2906361bc5dfa271757a858ae80643118fcbb4",
+          "tarball": "https://registry.npmjs.org/@vitest/mocker/-/mocker-4.1.11.tgz",
+          "fileCount": 31,
+          "integrity": "sha512-2XJVD55d1o5AZous5CCGKS74g/riOj9odEt2bQpCVZeblHyHdnMeFl4jl0XjU21stf4mbjUkew2eXQZt65g5CQ==",
+          "signatures": [
+            {
+              "sig": "MEQCIEOYTK+970ESBQxIJosyySHDCs0/No29OZvQ/R7ka4+5AiBa0h8ajvKjVeTZHO6agTDNOhYNB8psMHwhXjJlbPneJA==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@vitest%2fmocker@4.1.11",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 188057
+        }
+      }
+    },
+    "allPublishedVersionCount": 119,
+    "publishedVersionFilter": "All stable3.x releases; selected4.x metadata separately retained",
+    "publishedVersionsInReviewScope": [
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.0.5",
+      "3.0.6",
+      "3.0.7",
+      "3.0.8",
+      "3.0.9",
+      "3.1.0",
+      "3.1.1",
+      "3.1.2",
+      "3.1.3",
+      "3.1.4",
+      "3.2.0",
+      "3.2.1",
+      "3.2.2",
+      "3.2.3",
+      "3.2.4",
+      "3.2.5",
+      "3.2.6",
+      "3.2.7"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/tinypool",
+    "retrievedAt": "2026-10-18T06:49:22.690521+00:00",
+    "responseSha256": "b4d18218b9063514e2993f9d518a5b4432f412391c0bb5b3d9201d3fdb2e8b79",
+    "dist-tags": {
+      "latest": "2.2.0"
+    },
+    "selectedMetadata": {
+      "1.1.1": {
+        "name": "tinypool",
+        "version": "1.1.1",
+        "engines": {
+          "node": "^18.0.0 || >=20.0.0"
+        },
+        "dist": {
+          "shasum": "059f2d042bd37567fbc017d3d426bdd2a2612591",
+          "tarball": "https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz",
+          "fileCount": 14,
+          "integrity": "sha512-Zba82s87IFq9A9XmjiX5uZA/ARWDrB03OHlq+Vw1fSdt0I+4/Kutwy8BP4Y/y/aORMo61FQ0vIb5j44vSo5Pkg==",
+          "signatures": [
+            {
+              "sig": "MEQCIHf5vWXSGBlFqchk5ael0d7sGeaB6KBmxwElI5CzNG08AiBS8MFxZ1ZLgBwotK+5zV5tYcqO4fzoXehAbu5UrsXwcw==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "unpackedSize": 44149
+        }
+      },
+      "2.1.1": {
+        "name": "tinypool",
+        "version": "2.1.1",
+        "engines": {
+          "node": "^20.0.0 || >=22.0.0"
+        },
+        "dist": {
+          "shasum": "095e19bf7eb1983366e2bd7194c07c9b783f88f3",
+          "tarball": "https://registry.npmjs.org/tinypool/-/tinypool-2.1.1.tgz",
+          "fileCount": 14,
+          "integrity": "sha512-4XfFD6zX0z4qfx6YcV6IqMKWBRllNM6YCnIABm3k0jW5+Ja54v0OVbavVM6bLoE1Ywuplb1C+Inbn6vqlBdgaA==",
+          "signatures": [
+            {
+              "sig": "MEUCIHCSWr5IA4+ip5Hn1aPjaU1nCF6p3bYYL3lBUqAmO37iAiEA6aHWFrE1pYSqhisuHU5qeYizYti8ocn7f/AJWQIIu2Q=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEQCIBG3IqR0fJpeGhCBhHfHztTx+7lEGWIjdurF1VYa+EcWAiAnOYfLbBef7ffqBsVL3Zu1dmzZlDBKAgm0WGelhcsxPg==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/tinypool@2.1.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 50433
+        }
+      },
+      "2.1.2": {
+        "name": "tinypool",
+        "version": "2.1.2",
+        "engines": {
+          "node": "^20.0.0 || >=22.0.0"
+        },
+        "dist": {
+          "shasum": "fcb3df44405c2530259e4bef5928a90bf46134dd",
+          "tarball": "https://registry.npmjs.org/tinypool/-/tinypool-2.1.2.tgz",
+          "fileCount": 14,
+          "integrity": "sha512-9YodfrxS9g9IbFr/KOjE5bAeJ0p61n3bW6mqvy0jtoeKd1kTW1Cxm0oulm6KX2lyM9Gl6WIe8nEbY7LWv5ZJww==",
+          "signatures": [
+            {
+              "sig": "MEUCIAfj6OPXhHh4yH2d24w2Qdt9goToLtDJMgROqSRHKUIgAiEAp/1+e48FwH64ggCXWaHOoheqOAUEORtb1mE0262SF1o=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEYCIQC4AdjuBtrfGWNtPD09UVUzjIk0In6gow7XsdnGntaMswIhALz4+F4ercmUrkD/tN4vGq1r0htIA73fLKXuWH/OiLJy",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/tinypool@2.1.2",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 50779
+        }
+      }
+    },
+    "allPublishedVersionCount": 40,
+    "publishedVersionFilter": "All published releases",
+    "publishedVersionsInReviewScope": [
+      "0.0.0",
+      "0.0.1",
+      "0.0.2",
+      "0.0.3",
+      "0.0.4",
+      "0.0.5",
+      "0.0.6",
+      "0.0.7",
+      "0.0.8",
+      "0.1.0",
+      "0.1.1",
+      "0.1.2",
+      "0.1.3",
+      "0.2.0",
+      "0.2.1",
+      "0.2.2",
+      "0.2.3",
+      "0.2.4",
+      "0.3.0",
+      "0.3.1",
+      "0.4.0",
+      "0.5.0",
+      "0.6.0",
+      "0.7.0",
+      "0.8.0",
+      "0.8.1",
+      "0.8.2",
+      "0.8.3",
+      "0.8.4",
+      "0.9.0",
+      "1.0.0",
+      "1.0.1",
+      "1.0.2",
+      "1.1.0",
+      "1.1.1",
+      "2.0.0",
+      "2.1.0",
+      "2.1.1",
+      "2.1.2",
+      "2.2.0"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/braces",
+    "retrievedAt": "2026-10-18T06:49:22.799784+00:00",
+    "responseSha256": "ad3acd02c91f287e56e565b625ee7aa4c36027dae24d4db1c3bf2121dcea1243",
+    "dist-tags": {
+      "latest": "3.0.3"
+    },
+    "selectedMetadata": {
+      "3.0.3": {
+        "name": "braces",
+        "version": "3.0.3",
+        "dependencies": {
+          "fill-range": "^7.1.1"
+        },
+        "engines": {
+          "node": ">=8"
+        },
+        "dist": {
+          "shasum": "490332f40919452272d55a8480adc0c441358789",
+          "tarball": "https://registry.npmjs.org/braces/-/braces-3.0.3.tgz",
+          "fileCount": 10,
+          "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==",
+          "signatures": [
+            {
+              "sig": "MEQCICfWLKNcFCGtU07ikrPJ+s1dTDH3VZTE+vQZzC22s6o+AiAEVUE/YXRqHYgctcwHqNawvsOviSDFZPvgNm8+SUXD3w==",
+              "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA"
+            }
+          ],
+          "unpackedSize": 44635
+        }
+      }
+    },
+    "allPublishedVersionCount": 37,
+    "publishedVersionFilter": "All published releases",
+    "publishedVersionsInReviewScope": [
+      "0.1.0",
+      "0.1.1",
+      "0.1.2",
+      "0.1.4",
+      "0.1.5",
+      "1.0.0",
+      "1.1.0",
+      "1.2.0",
+      "1.3.0",
+      "1.4.0",
+      "1.5.0",
+      "1.5.1",
+      "1.6.0",
+      "1.7.0",
+      "1.8.0",
+      "1.8.1",
+      "1.8.2",
+      "1.8.3",
+      "1.8.4",
+      "1.8.5",
+      "2.0.0",
+      "2.0.1",
+      "2.0.2",
+      "2.0.3",
+      "2.0.4",
+      "2.1.0",
+      "2.1.1",
+      "2.2.0",
+      "2.2.1",
+      "2.2.2",
+      "2.3.0",
+      "2.3.1",
+      "2.3.2",
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/%40cloudflare%2Fvite-plugin",
+    "retrievedAt": "2026-10-18T06:49:23.050197+00:00",
+    "responseSha256": "2175d0b5f73956bbb6962203bfeb8c9bfffdf394352169722e6c9aa02fa7e48b",
+    "dist-tags": {
+      "latest": "1.64.0",
+      "beta": "2.0.0-beta.v.1"
+    },
+    "selectedMetadata": {
+      "1.37.1": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.37.1",
+        "dependencies": {
+          "ws": "8.18.0",
+          "unenv": "2.0.0-rc.24",
+          "wrangler": "4.92.0",
+          "miniflare": "4.20260515.0",
+          "@cloudflare/unenv-preset": "2.16.1"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.92.0"
+        },
+        "dist": {
+          "shasum": "c472633a329d4535da4c2fc0cc4d4ed8d65e61db",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.37.1.tgz",
+          "fileCount": 14,
+          "integrity": "sha512-FldhsmkXyLsX3yI+p0aJDo/kGyY69pDdynz2JjcuH3eCiQ+G9XaY3CrN+UYEfCbWv8CiR2wL95lNg0fT/HfwWA==",
+          "signatures": [
+            {
+              "sig": "MEQCIFizorve45fWQn+IlKu2qPgktSgumntv0+InUpZQ8y0+AiBwjJyT59CKH0RNFpx3Oxbs4HfbYvZvAqluCZszTPcBXQ==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.37.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 6632579
+        }
+      },
+      "1.43.1": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.43.1",
+        "dependencies": {
+          "ws": "8.21.0",
+          "unenv": "2.0.0-rc.24",
+          "wrangler": "4.107.1",
+          "miniflare": "4.20260702.0",
+          "@cloudflare/unenv-preset": "2.16.1"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.107.1"
+        },
+        "dist": {
+          "shasum": "7038227388008520166e126d8e2821b413e92eb1",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.43.1.tgz",
+          "fileCount": 20,
+          "integrity": "sha512-+IDrtk/udrNaQKK4yDHp35V/FWU3BZv+dXxVkN2HLyA9OS2mpkK0RTzLXbtV5h/DPSISfinnaQxOESOcjjJgxg==",
+          "signatures": [
+            {
+              "sig": "MEUCIQDZ0I/ZxL8zyAl9o9FErbwS8fHLVCFThNAy82j8H2zdFAIgfBgpes86UzJV6kanyYr5Mdhyz9r9tMcU+D1S/PoCHCQ=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.43.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 8018223
+        }
+      },
+      "1.43.2": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.43.2",
+        "dependencies": {
+          "ws": "8.21.0",
+          "unenv": "2.0.0-rc.24",
+          "wrangler": "4.108.0",
+          "miniflare": "4.20260706.0",
+          "@cloudflare/unenv-preset": "2.16.1"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.108.0"
+        },
+        "dist": {
+          "shasum": "04319dfbb845f293ccfff1ca8ba887a03caaeb70",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.43.2.tgz",
+          "fileCount": 20,
+          "integrity": "sha512-xYJ5ozwnEJ+wGRbK9GD/Chq044zehaAJ/UkvgVbF3K53Su7SyLOEs0SCTV2MWT5q4k0cdbyLk+21zyr1j+rMLQ==",
+          "signatures": [
+            {
+              "sig": "MEUCIQCH1h1sgo7p708P5sdPOa18Ht1F9gJF5jiiYLuSPEsaFwIgLKCVzKWyUfudDlIx0sIepTGfAUfoS8mn1oUNngcmE0U=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.43.2",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 8018223
+        }
+      },
+      "1.49.0": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.49.0",
+        "dependencies": {
+          "ws": "8.21.0",
+          "unenv": "2.0.0-rc.24",
+          "workerd": "1.20260730.1",
+          "wrangler": "4.116.0",
+          "miniflare": "4.20260730.0",
+          "@cloudflare/unenv-preset": "2.16.1"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.116.0"
+        },
+        "dist": {
+          "shasum": "b49c933db95b986c67116f335de0a3309fe7ca2e",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.49.0.tgz",
+          "fileCount": 24,
+          "integrity": "sha512-r8w3fwkLPfiwG1ksvDqa82fcT//skvNWXe3nMcZqLsShexrecTkJs1ZK41YmKQP+DH2J1ggASoizmBTb1f7hQg==",
+          "signatures": [
+            {
+              "sig": "MEQCIEh/us9Dem0QokyJt68vhPnYkMjVtTc0wS0jQNNjFJfjAiBYLXhSiwaN3u2WhypSj3HoNgToo4r3vAnv5cfZ9SVl1A==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIFA1yVs7m2GMBUQDBqxc6TZqDmSYjT8yISAD84wrlWaaAiEAhfgSP1ntLwAMHH4V7XebCb6lrCdKgMXcbGziacKGScU=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.49.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 10541189
+        }
+      },
+      "1.49.1": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.49.1",
+        "dependencies": {
+          "ws": "8.21.0",
+          "unenv": "2.0.0-rc.24",
+          "workerd": "1.20260730.1",
+          "wrangler": "4.117.0",
+          "miniflare": "5.20260730.0-alpha",
+          "@cloudflare/unenv-preset": "2.16.1"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.117.0"
+        },
+        "dist": {
+          "shasum": "ec5d89fed7709f1476dd4fa28486d02c3cf9aba4",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.49.1.tgz",
+          "fileCount": 24,
+          "integrity": "sha512-x0gWgO9zQTy0u7eT4ahUSc18BSiaLK4dvPbIjaO+ekl/SXmWmfUlbOCsg2Ippso0u2j8ieX99bxtTlCVk+Kt6w==",
+          "signatures": [
+            {
+              "sig": "MEQCICAaZblsmscPwbtTNLkiXFqq1Lc+uajyDfweA/kkK555AiB4KJxqLQt6gdQoSJxDuf1dYR5v662oECC2ZgGS7MRo9g==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIQC7FkHs8qGJrf3KpjfLfDZCIc9AiPMfr5vFyT3fMvL9DAIgEbXkAiw/Gj2+n2zb0paODJIUbs8efHMK48eOpCsbg1U=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.49.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 10241311
+        }
+      },
+      "1.63.1": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.63.1",
+        "dependencies": {
+          "ws": "8.21.0",
+          "unenv": "2.0.0-rc.24",
+          "workerd": "1.20261006.1",
+          "wrangler": "4.149.0",
+          "miniflare": "5.20261006.1-alpha",
+          "@cloudflare/unenv-preset": "2.16.2"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.149.0"
+        },
+        "dist": {
+          "shasum": "8b4d9bf35ae26208957826bf8c89afc44cfcd776",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.63.1.tgz",
+          "fileCount": 15,
+          "integrity": "sha512-6EtAoRqWryl43bYiCl7yvCBHi3R+L/fM11zu8zRyvBMe0Yk63NseyrhA19nO5Y1yrrk6dD+Su7NBZhDuUbjh0g==",
+          "signatures": [
+            {
+              "sig": "MEUCIQCAmykWETVcbglI/nSHH/FH0D1PkdoN3U8ke59DvSPKrAIgbTvDF8ZNGkZs+5qUjhdlXIh2E+A4hi3CqwZgh2kTCJQ=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIQDf10azQnRLOvN5H8CP59ZE7WuWayCBj6puU70gxb9UNAIgKxAiBwwoF411585HQ5/ab8EYTmULPSe2HzAy5+sO+28=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.63.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 4486357
+        }
+      },
+      "1.64.0": {
+        "name": "@cloudflare/vite-plugin",
+        "version": "1.64.0",
+        "dependencies": {
+          "ws": "8.21.0",
+          "unenv": "2.0.0-rc.24",
+          "workerd": "1.20261012.1",
+          "wrangler": "4.151.0",
+          "miniflare": "5.20261012.0-beta",
+          "@cloudflare/unenv-preset": "2.16.2"
+        },
+        "peerDependencies": {
+          "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+          "wrangler": "^4.151.0"
+        },
+        "dist": {
+          "shasum": "b1d25acf9c797ca9f413910beb32c33392a02705",
+          "tarball": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.64.0.tgz",
+          "fileCount": 15,
+          "integrity": "sha512-h7Tunx9Ou5fUoao8O9jYTH0ParfrtNZzZVPA0IS19O7AoWA1SpYjwzDA6pZC78qzuV8sQSEOpYCN/yTShmd+gg==",
+          "signatures": [
+            {
+              "sig": "MEUCIQCxdlACIgYYqFHXqyvcefrta5CeLag7RPZ2N5yLRA+e0AIgPie6zX3vGfVuIGnAYOBkJEHQHIwfEZxmMMBAyi/9LHA=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIQDtt+HS07H9FFEB4U6rqoFtKSnw3sJcsTMW8AWX0m/ZYAIgUN5Tjv3d46/HYVh9XG0AfvJG4/aHr97v2IPu9c9SpP8=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fvite-plugin@1.64.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 4491285
+        }
+      }
+    },
+    "allPublishedVersionCount": 893,
+    "publishedVersionFilter": "Stable and date-version alpha/beta releases at or above installed version; hash identifies full original response",
+    "publishedVersionsInReviewScope": [
+      "1.37.1",
+      "1.37.2",
+      "1.37.3",
+      "1.38.0",
+      "1.39.0",
+      "1.39.1",
+      "1.39.2",
+      "1.40.0",
+      "1.40.1",
+      "1.40.2",
+      "1.41.0",
+      "1.42.0",
+      "1.42.1",
+      "1.42.2",
+      "1.42.3",
+      "1.42.4",
+      "1.43.0",
+      "1.43.1",
+      "1.43.2",
+      "1.43.3",
+      "1.44.0",
+      "1.45.0",
+      "1.45.1",
+      "1.46.0",
+      "1.47.0",
+      "1.48.0",
+      "1.49.0",
+      "1.49.1",
+      "1.50.0",
+      "1.51.0",
+      "1.51.1",
+      "1.51.2",
+      "1.51.3",
+      "1.52.0",
+      "1.52.1",
+      "1.53.0",
+      "1.53.1",
+      "1.54.0",
+      "1.54.1",
+      "1.54.2",
+      "1.54.3",
+      "1.54.4",
+      "1.54.5",
+      "1.54.6",
+      "1.54.7",
+      "1.54.8",
+      "1.54.9",
+      "1.54.10",
+      "1.54.11",
+      "1.55.0",
+      "1.56.0",
+      "1.57.0",
+      "1.57.1",
+      "1.57.2",
+      "1.57.3",
+      "1.58.0",
+      "1.59.0",
+      "1.60.0",
+      "1.60.1",
+      "1.60.2",
+      "1.61.0",
+      "1.62.0",
+      "1.62.1",
+      "1.62.2",
+      "1.62.3",
+      "1.62.4",
+      "1.62.5",
+      "1.63.0",
+      "1.63.1",
+      "1.63.2",
+      "1.64.0"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/wrangler",
+    "retrievedAt": "2026-10-18T06:49:24.454069+00:00",
+    "responseSha256": "07442390d491b1697b45d18832d466e50bdcfe778dea9c544c8f16394442c02c",
+    "dist-tags": {
+      "wrangler@2.2.4": "2.2.4",
+      "legacy": "3.114.17",
+      "latest": "4.151.1"
+    },
+    "selectedMetadata": {
+      "4.92.0": {
+        "name": "wrangler",
+        "version": "4.92.0",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.27.3",
+          "workerd": "1.20260515.1",
+          "miniflare": "4.20260515.0",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.1",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^4.20260515.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "4735c7004ca5b36743c7f1bc761ebd8290edd92a",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.92.0.tgz",
+          "fileCount": 43,
+          "integrity": "sha512-/DKpQHPxkuZbQsO9dFW2700VTD/4DSZMHjy92fO/frNoDRi/zQsFCAd2ONCV6TGqcUoXcP3D8Bo2gj/L4M0qQQ==",
+          "signatures": [
+            {
+              "sig": "MEYCIQCldAHwK3yaNTqovCA+9sOBAS+ElQ84H2HXexZdOJSOYwIhAKJThit7FHRazL4RANeZqBxzE/b7yAo/Y9FDaYpNgKvq",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.92.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 16607203
+        },
+        "optionalDependencies": {
+          "fsevents": "~2.3.2"
+        }
+      },
+      "4.107.1": {
+        "name": "wrangler",
+        "version": "4.107.1",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.1",
+          "workerd": "1.20260702.1",
+          "miniflare": "4.20260702.0",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.1",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^4.20260702.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "8f61ce75c915992f6a7fb8d6c10a78fd80962f52",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.107.1.tgz",
+          "fileCount": 48,
+          "integrity": "sha512-HMulqgQtNvY9UKXu6nTRTqv5GhtN1RhZeG9cPX+kS8R6s7o7ct6rueoXiNe4MX8+88B7p4lq3RvSPzB205fexg==",
+          "signatures": [
+            {
+              "sig": "MEUCIFu8uCO+Qc+lpfxkQIo2Bf+4DgWtC9COwWuOD1c7Zx3gAiEA1m8GauxgmGtsQdzbX6heJcp3cxOzyo8FJG5MvPIfD5c=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.107.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 18801984
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      },
+      "4.108.0": {
+        "name": "wrangler",
+        "version": "4.108.0",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.1",
+          "workerd": "1.20260706.1",
+          "miniflare": "4.20260706.0",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.1",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^5.20260706.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "6700eca775efe522cde2018bcd92585910707fe4",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.108.0.tgz",
+          "fileCount": 48,
+          "integrity": "sha512-mJnY6vf2Tminfo0Jy5OreBgUjIKW3iM1TQtOrZZRpFUyiQvAYUDVN0aRcDn8/aEfF0bmZgcixRdwwVHZMZaE7w==",
+          "signatures": [
+            {
+              "sig": "MEQCICorqFKUBaaJk8/ECMRSlCf1yf9rz6TPI/+OH+EmEHdgAiA3VMgKaL+0HJs6AAvf0VjmeAZ/YHJQuo7U8rCuieuX4A==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.108.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 18818249
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      },
+      "4.116.0": {
+        "name": "wrangler",
+        "version": "4.116.0",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.1",
+          "workerd": "1.20260730.1",
+          "miniflare": "4.20260730.0",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.1",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^5.20260730.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "6bec02b58580d45fcaa84ea30a2e004c771dde84",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.116.0.tgz",
+          "fileCount": 45,
+          "integrity": "sha512-wP1PXxH5KJajfGEjty0NNqyxAirTFvMZpGyB5CRqEIiY0fL/SiCKtIYAJB9HXq0MP0sMXB/i/YSls+WObahAhw==",
+          "signatures": [
+            {
+              "sig": "MEUCIQCBYv8FFeotN1sfeEZMYE+YPbGzFgq7Onj0E9+oEJq9HQIgDTqFk2aaM3cpSO7TQ6knM88NDVeHwSoCW1ABZ3W5ubU=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEYCIQDeZXz3zbCUql6Mb2JUl1Nb4ZsCIwGCrg9BKErt9mukRwIhAJeKdDT2BxHqqrkQBBIoaBMCJ8hakYobTlB4l1ML6GOZ",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.116.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 21302611
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      },
+      "4.117.0": {
+        "name": "wrangler",
+        "version": "4.117.0",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.1",
+          "workerd": "1.20260730.1",
+          "miniflare": "5.20260730.0-alpha",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.1",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^5.20260730.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "773b7d8904d448215a14986e7f668c3cb3ec025f",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.117.0.tgz",
+          "fileCount": 45,
+          "integrity": "sha512-pN1Jh9coa5HqtIH2V6sih9KznEtV6G/HeWup0qMRBSLKmT5OGjd8+fUI7TdnHlb3Udv/Z7RgoWyAZaWqBofvTQ==",
+          "signatures": [
+            {
+              "sig": "MEQCIFRQDsXmX90V+D3ds8sTsN6qC3GBkOXj53jbjy6yQ2V/AiBCHHC2gRsvh9oHKUyme3KA04wtMKcrzlHjpShSPrLQcA==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIQDUYEjvb00uxXxiwD2a0HnqBo/bst6pdlAepC89IhwRGQIgW6xyHPMvCT74vKcErG4OzfrMpa7SgXt9VKYO/lJ2R8Y=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.117.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 22122186
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      },
+      "4.149.0": {
+        "name": "wrangler",
+        "version": "4.149.0",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.2",
+          "workerd": "1.20261006.1",
+          "miniflare": "5.20261006.1-alpha",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.2",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^5.20261006.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "2fdfd812faee929bc1a0045ae7830f174fcf7603",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.149.0.tgz",
+          "fileCount": 30,
+          "integrity": "sha512-OzK7xmB5r5iLKb3cIT3783g13fe6T7xyeKu9LEdUyl+DKAM2KP/jkjnE0OUhyw+mB/XJM9ycjgF3MWm8PR9amg==",
+          "signatures": [
+            {
+              "sig": "MEQCICPC6RbGCvC0gwVUEPh++G/LlonR76/5NcUNYRDIwWCjAiA3ztocqKgWNtafkxQTbmsxUCBTr1khz/aJRFVjL+Ww1Q==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEQCIGanwQ6QVGRRv5ZrSHnPZ05cFcdvMzYM2irf7aM1FU03AiBYUsRmxn8lmNseqyAbe8FpK2ildgUFSr6cyQN/V8b0Uw==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.149.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 15706941
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      },
+      "4.151.0": {
+        "name": "wrangler",
+        "version": "4.151.0",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.2",
+          "workerd": "1.20261012.1",
+          "miniflare": "5.20261012.0-beta",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.2",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^5.20261006.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "c70b7f7f3762d95283c28a5c7a03dc7d402d89df",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.151.0.tgz",
+          "fileCount": 30,
+          "integrity": "sha512-ra8MpzSR+ClkbGofu9S+AmAKjytS60MqSuayXKpa1CAYIzP+NIc8q6EiF55Gz5PS3lxT4qcvMuPHihCNhTPpDg==",
+          "signatures": [
+            {
+              "sig": "MEQCIAfOr89eLnukBR1+1BSTI+FKFLdlgjD+Sk8Vkr3a8m4SAiBXgZj3fLKuwVxl6iY6SSuSzt4erIAvt9mV0rpDGLg3TA==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIQCXL5L6K8f7GiDWMRUddoOQeU7OnfyN0YGlO37WL+GutQIgT7PiDAyQkvQbYI6lfwUcrv6/m34DF5RujtaoG1104q0=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.151.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 15722951
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      },
+      "4.151.1": {
+        "name": "wrangler",
+        "version": "4.151.1",
+        "dependencies": {
+          "unenv": "2.0.0-rc.24",
+          "esbuild": "0.28.2",
+          "workerd": "1.20261012.1",
+          "miniflare": "5.20261012.1-beta",
+          "blake3-wasm": "2.1.5",
+          "path-to-regexp": "6.3.0",
+          "@cloudflare/unenv-preset": "2.16.2",
+          "@cloudflare/kv-asset-handler": "0.5.0"
+        },
+        "peerDependencies": {
+          "@cloudflare/workers-types": "^5.20261006.1"
+        },
+        "peerDependenciesMeta": {
+          "@cloudflare/workers-types": {
+            "optional": true
+          }
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "72883f8448d40941311632ff93d88927a17f5d88",
+          "tarball": "https://registry.npmjs.org/wrangler/-/wrangler-4.151.1.tgz",
+          "fileCount": 30,
+          "integrity": "sha512-OAsa9UAHZshM6mq2PXcVoyxXgWThAanZMBc/IirtqEWd/BauRtmUKzAniOu/pU0pd3pxKuMZ2vsbF4eo6RiNDA==",
+          "signatures": [
+            {
+              "sig": "MEYCIQD7skDcFbxWGy2eLA0PyYxdvW16SA4Ypexi9x7PryGXUAIhAMzW0hMXe6e0+2TU0/qth7iBvHnA9sK9Xpl8h93Iqf2q",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+              "sig": "MEUCIQC2JTsIqbmCdwODjh7GBvoQV1CswEqRq/0qxK4/tj0qjAIgQeXskIjHld9aJnIXX6NJUISNZ36FfJv4qUdeCDASGMA="
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/wrangler@4.151.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 15733616
+        },
+        "optionalDependencies": {
+          "fsevents": "2.3.3"
+        }
+      }
+    },
+    "allPublishedVersionCount": 4960,
+    "publishedVersionFilter": "Stable and date-version alpha/beta releases at or above installed version; hash identifies full original response",
+    "publishedVersionsInReviewScope": [
+      "4.92.0",
+      "4.93.0",
+      "4.93.1",
+      "4.94.0",
+      "4.95.0",
+      "4.96.0",
+      "4.97.0",
+      "4.98.0",
+      "4.99.0",
+      "4.100.0",
+      "4.101.0",
+      "4.102.0",
+      "4.103.0",
+      "4.104.0",
+      "4.105.0",
+      "4.106.0",
+      "4.107.0",
+      "4.107.1",
+      "4.108.0",
+      "4.109.0",
+      "4.110.0",
+      "4.111.0",
+      "4.112.0",
+      "4.113.0",
+      "4.114.0",
+      "4.115.0",
+      "4.116.0",
+      "4.117.0",
+      "4.118.0",
+      "4.119.0",
+      "4.120.0",
+      "4.120.1",
+      "4.121.0",
+      "4.122.0",
+      "4.123.0",
+      "4.124.0",
+      "4.125.0",
+      "4.126.0",
+      "4.127.0",
+      "4.127.1",
+      "4.128.0",
+      "4.129.0",
+      "4.129.1",
+      "4.130.0",
+      "4.131.0",
+      "4.131.1",
+      "4.131.2",
+      "4.132.0",
+      "4.133.0",
+      "4.134.0",
+      "4.135.0",
+      "4.136.0",
+      "4.136.1",
+      "4.136.2",
+      "4.136.3",
+      "4.137.0",
+      "4.138.0",
+      "4.139.0",
+      "4.140.0",
+      "4.141.0",
+      "4.142.0",
+      "4.143.0",
+      "4.143.1",
+      "4.144.0",
+      "4.145.0",
+      "4.146.0",
+      "4.147.0",
+      "4.148.0",
+      "4.149.0",
+      "4.150.0",
+      "4.151.0",
+      "4.151.1"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/miniflare",
+    "retrievedAt": "2026-10-18T06:49:25.420587+00:00",
+    "responseSha256": "99608b3a231324a392b762f368efcf2476d1c63c5527b1622826cfb0c5af6a90",
+    "dist-tags": {
+      "latest-2": "2.14.4",
+      "v4-rc": "4.20250214.0-rc.0",
+      "next": "0.0.0-f7c347a67",
+      "legacy-beta": "0.0.0-b0a40729a",
+      "legacy": "3.20250718.3",
+      "latest": "4.20260730.0",
+      "beta": "5.20261012.1-beta"
+    },
+    "selectedMetadata": {
+      "4.20260515.0": {
+        "name": "miniflare",
+        "version": "4.20260515.0",
+        "dependencies": {
+          "ws": "8.18.0",
+          "sharp": "^0.34.5",
+          "youch": "4.1.0-beta.10",
+          "undici": "7.24.8",
+          "workerd": "1.20260515.1",
+          "@cspotcode/source-map-support": "0.8.1"
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "38085e081b413ff40693292e50439c6742f6833b",
+          "tarball": "https://registry.npmjs.org/miniflare/-/miniflare-4.20260515.0.tgz",
+          "fileCount": 134,
+          "integrity": "sha512-2j0oQWizk1Eu4Cm8tDX7Z+Nsjd0nebIj1TQcQ+Oy1QKeo0Ay9+bdn8wfLAtOj9znDCybDCUlnS1+nYvKXEdfNg==",
+          "signatures": [
+            {
+              "sig": "MEUCIEirgahymdSXQPxZQQZJXbQ56MFHaZfjXUGM6hWooJ6OAiEAtfwTSYzI7d7oXwap31LUWT4KdhjNaqnCYx6qP1WMTNc=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/miniflare@4.20260515.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 19313799
+        }
+      },
+      "4.20260702.0": {
+        "name": "miniflare",
+        "version": "4.20260702.0",
+        "dependencies": {
+          "ws": "8.21.0",
+          "sharp": "0.34.5",
+          "youch": "4.1.0-beta.10",
+          "undici": "7.28.0",
+          "workerd": "1.20260702.1",
+          "@cspotcode/source-map-support": "0.8.1"
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "9d7f84edec373ca98a9a790e9db08bed832771b7",
+          "tarball": "https://registry.npmjs.org/miniflare/-/miniflare-4.20260702.0.tgz",
+          "fileCount": 138,
+          "integrity": "sha512-OqX/HwWWu0JqLQ7aCQU0int9fmpMzRjVWDo0T1WJDTssYc7KlaMM3G8N8HUEunkBMflmgI8TiAqmZTISqcVmEw==",
+          "signatures": [
+            {
+              "sig": "MEUCIQChBk7x2KIIC5bVmbx81LbEAovWyNTfcWdtiAcUCu2sgwIgfU+fo6BGJ4SbosZe05xcuPD9CFmPsm2UFo93MO5yAbk=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/miniflare@4.20260702.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 19800175
+        }
+      },
+      "4.20260730.0": {
+        "name": "miniflare",
+        "version": "4.20260730.0",
+        "dependencies": {
+          "ws": "8.21.0",
+          "sharp": "0.35.2",
+          "youch": "4.1.0-beta.10",
+          "undici": "7.28.0",
+          "workerd": "1.20260730.1",
+          "@cspotcode/source-map-support": "0.8.1"
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "56c731a8f9e7f309d09eb26a892b95aad4e35537",
+          "tarball": "https://registry.npmjs.org/miniflare/-/miniflare-4.20260730.0.tgz",
+          "fileCount": 160,
+          "integrity": "sha512-1Z9SB9r/o//80UA02Re3QhtcecSHAyAjf5EcKBfQVlQrCg7Miy79hl2PvtkwFLIaJ5rcrOPdDcRr577okwZPsg==",
+          "signatures": [
+            {
+              "sig": "MEUCIA0T2qahJFIHkp9xSqaI4N+kgGhtlcGXGZe/SNOHQI0EAiEAlLD+qmbVCr4HQwVvFEVeavME/Z/E0oExlR6lFqDMHvU=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEUCIQDzHie/3wR0nRk0TC6N/MaByPCre1+UDPtGCNtmAxH0TAIgUmMgHp9hL+LlcSiGXDFFXL/99hSORM9828oXqp+lTxA=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/miniflare@4.20260730.0",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 23092731
+        }
+      },
+      "5.20261006.1-alpha": {
+        "name": "miniflare",
+        "version": "5.20261006.1-alpha",
+        "dependencies": {
+          "ws": "8.21.0",
+          "sharp": "0.35.5",
+          "youch": "4.1.0-beta.10",
+          "undici": "7.29.1",
+          "workerd": "1.20261006.1",
+          "@cspotcode/source-map-support": "0.8.1"
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "88f259b55a6ff0750f19f38c8c1477bb3347a38f",
+          "tarball": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261006.1-alpha.tgz",
+          "fileCount": 157,
+          "integrity": "sha512-6ylv8tamkrspDI2R/cAYfv+YWmfGNdXe76Pi9TauEUWsFVXn3LNF9Yk8oduzf1a+TYsSRYTqlOE7+nGGRsMHdw==",
+          "signatures": [
+            {
+              "sig": "MEYCIQDM9kMa/us0nsAgiQlDsY9Z7jQdBuET1vXorS+CmfQf0AIhAKS31ZvEAinREuP6jFDlt0zyIm0zf6yza8c0Ru9Rd1/z",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/miniflare@5.20261006.1-alpha",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 11097628
+        }
+      },
+      "5.20261012.0-beta": {
+        "name": "miniflare",
+        "version": "5.20261012.0-beta",
+        "dependencies": {
+          "ws": "8.21.0",
+          "sharp": "0.35.5",
+          "youch": "4.1.0-beta.10",
+          "undici": "7.29.1",
+          "workerd": "1.20261012.1",
+          "@cspotcode/source-map-support": "0.8.1"
+        },
+        "engines": {
+          "node": ">=22.0.0"
+        },
+        "dist": {
+          "shasum": "840e9969661a40b104e7b0692e1d6c9a16149add",
+          "tarball": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261012.0-beta.tgz",
+          "fileCount": 158,
+          "integrity": "sha512-Cjrs+vHHQ7krLO4HYELYpYBJBuMhcnNZD/Z5z/UcQSnFqWSQY3DhtTCFalXgI1/yO1iK+YrRKK8EYkumrEopxg==",
+          "signatures": [
+            {
+              "sig": "MEYCIQCnJNKFizuAiq7y1JxufNMBQqP82VlTBrt04a4zDGVAQgIhAOaUdpcb4IUm9DSnfkpnOi9LTYAx/Zkt54xsOWBCqo8u",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/miniflare@5.20261012.0-beta",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 11113363
+        }
+      }
+    },
+    "allPublishedVersionCount": 1675,
+    "publishedVersionFilter": "Stable and date-version alpha/beta releases at or above installed version; hash identifies full original response",
+    "publishedVersionsInReviewScope": [
+      "4.20260515.0",
+      "4.20260518.0",
+      "4.20260520.0",
+      "4.20260521.0",
+      "4.20260526.0",
+      "4.20260529.0",
+      "4.20260601.0",
+      "4.20260603.0",
+      "4.20260609.0",
+      "4.20260611.0",
+      "4.20260616.0",
+      "4.20260617.0",
+      "4.20260617.1",
+      "4.20260623.0",
+      "4.20260625.0",
+      "4.20260630.0",
+      "4.20260701.0",
+      "4.20260702.0",
+      "4.20260706.0",
+      "4.20260708.0",
+      "4.20260708.1",
+      "4.20260710.0",
+      "4.20260714.0",
+      "4.20260721.0",
+      "4.20260722.0",
+      "4.20260722.1",
+      "4.20260730.0",
+      "5.20260730.0-alpha",
+      "5.20260801.0-alpha",
+      "5.20260801.1-alpha",
+      "5.20260804.0-alpha",
+      "5.20260804.1-alpha",
+      "5.20260811.0-alpha",
+      "5.20260811.1-alpha",
+      "5.20260815.0-alpha",
+      "5.20260820.0-alpha",
+      "5.20260825.0-alpha",
+      "5.20260826.0-alpha",
+      "5.20260828.0-alpha",
+      "5.20260831.0-alpha",
+      "5.20260903.0-alpha",
+      "5.20260907.0-alpha",
+      "5.20260908.0-alpha",
+      "5.20260910.0-alpha",
+      "5.20260911.0-alpha",
+      "5.20260911.1-alpha",
+      "5.20260915.0-alpha",
+      "5.20260916.0-alpha",
+      "5.20260917.0-alpha",
+      "5.20260918.0-alpha",
+      "5.20260921.0-alpha",
+      "5.20260921.1-alpha",
+      "5.20260923.0-alpha",
+      "5.20260925.0-alpha",
+      "5.20260926.0-alpha",
+      "5.20260926.1-alpha",
+      "5.20260930.0-alpha",
+      "5.20261001.0-alpha",
+      "5.20261006.0-alpha",
+      "5.20261006.1-alpha",
+      "5.20261006.2-beta",
+      "5.20261012.0-beta",
+      "5.20261012.1-beta"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/%40cloudflare%2Fworkers-types",
+    "retrievedAt": "2026-10-18T06:49:26.032583+00:00",
+    "responseSha256": "360c15fe21b02242b0a10a4ab6dd402eb493bfe329a7965661e2a174c4064c00",
+    "dist-tags": {
+      "alpha": "0.20240712.0",
+      "beta": "0.20250124.2",
+      "latest": "5.20261018.1"
+    },
+    "selectedMetadata": {
+      "4.20260702.1": {
+        "name": "@cloudflare/workers-types",
+        "version": "4.20260702.1",
+        "dist": {
+          "shasum": "7722067003b8db5f385cd4c36dac9b2190e6e55b",
+          "tarball": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-4.20260702.1.tgz",
+          "fileCount": 27,
+          "integrity": "sha512-mOhf5TUEB1m2vPrxtqoIGfz0fUC9xyxRDx5gWHy5s+OCo6dcV+g7wI1R7gYCMFohhqF/2y2xeKVwMwCJjfn/WA==",
+          "signatures": [
+            {
+              "sig": "MEUCIBBWHF4ZhzTS3Y9bbiP+v4eNolVF87sB6ePZLqfKPaTnAiEA3JcBrWGplfjzMD67yyQdULJY6KJvZNNxLeMUnEzXg9k=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fworkers-types@4.20260702.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 12734224
+        }
+      },
+      "5.20261006.1": {
+        "name": "@cloudflare/workers-types",
+        "version": "5.20261006.1",
+        "dist": {
+          "shasum": "4679c0a37e127b75740d5f8a08ecb827ff5fc2fb",
+          "tarball": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261006.1.tgz",
+          "fileCount": 6,
+          "integrity": "sha512-5OclwQK1d8f5LCPvOlyldC3ryKLUa4nLXegcgPZeUxAPudczQ9xujJDdpS2Tenp7JqbBLW3OgGciHJmuc7QShg==",
+          "signatures": [
+            {
+              "sig": "MEUCICesz73f62+dRp1XdhFBdMT8PUxvViv8jJPMcgKrVZqDAiEAmU3aZSW/RKQudiCb4qRIxm0wZ9jkMhEWD8knHD/vBN4=",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            },
+            {
+              "sig": "MEQCIDmoH3cNSEva/ncf0houTu6VouWtL8usAF6ei6JP3kpMAiBftSpJ7+VfINfNmLsuVfAmq/5lR59LaJwtRihSegDR3w==",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/@cloudflare%2fworkers-types@5.20261006.1",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 2522800
+        }
+      }
+    },
+    "allPublishedVersionCount": 559,
+    "publishedVersionFilter": "Only compared pinned versions; current dist-tags retained",
+    "publishedVersionsInReviewScope": [
+      "4.20260702.1",
+      "5.20261006.1"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/vite-node",
+    "retrievedAt": "2026-10-18T06:49:26.404674+00:00",
+    "responseSha256": "de953f7df73e2dd5cecf66179dc6cf363a4a88e7e917cc8998e11925bf8d98c3",
+    "dist-tags": {
+      "beta": "4.0.0-beta.19",
+      "latest": "6.0.0"
+    },
+    "selectedMetadata": {
+      "3.2.4": {
+        "name": "vite-node",
+        "version": "3.2.4",
+        "dependencies": {
+          "cac": "^6.7.14",
+          "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+          "debug": "^4.4.1",
+          "pathe": "^2.0.3",
+          "es-module-lexer": "^1.7.0"
+        },
+        "engines": {
+          "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+        },
+        "dist": {
+          "shasum": "f3676d94c4af1e76898c162c92728bca65f7bb07",
+          "tarball": "https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz",
+          "fileCount": 37,
+          "integrity": "sha512-EbKSKh+bh1E1IFxeO0pg1n4dvoOTt0UDiXMd/qn++r98+jPO1xtJilvXldeuQ8giIB5IkpjCgMleHMNEsGH6pg==",
+          "signatures": [
+            {
+              "sig": "MEYCIQDHr8/hkvkmgyiUDQXPQ7s26ox4E4eLVNmX5FfHiP7k6wIhAIOKVPDF7Pex/eIzKdoURSTk52z2Xx24RxOw0Zr936FU",
+              "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+            }
+          ],
+          "attestations": {
+            "url": "https://registry.npmjs.org/-/npm/v1/attestations/vite-node@3.2.4",
+            "provenance": {
+              "predicateType": "https://slsa.dev/provenance/v1"
+            }
+          },
+          "unpackedSize": 223839
+        }
+      }
+    },
+    "allPublishedVersionCount": 318,
+    "publishedVersionFilter": "All stable3.x releases; selected4.x metadata separately retained",
+    "publishedVersionsInReviewScope": [
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.0.5",
+      "3.0.6",
+      "3.0.7",
+      "3.0.8",
+      "3.0.9",
+      "3.1.0",
+      "3.1.1",
+      "3.1.2",
+      "3.1.3",
+      "3.1.4",
+      "3.2.0",
+      "3.2.1",
+      "3.2.2",
+      "3.2.3",
+      "3.2.4"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/micromatch",
+    "retrievedAt": "2026-10-18T06:49:26.179901+00:00",
+    "responseSha256": "98ed2e940dd2b25e9b5fb9e13e1aa5c6d0d68b3a2fd6478748aee5189a762c6b",
+    "dist-tags": {
+      "latest": "4.0.8"
+    },
+    "selectedMetadata": {
+      "4.0.8": {
+        "name": "micromatch",
+        "version": "4.0.8",
+        "dependencies": {
+          "braces": "^3.0.3",
+          "picomatch": "^2.3.1"
+        },
+        "engines": {
+          "node": ">=8.6"
+        },
+        "dist": {
+          "shasum": "d66fa18f3a47076789320b9b1af32bd86d9fa202",
+          "tarball": "https://registry.npmjs.org/micromatch/-/micromatch-4.0.8.tgz",
+          "fileCount": 4,
+          "integrity": "sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==",
+          "signatures": [
+            {
+              "sig": "MEUCIQCbM5vTauiWZIyEboHJF/YXuneSxEyEJ+2VHaEdyLD4zQIgU0seoGyOpfB4e80kPjxYidBvIgonDpZpZzNN8w25BUU=",
+              "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA"
+            }
+          ],
+          "unpackedSize": 56599
+        }
+      }
+    },
+    "allPublishedVersionCount": 69,
+    "publishedVersionFilter": "All stable releases",
+    "publishedVersionsInReviewScope": [
+      "0.1.0",
+      "0.2.0",
+      "0.2.1",
+      "0.2.2",
+      "1.0.0",
+      "1.0.1",
+      "1.2.0",
+      "1.2.2",
+      "1.3.0",
+      "1.3.1",
+      "1.3.2",
+      "1.3.3",
+      "1.4.0",
+      "1.4.1",
+      "1.4.2",
+      "1.4.3",
+      "1.4.4",
+      "1.4.5",
+      "1.5.0",
+      "1.6.0",
+      "1.6.1",
+      "1.6.2",
+      "2.0.0",
+      "2.1.0",
+      "2.1.1",
+      "2.1.2",
+      "2.1.3",
+      "2.1.4",
+      "2.1.5",
+      "2.1.6",
+      "2.2.0",
+      "2.3.0",
+      "2.3.1",
+      "2.3.2",
+      "2.3.3",
+      "2.3.4",
+      "2.3.5",
+      "2.3.6",
+      "2.3.7",
+      "2.3.8",
+      "2.3.9",
+      "2.3.10",
+      "2.3.11",
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.0.5",
+      "3.1.0",
+      "3.1.1",
+      "3.1.2",
+      "3.1.3",
+      "3.1.4",
+      "3.1.5",
+      "3.1.6",
+      "3.1.7",
+      "3.1.8",
+      "3.1.9",
+      "3.1.10",
+      "4.0.0",
+      "4.0.1",
+      "4.0.2",
+      "4.0.3",
+      "4.0.4",
+      "4.0.5",
+      "4.0.6",
+      "4.0.7",
+      "4.0.8"
+    ]
+  },
+  {
+    "source": "https://registry.npmjs.org/fast-glob",
+    "retrievedAt": "2026-10-18T06:49:26.268464+00:00",
+    "responseSha256": "bbe0718af26e0ea2cc422f9711947a26db39b897e5298c2f52ef5313bfddb46a",
+    "dist-tags": {
+      "next": "2.0.2",
+      "beta": "3.2.1-beta.1",
+      "latest": "3.3.3"
+    },
+    "selectedMetadata": {
+      "3.3.3": {
+        "name": "fast-glob",
+        "version": "3.3.3",
+        "dependencies": {
+          "@nodelib/fs.stat": "^2.0.2",
+          "@nodelib/fs.walk": "^1.2.3",
+          "glob-parent": "^5.1.2",
+          "merge2": "^1.3.0",
+          "micromatch": "^4.0.8"
+        },
+        "engines": {
+          "node": ">=8.6.0"
+        },
+        "dist": {
+          "integrity": "sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==",
+          "shasum": "d06d585ce8dba90a16b0505c543c3ccfb3aeb818",
+          "tarball": "https://registry.npmjs.org/fast-glob/-/fast-glob-3.3.3.tgz",
+          "fileCount": 55,
+          "unpackedSize": 98396,
+          "signatures": [
+            {
+              "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+              "sig": "MEUCICTjokEWb6KQHVjqCGFBsmTVyNXGzhTR6Go+PYGeHq9SAiEApP3aaGSYHbb2YmHZecGkGpQUM0m+IcTsKdciYSSOsso="
+            }
+          ]
+        }
+      }
+    },
+    "allPublishedVersionCount": 44,
+    "publishedVersionFilter": "All stable releases",
+    "publishedVersionsInReviewScope": [
+      "1.0.0",
+      "1.0.1",
+      "2.0.0",
+      "2.0.1",
+      "2.0.2",
+      "2.0.3",
+      "2.0.4",
+      "2.1.0",
+      "2.2.0",
+      "2.2.1",
+      "2.2.2",
+      "2.2.3",
+      "2.2.4",
+      "2.2.5",
+      "2.2.6",
+      "2.2.7",
+      "3.0.0",
+      "3.0.1",
+      "3.0.2",
+      "3.0.3",
+      "3.0.4",
+      "3.1.0",
+      "3.1.1",
+      "3.2.0",
+      "3.2.1",
+      "3.2.2",
+      "3.2.3",
+      "3.2.4",
+      "3.2.5",
+      "3.2.6",
+      "3.2.7",
+      "3.2.8",
+      "3.2.9",
+      "3.2.10",
+      "3.2.11",
+      "3.2.12",
+      "3.3.0",
+      "3.3.1",
+      "3.3.2",
+      "3.3.3"
+    ]
+  }
+]

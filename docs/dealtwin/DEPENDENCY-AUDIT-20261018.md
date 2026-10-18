@@ -1,5 +1,10 @@
 # DealTwin dependency remediation — Task29 remains PARTIAL
 
+Follow-up: [remaining source review and migration plan](DEPENDENCY-REVIEW-PLAN-20261018.md)
+documents compatible alternatives, individual exploit prerequisites and unchanged
+gate scopes. It corrects the historical proposed vite-node version below to
+the actual installed/published3.2.4. No further dependency update was applied.
+
 Continued in the same cloud workspace from
 `57782e8c84435050e3a6ed786a56b9c69ba69e4b`. Two separate compatible fix commits:
 

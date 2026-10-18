@@ -1,0 +1,443 @@
+[
+  {
+    "path": "node_modules/@cloudflare/vite-plugin",
+    "lockedVersion": "1.37.1",
+    "installedVersion": "1.37.1",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "unenv": "2.0.0-rc.24",
+      "ws": "8.18.0",
+      "@cloudflare/unenv-preset": "2.16.1",
+      "miniflare": "4.20260515.0",
+      "wrangler": "4.92.0"
+    },
+    "peerDependencies": {
+      "vite": "^6.1.0 || ^7.0.0 || ^8.0.0",
+      "wrangler": "^4.92.0"
+    }
+  },
+  {
+    "path": "node_modules/@cloudflare/workers-types",
+    "lockedVersion": "4.20260702.1",
+    "installedVersion": "4.20260702.1",
+    "dev": false,
+    "optional": false,
+    "dependencies": null,
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/@next/eslint-plugin-next",
+    "lockedVersion": "15.5.28",
+    "installedVersion": "15.5.28",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "fast-glob": "3.3.1"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/@vitest/coverage-v8",
+    "lockedVersion": "3.2.7",
+    "installedVersion": "3.2.7",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@ampproject/remapping": "^2.3.0",
+      "@bcoe/v8-coverage": "^1.0.2",
+      "ast-v8-to-istanbul": "^0.3.3",
+      "debug": "^4.4.1",
+      "istanbul-lib-coverage": "^3.2.2",
+      "istanbul-lib-report": "^3.0.1",
+      "istanbul-lib-source-maps": "^5.0.6",
+      "istanbul-reports": "^3.1.7",
+      "magic-string": "^0.30.17",
+      "magicast": "^0.3.5",
+      "std-env": "^3.9.0",
+      "test-exclude": "^7.0.1",
+      "tinyrainbow": "^2.0.0"
+    },
+    "peerDependencies": {
+      "@vitest/browser": "3.2.7",
+      "vitest": "3.2.7"
+    }
+  },
+  {
+    "path": "node_modules/braces",
+    "lockedVersion": "3.0.3",
+    "installedVersion": "3.0.3",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "fill-range": "^7.1.1"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/eslint-config-next",
+    "lockedVersion": "15.5.28",
+    "installedVersion": "15.5.28",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@next/eslint-plugin-next": "15.5.28",
+      "@rushstack/eslint-patch": "^1.10.3",
+      "@typescript-eslint/eslint-plugin": "^5.4.2 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+      "@typescript-eslint/parser": "^5.4.2 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+      "eslint-import-resolver-node": "^0.3.6",
+      "eslint-import-resolver-typescript": "^3.5.2",
+      "eslint-plugin-import": "^2.31.0",
+      "eslint-plugin-jsx-a11y": "^6.10.0",
+      "eslint-plugin-react": "^7.37.0",
+      "eslint-plugin-react-hooks": "^5.0.0"
+    },
+    "peerDependencies": {
+      "eslint": "^7.23.0 || ^8.0.0 || ^9.0.0",
+      "typescript": ">=3.3.1"
+    }
+  },
+  {
+    "path": "node_modules/fast-glob",
+    "lockedVersion": "3.3.1",
+    "installedVersion": "3.3.1",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@nodelib/fs.stat": "^2.0.2",
+      "@nodelib/fs.walk": "^1.2.3",
+      "glob-parent": "^5.1.2",
+      "merge2": "^1.3.0",
+      "micromatch": "^4.0.4"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/micromatch",
+    "lockedVersion": "4.0.8",
+    "installedVersion": "4.0.8",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "braces": "^3.0.3",
+      "picomatch": "^2.3.1"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/miniflare",
+    "lockedVersion": "4.20260515.0",
+    "installedVersion": "4.20260515.0",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@cspotcode/source-map-support": "0.8.1",
+      "sharp": "^0.34.5",
+      "undici": "7.24.8",
+      "workerd": "1.20260515.1",
+      "ws": "8.18.0",
+      "youch": "4.1.0-beta.10"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/next/node_modules/sharp",
+    "lockedVersion": "0.35.5",
+    "installedVersion": "0.35.5",
+    "dev": false,
+    "optional": true,
+    "dependencies": {
+      "@img/colour": "^1.1.0",
+      "detect-libc": "^2.1.2",
+      "semver": "^7.8.5"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/sharp",
+    "lockedVersion": "0.34.5",
+    "installedVersion": "0.34.5",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@img/colour": "^1.0.0",
+      "detect-libc": "^2.1.2",
+      "semver": "^7.7.3"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/tinypool",
+    "lockedVersion": "1.1.1",
+    "installedVersion": "1.1.1",
+    "dev": true,
+    "optional": false,
+    "dependencies": null,
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/undici",
+    "lockedVersion": "7.29.1",
+    "installedVersion": "7.29.1",
+    "dev": true,
+    "optional": false,
+    "dependencies": null,
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/vinext",
+    "lockedVersion": "0.0.50",
+    "installedVersion": "0.0.50",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@unpic/react": "^1.0.2",
+      "@vercel/og": "^0.8.6",
+      "image-size": "2.0.2",
+      "ipaddr.js": "^2.1.0",
+      "magic-string": "^0.30.21",
+      "vite-plugin-commonjs": "^0.10.4",
+      "vite-tsconfig-paths": "^6.1.1",
+      "web-vitals": "^4.2.4"
+    },
+    "peerDependencies": {
+      "@mdx-js/rollup": "^3.0.0",
+      "@vitejs/plugin-react": "^5.1.4 || ^6.0.0",
+      "@vitejs/plugin-rsc": "^0.5.23",
+      "react": "^19.2.6",
+      "react-dom": "^19.2.6",
+      "react-server-dom-webpack": "^19.2.6",
+      "vite": "^7.0.0 || ^8.0.0"
+    }
+  },
+  {
+    "path": "node_modules/vite",
+    "lockedVersion": "8.0.16",
+    "installedVersion": "8.0.16",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "lightningcss": "^1.32.0",
+      "picomatch": "^4.0.4",
+      "postcss": "^8.5.15",
+      "rolldown": "1.0.3",
+      "tinyglobby": "^0.2.17"
+    },
+    "peerDependencies": {
+      "@types/node": "^20.19.0 || >=22.12.0",
+      "@vitejs/devtools": "^0.1.18",
+      "esbuild": "^0.27.0 || ^0.28.0",
+      "jiti": ">=1.21.0",
+      "less": "^4.0.0",
+      "sass": "^1.70.0",
+      "sass-embedded": "^1.70.0",
+      "stylus": ">=0.54.8",
+      "sugarss": "^5.0.0",
+      "terser": "^5.16.0",
+      "tsx": "^4.8.1",
+      "yaml": "^2.4.2"
+    }
+  },
+  {
+    "path": "node_modules/vite-node",
+    "lockedVersion": "3.2.4",
+    "installedVersion": "3.2.4",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "cac": "^6.7.14",
+      "debug": "^4.4.1",
+      "es-module-lexer": "^1.7.0",
+      "pathe": "^2.0.3",
+      "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/vite-node/node_modules/vite",
+    "lockedVersion": "7.3.7",
+    "installedVersion": "7.3.7",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "esbuild": "^0.27.0 || ^0.28.0",
+      "fdir": "^6.5.0",
+      "picomatch": "^4.0.3",
+      "postcss": "^8.5.6",
+      "rollup": "^4.43.0",
+      "tinyglobby": "^0.2.15"
+    },
+    "peerDependencies": {
+      "@types/node": "^20.19.0 || >=22.12.0",
+      "jiti": ">=1.21.0",
+      "less": "^4.0.0",
+      "lightningcss": "^1.21.0",
+      "sass": "^1.70.0",
+      "sass-embedded": "^1.70.0",
+      "stylus": ">=0.54.8",
+      "sugarss": "^5.0.0",
+      "terser": "^5.16.0",
+      "tsx": "^4.8.1",
+      "yaml": "^2.4.2"
+    }
+  },
+  {
+    "path": "node_modules/vite-plugin-commonjs",
+    "lockedVersion": "0.10.4",
+    "installedVersion": "0.10.4",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "acorn": "^8.12.1",
+      "magic-string": "^0.30.11",
+      "vite-plugin-dynamic-import": "^1.6.0"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/vite-plugin-dynamic-import",
+    "lockedVersion": "1.6.0",
+    "installedVersion": "1.6.0",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "acorn": "^8.12.1",
+      "es-module-lexer": "^1.5.4",
+      "fast-glob": "^3.3.2",
+      "magic-string": "^0.30.11"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/vite-plugin-dynamic-import/node_modules/fast-glob",
+    "lockedVersion": "3.3.3",
+    "installedVersion": "3.3.3",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@nodelib/fs.stat": "^2.0.2",
+      "@nodelib/fs.walk": "^1.2.3",
+      "glob-parent": "^5.1.2",
+      "merge2": "^1.3.0",
+      "micromatch": "^4.0.8"
+    },
+    "peerDependencies": null
+  },
+  {
+    "path": "node_modules/vitest",
+    "lockedVersion": "3.2.7",
+    "installedVersion": "3.2.7",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "@types/chai": "^5.2.2",
+      "chai": "^5.2.0",
+      "debug": "^4.4.1",
+      "expect-type": "^1.2.1",
+      "magic-string": "^0.30.17",
+      "pathe": "^2.0.3",
+      "picomatch": "^4.0.2",
+      "std-env": "^3.9.0",
+      "tinybench": "^2.9.0",
+      "tinyexec": "^0.3.2",
+      "tinyglobby": "^0.2.14",
+      "tinypool": "^1.1.1",
+      "tinyrainbow": "^2.0.0",
+      "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0",
+      "vite-node": "3.2.4",
+      "why-is-node-running": "^2.3.0",
+      "@vitest/expect": "3.2.7",
+      "@vitest/runner": "3.2.7",
+      "@vitest/spy": "3.2.7",
+      "@vitest/mocker": "3.2.7",
+      "@vitest/utils": "3.2.7",
+      "@vitest/snapshot": "3.2.7",
+      "@vitest/pretty-format": "^3.2.7"
+    },
+    "peerDependencies": {
+      "@edge-runtime/vm": "*",
+      "@types/debug": "^4.1.12",
+      "@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0",
+      "happy-dom": "*",
+      "jsdom": "*",
+      "@vitest/ui": "3.2.7",
+      "@vitest/browser": "3.2.7"
+    }
+  },
+  {
+    "path": "node_modules/vitest/node_modules/@vitest/mocker",
+    "lockedVersion": "3.2.7",
+    "installedVersion": "3.2.7",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "estree-walker": "^3.0.3",
+      "magic-string": "^0.30.17",
+      "@vitest/spy": "3.2.7"
+    },
+    "peerDependencies": {
+      "msw": "^2.4.9",
+      "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0"
+    }
+  },
+  {
+    "path": "node_modules/vitest/node_modules/vite",
+    "lockedVersion": "7.3.7",
+    "installedVersion": "7.3.7",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "esbuild": "^0.27.0 || ^0.28.0",
+      "fdir": "^6.5.0",
+      "picomatch": "^4.0.3",
+      "postcss": "^8.5.6",
+      "rollup": "^4.43.0",
+      "tinyglobby": "^0.2.15"
+    },
+    "peerDependencies": {
+      "@types/node": "^20.19.0 || >=22.12.0",
+      "jiti": ">=1.21.0",
+      "less": "^4.0.0",
+      "lightningcss": "^1.21.0",
+      "sass": "^1.70.0",
+      "sass-embedded": "^1.70.0",
+      "stylus": ">=0.54.8",
+      "sugarss": "^5.0.0",
+      "terser": "^5.16.0",
+      "tsx": "^4.8.1",
+      "yaml": "^2.4.2"
+    }
+  },
+  {
+    "path": "node_modules/wrangler",
+    "lockedVersion": "4.92.0",
+    "installedVersion": "4.92.0",
+    "dev": true,
+    "optional": false,
+    "dependencies": {
+      "blake3-wasm": "2.1.5",
+      "esbuild": "0.27.3",
+      "path-to-regexp": "6.3.0",
+      "unenv": "2.0.0-rc.24",
+      "workerd": "1.20260515.1",
+      "@cloudflare/kv-asset-handler": "0.5.0",
+      "@cloudflare/unenv-preset": "2.16.1",
+      "miniflare": "4.20260515.0"
+    },
+    "peerDependencies": {
+      "@cloudflare/workers-types": "^4.20260515.1"
+    }
+  },
+  {
+    "path": "node_modules/ws",
+    "lockedVersion": "8.21.0",
+    "installedVersion": "8.21.0",
+    "dev": true,
+    "optional": false,
+    "dependencies": null,
+    "peerDependencies": {
+      "bufferutil": "^4.0.1",
+      "utf-8-validate": ">=5.0.2"
+    }
+  }
+]

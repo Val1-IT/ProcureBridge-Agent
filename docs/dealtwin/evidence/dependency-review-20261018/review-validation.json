@@ -1,0 +1,14 @@
+{
+  "reviewedSha": "7cd8abaf24d7529efa5cc2446230c3dff6520cc3",
+  "docsOnly": true,
+  "packageAndLockUnchanged": true,
+  "releaseValidatorUnchanged": true,
+  "stableGateCount": 14,
+  "traceabilityRequirementCount": 42,
+  "reportedUniqueAdvisoryUrlsCovered": 9,
+  "sourceDigestsVerified": true,
+  "dependencyArchivesExecuted": false,
+  "runtimeTestsRun": false,
+  "auditRerun": false,
+  "scope": "Documentation/source review consistency, not migration acceptance or runtime security validation"
+}

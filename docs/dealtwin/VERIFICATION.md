@@ -1,5 +1,10 @@
 # DealTwin Task29 checkpoint — PARTIAL / PUBLIC RELEASE BLOCKED
 
+Latest source review: [remaining dependency plan](DEPENDENCY-REVIEW-PLAN-20261018.md).
+No migration or new runtime test was performed in that review. It preserves all14
+base gates and42DT mappings, distinguishes Node Judge requirements from the
+separate Sites target/current CI obligation, and leaves all blocked states intact.
+
 Latest dependency checkpoint: [DEPENDENCY-AUDIT-20261018.md](DEPENDENCY-AUDIT-20261018.md).
 On clean cd1d8bd,1274/1274 tests and unchanged coverage, Node build/scan,
 benchmark/replay and1HTTP case pass. Audit remains blocking at20 package

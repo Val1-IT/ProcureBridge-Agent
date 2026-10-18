@@ -1,5 +1,9 @@
 # DealTwin Requirement Traceability
 
+Follow-up [dependency source review and migration plan](DEPENDENCY-REVIEW-PLAN-20261018.md)
+preserves all14 base gate IDs and42 requirement mappings. No live provider,
+Alexa account, public identity, browser or Sites gate is waived or relabeled.
+
 Latest dependency evidence: [audit and remediation](DEPENDENCY-AUDIT-20261018.md)
 records22 original package aggregates /32 unique advisory URLs, two compatible
 fix commits and1274/1274 whole-suite tests on clean cd1d8bd. Final audit20

@@ -1,0 +1,475 @@
+{
+  "reviewedSha": "7cd8abaf24d7529efa5cc2446230c3dff6520cc3",
+  "staticOnly": true,
+  "files": [
+    {
+      "path": "package.json",
+      "sha256": "77707b9297c4c02d5d8c81833c7c7ba052a30a7c6a3e5d39097ad9f5bc75c329",
+      "lineCount": 65,
+      "excerpts": [
+        {
+          "start": 8,
+          "end": 65,
+          "text": "  \"scripts\": {\n    \"dev\": \"vinext dev\",\n    \"build\": \"vinext build\",\n    \"judge:build\": \"vite build --config vite.dealtwin.config.ts\",\n    \"judge:demo\": \"node scripts/dealtwin/local-demo.mjs\",\n    \"judge:test\": \"node node_modules/vite-node/vite-node.mjs --config vitest.config.ts scripts/dealtwin/prepare-browser-fixture.ts && playwright test --config=playwright.dealtwin.config.ts\",\n    \"start\": \"vinext start\",\n    \"typecheck\": \"tsc --noEmit\",\n    \"test\": \"vitest run\",\n    \"test:coverage\": \"vitest run --coverage\",\n    \"security:client\": \"node scripts/dealtwin/check-client-artifacts.mjs dist/client\",\n    \"benchmark:dealtwin\": \"node node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/cli.ts --\",\n    \"lint\": \"eslint . --ignore-pattern dist --ignore-pattern .next\",\n    \"db:generate\": \"drizzle-kit generate\"\n  },\n  \"dependencies\": {\n    \"drizzle-orm\": \"0.45.2\",\n    \"next\": \"15.5.28\",\n    \"pg\": \"8.23.0\",\n    \"react\": \"19.2.8\",\n    \"react-dom\": \"19.2.8\",\n    \"zod\": \"4.1.12\"\n  },\n  \"overrides\": {\n    \"postcss\": \"8.5.23\",\n    \"image-size\": \"2.0.4\",\n    \"ws\": \"8.21.0\",\n    \"undici\": \"7.29.1\",\n    \"next\": {\n      \"sharp\": \"0.35.5\"\n    },\n    \"esbuild@~0.28.0\": \"0.28.1\"\n  },\n  \"devDependencies\": {\n    \"@cloudflare/vite-plugin\": \"1.37.1\",\n    \"@cloudflare/workers-types\": \"4.20260702.1\",\n    \"@playwright/test\": \"1.64.0\",\n    \"@tailwindcss/postcss\": \"4.2.1\",\n    \"@types/node\": \"22.19.19\",\n    \"@types/pg\": \"8.23.1\",\n    \"@types/react\": \"19.2.14\",\n    \"@types/react-dom\": \"19.2.3\",\n    \"@vitejs/plugin-react\": \"6.0.2\",\n    \"@vitejs/plugin-rsc\": \"0.5.26\",\n    \"@vitest/coverage-v8\": \"3.2.7\",\n    \"drizzle-kit\": \"0.31.10\",\n    \"eslint\": \"9.39.4\",\n    \"eslint-config-next\": \"15.5.28\",\n    \"react-server-dom-webpack\": \"19.2.8\",\n    \"tailwindcss\": \"4.2.1\",\n    \"typescript\": \"5.9.3\",\n    \"vinext\": \"0.0.50\",\n    \"vite\": \"8.0.16\",\n    \"vitest\": \"3.2.7\",\n    \"wrangler\": \"4.92.0\"\n  },\n  \"type\": \"module\"\n}"
+        }
+      ]
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "4b6b14ce725b02b6726de96ff58f1c88676d5cfb24a0a04fb6cd892f03e18b5c",
+      "lineCount": 41,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 41,
+          "text": "import { defineConfig } from \"vitest/config\";\nimport { fileURLToPath } from \"node:url\";\n\nexport default defineConfig({\n  resolve: {\n    alias: { \"@\": fileURLToPath(new URL(\".\", import.meta.url)) },\n  },\n  test: {\n    environment: \"node\",\n    include: [\"tests/**/*.test.ts\"],\n    exclude: [\"node_modules\", \".next\", \"dist\"],\n    fileParallelism: false,\n    coverage: {\n      provider: \"v8\",\n      reporter: [\"text\", \"json-summary\"],\n      include: [\n        \"lib/domain/approval.ts\",\n        \"lib/domain/guardrails.ts\",\n        \"lib/domain/call-machine.ts\",\n        \"lib/domain/results.ts\",\n        \"lib/demo/reducer.ts\",\n        \"lib/demo/persistence.ts\",\n        \"lib/calle/webhook-handler.ts\",\n        \"lib/repository/mappers/*.ts\",\n        \"lib/dealtwin/domain/**/*.ts\",\n        \"lib/dealtwin/compiler/**/*.ts\",\n        \"lib/dealtwin/proof/**/*.ts\",\n        \"lib/dealtwin/recompiler/**/*.ts\",\n        \"lib/dealtwin/application/**/*.ts\",\n      ],\n      thresholds: {\n        lines: 70, functions: 70, branches: 60, statements: 70,\n        \"lib/dealtwin/domain/**\": {lines:70,functions:70,branches:60,statements:70},\n        \"lib/dealtwin/compiler/**\": {lines:70,functions:70,branches:60,statements:70},\n        \"lib/dealtwin/proof/**\": {lines:70,functions:70,branches:60,statements:70},\n        \"lib/dealtwin/recompiler/**\": {lines:70,functions:70,branches:60,statements:70},\n        \"lib/dealtwin/application/**\": {lines:70,functions:70,branches:60,statements:70},\n      },\n    },\n  },\n});"
+        }
+      ]
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "31c5694d9c8c9311b341ca4c48733ab6ba228b7e9b4fe4d3a5069b47a658f086",
+      "lineCount": 58,
+      "excerpts": [
+        {
+          "start": 10,
+          "end": 58,
+          "text": "const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === \"seatbelt\";\n\nexport default defineConfig(async () => {\n  const { d1, r2 } = await readHostingBindings(import.meta.dirname);\n  const localBindingConfig = {\n    main: \"./worker/index.ts\",\n    compatibility_flags: [\"nodejs_compat\"],\n    d1_databases: d1\n      ? [\n          {\n            binding: d1,\n            database_name: \"site-creator-d1\",\n            database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,\n          },\n        ]\n      : [],\n    r2_buckets: r2\n      ? [\n          {\n            binding: r2,\n            bucket_name: \"site-creator-r2\",\n          },\n        ]\n      : [],\n  };\n\n  // Keep Wrangler and Miniflare state project-local. These are non-secret tool\n  // settings; application environment belongs in ignored `.env*` files.\n  process.env.WRANGLER_WRITE_LOGS ??= \"false\";\n  process.env.WRANGLER_LOG_PATH ??= \".wrangler/logs\";\n  process.env.MINIFLARE_REGISTRY_PATH ??= \".wrangler/registry\";\n\n  // Wrangler snapshots its log path while the Cloudflare plugin is imported.\n  const { cloudflare } = await import(\"@cloudflare/vite-plugin\");\n\n  return {\n    server: isCodexSeatbeltSandbox\n      ? { watch: { useFsEvents: false, usePolling: true } }\n      : undefined,\n    plugins: [\n      vinext(),\n      sites(),\n      cloudflare({\n        viteEnvironment: { name: \"rsc\", childEnvironments: [\"ssr\"] },\n        config: localBindingConfig,\n      }),\n    ],\n  };\n});"
+        }
+      ]
+    },
+    {
+      "path": "vite.dealtwin.config.ts",
+      "sha256": "2b370d398441b10b16321de822749b4b2c2dcdbfc33badd6e12c96a32ac115dd",
+      "lineCount": 4,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 4,
+          "text": "import {defineConfig} from 'vite';\nimport vinext from 'vinext';\n// Dedicated Node/PostgreSQL target. The existing Cloudflare/Sites target is unchanged.\nexport default defineConfig({plugins:[vinext()],ssr:{external:['pg']},server:{host:'127.0.0.1',port:4177,strictPort:true}});"
+        }
+      ]
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "b6215d2b7b458eab8493fba029365f473b9fd543c8320dc26488aafc4246f3ca",
+      "lineCount": 12,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 12,
+          "text": "import { FlatCompat } from \"@eslint/eslintrc\";\nimport { defineConfig, globalIgnores } from \"eslint/config\";\nimport { dirname } from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\n\nconst baseDirectory = dirname(fileURLToPath(import.meta.url));\nconst compat = new FlatCompat({ baseDirectory });\n\nexport default defineConfig([\n  ...compat.extends(\"next/core-web-vitals\", \"next/typescript\"),\n  globalIgnores([\".next/**\", \"dist/**\", \"out/**\", \"outputs/**\", \"build/**\", \"node_modules/**\", \"next-env.d.ts\"]),\n]);"
+        }
+      ]
+    },
+    {
+      "path": "worker/index.ts",
+      "sha256": "6f8983ab616309202039ad672b1a46a835bede1bb77636dc751613c664f969e5",
+      "lineCount": 47,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 47,
+          "text": "/** Cloudflare Worker entry point for the vinext-starter template. */\nimport { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from \"vinext/server/image-optimization\";\nimport handler from \"vinext/server/app-router-entry\";\n\ninterface Env {\n  ASSETS: Fetcher;\n  DB: D1Database;\n  IMAGES: {\n    input(stream: ReadableStream): {\n      transform(options: Record<string, unknown>): {\n        output(options: { format: string; quality: number }): Promise<{ response(): Response }>;\n      };\n    };\n  };\n}\n\ninterface ExecutionContext {\n  waitUntil(promise: Promise<unknown>): void;\n  passThroughOnException(): void;\n}\n\n// Image security config. SVG sources with .svg extension auto-skip the\n// optimization endpoint on the client side (served directly, no proxy).\n// To route SVGs through the optimizer (with security headers), set\n// dangerouslyAllowSVG: true in next.config.js and uncomment below:\n// const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };\n\nconst worker = {\n  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {\n    const url = new URL(request.url);\n\n    if (url.pathname === \"/_vinext/image\") {\n      const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];\n      return handleImageOptimization(request, {\n        fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),\n        transformImage: async (body, { width, format, quality }) => {\n          const result = await env.IMAGES.input(body).transform(width > 0 ? { width } : {}).output({ format, quality });\n          return result.response();\n        },\n      }, allowedWidths);\n    }\n\n    return handler.fetch(request, env, ctx);\n  },\n};\n\nexport default worker;"
+        }
+      ]
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "705e7160ae7c02e83e6760895a11b571afa64cf9ca21ec29dd18f6318793c6d3",
+      "lineCount": 35,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 35,
+          "text": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"lib\": [\"dom\", \"dom.iterable\", \"esnext\"],\n    \"allowJs\": true,\n    \"skipLibCheck\": true,\n    \"strict\": true,\n    \"noEmit\": true,\n    \"esModuleInterop\": true,\n    \"module\": \"esnext\",\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"jsx\": \"react-jsx\",\n    \"incremental\": true,\n    \"plugins\": [\n      {\n        \"name\": \"next\"\n      }\n    ],\n    \"types\": [\"@cloudflare/workers-types\"],\n    \"paths\": {\n      \"@/*\": [\"./*\"]\n    }\n  },\n  \"include\": [\n    \"next-env.d.ts\",\n    \"**/*.ts\",\n    \"**/*.tsx\",\n    \".next/types/**/*.ts\",\n    \".next/dev/types/**/*.ts\",\n    \"**/*.mts\"\n  ],\n  \"exclude\": [\"node_modules\"]\n}"
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "5cab61028f043c78e754b69f5f35086b2035a42f719bc21356682724c0387347",
+      "lineCount": 61,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 61,
+          "text": "name: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  quality:\n    runs-on: ubuntu-latest\n    timeout-minutes: 35\n    services:\n      postgres:\n        image: postgres:16\n        env:\n          POSTGRES_USER: dealtwin\n          POSTGRES_PASSWORD: dealtwin\n          POSTGRES_DB: dealtwin_test\n        ports:\n          - 55432:5432\n        options: >-\n          --health-cmd \"pg_isready -U dealtwin -d dealtwin_test\"\n          --health-interval 2s\n          --health-timeout 5s\n          --health-retries 20\n    env:\n      # Disposable CI owner only bootstraps schema; harness operations use distinct least-privilege logins.\n      DEALTWIN_TEST_DATABASE_URL: postgres://dealtwin:dealtwin@127.0.0.1:55432/dealtwin_test\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22.13.0\n          cache: npm\n      - run: npm ci\n      - run: npm run typecheck\n      - run: npm run lint\n      - name: Candidate provenance (runner-local files only)\n        run: |\n          mkdir -p artifacts\n          git rev-parse HEAD > artifacts/candidate-sha.txt\n          node --version > artifacts/node-version.txt\n          npm --version > artifacts/npm-version.txt\n      # One serial coverage run includes the whole suite and real PostgreSQL cases.\n      - name: Required full regression and per-module coverage\n        run: npm run test:coverage -- --testTimeout=60000 --hookTimeout=60000 --reporter=dot --reporter=json --outputFile=artifacts/tests.json\n      - name: Preserved Cloudflare target (build only)\n        run: npm run build\n      - name: Cloudflare public-client artifact hygiene\n        run: npm run security:client\n      - name: Node PostgreSQL Judge target (build only)\n        run: npm run judge:build\n      - name: Node public-client artifact hygiene\n        run: npm run security:client\n      - name: Current dependency audit \u2014 high/critical block\n        run: npm audit --audit-level=high --json > artifacts/npm-audit.json\n      # No automatic artifact upload or external publication is authorized here."
+        }
+      ]
+    },
+    {
+      "path": "scripts/dealtwin/node-server.mjs",
+      "sha256": "3b195494b155e3efd1cf134e36a85f830135cd38c92cb4f721c7ac333618c889",
+      "lineCount": 26,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 26,
+          "text": "import {createServer} from 'node:http';\nimport {resolve} from 'node:path';\nimport {pathToFileURL} from 'node:url';\nimport {nodeToWebRequest,sendWebResponse,tryServeStatic} from 'vinext/server/prod-server';\n// Keep the native Windows asset lookup out of vinext's POSIX-keyed metadata cache.\n// Reuse its public, path-contained filesystem serving and compiled production handler.\nconst host='127.0.0.1';const port=4177;const authority=host+':'+port;const origin='http://'+authority;\nconst entry=await import(pathToFileURL(resolve('dist/server/index.js')).href);\nif(typeof entry.default!=='function')throw new Error('NODE_PRODUCTION_HANDLER_REQUIRED');\nconst clientDir=resolve('dist/client');\nconst server=createServer(async(req,res)=>{\n try{\n  if(req.headers.host!==authority){res.writeHead(421).end();return;}\n  const url=new URL(req.url??'/',origin);\n  if(url.origin!==origin){res.writeHead(400).end();return;}\n  if(url.pathname.startsWith('/assets/')){\n   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405).end();return;}\n   if(!await tryServeStatic(req,res,clientDir,url.pathname,false))res.writeHead(404).end();\n   return;\n  }\n  await sendWebResponse(await entry.default(nodeToWebRequest(req)),req,res,false);\n }catch{if(!res.headersSent)res.writeHead(500).end('Local request failed');else res.destroy();}\n});\nserver.listen(port,host,()=>console.log('Local synthetic Judge production target ready on loopback4177.'));\nprocess.on('SIGINT',()=>server.close(()=>process.exit(0)));\nprocess.on('SIGTERM',()=>server.close(()=>process.exit(0)));"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/tinypool/dist/index.js",
+      "sha256": "21a972f29f565170207234994faef33fa4366f7ce2375e166f91a15bb2497fa5",
+      "lineCount": 820,
+      "excerpts": [
+        {
+          "start": 50,
+          "end": 65,
+          "text": "if (amount === 0) amount = os.cpus().length;\n\n//#endregion\n//#region src/runtime/thread-worker.ts\nvar ThreadWorker = class {\n\tname = \"ThreadWorker\";\n\truntime = \"worker_threads\";\n\tinitialize(options) {\n\t\tthis.thread = new Worker(fileURLToPath(import.meta.url + \"/../entry/worker.js\"), options);\n\t\tthis.threadId = this.thread.threadId;\n\t}\n\tasync terminate() {\n\t\tconst output = await this.thread.terminate();\n\t\tthis.channel?.onClose?.();\n\t\treturn output;\n\t}"
+        },
+        {
+          "start": 98,
+          "end": 114,
+          "text": "\truntime = \"child_process\";\n\tisTerminating = false;\n\tinitialize(options) {\n\t\tthis.process = fork(fileURLToPath(import.meta.url + \"/../entry/process.js\"), options.argv, {\n\t\t\t...options,\n\t\t\tstdio: \"pipe\",\n\t\t\tenv: {\n\t\t\t\t...options.env,\n\t\t\t\tTINYPOOL_WORKER_ID: options.workerData[0].workerId.toString()\n\t\t\t}\n\t\t});\n\t\tprocess.stdout.setMaxListeners(1 + process.stdout.getMaxListeners());\n\t\tprocess.stderr.setMaxListeners(1 + process.stderr.getMaxListeners());\n\t\tthis.process.stdout?.pipe(process.stdout);\n\t\tthis.process.stderr?.pipe(process.stderr);\n\t\tthis.threadId = this.process.pid;\n\t\tthis.process.on(\"exit\", this.onUnexpectedExit);"
+        },
+        {
+          "start": 503,
+          "end": 519,
+          "text": "\tstartingUp = false;\n\tworkerFailsDuringBootstrap = false;\n\tconstructor(publicInterface, options) {\n\t\tthis.publicInterface = publicInterface;\n\t\tthis.taskQueue = options.taskQueue || new ArrayTaskQueue();\n\t\tconst filename = options.filename ? maybeFileURLToPath(options.filename) : null;\n\t\tthis.options = {\n\t\t\t...kDefaultOptions,\n\t\t\t...options,\n\t\t\tfilename,\n\t\t\tmaxQueue: 0\n\t\t};\n\t\tif (options.maxThreads !== void 0 && this.options.minThreads >= options.maxThreads) this.options.minThreads = options.maxThreads;\n\t\tif (options.minThreads !== void 0 && this.options.maxThreads <= options.minThreads) this.options.maxThreads = options.minThreads;\n\t\tif (options.maxQueue === \"auto\") this.options.maxQueue = this.options.maxThreads ** 2;\n\t\telse this.options.maxQueue = options.maxQueue ?? kDefaultOptions.maxQueue;\n\t\tthis.workerIds = new Map(new Array(this.options.maxThreads).fill(0).map((_, i) => [i + 1, true]));"
+        },
+        {
+          "start": 545,
+          "end": 553,
+          "text": "\t\tconst worker = this.options.runtime === \"child_process\" ? new ProcessWorker() : new ThreadWorker();\n\t\tworker.initialize({\n\t\t\tenv: this.options.env,\n\t\t\targv: this.options.argv,\n\t\t\texecArgv: this.options.execArgv,\n\t\t\tresourceLimits: this.options.resourceLimits,\n\t\t\tworkerData: [tinypoolPrivateData, this.options.workerData],\n\t\t\ttrackUnmanagedFds: this.options.trackUnmanagedFds\n\t\t});"
+        },
+        {
+          "start": 634,
+          "end": 641,
+          "text": "\trunTask(task, options) {\n\t\tlet { filename, name } = options;\n\t\tconst { transferList = [], signal = null, channel } = options;\n\t\tif (filename == null) filename = this.options.filename;\n\t\tif (name == null) name = this.options.name;\n\t\tif (typeof filename !== \"string\") return Promise.reject(Errors.FilenameNotProvided());\n\t\tfilename = maybeFileURLToPath(filename);\n\t\tlet resolve;"
+        },
+        {
+          "start": 736,
+          "end": 759,
+          "text": "var Tinypool = class extends EventEmitterAsyncResource {\n\t#pool;\n\tconstructor(options = {}) {\n\t\tif (options.minThreads !== void 0 && options.minThreads > 0 && options.minThreads < 1) options.minThreads = Math.max(1, Math.floor(options.minThreads * cpuCount));\n\t\tif (options.maxThreads !== void 0 && options.maxThreads > 0 && options.maxThreads < 1) options.maxThreads = Math.max(1, Math.floor(options.maxThreads * cpuCount));\n\t\tsuper({\n\t\t\t...options,\n\t\t\tname: \"Tinypool\"\n\t\t});\n\t\tif (options.minThreads !== void 0 && options.maxThreads !== void 0 && options.minThreads > options.maxThreads) throw new RangeError(\"options.minThreads and options.maxThreads must not conflict\");\n\t\tthis.#pool = new ThreadPool(this, options);\n\t}\n\trun(task, options = kDefaultRunOptions) {\n\t\tconst { transferList, filename, name, signal, runtime, channel } = options;\n\t\treturn this.#pool.runTask(task, {\n\t\t\ttransferList,\n\t\t\tfilename,\n\t\t\tname,\n\t\t\tsignal,\n\t\t\truntime,\n\t\t\tchannel\n\t\t});\n\t}\n\tasync destroy() {"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/vitest/dist/chunks/coverage.DfSpMS-b.js",
+      "sha256": "37b63dd27952c9779fb1cbcd962cf111147a0c42663f3df83dd8094409ff6500",
+      "lineCount": 4350,
+      "excerpts": [
+        {
+          "start": 2608,
+          "end": 2657,
+          "text": "function createForksPool(vitest, { execArgv, env }) {\n\tconst numCpus = typeof nodeos.availableParallelism === \"function\" ? nodeos.availableParallelism() : nodeos.cpus().length;\n\tconst threadsCount = vitest.config.watch ? Math.max(Math.floor(numCpus / 2), 1) : Math.max(numCpus - 1, 1);\n\tconst poolOptions = vitest.config.poolOptions?.forks ?? {};\n\tconst maxThreads = poolOptions.maxForks ?? vitest.config.maxWorkers ?? threadsCount;\n\tconst minThreads = poolOptions.minForks ?? vitest.config.minWorkers ?? Math.min(threadsCount, maxThreads);\n\tconst worker = resolve(vitest.distPath, \"workers/forks.js\");\n\tconst options = {\n\t\truntime: \"child_process\",\n\t\tfilename: resolve(vitest.distPath, \"worker.js\"),\n\t\tteardown: \"teardown\",\n\t\tmaxThreads,\n\t\tminThreads,\n\t\tenv,\n\t\texecArgv: [...poolOptions.execArgv ?? [], ...execArgv],\n\t\tterminateTimeout: vitest.config.teardownTimeout,\n\t\tconcurrentTasksPerWorker: 1\n\t};\n\tconst isolated = poolOptions.isolate ?? true;\n\tif (isolated) options.isolateWorkers = true;\n\tif (poolOptions.singleFork || !vitest.config.fileParallelism) {\n\t\toptions.maxThreads = 1;\n\t\toptions.minThreads = 1;\n\t}\n\tconst pool = new Tinypool(options);\n\tconst runWithFiles = (name) => {\n\t\tlet id = 0;\n\t\tasync function runFiles(project, config, files, environment, invalidates = []) {\n\t\t\tconst paths = files.map((f) => f.filepath);\n\t\t\tvitest.state.clearFiles(project, paths);\n\t\t\tconst channel = createChildProcessChannel$1(project, name === \"collect\");\n\t\t\tconst workerId = ++id;\n\t\t\tconst data = {\n\t\t\t\tpool: \"forks\",\n\t\t\t\tworker,\n\t\t\t\tconfig,\n\t\t\t\tfiles,\n\t\t\t\tinvalidates,\n\t\t\t\tenvironment,\n\t\t\t\tworkerId,\n\t\t\t\tprojectName: project.name,\n\t\t\t\tprovidedContext: project.getProvidedContext()\n\t\t\t};\n\t\t\ttry {\n\t\t\t\tawait pool.run(data, {\n\t\t\t\t\tname,\n\t\t\t\t\tchannel\n\t\t\t\t});\n\t\t\t} catch (error) {\n\t\t\t\t// Worker got stuck and won't terminate - this may cause process to hang"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/vitest/dist/config.cjs",
+      "sha256": "195bee0d715c1ff71bc8a47b5b05d677aced5268ea342da61b7ae0542e5d71d7",
+      "lineCount": 148,
+      "excerpts": [
+        {
+          "start": 88,
+          "end": 108,
+          "text": "\twatch: !stdEnv.isCI && process.stdin.isTTY,\n\tglobals: false,\n\tenvironment: \"node\",\n\tpool: \"forks\",\n\tclearMocks: false,\n\trestoreMocks: false,\n\tmockReset: false,\n\tunstubGlobals: false,\n\tunstubEnvs: false,\n\tinclude: defaultInclude,\n\texclude: defaultExclude,\n\tteardownTimeout: 1e4,\n\tforceRerunTriggers: [\"**/package.json/**\", \"**/{vitest,vite}.config.*/**\"],\n\tupdate: false,\n\treporters: [],\n\tsilent: false,\n\thideSkippedTests: false,\n\tapi: false,\n\tui: false,\n\tuiBase: \"/__vitest__/\",\n\topen: !stdEnv.isCI,"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/vitest/node_modules/@vitest/mocker/dist/node.js",
+      "sha256": "90c9d0c8d7fdf75293facf01675f227b08c793428fb7b8965e5f59769dd69a14",
+      "lineCount": 1306,
+      "excerpts": [
+        {
+          "start": 1042,
+          "end": 1062,
+          "text": "\tconst registry = options.registry || new MockerRegistry();\n\treturn {\n\t\tname: \"vitest:mocks:interceptor\",\n\t\tenforce: \"pre\",\n\t\tload: {\n\t\t\torder: \"pre\",\n\t\t\tasync handler(id) {\n\t\t\t\tconst mock = registry.getById(id);\n\t\t\t\tif (!mock) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tif (mock.type === \"manual\") {\n\t\t\t\t\tconst exports = Object.keys(await mock.resolve());\n\t\t\t\t\tconst accessor = options.globalThisAccessor || \"\\\"__vitest_mocker__\\\"\";\n\t\t\t\t\treturn createManualModuleSource(mock.url, exports, accessor);\n\t\t\t\t}\n\t\t\t\tif (mock.type === \"redirect\") {\n\t\t\t\t\treturn readFile(mock.redirect, \"utf-8\");\n\t\t\t\t}\n\t\t\t}\n\t\t},"
+        },
+        {
+          "start": 1082,
+          "end": 1100,
+          "text": "\t\tconfigureServer(server) {\n\t\t\tserver.ws.on(\"vitest:interceptor:register\", (event) => {\n\t\t\t\tif (event.type === \"manual\") {\n\t\t\t\t\tconst module = ManualMockedModule.fromJSON(event, async () => {\n\t\t\t\t\t\tconst keys = await getFactoryExports(event.url);\n\t\t\t\t\t\treturn Object.fromEntries(keys.map((key) => [key, null]));\n\t\t\t\t\t});\n\t\t\t\t\tregistry.add(module);\n\t\t\t\t} else {\n\t\t\t\t\tif (event.type === \"redirect\") {\n\t\t\t\t\t\tconst redirectUrl = new URL(event.redirect);\n\t\t\t\t\t\tevent.redirect = join(server.config.root, redirectUrl.pathname);\n\t\t\t\t\t}\n\t\t\t\t\tregistry.register(event);\n\t\t\t\t}\n\t\t\t\tserver.ws.send(\"vitest:interceptor:register:result\");\n\t\t\t});\n\t\t\tserver.ws.on(\"vitest:interceptor:delete\", (id) => {\n\t\t\t\tregistry.delete(id);"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/braces/lib/constants.js",
+      "sha256": "c18ac5adb57308f1ce42a28552da3a31f5d83709743ebd9a636336813a744d4b",
+      "lineCount": 57,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 7,
+          "text": "'use strict';\n\nmodule.exports = {\n  MAX_LENGTH: 10000,\n\n  // Digits\n  CHAR_0: '0', /* 0 */"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/braces/lib/parse.js",
+      "sha256": "e572166565f15fa6ad9865ae49d678218e32aabfd1b3720f6d0d43d39800d310",
+      "lineCount": 331,
+      "excerpts": [
+        {
+          "start": 31,
+          "end": 51,
+          "text": "const parse = (input, options = {}) => {\n  if (typeof input !== 'string') {\n    throw new TypeError('Expected a string');\n  }\n\n  const opts = options || {};\n  const max = typeof opts.maxLength === 'number' ? Math.min(MAX_LENGTH, opts.maxLength) : MAX_LENGTH;\n  if (input.length > max) {\n    throw new SyntaxError(`Input length (${input.length}), exceeds max characters (${max})`);\n  }\n\n  const ast = { type: 'root', input, nodes: [] };\n  const stack = [ast];\n  let block = ast;\n  let prev = ast;\n  let brackets = 0;\n  const length = input.length;\n  let index = 0;\n  let depth = 0;\n  let value;\n"
+        },
+        {
+          "start": 192,
+          "end": 210,
+          "text": "\n    /**\n     * Left curly brace: '{'\n     */\n\n    if (value === CHAR_LEFT_CURLY_BRACE) {\n      depth++;\n\n      const dollar = prev.value && prev.value.slice(-1) === '$' || block.dollar === true;\n      const brace = {\n        type: 'brace',\n        open: true,\n        close: false,\n        dollar,\n        depth,\n        commas: 0,\n        ranges: 0,\n        nodes: []\n      };"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/braces/lib/compile.js",
+      "sha256": "dc98f22eee3d511785d92a00758d5f0d48efed5f5813bdecc2de430c529b5c9f",
+      "lineCount": 60,
+      "excerpts": [
+        {
+          "start": 6,
+          "end": 13,
+          "text": "const compile = (ast, options = {}) => {\n  const walk = (node, parent = {}) => {\n    const invalidBlock = utils.isInvalidBrace(parent);\n    const invalidNode = node.invalid === true && options.escapeInvalid === true;\n    const invalid = invalidBlock === true || invalidNode === true;\n    const prefix = options.escapeInvalid === true ? '\\\\' : '';\n    let output = '';\n"
+        },
+        {
+          "start": 46,
+          "end": 60,
+          "text": "    }\n\n    if (node.nodes) {\n      for (const child of node.nodes) {\n        output += walk(child, node);\n      }\n    }\n\n    return output;\n  };\n\n  return walk(ast);\n};\n\nmodule.exports = compile;"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/braces/lib/expand.js",
+      "sha256": "41ccc196ebfa7b7781a634e721eb744e4e7bcb54cba427a7e3d6806a1b9e58f7",
+      "lineCount": 113,
+      "excerpts": [
+        {
+          "start": 33,
+          "end": 64,
+          "text": "const expand = (ast, options = {}) => {\n  const rangeLimit = options.rangeLimit === undefined ? 1000 : options.rangeLimit;\n\n  const walk = (node, parent = {}) => {\n    node.queue = [];\n\n    let p = parent;\n    let q = parent.queue;\n\n    while (p.type !== 'brace' && p.type !== 'root' && p.parent) {\n      p = p.parent;\n      q = p.queue;\n    }\n\n    if (node.invalid || node.dollar) {\n      q.push(append(q.pop(), stringify(node, options)));\n      return;\n    }\n\n    if (node.type === 'brace' && node.invalid !== true && node.nodes.length === 2) {\n      q.push(append(q.pop(), ['{}']));\n      return;\n    }\n\n    if (node.nodes && node.ranges > 0) {\n      const args = utils.reduce(node.nodes);\n\n      if (utils.exceedsLimit(...args, options.step, rangeLimit)) {\n        throw new RangeError('expanded array length exceeds range limit. Use options.rangeLimit to increase or disable the limit.');\n      }\n\n      let range = fill(...args, options);"
+        },
+        {
+          "start": 86,
+          "end": 113,
+          "text": "      if (child.type === 'comma' && node.type === 'brace') {\n        if (i === 1) queue.push('');\n        queue.push('');\n        continue;\n      }\n\n      if (child.type === 'close') {\n        q.push(append(q.pop(), queue, enclose));\n        continue;\n      }\n\n      if (child.value && child.type !== 'open') {\n        queue.push(append(queue.pop(), child.value));\n        continue;\n      }\n\n      if (child.nodes) {\n        walk(child, node);\n      }\n    }\n\n    return queue;\n  };\n\n  return utils.flatten(walk(ast));\n};\n\nmodule.exports = expand;"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/fast-glob/out/managers/tasks.js",
+      "sha256": "2ace07a1b05722a3e6998e0c29002c1fb1db59e73208f2bb60693c1721e2cb7b",
+      "lineCount": 110,
+      "excerpts": [
+        {
+          "start": 16,
+          "end": 33,
+          "text": "exports.generate = generate;\nfunction processPatterns(input, settings) {\n    let patterns = input;\n    /**\n     * The original pattern like `{,*,**,a/*}` can lead to problems checking the depth when matching entry\n     * and some problems with the micromatch package (see fast-glob issues: #365, #394).\n     *\n     * To solve this problem, we expand all patterns containing brace expansion. This can lead to a slight slowdown\n     * in matching in the case of a large set of patterns after expansion.\n     */\n    if (settings.braceExpansion) {\n        patterns = utils.pattern.expandPatternsWithBraceExpansion(patterns);\n    }\n    /**\n     * If the `baseNameMatch` option is enabled, we must add globstar to patterns, so that they can be used\n     * at any nesting level.\n     *\n     * We do this here, because otherwise we have to complicate the filtering logic. For example, we need to change"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/fast-glob/out/utils/pattern.js",
+      "sha256": "7f5e77e8b047207114780d33bb3eadbbc921294033eeae15c0fa82eb137bbad3",
+      "lineCount": 188,
+      "excerpts": [
+        {
+          "start": 130,
+          "end": 145,
+          "text": "function expandPatternsWithBraceExpansion(patterns) {\n    return patterns.reduce((collection, pattern) => {\n        return collection.concat(expandBraceExpansion(pattern));\n    }, []);\n}\nexports.expandPatternsWithBraceExpansion = expandPatternsWithBraceExpansion;\nfunction expandBraceExpansion(pattern) {\n    const patterns = micromatch.braces(pattern, { expand: true, nodupes: true });\n    /**\n     * Sort the patterns by length so that the same depth patterns are processed side by side.\n     * `a/{b,}/{c,}/*` \u2013 `['a///*', 'a/b//*', 'a//c/*', 'a/b/c/*']`\n     */\n    patterns.sort((a, b) => a.length - b.length);\n    /**\n     * Micromatch can return an empty string in the case of patterns like `{a,}`.\n     */"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/micromatch/index.js",
+      "sha256": "6a56366fcf3ae8e678e574900a0acb2ea6f118ea030d09bcc1b1053ccab916bb",
+      "lineCount": 474,
+      "excerpts": [
+        {
+          "start": 451,
+          "end": 466,
+          "text": "micromatch.braces = (pattern, options) => {\n  if (typeof pattern !== 'string') throw new TypeError('Expected a string');\n  if ((options && options.nobrace === true) || !hasBraces(pattern)) {\n    return [pattern];\n  }\n  return braces(pattern, options);\n};\n\n/**\n * Expand braces\n */\n\nmicromatch.braceExpand = (pattern, options) => {\n  if (typeof pattern !== 'string') throw new TypeError('Expected a string');\n  return micromatch.braces(pattern, { ...options, expand: true });\n};"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/@next/eslint-plugin-next/dist/utils/get-root-dirs.js",
+      "sha256": "886677432990a735e5ebdfb345ff1cbd40e264f9947a8432eeeb254b3a926bde",
+      "lineCount": 33,
+      "excerpts": [
+        {
+          "start": 10,
+          "end": 33,
+          "text": "});\nvar _fastglob = require(\"fast-glob\");\n/**\n * Process a Next.js root directory glob.\n */ var processRootDir = function(rootDir) {\n    return (0, _fastglob.globSync)(rootDir.replace(/\\\\/g, '/'), {\n        onlyDirectories: true\n    });\n};\nvar getRootDirs = function(context) {\n    var rootDirs = [\n        context.cwd\n    ];\n    var nextSettings = context.settings.next || {};\n    var rootDir = nextSettings.rootDir;\n    if (typeof rootDir === 'string') {\n        rootDirs = processRootDir(rootDir);\n    } else if (Array.isArray(rootDir)) {\n        rootDirs = rootDir.map(function(dir) {\n            return typeof dir === 'string' ? processRootDir(dir) : [];\n        }).flat();\n    }\n    return rootDirs;\n};"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/vinext/dist/index.js",
+      "sha256": "fc4fa9015f2e651fc38a873b7537bc928ef67549b3d1e14d41809612480525c3",
+      "lineCount": 1869,
+      "excerpts": [
+        {
+          "start": 377,
+          "end": 387,
+          "text": "\t\t\t}\n\t\t})();\n\t\treturn mdxDelegatePromise;\n\t}\n\tconst plugins = [\n\t\t...viteMajorVersion >= 8 ? [] : [tsconfigPaths()],\n\t\treactPluginPromise,\n\t\tcommonjs(),\n\t\t...viteMajorVersion >= 8 ? [{\n\t\t\tname: \"vinext:jsx-in-js\",\n\t\t\tenforce: \"pre\","
+        }
+      ]
+    },
+    {
+      "path": "node_modules/vite-plugin-commonjs/dist/index.mjs",
+      "sha256": "7d71d58ca87e3fed0c1d2a0774b8ea4884a58778eca1ba99c9d3897a5d780948",
+      "lineCount": 496,
+      "excerpts": [
+        {
+          "start": 267,
+          "end": 285,
+          "text": "      /* import-id, import-name */\n    );\n    const records = [];\n    for (const { dynamic, node } of analyzed.require) {\n      if (dynamic !== \"dynamic\")\n        continue;\n      const importExpression = analyzed.code.slice(node.start, node.end);\n      const globResult = await globFiles({\n        importeeNode: node.arguments[0],\n        importExpression,\n        importer: analyzed.id,\n        resolve: this.resolve,\n        extensions: this.options.extensions,\n        loose: ((_a = options.dynamic) == null ? void 0 : _a.loose) !== false\n      });\n      if (!globResult)\n        continue;\n      const record = { node };\n      let { files, resolved, normally } = globResult;"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/vite-plugin-dynamic-import/dist/index.mjs",
+      "sha256": "fb73e06eaba3e63e7dd5bf8ca1c41d7263dcada411924b3d383a16ebf2c140e8",
+      "lineCount": 543,
+      "excerpts": [
+        {
+          "start": 230,
+          "end": 277,
+          "text": "function sanitizeString(str) {\n  if (str.includes(\"*\")) {\n    throw new Error(\"A dynamic import cannot contain * characters.\");\n  }\n  return str;\n}\nfunction templateLiteralToGlob(node) {\n  let glob = \"\";\n  for (let i = 0; i < node.quasis.length; i += 1) {\n    glob += sanitizeString(node.quasis[i].value.raw);\n    if (node.expressions[i]) {\n      glob += expressionToGlob(node.expressions[i]);\n    }\n  }\n  return glob;\n}\nfunction callExpressionToGlob(node) {\n  const { callee } = node;\n  if (callee.type === \"MemberExpression\" && callee.property.type === \"Identifier\" && callee.property.name === \"concat\") {\n    return `${expressionToGlob(callee.object)}${node.arguments.map(expressionToGlob).join(\"\")}`;\n  }\n  return \"*\";\n}\nfunction binaryExpressionToGlob(node) {\n  if (node.operator !== \"+\") {\n    throw new Error(`${node.operator} operator is not supported.`);\n  }\n  return `${expressionToGlob(node.left)}${expressionToGlob(node.right)}`;\n}\nfunction expressionToGlob(node) {\n  switch (node.type) {\n    case \"TemplateLiteral\":\n      return templateLiteralToGlob(node);\n    case \"CallExpression\":\n      return callExpressionToGlob(node);\n    case \"BinaryExpression\":\n      return binaryExpressionToGlob(node);\n    case \"Literal\":\n      return sanitizeString(node.value);\n    default:\n      return \"*\";\n  }\n}\nasync function dynamicImportToGlob(importeeNode, importExpression, resolver) {\n  let glob = expressionToGlob(importeeNode);\n  glob = await (resolver == null ? void 0 : resolver(glob)) ?? glob;\n  if (!glob.includes(\"*\") || glob.startsWith(\"data:\")) {\n    return null;"
+        },
+        {
+          "start": 490,
+          "end": 518,
+          "text": "      return raw;\n    }\n  );\n  if (!glob) {\n    if (normallyImporteeRE.test(globRaw)) {\n      normally = globRaw;\n      return { normally };\n    }\n    return;\n  }\n  const globs = [].concat(loose ? toLooseGlob(glob) : glob).map((g) => {\n    g.includes(PAHT_FILL) && (g = g.replace(PAHT_FILL, \"\"));\n    g.endsWith(EXT_FILL) && (g = g.replace(EXT_FILL, \"\"));\n    return g;\n  });\n  const fileGlobs = globs.map((g) => {\n    if (path.extname(g)) {\n      return g;\n    }\n    const ext = `.{${extensions.map((e) => e.replace(/^\\./, \"\")).join(\",\")}}`;\n    return [g + ext, `${g}/index${ext}`];\n  }).flat();\n  files = fastGlob.sync(fileGlobs, { cwd: (\n    /* \ud83d\udea7-\u2460 */\n    path.dirname(importer)\n  ) }).map((file) => relativeify(file));\n  return { files, resolved };\n}\nfunction generateDynamicImportRuntime(maps, name) {"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/miniflare/dist/src/index.js",
+      "sha256": "9584409d464f6c21d720b20da3c5dc6e5bdab0393f9cb19b36cb960beaf0958b",
+      "lineCount": 90280,
+      "excerpts": [
+        {
+          "start": 70441,
+          "end": 70458,
+          "text": "  images: ImagesSchema.optional()\n});\nvar ImagesSharedOptionsSchema = external_exports.object({\n  imagesPersist: PersistenceSchema\n});\nvar IMAGES_PLUGIN_NAME = \"images\";\nvar IMAGES_PLUGIN = {\n  options: ImagesOptionsSchema,\n  sharedOptions: ImagesSharedOptionsSchema,\n  async getBindings(options) {\n    if (!options.images) {\n      return [];\n    }\n    return [\n      {\n        name: options.images.binding,\n        wrapped: {\n          moduleName: \"cloudflare-internal:images-api\","
+        },
+        {
+          "start": 85186,
+          "end": 85215,
+          "text": "async function imagesLocalFetcher(request4) {\n  let sharp;\n  try {\n    const { default: importedSharp } = await import(\"sharp\");\n    sharp = importedSharp;\n  } catch {\n    return errorResponse(\n      503,\n      9523,\n      \"The Sharp library is not available, check your version of Node is compatible\"\n    );\n  }\n  const data2 = await request4.formData();\n  const body = data2.get(\"image\");\n  if (!body || !(body instanceof import_node_buffer5.File)) {\n    return errorResponse(\n      400,\n      9523,\n      `ERROR: Internal Images binding error: expected image in request, got ${body}`\n    );\n  }\n  const transformer = sharp(await body.arrayBuffer(), {});\n  const url38 = new URL(request4.url);\n  if (url38.pathname == \"/info\") {\n    return runInfo(transformer);\n  } else {\n    const badTransformsResponse = errorResponse(\n      400,\n      9523,\n      \"ERROR: Internal Images binding error: Expected JSON array of valid transforms in transforms field\""
+        }
+      ]
+    },
+    {
+      "path": "node_modules/@cloudflare/vite-plugin/dist/index.mjs",
+      "sha256": "b19bd79c6f771f6f7a8b63082c144fe6e8d7b061e09ef0fc4e1414fc0a3a9479",
+      "lineCount": 54082,
+      "excerpts": [
+        {
+          "start": 33127,
+          "end": 33140,
+          "text": "\tconst { logger } = options ?? {};\n\tconst url = new URL(UPDATE_SERVICE_URL);\n\turl.searchParams.set(\"os\", goOS);\n\turl.searchParams.set(\"arch\", goArch);\n\tlogger?.debug(`Checking for latest cloudflared: ${url.toString()}`);\n\tlet response;\n\ttry {\n\t\tresponse = await (0, import_undici.fetch)(url.toString(), { headers: { \"User-Agent\": \"wrangler\" } });\n\t} catch (e2) {\n\t\tlogger?.debug(`Failed to reach update service: ${e2 instanceof Error ? e2.message : String(e2)}`);\n\t\treturn null;\n\t}\n\tif (!response.ok) {\n\t\tlogger?.debug(`Update service returned ${response.status} for ${goOS}/${goArch}`);"
+        },
+        {
+          "start": 33325,
+          "end": 33339,
+          "text": "\tlogger?.log(`Downloading cloudflared ${version$2}...`);\n\tlogger?.debug(`Download URL: ${url}`);\n\tconst cacheDir = dirname(binPath);\n\tmkdirSync(cacheDir, { recursive: true });\n\tlet response;\n\ttry {\n\t\tresponse = await (0, import_undici.fetch)(url, { headers: { \"User-Agent\": \"wrangler\" } });\n\t} catch (e2) {\n\t\tthrow new UserError(`[cloudflared] Failed to download cloudflared from ${url}\n\nNetwork error: ${e2 instanceof Error ? e2.message : String(e2)}\n\nPlease check your internet connection and try again.\nIf you're behind a proxy, make sure it's configured correctly.`, { telemetryMessage: \"tunnel cloudflared download network failed\" });\n\t}"
+        },
+        {
+          "start": 52886,
+          "end": 52905,
+          "text": "\n//#endregion\n//#region src/websockets.ts\n/**\n* Handles 'upgrade' requests to the Vite HTTP server and forwards WebSocket events between the client and Worker environments.\n*/\nfunction handleWebSocket(httpServer, miniflare, entryWorkerName) {\n\tconst nodeWebSocket = new WebSocketServer({ noServer: true });\n\thttpServer.on(\"upgrade\", async (request$2, socket, head) => {\n\t\tsocket.on(\"error\", () => socket.destroy());\n\t\tconst rawHost = request$2.headers.host ?? UNKNOWN_HOST;\n\t\tconst protocol = getForwardedProto(request$2) ?? \"http:\";\n\t\tconst base = /^https?:\\/\\//i.test(rawHost) ? rawHost : `${protocol}//${rawHost}`;\n\t\tconst url = new URL(request$2.url ?? \"\", base);\n\t\tconst isViteRequest = request$2.headers[\"sec-websocket-protocol\"]?.startsWith(\"vite\");\n\t\tconst isSandboxRequest = hasSandboxOrigin(url.origin);\n\t\tif (isViteRequest && !isSandboxRequest) return;\n\t\tconst headers = createHeaders(request$2);\n\t\tif (entryWorkerName) headers.set(CoreHeaders.ROUTE_OVERRIDE, entryWorkerName);\n\t\tconst workerWebSocket = (await miniflare.dispatchFetch(url, {"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/wrangler/wrangler-dist/cli.js",
+      "sha256": "fc1aa72afc91906759a3555e76e6dae1b13504f71dec6d3bbfa0fe24c351ebd7",
+      "lineCount": 317950,
+      "excerpts": [
+        {
+          "start": 31830,
+          "end": 31848,
+          "text": "async function queryUpdateService(goOS, goArch, options) {\n  const { logger: logger4 } = options ?? {};\n  const url4 = new URL(UPDATE_SERVICE_URL);\n  url4.searchParams.set(\"os\", goOS);\n  url4.searchParams.set(\"arch\", goArch);\n  logger4?.debug(`Checking for latest cloudflared: ${url4.toString()}`);\n  let response;\n  try {\n    response = await (0, import_undici.fetch)(url4.toString(), {\n      headers: { \"User-Agent\": \"wrangler\" }\n    });\n  } catch (e22) {\n    logger4?.debug(\n      `Failed to reach update service: ${e22 instanceof Error ? e22.message : String(e22)}`\n    );\n    return null;\n  }\n  if (!response.ok) {\n    logger4?.debug("
+        },
+        {
+          "start": 306790,
+          "end": 306807,
+          "text": "    init_view3();\n    init_create17();\n    init_delete17();\n    init_get11();\n    init_vpc();\n    init_list26();\n    init_update8();\n    init_workflows2();\n    init_delete18();\n    init_describe();\n    init_describe2();\n    init_list27();\n    init_pause();\n    init_restart();\n    init_resume();\n    init_send_event2();\n    init_terminate();\n    init_terminate_all();"
+        }
+      ]
+    },
+    {
+      "path": "registry-archive/tinypool-2.1.2/package/dist/common-Bo3KCGim.js",
+      "sha256": "8d8dcca71bfcdf896b5daea60d116a103a52b17e550b34269fba8fb1c5545996",
+      "lineCount": 31,
+      "excerpts": [
+        {
+          "start": 18,
+          "end": 24,
+          "text": "\t});\n}\nfunction withNullPrototype(source) {\n\treturn Object.assign(Object.create(null), source);\n}\nfunction isTaskQueue(value) {\n\treturn typeof value === \"object\" && value !== null && \"size\" in value && typeof value.shift === \"function\" && typeof value.remove === \"function\" && typeof value.push === \"function\";"
+        }
+      ]
+    },
+    {
+      "path": "registry-archive/tinypool-2.1.2/package/dist/index.js",
+      "sha256": "324aafaa4290562a36d6f00158d10905f8e9dec07c26972dd1a5845a1519fa0b",
+      "lineCount": 784,
+      "excerpts": [
+        {
+          "start": 467,
+          "end": 478,
+          "text": "\t\tthis.publicInterface = publicInterface;\n\t\tthis.taskQueue = options.taskQueue || new ArrayTaskQueue();\n\t\tconst filename = options.filename ? maybeFileURLToPath(options.filename) : null;\n\t\tthis.options = withNullPrototype({\n\t\t\t...kDefaultOptions,\n\t\t\t...options,\n\t\t\tfilename,\n\t\t\tmaxQueue: 0\n\t\t});\n\t\tif (options.maxThreads !== void 0 && this.options.minThreads >= options.maxThreads) this.options.minThreads = options.maxThreads;\n\t\tif (options.minThreads !== void 0 && this.options.maxThreads <= options.minThreads) this.options.maxThreads = options.minThreads;\n\t\tif (options.maxQueue === \"auto\") this.options.maxQueue = this.options.maxThreads ** 2;"
+        },
+        {
+          "start": 683,
+          "end": 690,
+          "text": "\tasync recycleWorkers(_options = {}) {\n\t\tconst options = withNullPrototype(_options);\n\t\tconst runtimeChanged = options?.runtime && options.runtime !== this.options.runtime;\n\t\tif (options?.runtime) this.options.runtime = options.runtime;\n\t\tif (this.options.isolateWorkers && !runtimeChanged) return;\n\t\tconst exitEvents = [];\n\t\tArray.from(this.workers).filter((workerInfo) => {\n\t\t\tif (workerInfo.currentUsage() === 0) {"
+        },
+        {
+          "start": 701,
+          "end": 724,
+          "text": "\tconstructor(_options = {}) {\n\t\tconst options = withNullPrototype(_options);\n\t\tif (options.minThreads !== void 0 && options.minThreads > 0 && options.minThreads < 1) options.minThreads = Math.max(1, Math.floor(options.minThreads * cpuCount));\n\t\tif (options.maxThreads !== void 0 && options.maxThreads > 0 && options.maxThreads < 1) options.maxThreads = Math.max(1, Math.floor(options.maxThreads * cpuCount));\n\t\tsuper({\n\t\t\t...options,\n\t\t\tname: \"Tinypool\"\n\t\t});\n\t\tif (options.minThreads !== void 0 && options.maxThreads !== void 0 && options.minThreads > options.maxThreads) throw new RangeError(\"options.minThreads and options.maxThreads must not conflict\");\n\t\tthis.#pool = new ThreadPool(this, options);\n\t}\n\trun(task, options = kDefaultRunOptions) {\n\t\tconst { transferList, filename, name, signal, runtime, channel } = withNullPrototype(options);\n\t\treturn this.#pool.runTask(task, {\n\t\t\ttransferList,\n\t\t\tfilename,\n\t\t\tname,\n\t\t\tsignal,\n\t\t\truntime,\n\t\t\tchannel\n\t\t});\n\t}\n\tasync destroy() {\n\t\tawait this.#pool.destroy();"
+        }
+      ]
+    },
+    {
+      "path": "registry-archive/vitest-mocker-4.1.11/package/dist/node.js",
+      "sha256": "32991c5528582633a8a6d5c7022a33e49ccf8faf838bfa23bfccbe7d01e5e427",
+      "lineCount": 419,
+      "excerpts": [
+        {
+          "start": 193,
+          "end": 211,
+          "text": "\t\t\t\t\t\tconst keys = await getFactoryExports(event.url);\n\t\t\t\t\t\treturn Object.fromEntries(keys.map((key) => [key, null]));\n\t\t\t\t\t});\n\t\t\t\t\tregistry.add(module);\n\t\t\t\t} else {\n\t\t\t\t\tif (event.type === \"redirect\") {\n\t\t\t\t\t\tconst redirectUrl = new URL(event.redirect);\n\t\t\t\t\t\tconst redirect = join(server.config.root, redirectUrl.pathname);\n\t\t\t\t\t\t// the redirect is served through the `load` hook below, so it must\n\t\t\t\t\t\t// stay inside the file-serving allowlist and never escape the root\n\t\t\t\t\t\tif (!isFileLoadingAllowed(server.config, redirect)) {\n\t\t\t\t\t\t\tserver.ws.send(\"vitest:interceptor:register:result\");\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tevent.redirect = redirect;\n\t\t\t\t\t}\n\t\t\t\t\tregistry.register(event);\n\t\t\t\t}\n\t\t\t\tserver.ws.send(\"vitest:interceptor:register:result\");"
+        }
+      ]
+    },
+    {
+      "path": "registry-archive/vitest-4.1.11/package/dist/chunks/reporters.d.DtoKVV2s.d.ts",
+      "sha256": "7fa6fdc6eeeb3850e6b3166836f8c9199594c4f4bed3cee02cac0ca33d71894d",
+      "lineCount": 3619,
+      "excerpts": [
+        {
+          "start": 2838,
+          "end": 2856,
+          "text": "\t* Pool used to run tests in.\n\t*\n\t* Supports 'threads', 'forks', 'vmThreads', 'vmForks'\n\t*\n\t* @default 'forks'\n\t*/\n\tpool?: Exclude<Pool, \"browser\"> | PoolRunnerInitializer;\n\t/**\n\t* Maximum number or percentage of workers to run tests in.\n\t*/\n\tmaxWorkers?: number | string;\n\t/**\n\t* Should all test files run in parallel. Doesn't affect tests running in the same file.\n\t* Setting this to `false` will override `maxWorkers` option to `1`.\n\t*\n\t* @default true\n\t*/\n\tfileParallelism?: boolean;\n\t/**"
+        }
+      ]
+    },
+    {
+      "path": "registry-archive/vitest-coverage-v8-4.1.11/package/dist/provider.js",
+      "sha256": "e8e1c964f317bfacd48d7e24275cdc7dd29e10e6ccab064194df27bfe48065f8",
+      "lineCount": 297,
+      "excerpts": [
+        {
+          "start": 1,
+          "end": 8,
+          "text": "import { existsSync, promises } from 'node:fs';\nimport { fileURLToPath } from 'node:url';\nimport { mergeProcessCovs } from '@bcoe/v8-coverage';\nimport astV8ToIstanbul from 'ast-v8-to-istanbul';\nimport libCoverage from 'istanbul-lib-coverage';\nimport libReport from 'istanbul-lib-report';\nimport reports from 'istanbul-reports';\nimport { parseModule } from 'magicast';"
+        },
+        {
+          "start": 50,
+          "end": 63,
+          "text": "\t\t\tonDebug: debug\n\t\t});\n\t\t// Include untested files when all tests were run (not a single file re-run)\n\t\t// or if previous results are preserved by \"cleanOnRerun: false\"\n\t\tif (this.options.include != null && (allTestsRun || !this.options.cleanOnRerun)) {\n\t\t\tconst coveredFiles = coverageMap.files();\n\t\t\tconst untestedCoverage = await this.getCoverageMapForUncoveredFiles(coveredFiles);\n\t\t\tcoverageMap.merge(untestedCoverage);\n\t\t}\n\t\tcoverageMap.filter((filename) => {\n\t\t\tconst exists = existsSync(filename);\n\t\t\tif (this.options.excludeAfterRemap) {\n\t\t\t\treturn exists && this.isIncluded(filename);\n\t\t\t}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "url": "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk",
+  "method": "POST",
+  "purpose": "Read current registry advisories for six already-reviewed package families; not a new full-graph npm audit",
+  "request": {
+    "braces": [
+      "3.0.3"
+    ],
+    "tinypool": [
+      "1.1.1"
+    ],
+    "sharp": [
+      "0.34.5"
+    ],
+    "@vitest/mocker": [
+      "3.2.7"
+    ],
+    "undici": [
+      "7.24.8",
+      "7.28.0"
+    ],
+    "ws": [
+      "8.18.0"
+    ]
+  },
+  "retrievedAt": "2026-10-18T06:51:45.728737+00:00",
+  "responseSha256": "13bc8390c1bdd865a8ee6e74cc2f40943b379df701772486de3180ef51e41a34"
+}
