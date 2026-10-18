@@ -21,6 +21,22 @@ describe('identifier-only multi-turn state',()=>{
   const state=advanceConversation(initialConversation,result({dealId:'a',dealVersionId:'v1',proofId:'proof-a',revision:3}));
   expect(advanceConversation(state,result({},409,{error:{code:'REVISION_CONFLICT'}}))).toMatchObject({...state,pendingIntent:'refresh'});
  });
+ it('does not let prepare or a following unrelated read erase a known refresh requirement',()=>{
+  const stale=advanceConversation(initialConversation,result({dealId:'a',dealVersionId:'v1',proofId:'proof-a',revision:3},200,{proof:{currentStatus:'STALE'}}));
+  const prepared=advanceConversation(stale,{...result({}),httpStatus:200,prepared:true,tool:'commit_deal'});
+  expect(prepared).toMatchObject({pendingIntent:'refresh',preparedTool:'commit_deal',proofId:'proof-a'});
+  const read=advanceConversation(deserializeConversation(serializeConversation(prepared)),{...result({revision:4}),tool:'inspect_timeline'});
+  expect(read).toMatchObject({pendingIntent:'refresh',proofId:'proof-a'});
+  expect(read.preparedTool).toBeUndefined();
+  const refreshed=advanceConversation(read,result({dealId:'a',dealVersionId:'v1',proofId:'proof-a',revision:5},200,{proof:{currentStatus:'VALID'}}));
+  expect(refreshed).toMatchObject({pendingIntent:'none',proofId:'proof-a',revision:5});
+ });
+ it.each<Record<string,CanonicalJsonValue>>([{}, {proofStatus:'STALE'}])('requires current state after a liquidity collision: %j',detail=>{
+  const state=advanceConversation(initialConversation,result({dealId:'b',dealVersionId:'b-v1',proofId:'b-proof',revision:7}));
+  const rejected=advanceConversation(state,{...result({},409,{error:{code:'LIQUIDITY_COLLISION'},...detail}),tool:'reserve_liquidity'});
+  expect(rejected).toMatchObject({...state,pendingIntent:'refresh'});
+  expect(rejected.commitmentId).toBeUndefined();
+ });
  it('does not carry a proof/commitment from Deal A into a new Deal/version',()=>{
   const state=advanceConversation(initialConversation,result({dealId:'a',dealVersionId:'a-v1',proofId:'a-proof',commitmentId:'a-cap'}));
   const other=advanceConversation(state,result({dealId:'b',dealVersionId:'b-v1'}));expect(other.dealId).toBe('b');expect(other.proofId).toBeUndefined();expect(other.commitmentId).toBeUndefined();

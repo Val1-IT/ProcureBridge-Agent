@@ -89,6 +89,7 @@ describe('simulated conversation / real MCP handlers and PostgreSQL, no Alexa or
   expect(collision.result.data).toMatchObject({outcome:'DOES_NOT_COMPILE',shortfallRupiah:'5000000'});
   const beforeCollision=await evidence(db());
   expect((await mutate('reserve_liquidity',identity(b),'conversation-collision',409)).result.data).toMatchObject({error:{code:'LIQUIDITY_COLLISION'}});
+  expect(conversation.pendingIntent).toBe('refresh');
   const afterCollision=await evidence(db());
   // A rejected collision records evidence, but allocates nothing and advances no revision.
   for(const table of Object.keys(beforeCollision).filter(name=>!['erp','erp_audit_events'].includes(name))){

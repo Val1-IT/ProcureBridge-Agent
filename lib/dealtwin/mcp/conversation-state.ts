@@ -22,10 +22,11 @@ function object(value:CanonicalJsonValue|undefined):Readonly<Record<string,Canon
 /** Convenience identifiers only, never authentication or financial truth. */
 export function advanceConversation(previous:ConversationState,result:DealTwinToolResult):ConversationState{
  const state=stateSchema.parse(previous);
- if(result.prepared)return {...state,pendingIntent:'prepared',preparedTool:result.tool};
+ // Prepare validates shape only; it cannot resolve previously stale state.
+ if(result.prepared)return {...state,pendingIntent:state.pendingIntent==='refresh'?'refresh':'prepared',preparedTool:result.tool};
  if(result.httpStatus<200||result.httpStatus>=300){
   const code=object(object(result.data).error).code;
-  return ['REVISION_CONFLICT','VERSION_CONFLICT','PROOF_STALE','STALE_PROOF','PROOF_IDENTITY_MISMATCH'].includes(String(code))
+  return ['REVISION_CONFLICT','VERSION_CONFLICT','PROOF_STALE','STALE_PROOF','PROOF_IDENTITY_MISMATCH','LIQUIDITY_COLLISION'].includes(String(code))
    ?{...state,pendingIntent:'refresh'}:state;
  }
  const incoming=result.references;
