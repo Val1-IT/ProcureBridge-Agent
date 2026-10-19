@@ -1,5 +1,6 @@
 # Explicitly authorized one-run Windows synthetic rehearsal. No deletion, schema
 # reset, production connection or service installation. Existing paths fail closed.
+param([switch]$ResumeUninitialized)
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 Set-Location -LiteralPath $root
@@ -11,8 +12,22 @@ $node = Join-Path $root ('.cache/runtimes/' + $pin.directory + '/node.exe')
 if ((Get-FileHash -LiteralPath $node).Hash.ToLowerInvariant() -ne $pin.nodeExeSha256) { throw 'Runtime hash mismatch' }
 $candidate = (git rev-parse HEAD).Trim()
 if (@(git status --porcelain).Count -ne 0) { throw 'Clean candidate required' }
-$plan = (& $node scripts/dealtwin/restore-plan.mjs --run-id $runId | Out-String | ConvertFrom-Json)
-if ($LASTEXITCODE -ne 0) { throw 'Planning failed' }
+if($ResumeUninitialized){
+ $evidence=Join-Path $root ('output/restore-'+$runId)
+ $plan=Get-Content -LiteralPath (Join-Path $evidence 'plan.json') -Raw | ConvertFrom-Json
+ $prior=Get-Content -LiteralPath $plan.ownership.ownerMarker -Raw | ConvertFrom-Json
+ if($plan.workspace -ne $root -or $plan.runId -ne $runId -or $plan.evidenceDirectory -ne $evidence -or
+    $plan.target.dataDirectory -ne (Join-Path $root ('.cache/pg-restore-'+$runId)) -or
+    $plan.source.dataDirectory -ne (Join-Path $root '.cache/pg-browser-20261018') -or
+    $prior.owner -ne $account -or !$prior.authorized -or $prior.target -ne $plan.target.dataDirectory){throw 'Unowned resume checkpoint'}
+ if((Test-Path $plan.target.dataDirectory) -or (Test-Path (Join-Path $evidence 'source.dump')) -or
+    (Test-Path (Join-Path $evidence 'source-snapshot.json'))){throw 'Only an uninitialized pre-dump checkpoint may resume'}
+ $recovery=Get-Content (Join-Path $evidence 'start-wrapper-recovery.json') -Raw | ConvertFrom-Json
+ if($recovery.stopExit -ne 0 -or $recovery.statusExit -ne 3){throw 'Prior shutdown unconfirmed'}
+}else{
+ $plan = (& $node scripts/dealtwin/restore-plan.mjs --run-id $runId | Out-String | ConvertFrom-Json)
+ if ($LASTEXITCODE -ne 0) { throw 'Planning failed' }
+}
 $samples = [Collections.Generic.List[object]]::new()
 $steps = [Collections.Generic.List[object]]::new()
 function Guard([string]$stage) {
@@ -32,7 +47,9 @@ foreach ($entry in $plan.binaries.PSObject.Properties) {
  $version = & $entry.Value.path --version
  if ($LASTEXITCODE -ne 0 -or $version -notmatch '15\.4') { throw 'Unexpected PostgreSQL binary version' }
 }
-# Exclusive marker/evidence creation. Any collision aborts; no recovery overwrites.
+# Exclusive marker/evidence creation. Resume retains the known, uninitialized
+# claim and all first-attempt logs; it never resumes over an existing target.
+if(!$ResumeUninitialized){
 $stream = [IO.File]::Open($plan.ownership.ownerMarker,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
 $ownership = @{runId=$runId;owner=$account;target=$plan.target.dataDirectory;source=$plan.source.dataDirectory;candidate=$candidate;authorized=$true;createdAt=[DateTime]::UtcNow.ToString('o')}
 try { $bytes=[Text.Encoding]::UTF8.GetBytes(($ownership|ConvertTo-Json));$stream.Write($bytes,0,$bytes.Length) } finally {$stream.Dispose()}
@@ -40,15 +57,32 @@ New-Item -ItemType Directory -Path $plan.evidenceDirectory | Out-Null
 $evidence = $plan.evidenceDirectory
 $plan | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $evidence 'plan.json')
 $ownership | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'authorization-and-owner.json')
+}
+$logRoot=$evidence
+if($ResumeUninitialized){
+ $logRoot=Join-Path $evidence ('attempt-'+$candidate.Substring(0,7))
+ New-Item -ItemType Directory -Path $logRoot | Out-Null
+ @{candidate=$candidate;priorCandidate=$prior.candidate;targetAbsent=$true;owner=$account;at=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $logRoot 'resume.json')
+}
 $sourceStarted=$false;$targetStarted=$false;$sourcePid=$null;$targetPid=$null;$failure=$null
 $cleanup=[Collections.Generic.List[object]]::new()
 function Run([string]$name,[string]$exe,[string[]]$arguments) {
  Guard $name
  $begin=[DateTime]::UtcNow
- & $exe @arguments *> (Join-Path $evidence ($name+'.log'))
- $code=$LASTEXITCODE
+ if($name -in 'source-start','target-start'){
+  # pg_ctl launches a persistent child. Shell pipeline capture waits for its
+  # inherited handles; redirect directly to files and wait only for pg_ctl.
+  if(@($arguments | Where-Object {$_ -match '["\r\n]'}).Count){throw 'Unsafe native argument'}
+  $quoted=@($arguments | ForEach-Object {'"'+$_+'"'})
+  $process=Start-Process -FilePath $exe -ArgumentList $quoted -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logRoot ($name+'.log')) -RedirectStandardError (Join-Path $logRoot ($name+'.stderr.log'))
+  while(!$process.WaitForExit(1000)){Guard ($name+'-wait')}
+  $code=$process.ExitCode
+ }else{
+  & $exe @arguments *> (Join-Path $logRoot ($name+'.log'))
+  $code=$LASTEXITCODE
+ }
  $steps.Add(@{name=$name;exitCode=$code;started=$begin.ToString('o');ended=[DateTime]::UtcNow.ToString('o')})
- $steps | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $evidence 'steps.json')
+ $steps | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $logRoot 'steps.json')
  if($code -ne 0){throw "Stage $name failed, exit $code; see retained log"}
 }
 function ClusterPid([string]$directory,[int]$port) {
@@ -67,9 +101,9 @@ function StopOwned([string]$label,[string]$directory,[int]$port,$expectedPid) {
  if($before -ne 0){throw "Cannot determine $label status"}
  $actual=ClusterPid $directory $port
  if($expectedPid -and $actual -ne $expectedPid){throw 'PID changed; refusing stop'}
- & $pg stop -D $directory -m fast -w *> (Join-Path $evidence ($label+'-stop.log'))
+ & $pg stop -D $directory -m fast -w *> (Join-Path $logRoot ($label+'-stop.log'))
  $stop=$LASTEXITCODE
- & $pg status -D $directory *> (Join-Path $evidence ($label+'-closed.log'))
+ & $pg status -D $directory *> (Join-Path $logRoot ($label+'-closed.log'))
  $closed=$LASTEXITCODE
  $cleanup.Add(@{cluster=$label;pid=$actual;stopExit=$stop;statusExit=$closed;at=[DateTime]::UtcNow.ToString('o')})
  if($stop -ne 0 -or $closed -ne 3){throw "Unconfirmed $label shutdown"}
@@ -114,8 +148,8 @@ finally {
   if($cluster.started){try{StopOwned $cluster.label $cluster.directory $cluster.port $cluster.process}catch{$cleanup.Add(@{cluster=$cluster.label;error=$_.Exception.Message});if(!$failure){$failure=$_.Exception.Message}}}
  }
  $env:PGPASSWORD=$oldPassword;$env:PGOPTIONS=$oldOptions;$env:RESTORE_TARGET_PASSWORD=$oldTargetPassword;$env:RESTORE_EVIDENCE=$oldEvidence
- $samples | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $evidence 'resources.json')
- $cleanup | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $evidence 'cleanup.json')
- @{candidate=$candidate;status=$(if($failure){'fail'}else{'pass'});failure=$failure;sourcePid=$sourcePid;targetPid=$targetPid;preserved=$true;finished=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $evidence 'result.json')
+ $samples | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logRoot 'resources.json')
+ $cleanup | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $logRoot 'cleanup.json')
+ @{candidate=$candidate;status=$(if($failure){'fail'}else{'pass'});failure=$failure;sourcePid=$sourcePid;targetPid=$targetPid;preserved=$true;finished=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content (Join-Path $logRoot 'result.json')
 }
 if($failure){exit 1}
