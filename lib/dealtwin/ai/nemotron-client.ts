@@ -23,6 +23,11 @@ export class NemotronClient implements ConstraintProvider {
     ||typeof result.choices[0]?.message?.content!=='string'||result.choices[0].message.tool_calls)throw new ExtractionError('AI_OUTPUT_INVALID');
    return {content:result.choices[0].message.content,provider:'nebius',model:result.model};
   }catch(error){if(controller.signal.aborted)throw new ExtractionError('AI_PROVIDER_TIMEOUT',503);if(error instanceof ExtractionError)throw error;throw new ExtractionError('AI_PROVIDER_UNAVAILABLE',503);}
-  finally{clearTimeout(timer);}
+  finally{
+   clearTimeout(timer);
+   // A provider error can arrive before its streaming body finishes. Closing
+   // the operation must also release that transport, not just stop its timer.
+   controller.abort();
+  }
  }
 }
