@@ -1,5 +1,14 @@
 # DealTwin Requirement Traceability
 
+Latest local restore evidence: [authorized Windows rehearsal](WINDOWS-RESTORE-20261019.md)
+records a successful logical dump/restore on clean 684cc24: 174 rows/45 tables
+and twelve catalog sections matched, two proofs replayed, 92 receipts verified,
+17 actual retries preserved state, and 44 tenant tables enforced isolation.
+The synthetic source remained unchanged; both owned clusters stopped and their
+directories/evidence were retained. Native safety tests passed 23/23 and the
+isolated integration test 1/1. DT-042 remains PARTIAL for dependency, external
+integration and consolidated candidate evidence; older statuses below are historical.
+
 Current preparation: [dependency disposition and Windows restore plan](DEPENDENCY-DISPOSITION-RESTORE-PLAN-20261019.md)
 maps all eight audit entries to their locally patched braces root, refreshes
 official release evidence and bounds embedded-code reachability without a waiver.
