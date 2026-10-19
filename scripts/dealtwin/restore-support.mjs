@@ -9,7 +9,7 @@ export function assertIdentity(actual, expected) {
  assert.equal(Math.floor(Number(actual.version)/10000),15,'MAJOR_IDENTITY');
  assert.equal(actual.readOnly,expected.port===55632?'on':'off','SOURCE_READ_ONLY');
 }
-export const identitySql = `select current_database() database,inet_server_addr()::text address,inet_server_port() port,
+export const identitySql = `select current_database() database,host(inet_server_addr()) address,inet_server_port() port,
  current_setting('data_directory') "dataDirectory",current_setting('server_version_num') version,
  current_setting('default_transaction_read_only') "readOnly"`;
 
