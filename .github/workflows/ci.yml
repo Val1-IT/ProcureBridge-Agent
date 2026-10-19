@@ -34,10 +34,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.13.0
+          # Match the reviewed runtime pin; native checks below verify Node's
+          # own Undici/WebSocket implementation, not an external package alias.
+          node-version: 24.22.0
           cache: npm
       - run: npm ci
       - run: npm run deps:patch -- --check
+      - name: Pinned native runtime regression checks
+        run: node --test tests/dealtwin/runtime/local-node.node.mjs
       - run: npm run typecheck
       - run: npm run lint
       - name: Candidate provenance (runner-local files only)
