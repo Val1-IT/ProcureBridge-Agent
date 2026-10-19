@@ -1,12 +1,13 @@
 import {ExtractionError,type ConstraintProvider,type ProviderReply} from './constraint-extractor';
+const endpointUrl='https://api.tokenfactory.nebius.com/v1/chat/completions';
 export interface NemotronClientOptions {apiKey:string;model:string;enabled:boolean;fetcher?:typeof fetch;timeoutMs?:number;responseBytes?:number;endpoint?:string}
 export class NemotronClient implements ConstraintProvider {
  constructor(private readonly options:NemotronClientOptions){}
  async complete(input:{system:string;user:string}):Promise<ProviderReply>{
   const options=this.options;if(!options.enabled)throw new ExtractionError('LIVE_PROVIDER_NOT_AUTHORIZED',503);
-  const endpoint=options.endpoint??'https://api.studio.nebius.com/v1/chat/completions';
+  const endpoint=options.endpoint??endpointUrl;
   const timeout=options.timeoutMs??5000;const limit=options.responseBytes??65536;
-  if(endpoint!=='https://api.studio.nebius.com/v1/chat/completions'||!options.apiKey||options.apiKey.length>4096||/[\r\n]/.test(options.apiKey)||!/^[a-zA-Z0-9/_.:-]{1,160}$/.test(options.model)||!/nemotron/i.test(options.model)
+  if(endpoint!==endpointUrl||!options.apiKey||options.apiKey.length>4096||/[\r\n]/.test(options.apiKey)||!/^[a-zA-Z0-9/_.:-]{1,160}$/.test(options.model)||!/nemotron/i.test(options.model)
    ||!Number.isSafeInteger(timeout)||timeout<1||timeout>5000||!Number.isSafeInteger(limit)||limit<1||limit>65536)throw new ExtractionError('INVALID_PROVIDER_CONFIG',503);
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);
   try{

@@ -20,7 +20,7 @@ it.each([401,429,503])('closes an unread streaming HTTP %i response without retr
  try{
   const address=server.address();if(!address||typeof address==='string')throw Error('TEST_LISTENER_REQUIRED');
   const fetcher:typeof fetch=async(target,init)=>{
-   expect(String(target)).toBe('https://api.studio.nebius.com/v1/chat/completions');
+   expect(String(target)).toBe('https://api.tokenfactory.nebius.com/v1/chat/completions');
    return fetch(`http://127.0.0.1:${address.port}`,init);
   };
   const client=new NemotronClient({apiKey:'synthetic-test-only',model:'synthetic-nemotron',enabled:true,fetcher});

@@ -46,7 +46,7 @@ describe('bounded server-only Nebius compatible client',()=>{
   let body:Record<string,unknown>|undefined;let url='';
   const fetcher:typeof fetch=async(target,init)=>{url=String(target);body=JSON.parse(String(init?.body));return new Response(JSON.stringify(reply));};
   const result=await new NemotronClient({apiKey:'synthetic-provider-key',model:'synthetic-nemotron',enabled:true,fetcher}).complete({system:'JSON only',user:'bounded synthetic terms'});
-  expect(url).toBe('https://api.studio.nebius.com/v1/chat/completions');expect(body).toMatchObject({model:'synthetic-nemotron',response_format:{type:'json_object'},max_tokens:2048,stream:false});
+  expect(url).toBe('https://api.tokenfactory.nebius.com/v1/chat/completions');expect(body).toMatchObject({model:'synthetic-nemotron',response_format:{type:'json_object'},max_tokens:2048,stream:false});
   expect(result.content).toBe(JSON.stringify(output));expect(JSON.stringify(result)).not.toContain('synthetic-provider-key');
  });
  it('requires explicit live enablement even if a key exists',async()=>{
