@@ -103,18 +103,20 @@ one-command database provisioning. Disclose the snapshot rather than implying fi
 - Windows reserves port 55432, so the local database runs on 55632 (the guard allows both).
 - Browser speech recognition is only available in Chromium browsers; the text box is the fallback.
 
-**Video (2:58, rendered from the real app).** Every frame is a screenshot of `/dealtwin/alexa`
-driven against the local synthetic PostgreSQL fixture; narration and captions are generated text-to-speech
-and label the voice as simulated Alexa+.
+**Video (2:54, rendered from the real app).** Every frame is a screenshot of `/dealtwin/alexa`
+driven against the local synthetic PostgreSQL fixture, framed in a simulator window with a
+spotlight on the active panel and a verdict stamp per step. Narration and karaoke captions are
+generated text-to-speech (Edge neural voices: Andrew narrates, Brian is the deal owner, Ava is the
+simulated Alexa+) and label the voice as simulated Alexa+.
 | Time | Shot | Say |
 |---|---|---|
-| 0:00–0:13 | Title card: DealTwin, "a financial compiler for deals", lifecycle chips | "A profitable deal can still drain a distributor's cash when the supplier is paid before the customer." |
+| 0:00–0:13 | Title card: DealTwin, "a financial compiler for deals", synthetic cash-over-time chart dipping Rp 3M below the floor, lifecycle chips | "A profitable deal can still drain a distributor's cash when the supplier is paid before the customer." |
 | 0:13–0:23 | `/dealtwin/alexa` overview | "Every number comes from DealTwin's MCP server. The voice layer invents nothing." |
-| 0:23–1:16 | Steps 1–4: connect (17 tools), terms read-back, Sept 22 shortfall of Rp 3M, 2457 options → 25% deposit, proof hash | Alexa speaks the verdicts; the cash gauge shows the floor. |
-| 1:16–1:53 | Steps 5–7: 3-day delay stress, reserve, commit refused, separate approver signs, commit succeeds | "I'm not allowed to approve my own deal." |
-| 1:53–2:37 | Steps 8–12: deal B collision, supplier invoice change, stale proof, 27% remediation, replay | "The world changed, not the math." |
-| 2:37–2:51 | Benchmark card | "The rule of thumb approved 34 of 67 unsafe deals. DealTwin approved none." |
-| 2:51–2:58 | End card: repo URL, MIT, synthetic-data disclaimer | "Every deal should compile before you commit." |
+| 0:23–1:14 | Steps 1–4: connect (17 tools), terms read-back, Sept 22 shortfall of Rp 3M, 2457 options → 25% deposit, proof hash | Alexa speaks the verdicts; the cash gauge shows the floor. |
+| 1:14–1:49 | Steps 5–7: 3-day delay stress, reserve, commit refused, separate approver signs, commit succeeds | "I'm not allowed to approve my own deal." |
+| 1:49–2:33 | Steps 8–12: deal B collision, supplier invoice change, stale proof, 27% remediation, replay | "The world changed, not the math." |
+| 2:33–2:48 | Benchmark card | "The rule of thumb approved 34 of 67 unsafe deals. DealTwin approved none." |
+| 2:48–2:54 | End card: repo URL, MIT, synthetic-data disclaimer | "Every deal should compile before you commit." |
 
 ---|---|---|
 | 0:00–0:20 | Title card, then a spreadsheet | "A profitable deal can still bankrupt a distributor if the cash goes out before it comes in." |

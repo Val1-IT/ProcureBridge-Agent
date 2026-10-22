@@ -5,10 +5,13 @@
 Simulator polish: lifecycle bar, cash gauge against the floor, readable status
 codes in titles and fact tiles; the stress reply now says cash "never drops
 below your floor" (the old "stays above" was wrong when the lowest balance
-equals the floor). A 2:58 1920×1080 demo video was rendered from real
+equals the floor). A 2:54 1920×1080 demo video was rendered from real
 `/dealtwin/alexa` screenshots against the synthetic fixture (simulated Alexa+,
-TTS narration, no screen capture). It lives locally at
-`.cache/demo/dealtwin-demo.webm` (~100 MB, not committed). Alexa + UI suites
+no screen capture). Second cut: clearer Edge neural voices (Andrew narrator,
+Brian deal owner, Ava as Alexa+), simulator window frame, panel spotlight,
+verdict stamps, animated title/benchmark/end cards. It lives locally at
+`.cache/demo/dealtwin-demo.webm` (not committed; first cut kept as
+`dealtwin-demo-v1.webm`). Alexa + UI suites
 58/58, typecheck and lint on changed paths pass. Not done: upload the video,
 make the repository public, Devpost form.
 
