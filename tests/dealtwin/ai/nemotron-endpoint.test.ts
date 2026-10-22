@@ -12,6 +12,13 @@ const options={apiKey:'synthetic-test-only',model,enabled:true};
 afterEach(()=>vi.useRealTimers());
 
 describe('Token Factory exact endpoint contract',()=>{
+ it.each([
+  ['empty',''],['spaces','   '],['tabs','\t\t'],['mixed whitespace',' \t\r\n '],['nonbreaking space','\u00a0'],
+ ])('rejects %s credentials before fetch even when live access is enabled',async(_label,apiKey)=>{
+  const fetcher=vi.fn<typeof fetch>(async()=>new Response(JSON.stringify(reply)));
+  await expect(new NemotronClient({...options,apiKey,fetcher}).complete(input)).rejects.toMatchObject({code:'INVALID_PROVIDER_CONFIG',httpStatus:503});
+  expect(fetcher).not.toHaveBeenCalled();
+ });
  it.each([undefined,endpoint])('uses the official endpoint (override: %s) without redirects or retries',async configured=>{
   const fetcher=vi.fn<typeof fetch>(async()=>new Response(JSON.stringify(reply)));
   const result=await new NemotronClient({...options,endpoint:configured,fetcher}).complete(input);
