@@ -318,3 +318,7 @@ Supplier telephony, voice, recording, transcript timing, sentiment, extraction, 
 Before customer-data or production use: add verified identity and tenant authorization; consent/retention/calling governance; a server-only durable repository with applied migration and live RLS/cross-tenant/backup tests; an official provider contract with signed webhooks, idempotency, queues, retries, monitoring, and incident response; accounting-ledger/tax/reconciliation controls; compatible dependency remediation; and authorized browser, accessibility, security, migration, load, and recovery testing.
 
 All displayed people, companies, documents, calls, prices, stock, finance records, dates, and outcomes remain Demo Data.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
