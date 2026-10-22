@@ -1,5 +1,17 @@
 # DealTwin — local execution status
 
+## Current continuation — demo video and UI polish, 2026-10-22
+
+Simulator polish: lifecycle bar, cash gauge against the floor, readable status
+codes in titles and fact tiles; the stress reply now says cash "never drops
+below your floor" (the old "stays above" was wrong when the lowest balance
+equals the floor). A 2:58 1920×1080 demo video was rendered from real
+`/dealtwin/alexa` screenshots against the synthetic fixture (simulated Alexa+,
+TTS narration, no screen capture). It lives locally at
+`.cache/demo/dealtwin-demo.webm` (~100 MB, not committed). Alexa + UI suites
+58/58, typecheck and lint on changed paths pass. Not done: upload the video,
+make the repository public, Devpost form.
+
 ## Current continuation — Alexa+ voice front door, 2026-10-22
 
 DealTwin is presented as one product (financial compiler for deals) with front

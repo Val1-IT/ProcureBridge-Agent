@@ -245,7 +245,7 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
     const ok=outcome==='COMPILES'||outcome==='CONDITIONALLY_VALID';
     const min=obj(stressed.timeline).minimumProjectedBalance??obj(obj(stressed.worstLiquidityPoint)).balance;
     const days=Number(obj(arr(action.input.scenarios)[0]).days);
-    return done('confirm',ok?`Still safe. Even if the customer pays ${days} ${days===1?'day':'days'} late, the deal stays above your cash floor`+(min!==undefined?`, with a lowest balance of ${spokenRupiah(min)}.`:'.')
+    return done('confirm',ok?`Still safe. Even if the customer pays ${days} ${days===1?'day':'days'} late, cash never drops below your floor`+(min!==undefined?`, with a lowest balance of ${spokenRupiah(min)}.`:'.')
      :`That breaks it. With the delay, you would miss your cash floor on ${spokenDate(stressed.firstViolationDate)}.`,
      {kind:'stress',title:ok?'Survives the stress':'Fails under stress',subtitle:String(obj(run.scenario).id??run.id??'stress'),tone:ok?'good':'bad',
       facts:[{label:'Outcome',value:outcome},{label:'Scope',value:'Historical proof (no ERP write)'},...(min!==undefined?[{label:'Lowest balance',value:displayRupiah(min)}]:[])]});
