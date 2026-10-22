@@ -9,6 +9,8 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "judge:build": "vite build --config vite.dealtwin.config.ts",
+    "judge:db": "node node_modules/vite-node/vite-node.mjs --config vitest.config.ts scripts/dealtwin/provision-local-db.ts",
+    "judge:seed": "node node_modules/vite-node/vite-node.mjs --config vitest.config.ts scripts/dealtwin/prepare-browser-fixture.ts",
     "judge:demo": "node scripts/dealtwin/local-demo.mjs",
     "judge:test": "node node_modules/vite-node/vite-node.mjs --config vitest.config.ts scripts/dealtwin/prepare-browser-fixture.ts && playwright test --config=playwright.dealtwin.config.ts",
     "start": "vinext start",

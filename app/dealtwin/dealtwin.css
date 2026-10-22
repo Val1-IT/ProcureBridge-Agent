@@ -25,3 +25,38 @@
 .dt-warning pre{font:12px/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto}
 .dt-warning summary{cursor:pointer;font-weight:650}
 @media(max-width:700px){.dt-header nav{min-width:100%;gap:4px}.dt-workspace-strip>div{min-width:0;overflow-wrap:anywhere}.dt-workspace-strip .dt-button{width:100%}.dt-actions .dt-button{flex:1 1 180px}.dt-judge-steps{grid-template-columns:1fr}}
+
+/* Simulated Alexa+ device: an Echo Show style screen over the real MCP route. */
+.dt-alexa{display:grid;gap:18px}.dt-alexa-intro h1{max-width:760px}.dt-alexa-intro .dt-boundary{max-width:900px}
+.dt-alexa-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.dt-echo{background:#0b1620;border-radius:22px;padding:18px;display:grid;gap:14px;box-shadow:0 10px 28px #0b162033;color:#e8f1f8}
+.dt-echo-ring{height:6px;border-radius:6px;background:#1d3346;transition:background .2s}
+.dt-echo[data-state=listening] .dt-echo-ring{background:linear-gradient(90deg,#1aa5ff,#66e5c7,#1aa5ff);background-size:200% 100%;animation:dt-ring 1.2s linear infinite}
+.dt-echo[data-state=thinking] .dt-echo-ring{background:linear-gradient(90deg,#1d3346,#1aa5ff,#1d3346);background-size:200% 100%;animation:dt-ring .9s linear infinite}
+@keyframes dt-ring{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){.dt-echo-ring{animation:none!important}}
+.dt-echo-card{min-height:260px;border-radius:14px;padding:22px;background:#142636;border:1px solid #24435c;display:grid;align-content:start;gap:10px;overflow-wrap:anywhere}
+.dt-echo-card small{font:700 11px ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;color:#8fb3cc}
+.dt-echo-card h2{font-size:24px;margin:0;color:#fff}.dt-echo-card p{margin:0;color:#b8cddd;font-size:14px}
+.dt-echo-card dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 0}
+.dt-echo-card dl>div{background:#0e1c28;border:1px solid #24435c;border-radius:9px;padding:10px 12px;display:grid;gap:4px;min-width:0}
+.dt-echo-card dt{font-size:11px;color:#8fb3cc}.dt-echo-card dd{margin:0;font:600 14px ui-monospace,monospace;color:#fff;overflow-wrap:anywhere}
+.dt-tone-good{border-color:#2f8f68;box-shadow:inset 4px 0 #66e5c7}.dt-tone-bad{border-color:#a44a3d;box-shadow:inset 4px 0 #ff7a66}.dt-tone-warn{border-color:#9b7a2c;box-shadow:inset 4px 0 #f2c14e}.dt-tone-info{box-shadow:inset 4px 0 #1aa5ff}
+.dt-echo-confirm{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dt-echo-input{display:flex;gap:8px;align-items:center}
+.dt-echo-input input{flex:1;min-width:0;min-height:44px;border-radius:8px;border:1px solid #2b4a63;background:#0e1c28;color:#fff;padding:0 12px;font-size:14px}
+.dt-echo-input input::placeholder{color:#7f9bb1}
+.dt-mic{width:48px;height:48px;border-radius:50%;border:2px solid #1aa5ff;background:#0e1c28;color:#1aa5ff;font-size:18px;cursor:pointer;flex:none}
+.dt-mic[aria-pressed=true]{background:#1aa5ff;color:#0b1620}.dt-mic:disabled{opacity:.45;cursor:not-allowed}
+.dt-echo-voice{font-size:12px;color:#b8cddd;display:flex;gap:8px;align-items:center}
+.dt-visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.dt-alexa-log ol{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:10px;max-height:470px;overflow:auto}
+.dt-alexa-log li{display:grid;gap:4px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.5}
+.dt-alexa-log li[data-who=user]{background:#eef5ff;justify-self:end;max-width:85%}.dt-alexa-log li[data-who=alexa]{background:#f3f6f9;border:1px solid var(--dt-line)}
+.dt-alexa-log strong{font-size:11px;color:var(--dt-muted)}
+.dt-alexa-chips{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.dt-chip{min-height:40px;border:1px solid var(--dt-line);background:#fff;color:var(--dt-ink);border-radius:20px;padding:8px 14px;font-size:13px;cursor:pointer}
+.dt-chip:hover:not(:disabled){border-color:var(--dt-blue)}.dt-chip[aria-current=step]{background:var(--dt-blue);color:#fff;border-color:var(--dt-blue)}.dt-chip:disabled{opacity:.6;cursor:wait}
+.dt-alexa-trace code{font-size:12px}
+@media(max-width:900px){.dt-alexa-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.dt-echo{padding:12px;border-radius:16px}.dt-echo-card{padding:16px;min-height:200px}.dt-echo-card h2{font-size:20px}.dt-echo-input .dt-button{padding:10px}}

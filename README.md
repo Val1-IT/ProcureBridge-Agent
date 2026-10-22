@@ -1,29 +1,119 @@
-# Arvanta Distributor Mini ERP
+# DealTwin — every deal should compile before you commit
+
+**Before a distributor promises a deal, can the business actually finance the promise?**
+
+A sales rep says yes to a big order: 20% deposit, balance in 14 days, supplier paid up front.
+It looks profitable. Three weeks later the company can't pay a supplier invoice on time, because the cash went out
+before it came in, and another rep promised the same cash to a different customer.
+
+DealTwin is a **financial compiler for deals**. It turns commercial terms into constraints,
+replays them day by day against the authoritative ERP cash timeline (opening cash, supplier
+invoices, customer receivables, other committed deals), and returns a deterministic verdict, not an AI opinion:
+
+| Outcome | Meaning |
+|---|---|
+| `DOES_NOT_COMPILE` | The deal breaks the cash floor on a named date, by a named amount |
+| `PROPOSED_AMENDMENT` | The smallest change to the terms that makes it work (searched exhaustively) |
+| `CONDITIONALLY_VALID` | A replayable, hash-bound Deal Proof that still needs human approval |
+| `LIQUIDITY_COLLISION` | The cash is already reserved by another committed deal |
+| `PROOF_STALE` | An ERP fact the proof depended on changed after it was generated |
+
+Lifecycle: `DRAFT → COMPILE → PROOF → RESERVE → COMMIT → STALE → RECOMPILE`.
+
+## Why it matters
+
+- **A naive rule is wrong half the time.** On a 113-case benchmark (13 hand-written + 100
+  generated, seed 27) with an independent exhaustive oracle, the "margin + 20% deposit" rule
+  wrongly approves **34 of 67** unsafe deals. DealTwin's compiler wrongly approves **0 of 67**
+  and wrongly rejects **0 of 45** safe ones; amendment and proof replay match the oracle on
+  **112/112**. ([evidence](docs/dealtwin/TASK27-VERIFICATION.md))
+- **Agents can talk, but cannot overrule it.** Every write goes through the same server-side
+  services: prepare → human confirmation → single-use grant bound to the exact payload →
+  execute. A four-eyes rule means no one commits a deal they proposed themselves.
+- **Cash can't be promised twice.** Reservations live in a PostgreSQL commitment ledger with
+  row-level security, idempotency keys and revision checks; a racing second commit is refused.
+
+## One core, many front doors
+
+DealTwin is one product. The compiler, proof, ledger and policy live in one shared core
+(`lib/dealtwin/**`, `lib/server/**`, PostgreSQL). Each interface is a thin client of the same
+17-tool MCP server (`POST /api/dealtwin/mcp`, protocol 2025-11-25) and cannot bypass it:
+
+| Front door | Status in this repo |
+|---|---|
+| **Judge Mode web app** (`/dealtwin/judge`) | Working: guided compile → amend → approve → reserve → commit → stale → remediate |
+| **Voice assistant** (`/dealtwin/alexa`) | Working simulator: Alexa+-style multi-turn conversation over the real MCP server, browser speech in/out. Not a certified Alexa skill |
+| **Any MCP client / agent** | Working: Streamable HTTP JSON-RPC, prepare/execute with server-minted grants |
+| **Natural-language term extraction** (`extract_constraints`) | Built, offline contract tests 4/4; live Nebius/Nemotron call disabled until a paid run is approved |
+| **Payment execution rail** | Planned; DealTwin never moves money today |
+
+Everything runs on **synthetic data** for one sandbox distributor in IDR. No bank, no real
+customer data, no money movement.
+
+## Run it locally (about 5 minutes)
+
+Requirements: Node.js 22.13+, PostgreSQL 15/16 on loopback. The disposable-database guard only
+accepts `127.0.0.1`, database `dealtwin_test`, port `55432` or `55632`.
+
+```bash
+npm ci
+# 1. A throwaway PostgreSQL (or any local cluster with an empty dealtwin_test database)
+docker run -d --name dealtwin-pg -p 55632:5432 -e POSTGRES_USER=dealtwin -e POSTGRES_PASSWORD=dealtwin -e POSTGRES_DB=dealtwin_test postgres:16
+# 2. Schema, RLS policies and least-privilege login roles (refuses a non-empty database)
+DEALTWIN_TEST_DATABASE_URL=postgres://dealtwin:dealtwin@127.0.0.1:55632/dealtwin_test npm run judge:db
+# 3. Canonical synthetic business: deals A and B, supplier invoices, receivables
+DEALTWIN_TEST_DATABASE_URL=postgres://dealtwin:dealtwin@127.0.0.1:55632/dealtwin_test npm run judge:seed
+# 4. Build and start on http://127.0.0.1:4177
+npm run judge:build
+npm run judge:demo
+```
+
+`judge:demo` prints two single-use launch links. Open the **admin** link to sign in, then go to
+`/dealtwin/alexa` (voice) or `/dealtwin/judge` (guided web). Open the **approver** link in a
+private window when the four-eyes step asks for a second person.
+
+### The 2-minute script (voice)
+
+1. "Alexa, open DealTwin" — connects over MCP and lists the 17 tools.
+2. "Can I accept deal A?" — reads back the structured terms (Rp 60M, 20% deposit, balance in
+   14 days, Rp 42M supplier costs) and asks before running.
+3. "Yes" — **No.** Breaks the cash floor on September 22, Rp 3M short.
+4. "What would it take to make it work?" → "Yes" — checks 2,457 options; smallest fix is a
+   25% deposit, saved as version 2 with a new proof.
+5. "What if the customer pays three days late?" — still safe.
+6. "Reserve the cash" / "Commit deal A" — the commit stops at the four-eyes rule ("I'm not
+   allowed to approve my own deal") until a different person approves in Judge Mode.
+7. "Check deal B" — **No**, Rp 5M short, because that cash is already committed to deal A.
+8. "The supplier invoice went up to 19 million" — the deal A proof goes **stale**. The booked
+   order stands; "Fix deal A" proposes a 27% deposit remediation for a human to accept, and
+   "Replay the original proof" reproduces the old result bit for bit from frozen inputs.
+
+## Verify
+
+```bash
+npm run typecheck
+npm run lint
+npm test                    # 1,370+ tests; PostgreSQL suites need DEALTWIN_TEST_DATABASE_URL
+npm run benchmark:dealtwin -- --run-id my-run
+npm run judge:test          # Playwright journeys against the production build
+```
+
+Honest limits: single tenant, single currency, synthetic data; the voice surface is a browser
+simulator, not a published Alexa skill; live LLM extraction is not measured; dependency audit
+findings are tracked in [docs/dealtwin](docs/dealtwin/DEPENDENCY-AUDIT-20261018.md). Locked
+scope: [product spec](docs/dealtwin/LOCKED_PRODUCT_SPEC.md) ·
+[verification](docs/dealtwin/VERIFICATION.md) · [deployment boundary](docs/dealtwin/DEPLOYMENT.md).
+
+---
+
+# Host prototype: Arvanta Distributor Mini ERP
+
+DealTwin grew out of this repository's earlier distributor ERP prototype, which is kept below
+unchanged. It is a separate, browser-only demo and is not required to run DealTwin.
 
 > Every company, document, quantity, price, metric, transcript, call, and result is **Demo Data**. The ERP Supplier Agent uses `MockSupplierCallProvider` and does not contact a real supplier.
 
 Arvanta Distributor Mini ERP is a browser-based, single-company distributor prototype. It connects purchasing, receiving, inventory, sales, delivery, trade invoices, payments, approvals, and audit evidence. It is not a production accounting or telephony system.
-
-## DealTwin private Judge and verification boundary
-
-DealTwin is the server-authoritative proof-carrying-commerce subsystem, separate
-from the browser-only distributor demo below. Its deterministic compiler,
-signed synthetic Judge sessions and PostgreSQL commitment ledger never turn a
-quote or reservation into confirmed bank cash. The locked specification and
-implementation plan live under docs/dealtwin and docs/superpowers/plans.
-
-Task29 remains partial. Earlier full-suite/coverage, local PostgreSQL and Node
-build evidence is recorded at its tested commits; the final same-candidate
-release packet and browser/live integration gates remain incomplete. The current
-[Alexa-first readiness plan](docs/dealtwin/ALEXA-READINESS-20261018.md) separates
-scripted MCP evidence from real provider/Alexa integration and lists bounded
-decisions needed for the18-19October target.
-See [candidate evidence](docs/dealtwin/VERIFICATION.md)
-and [deployment boundary](docs/dealtwin/DEPLOYMENT.md). **Public release remains
-blocked** by unresolved dependency findings and missing external readiness
-evidence. A passing build or structurally complete JSON packet is not release
-authorization. No production data, live provider, public session issuer or
-deployment is required or authorized by the local Judge workflow.
 
 ## Implemented workflow
 
@@ -144,19 +234,7 @@ npm.cmd run judge:build
 npm.cmd run judge:demo
 ```
 
-The dedicated Node production target binds only `127.0.0.1:4177`, preserves current synthetic business state and generates an in-memory signing key. Private HttpOnly/Secure/SameSite=Strict admin/approver cookie artifacts expire in one hour under ignored `output/playwright/demo/auth`. There is no public session issuer or browser role-grant control. Do not commit/share auth files or traces.
-
-Use separate named browser sessions through the trusted local Playwright CLI:
-
-```powershell
-npx.cmd --package @playwright/cli playwright-cli --session dealtwin-admin open http://127.0.0.1:4177/dealtwin/judge --headed
-npx.cmd --package @playwright/cli playwright-cli --session dealtwin-admin state-load output/playwright/demo/auth/admin.json
-npx.cmd --package @playwright/cli playwright-cli --session dealtwin-admin reload
-# Approval uses its own separately signed session, not a client role selector:
-npx.cmd --package @playwright/cli playwright-cli --session dealtwin-approver open http://127.0.0.1:4177/dealtwin/deals/judge-deal-a --headed
-npx.cmd --package @playwright/cli playwright-cli --session dealtwin-approver state-load output/playwright/demo/auth/approver.json
-npx.cmd --package @playwright/cli playwright-cli --session dealtwin-approver reload
-```
+The dedicated Node production target binds only `127.0.0.1:4177`, preserves current synthetic business state and generates an in-memory signing key. It prints single-use admin and approver launch links; each sets a private HttpOnly/SameSite=Strict session cookie that expires in one hour. There is no public session issuer or browser role-grant control. Open the approver link in a separate private window.
 
 Reset requires explicit UI confirmation and touches only `dealtwin-judge-v1`; it restores the canonical business seed, increments revision once and retains immutable operation receipts. The guide uses persisted compiler/proof/commitment evidence. Commit requires live approval; retry resends the original key and payload, then reads fresh server state. Committed remediation retains the original Sales Order/capacity and never creates a second COMMIT.
 

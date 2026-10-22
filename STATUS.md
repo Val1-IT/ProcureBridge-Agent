@@ -1,5 +1,20 @@
 # DealTwin — local execution status
 
+## Current continuation — Alexa+ voice front door, 2026-10-22
+
+DealTwin is presented as one product (financial compiler for deals) with front
+doors per hackathon; see [README](README.md) and
+[submission kit](docs/dealtwin/SUBMISSION.md). Added the simulated Alexa+
+experience at `/dealtwin/alexa` (real MCP + PostgreSQL, signed actor-bound
+confirmation tickets, structured terms read back before every verdict),
+token-gated judge launch links and `npm run judge:db` provisioning.
+Windows/PostgreSQL 15 on 127.0.0.1:55632: `tests/dealtwin` **829/829** (one
+`deal-routes` case timed out at 5 s under full-suite load and passed 15/15 when
+rerun alone), typecheck, lint on changed paths, Judge build pass; browser smoke
+via admin launch link over http://127.0.0.1:4177 reached the Sept 22 / Rp 3M
+verdict. Not done: real Alexa device/skill, video, push, license/visibility,
+Devpost form. Live Nebius extraction remains disabled and unmeasured.
+
 ## Current continuation — dependency remediation, 2026-10-18
 
 Compatible fixes landed in89d8d7f andcd1d8bd. Clean **cd1d8bd** passes
