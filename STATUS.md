@@ -41,7 +41,9 @@ Prompt and reasoning changed together, so the run cannot separate their
 effects. The switch has been used only on that model id: another id may
 ignore it and keep reasoning (latency not measured) or reject it (extraction
 fails closed as AI_PROVIDER_UNAVAILABLE; the router falls back to the grammar).
-Router latency is not measured. Committed locally, not pushed.
+Router latency is not measured. Pushed to `origin/dealtwin-nebius-edition`
+up to `e651aba` (demo script and README aligned with the app); any later
+commit is local only until pushed.
 
 ## Current continuation — demo video and UI polish, 2026-10-22
 
