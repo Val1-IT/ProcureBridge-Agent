@@ -1,5 +1,34 @@
 # DealTwin — local execution status
 
+## Current continuation — Nebius × NVIDIA edition, 2026-10-23
+
+Nebius branch only (dealtwin-nebius-edition); the Amazon/Alexa+ submission and
+its branch are unchanged. Two live extraction runs on
+`nvidia/nemotron-3-super-120b-a12b`, 32 cases each, evidence under
+docs/dealtwin/evidence/nebius-extraction-eval-*.json. Both sent no reasoning
+switch, so the model ran with its default (reasoning on); the files predate the
+`thinking` field and record no reasoning tokens:
+
+- v1 prompt (03:56Z): 8/32, all clarify cases (6 of them only because the
+  answer was rejected as AI_OUTPUT_INVALID and failed closed); 27
+  AI_OUTPUT_INVALID, 3 timeouts, no candidates; p50/p95 3019/5009 ms.
+- v2 prompt (04:07Z): 23/32, precision 0.9412 (16 of 17), recall 0.5333 (16
+  of 30), 1 unsafe accept (direction-supplier-en), 11 timeouts (8 extract
+  cases failed; 3 clarify cases failed closed and scored as passes); p50/p95
+  3775/5017 ms. Both p95 values are the 5 s cutoff.
+
+Prompt v3 then gave every constraint kind a fixed payer and direction
+(prompted by the direction-supplier-en unsafe accept) and clarified several
+other rules. One unscored diagnostic call
+(multi-en text, reasoning off) returned valid JSON in 1460 ms with no reasoning
+tokens; it wrote no evidence file. NemotronClient now always sends
+`chat_template_kwargs: {enable_thinking: false}`, and live eval reports record
+`thinking`. The switch has been tried only on that model id: another id may
+ignore it and keep reasoning (latency not measured) or reject it (extraction
+fails closed as AI_PROVIDER_UNAVAILABLE; the router falls back to the grammar). **The current code (prompt v3, reasoning off) is
+NOT_MEASURED.** v2 and v3 were tuned on these 32 cases, so the next score is
+a tuning-set number, not a held-out one. Committed locally, not pushed.
+
 ## Current continuation — demo video and UI polish, 2026-10-22
 
 Simulator polish: lifecycle bar, cash gauge against the floor, readable status
@@ -281,7 +310,7 @@ Deployment reality: existing vinext/Cloudflare/Sites scaffold and SQLite/Drizzle
 | Monitor → STALE → Recompile | **PARTIAL** | Task22 allowlisted source-chain AP19m mutation automatically stales proof, durable committed27%proposal retains originalSO/capacity, signed reserved replacement atomic/retry-safe. UI/browser journey remainsTask23-24 |
 | Server-backed Judge / three clean runs | **PARTIAL** | Reset/state/session/refresh via new runtime instances persist; complete Judge browser journey and three consecutive clean runs not yet present |
 | Amazon Alexa+/MCP edition | **PARTIAL (private local MCP)** | Task26 strict17tools/session/grant/state/JSON transport,33MCP tests and privateHTTP8checksPASS; publicAlexa/OAuth/client/account/submission evidence NOT RUN |
-| Nebius × NVIDIA edition | **PARTIAL (offline built, live NOT RUN)** | Branch dealtwin-nebius-edition: conversational constraints front door (draft→read back→confirm), Nemotron intent router with grammar fallback, 32-case EN/ID extraction eval (offline harness 32/32) and fake-provider tests. Live Nemotron run, accuracy numbers, video and Devpost form NOT RUN; operator supplies the key |
+| Nebius × NVIDIA edition | **PARTIAL (offline built; two early live runs; current code NOT_MEASURED)** | Branch dealtwin-nebius-edition: conversational constraints front door (draft→read back→confirm), Nemotron intent router with grammar fallback, 32-case EN/ID extraction eval (offline harness 32/32) and fake-provider tests. Live runs on nvidia/nemotron-3-super-120b-a12b with default reasoning (no switch sent): prompt v1 8/32, prompt v2 23/32 (precision 0.9412, recall 0.5333, 1 unsafe accept, 11 timeouts). Prompt v3 with reasoning off (`enable_thinking: false`) NOT_MEASURED; video and Devpost form NOT RUN |
 | PayPal sandbox edition | **MISSING** | No authorize/condition/capture/verified-webhook/reconciliation adapter or live sandbox evidence |
 
 ## Immediate execution

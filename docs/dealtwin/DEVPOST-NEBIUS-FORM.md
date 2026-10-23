@@ -1,18 +1,23 @@
 # DealTwin — Devpost form draft (Nebius × NVIDIA, "Best Apps and Agents")
 
 Copy-ready text for https://nebiusglobalaihackathon.devpost.com, one block per field. **Draft:**
-fields marked `<…>` wait for the operator's live run and video. Check the field names against the
+fields marked `<…>` wait for a live run of the current code (prompt v3, reasoning off) and the video. Check the field names against the
 live form before pasting. Rules: https://nebiusglobalaihackathon.devpost.com/rules.
 
 Deadline: **Oct 30, 2026, 10:00 PT**.
 
 ## Before you open the form (operator)
 
-1. Create a Nebius Token Factory key and put it in `.env.local` (git-ignored): `NEBIUS_API_KEY`,
-   `NEBIUS_MODEL` (a Nemotron model id), `DEALTWIN_NEBIUS_LIVE_ENABLED=true` and optionally
-   `DEALTWIN_NEBIUS_ROUTER_ENABLED=true`. Never commit it.
-2. Run `npm run eval:nebius -- --live` once. Copy its summary into `<LIVE_EVAL_SUMMARY>` below and
-   commit the evidence file it writes under `docs/dealtwin/evidence/`.
+1. Make sure `.env.local` (git-ignored) holds `NEBIUS_API_KEY`,
+   `NEBIUS_MODEL=nvidia/nemotron-3-super-120b-a12b` (the only id tried with reasoning off),
+   `DEALTWIN_NEBIUS_LIVE_ENABLED=true` and optionally `DEALTWIN_NEBIUS_ROUTER_ENABLED=true`.
+   Never commit it.
+2. Two live runs already exist (`docs/dealtwin/evidence/nebius-extraction-eval-*.json`), but they
+   used prompts v1 and v2 with the model's default reasoning. The current code (prompt v3,
+   reasoning off) is not measured. Fill `<LIVE_EVAL_SUMMARY>` only from a run of the current code:
+   run `npm run eval:nebius -- --live` once, copy its summary below and commit the evidence file it
+   writes (its `promptVersion` ends in `v3` and `thinking` is `false`). Say it is a tuning-set
+   score: v2 and v3 were written after reading failures on these 32 cases.
 3. Record the demo (under 3 minutes; script below) and upload it to YouTube as Public → `<VIDEO_URL>`.
 4. Push branch `dealtwin-nebius-edition` and make sure the repo is public (MIT `LICENSE` is in it).
 5. Fill `<DEMO_URL_OR_TEST_BUILD>`: there is no hosted deployment, so point to the README's
@@ -44,7 +49,7 @@ DealTwin is a financial compiler for deals. The Nebius edition adds a plain-lang
 5. **Nemotron as a tool-selecting agent.** For free-form requests ("suppose the first buyer settles a week late"), Nemotron chooses which of DealTwin's 17 MCP tools to plan. It cannot say "yes" for you, and any invalid output falls back to a deterministic grammar.
 
 ## How we built it
-- Nemotron through Nebius Token Factory's OpenAI-compatible chat completions endpoint, called with `temperature: 0`, JSON mode, a 5-second timeout and a 64 KB response cap. Any model that isn't Nemotron is refused.
+- Nemotron (`nvidia/nemotron-3-super-120b-a12b`) through Nebius Token Factory's OpenAI-compatible chat completions endpoint, called with `temperature: 0`, JSON mode, reasoning switched off (`enable_thinking: false`), a 5-second timeout and a 64 KB response cap. Any model that isn't Nemotron is refused.
 - A strict, versioned Zod schema for each AI output (`dealtwin.constraint-extraction.v1`, `dealtwin.intent-route.v1`). Invalid output fails closed with a named error code.
 - A deterministic TypeScript compiler, exhaustive amendment search and canonical proof hashing, with PostgreSQL row-level security and an idempotent commitment ledger.
 - A 17-tool MCP server (spec 2025-11-25). The voice/chat front door, the web app and generic agents all go through it, and every write is prepare → read back → human yes → single-use grant.
@@ -57,7 +62,7 @@ DealTwin is a financial compiler for deals. The Nebius edition adds a plain-lang
 
 ## Accomplishments that we're proud of
 - On 113 benchmark cases checked by an independent exhaustive oracle, the "margin + 20% deposit" rule wrongly approves 34 of 67 unsafe deals. DealTwin's compiler wrongly approves 0 of 67.
-- Nemotron extraction on the 32-case set: <LIVE_EVAL_SUMMARY: precision / recall / unsafe accepts / p50–p95 latency, from docs/dealtwin/evidence/nebius-extraction-eval-*.json>
+- Nemotron extraction on the 32-case set we tuned the prompt on: <LIVE_EVAL_SUMMARY: precision / recall / unsafe accepts / timeouts / p50–p95 latency, only from the evidence file whose promptVersion is v3 and thinking is false>
 
 ## What we learned
 Treating the model's output as an untrusted proposal is what made Nemotron easy to adopt. Every safety property lives in the schema and the compiler, so we could change prompts or models without re-auditing the money path.
@@ -94,7 +99,7 @@ Suggested script (about 2:40):
 | 0:50–1:05 | "Terms for deal A: the customer pays the rest later" → Yes | "When it can't tell, it asks. Nothing is saved." |
 | 1:05–1:25 | "Confirm the constraints" → Yes | "Every draft is read back. Now they're mine, in a new deal version." |
 | 1:25–2:00 | "Can I accept deal A?" → Yes, then "What would it take?" | "The compiler, not the model, says no: Rp 3M short on September 22. The smallest fix is a 25% deposit, with a replayable proof." |
-| 2:00–2:25 | Eval JSON / table | "On 32 labelled cases in English and Indonesian, Nemotron scored <LIVE_EVAL_SUMMARY>." |
+| 2:00–2:25 | Eval JSON / table | "On the 32 English and Indonesian cases we tuned the prompt on, Nemotron scored <LIVE_EVAL_SUMMARY>. That's a tuning-set number, not a held-out one." |
 | 2:25–2:40 | End card | "Nemotron reads the deal. The compiler decides. You confirm." |
 
 ## Testing instructions
@@ -107,7 +112,7 @@ docker run -d --name dealtwin-pg -p 55632:5432 -e POSTGRES_USER=dealtwin -e POST
 DEALTWIN_TEST_DATABASE_URL=postgres://dealtwin:dealtwin@127.0.0.1:55632/dealtwin_test npm run judge:db
 DEALTWIN_TEST_DATABASE_URL=postgres://dealtwin:dealtwin@127.0.0.1:55632/dealtwin_test npm run judge:seed
 
-For live Nemotron, add to .env.local: NEBIUS_API_KEY, NEBIUS_MODEL (a Nemotron model id), DEALTWIN_NEBIUS_LIVE_ENABLED=true, DEALTWIN_NEBIUS_ROUTER_ENABLED=true.
+For live Nemotron, add to .env.local: NEBIUS_API_KEY, NEBIUS_MODEL=nvidia/nemotron-3-super-120b-a12b (the only id tried with reasoning off), DEALTWIN_NEBIUS_LIVE_ENABLED=true, DEALTWIN_NEBIUS_ROUTER_ENABLED=true.
 
 npm run judge:build
 npm run judge:demo
@@ -125,10 +130,11 @@ DealTwin's compiler, proof, ledger and MCP server existed before this hackathon 
 - A Nemotron intent router (lib/dealtwin/ai/intent-router.ts) that selects which MCP tool to plan. It uses a closed intent list, cannot confirm or cancel, quoted terms must come from the utterance, and it falls back to the deterministic grammar on any failure.
 - A 32-case English/Indonesian extraction eval with injection cases, scoring (precision, recall, unsafe accepts, latency) and a live runner that writes evidence JSON.
 - Fake-provider tests for every fail-closed path.
+- Two live eval runs (evidence JSON in docs/dealtwin/evidence/) drove prompt revisions v2 and v3 and switching Nemotron's reasoning off.
 ```
 
 ## Product feedback (Nebius Token Factory and NVIDIA Nemotron)
 
 ```text
-<Write after the live run. Cover: onboarding and key creation, the model catalogue (which Nemotron id you used and why), JSON-mode reliability, latency observed (p50/p95 from the eval), error messages, billing clarity, and what you'd want next (e.g. JSON-schema-constrained decoding, per-key spend caps).>
+<Write after the v3 (reasoning off) live run. Cover: onboarding and key creation, the model catalogue (which Nemotron id you used and why), JSON-mode reliability, latency observed (p50/p95 from the eval; with default reasoning on, 11 of 32 v2 calls hit the 5 s timeout; say whether `chat_template_kwargs.enable_thinking: false` changed that only after the v3 run measures it), error messages, billing clarity, and what you'd want next (e.g. JSON-schema-constrained decoding, per-key spend caps).>
 ```

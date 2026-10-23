@@ -27,9 +27,16 @@ Server-only environment: DATABASE_URL (application login), DATABASE_SSL_MODE,
 DEALTWIN_JUDGE_RESET_DATABASE_URL (distinct reset login), and
 DEALTWIN_JUDGE_SESSION_SIGNING_KEY (at least32bytes). NEBIUS_API_KEY is optional
 and must not activate live calls without separate authorization. Live Nemotron
-needs all of NEBIUS_API_KEY, NEBIUS_MODEL (a Nemotron model id) and
+needs all of NEBIUS_API_KEY, NEBIUS_MODEL (a Nemotron model id; only
+nvidia/nemotron-3-super-120b-a12b has been used) and
 DEALTWIN_NEBIUS_LIVE_ENABLED=true; the intent router additionally needs
-DEALTWIN_NEBIUS_ROUTER_ENABLED=true (optional NEBIUS_ROUTER_MODEL). Never prefix
+DEALTWIN_NEBIUS_ROUTER_ENABLED=true (optional NEBIUS_ROUTER_MODEL, which defaults
+to NEBIUS_MODEL). Every request switches reasoning off with
+chat_template_kwargs.enable_thinking=false. That switch has been tried only on
+nvidia/nemotron-3-super-120b-a12b, in one unscored diagnostic call: another id
+may ignore it and keep reasoning, which may add latency against the 5 s (3 s
+router) timeout, or reject it, in which case extraction fails closed as
+AI_PROVIDER_UNAVAILABLE and the router falls back to the grammar. Never prefix
 credentials with NEXT_PUBLIC_, put them in client HTML or log connection URLs.
 Keep actual values in operator-controlled secret storage, not committed files.
 
