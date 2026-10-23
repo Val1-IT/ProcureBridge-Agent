@@ -107,28 +107,35 @@ scope: [product spec](docs/dealtwin/LOCKED_PRODUCT_SPEC.md) ·
 
 ## Nebius × NVIDIA edition: Nemotron as the front door, never the judge
 
-A sales rep doesn't type JSON. They say *"Terms for deal A: DP minimal 30%, pelunasan paling
-lambat 14 hari, jangan pinjam bank."* DealTwin uses **NVIDIA Nemotron on Nebius Token Factory**
+A sales rep doesn't type JSON. They say *"Terms for deal A: DP minimal 20%, pelunasan paling
+lambat 30 hari."* DealTwin uses **NVIDIA Nemotron on Nebius Token Factory**
 for the two language jobs, and keeps every money decision in the deterministic compiler.
 
 | Job | What Nemotron does | What stops it from being the authority |
 |---|---|---|
 | **Words → constraints** (`extract_constraints`) | Turns free text (English or Indonesian) into typed constraint candidates such as a minimum deposit, balance days, a cash floor or no new borrowing, or asks a clarifying question when something is missing | Strict versioned schema (`dealtwin.constraint-extraction.v1`, 9 kinds). Every candidate must quote its `sourceText` verbatim from the user's words. Candidates are saved only as `ai_extracted / pending_confirmation`, and a human must confirm the whole set (`confirm_constraints`) before the deal can compile |
-| **Request → tool** (intent router) | Picks which of the MCP tools to plan for a free-form spoken request ("suppose the first buyer settles a week late") | A closed list of intents. It can never output "yes" or "cancel", so it cannot approve anything. Quoted terms must be a substring of what was said. Any invalid output, timeout or disabled provider falls back to the deterministic grammar. The chosen tool is still only *prepared*; a human yes and a single-use server grant execute it |
+| **Request → tool** (intent router) | Picks which DealTwin step to plan from a closed list of 15 intents for a free-form spoken request ("suppose the first buyer settles a week late"). Optional and off by default; its routing accuracy hasn't been measured yet | A closed list of intents. It can never output "yes" or "cancel", so it cannot approve anything. Quoted terms must be a substring of what was said. Any invalid output, timeout or disabled provider falls back to the deterministic grammar. The chosen tool is still only *prepared*; a human yes and a single-use server grant execute it |
 
-The conversation on `/dealtwin/alexa`:
+The conversation on `/dealtwin/alexa`, on a freshly seeded deal A (`npm run judge:seed`). Every
+step that changes something is only prepared until you say "Yes":
 
-1. "Terms for deal A: deposit at least 30%, keep Rp 5,000,000 in the bank, no new borrowing" →
-   DealTwin repeats the words and asks before sending them to Nemotron.
-2. "Yes" → *"Nemotron proposed 3 constraints for deal A: deposit at least 30%, keep at least
-   5 million rupiah in cash, no new borrowing. They are drafts only."* The card shows the model
-   and prompt version.
-3. "Confirm the constraints" → it reads each draft back, then saves a new deal version with the
-   constraints confirmed by the human.
-4. "Can I accept deal A?" → the same compiler, proof and ledger as every other front door.
-
-If Nemotron can't tell, for example from *"the customer pays the rest later"*, DealTwin asks *"When is
-the balance due?"* and saves nothing.
+1. "Terms for deal A: the customer will pay the rest later." → Yes → Nemotron says what is
+   missing instead of drafting. DealTwin reads that back as *"I need more detail before I can
+   draft constraints. Missing: …"* (the missing part is model-written) and saves nothing.
+2. "Terms for deal A: deposit at least 20%, and the customer pays the remaining balance within
+   30 days of acceptance." → Yes → *"Nemotron proposed … They are drafts only."* Each draft quotes
+   the words it came from, and the card shows the model and prompt version. The seed already
+   carries a cash floor, no new borrowing and an approval rule, so repeating one of those is
+   refused rather than duplicated.
+3. "Confirm the constraints." → Yes → it reads each draft back, then saves a new deal version with
+   the constraints confirmed by the human.
+4. "Can I accept deal A?" → Yes → the same compiler, proof and ledger as every other front door:
+   *"No. Deal A breaks your cash floor on …"*, with the dated shortfall (3 million rupiah on
+   September 22 in the seed).
+5. "What would it take to make deal A work?" → Yes → the smallest amendment that compiles (a 25%
+   deposit in the seed).
+6. "Show me the proof." → reads back the hash-bound, replayable Deal Proof and says it still needs
+   one human approval.
 
 **Run it live** (operator only; your key stays in `.env.local`, which is git-ignored):
 
