@@ -41,11 +41,11 @@ Distributors win deals that are profitable on paper and still run out of cash, b
 ## What it does
 DealTwin is a financial compiler for deals. The Nebius edition adds a plain-language front door powered by **NVIDIA Nemotron on Nebius Token Factory**:
 
-1. **Words → constraints.** "Terms for deal A: deposit at least 30%, keep Rp 5,000,000 in the bank, no new borrowing." Nemotron returns typed constraint candidates. Each candidate quotes the exact words it came from, and they are saved only as unconfirmed drafts.
-2. **Ask instead of guess.** If something is missing ("the customer pays the rest later"), Nemotron returns a clarifying question ("When is the balance due?") and nothing is saved.
+1. **Words → constraints.** "Terms for deal A: deposit at least 20%, and the customer pays the remaining balance within 30 days of acceptance." Nemotron returns typed constraint candidates. Each candidate quotes the exact words it came from, and they are saved only as unconfirmed drafts.
+2. **Ask instead of guess.** If something is missing ("the customer pays the rest later"), Nemotron says what is missing instead of drafting, DealTwin reads that back as a question, and nothing is saved.
 3. **Human confirms.** "Confirm the constraints" reads every draft back and saves a new deal version that the human owns.
-4. **The compiler decides.** "Can I accept deal A?" replays the terms day by day against the ERP cash timeline. It answers with a dated shortfall, the smallest amendment that works, and a hash-bound, replayable Deal Proof.
-5. **Nemotron as a tool-selecting agent.** For free-form requests ("suppose the first buyer settles a week late"), Nemotron chooses which of DealTwin's 17 MCP tools to plan. It cannot say "yes" for you, and any invalid output falls back to a deterministic grammar.
+4. **The compiler decides.** "Can I accept deal A?" replays the terms day by day against the ERP cash timeline. It answers with a dated shortfall. "What would it take?" finds the smallest amendment that works, and "Show me the proof" reads back its hash-bound, replayable Deal Proof.
+5. **Nemotron as a tool-selecting agent.** For free-form requests ("suppose the first buyer settles a week late"), Nemotron picks which DealTwin step to plan from a closed list of 15 intents. It cannot say "yes" for you, and any invalid output falls back to a deterministic grammar. Its routing accuracy hasn't been measured yet.
 
 ## How we built it
 - Nemotron (`nvidia/nemotron-3-super-120b-a12b`) through Nebius Token Factory's OpenAI-compatible chat completions endpoint, called with `temperature: 0`, JSON mode, reasoning switched off (`enable_thinking: false`), a 5-second timeout and a 64 KB response cap. Any model that isn't Nemotron is refused.
@@ -89,17 +89,58 @@ https://github.com/Val1-IT/ProcureBridge-Agent (branch `dealtwin-nebius-edition`
 
 <VIDEO_URL>
 
-Suggested script (about 2:40):
+Suggested script (about 2:45). The app's replies don't have to play in real time: cut the waits in the edit.
+"Yes" below means typing `Yes.` or clicking **Yes, go ahead** on the card.
 
-| Time | Screen | Voice-over |
-|---|---|---|
-| 0:00–0:15 | Title card | "A profitable deal can still drain a distributor's cash. The terms that decide it arrive as words, not JSON." |
-| 0:15–0:50 | `/dealtwin/alexa`: "Terms for deal A: deposit at least 30%, keep Rp 5,000,000 in the bank, no new borrowing" → Yes | "Nemotron on Nebius drafts three constraints, each quoting my words. They're drafts until I confirm." |
-| 0:50–1:05 | "Terms for deal A: the customer pays the rest later" → Yes | "When it can't tell, it asks. Nothing is saved." |
-| 1:05–1:25 | "Confirm the constraints" → Yes | "Every draft is read back. Now they're mine, in a new deal version." |
-| 1:25–2:00 | "Can I accept deal A?" → Yes, then "What would it take?" | "The compiler, not the model, says no: Rp 3M short on September 22. The smallest fix is a 25% deposit, with a replayable proof." |
-| 2:00–2:25 | Eval JSON / table | "On the 32 English and Indonesian cases we tuned the prompt on, Nemotron got 28 right, with no timeouts and a median answer in 1.2 seconds. Two wrong drafts slipped through; in the app they'd still wait for my confirmation. That's a tuning-set number, not a held-out one." |
-| 2:25–2:40 | End card | "Nemotron reads the deal. The compiler decides. You confirm." |
+| Time | Screen | Type into the simulator | Voice-over |
+|---|---|---|---|
+| 0:00–0:12 | Cold open: the red "Does not compile" card and cash gauge from the 1:15 beat | — | "This deal makes a profit, and it would still leave me 3 million rupiah short on September 22, because the supplier gets paid before the customer does. The terms that decide it arrive as words, not JSON." |
+| 0:12–0:30 | "More information needed — No constraint was drafted" card | `Terms for deal A: the customer will pay the rest later.` → Yes | "Nemotron on Nebius doesn't guess. When the terms are vague, it says what's missing, and nothing is saved." (Don't read the question out in the voice-over: the model writes it, so it can change between takes.) |
+| 0:30–1:00 | "Waiting for your confirmation" card ("Prepared over MCP — nothing has executed yet"), then "Draft constraints — not yet authoritative" with its Model and Prompt rows | `Terms for deal A: deposit at least 20%, and the customer pays the remaining balance within 30 days of acceptance.` → Yes | "Clear terms become typed drafts. Each one quotes my exact words, passes a strict schema, and stays a draft until I confirm it." |
+| 1:00–1:15 | "Constraints confirmed" card | `Confirm the constraints.` → Yes | "It reads every draft back. One yes, and they're my terms, in a new deal version." (Don't say a number: the card also lists the five constraints deal A already had.) |
+| 1:15–1:45 | "Does not compile" card and cash gauge | `Can I accept deal A?` → Yes | "Now the deterministic compiler checks the deal day by day against the ERP cash timeline. Not the model. Both of my new terms are met, and the answer is still no: on September 22 I'd be 3 million rupiah below my cash floor." |
+| 1:45–2:05 | Amendment card, then the proof card | `What would it take to make deal A work?` → Yes, then `Show me the proof.` | "So I ask what would fix it. It searches the possible amendments, and the smallest one that works is a 25% deposit, saved as a new version. The proof is hash-bound, and it still needs one human approval before anything is booked." |
+| 2:05–2:30 | README eval table (v1 → v2 → v3) | — | "On the 32 English and Indonesian cases we tuned the prompt on, Nemotron got 28 right, including all three prompt-injection attempts, with no timeouts and a median answer in 1.2 seconds. Two wrong drafts slipped through; in the app they'd still wait for my confirmation. That's a tuning-set number, not a held-out one." |
+| 2:30–2:42 | End card with the repository URL | — | "Nemotron proposes. The compiler decides. You confirm." |
+
+Recording notes:
+
+- Run `npm run judge:seed` before every take. The order matters on a fresh deal A: an unconfirmed draft
+  blocks the next extraction, and confirmed constraints stay until you reseed.
+- After reloading the page, and before you start recording, type exactly `Alexa, open DealTwin`. Until
+  then, the idle card's title and the input box's placeholder both show that phrase. Afterwards the
+  card reads "DealTwin connected over MCP" and the placeholder moves on to the next judge-script line.
+- In `.env.local`, keep `DEALTWIN_NEBIUS_LIVE_ENABLED=true` but turn the router off
+  (`DEALTWIN_NEBIUS_ROUTER_ENABLED` unset) for the take. The "Terms for deal A:" lines go to Nemotron
+  extraction either way; with the router off, the other lines go through the fixed grammar, so every
+  take behaves the same.
+- Type every line exactly as shown, including its period or question mark. A spoken line can come out
+  as "20 percent", and without the period the read-back runs into the next sentence. Answer in English:
+  "ya" is not recognised.
+- If the vague line comes back as a draft instead of a question, reseed and record it again.
+- Untick **Speak replies aloud**, or leave it on only for the 1:15 verdict, so the voice-over fits.
+- Rehearse once with the live model before recording. The 1:15 and 1:45 numbers are the seed's
+  (Sep 22, Rp 3M short; 25% deposit). Deal A already has a 20% deposit and a day-14 balance, so the
+  new terms shouldn't change them, but no test covers that exact sequence. If the screen shows
+  something else, say what the screen shows.
+- Don't demo a deposit minimum above 20%. The deposit rule then becomes the first violation, and the
+  spoken reply still says "cash floor … an unknown amount short".
+- Don't use "keep Rp 5,000,000 in the bank" or "no new borrowing". Deal A already has both, and
+  DealTwin refuses a duplicate.
+- Optional Indonesian take, instead of the 0:30 line and not in addition to it (the deposit would be
+  a duplicate): `For deal A: DP minimal 20% dari nilai pesanan.` This case passed in the eval.
+  Keep it to one term: the combined Indonesian case failed.
+- Keep the admin link, the terminal and `.env.local` off screen.
+
+Trademark check: the rules don't allow third-party trademarks without permission. The simulator page is
+titled "Alexa+ simulator" and lives at `/dealtwin/alexa`. Its conversation log labels every reply
+"Alexa" (`components/dealtwin/alexa-simulator.tsx:138`). The first judge-script line, "Alexa, open
+DealTwin", appears as the idle card's title and as the input placeholder; the off-camera step in the
+recording notes clears both. Record the browser full screen and crop to the reply card, the input box
+and, if useful, the "MCP calls behind the voice" table. Keep these out of
+frame: the tab title, the URL bar, the navigation, the "Simulated Alexa+ experience" paragraph, the
+judge-script chips and the conversation log. Never say "Alexa" in the voice-over. If that crop doesn't
+work, the labels need neutral wording in code first, as a separate change.
 
 ## Testing instructions
 
@@ -111,14 +152,14 @@ docker run -d --name dealtwin-pg -p 55632:5432 -e POSTGRES_USER=dealtwin -e POST
 DEALTWIN_TEST_DATABASE_URL=postgres://dealtwin:dealtwin@127.0.0.1:55632/dealtwin_test npm run judge:db
 DEALTWIN_TEST_DATABASE_URL=postgres://dealtwin:dealtwin@127.0.0.1:55632/dealtwin_test npm run judge:seed
 
-For live Nemotron, add to .env.local: NEBIUS_API_KEY, NEBIUS_MODEL=nvidia/nemotron-3-super-120b-a12b (the only id tried with reasoning off), DEALTWIN_NEBIUS_LIVE_ENABLED=true, DEALTWIN_NEBIUS_ROUTER_ENABLED=true.
+For live Nemotron, add to .env.local: NEBIUS_API_KEY, NEBIUS_MODEL=nvidia/nemotron-3-super-120b-a12b (the only id tried with reasoning off), DEALTWIN_NEBIUS_LIVE_ENABLED=true and, optionally, DEALTWIN_NEBIUS_ROUTER_ENABLED=true.
 
 npm run judge:build
 npm run judge:demo
 
-Open the admin link, go to /dealtwin/alexa and type or say "Terms for deal A: deposit at least 30%, no new borrowing", then "yes", then "confirm the constraints", then "yes", then "Can I accept deal A?".
+Open the admin link, go to /dealtwin/alexa and type "Terms for deal A: deposit at least 20%, and the customer pays the remaining balance within 30 days of acceptance.", then "Yes.", then "Confirm the constraints.", then "Yes.", then "Can I accept deal A?", then "Yes.". Run npm run judge:seed again before repeating it.
 Accuracy: npm run eval:nebius -- --offline (harness) or --live (real Nemotron).
-Without a key, the AI steps answer "Live AI extraction is switched off" and the rest of the app works.
+Without DEALTWIN_NEBIUS_LIVE_ENABLED=true, the extraction step answers "Live AI extraction is switched off" after the Yes, the router stays off, and the rest of the app works.
 ```
 
 ## Significant updates during the hackathon
