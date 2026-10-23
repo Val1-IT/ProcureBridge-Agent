@@ -6,7 +6,7 @@ the product is the compiler, proof and commitment ledger; the voice assistant, t
 extraction and any payment rail are interfaces that cannot overrule it.
 
 Repository: https://github.com/Val1-IT/ProcureBridge-Agent (branch `dealtwin-alexa-submission`, MIT).
-Still to fill before submitting: `<VIDEO_URL>` (upload the rendered demo) and make the repository public.
+Demo video: https://youtu.be/iazfvCbdpqo (public). The repository is public; submitted on Devpost Oct 23, 2026.
 
 ---
 
