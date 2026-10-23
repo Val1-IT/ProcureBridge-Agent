@@ -18,7 +18,7 @@ describe('Nebius extraction eval corpus',()=>{
   const report=await runExtractionEval(new NemotronConstraintExtractor(oracleProvider()),{mode:'offline-oracle',clock});
   expect(report.cases.filter(row=>!row.pass)).toEqual([]);
   expect(report.summary).toMatchObject({cases:extractionCases.length,passed:extractionCases.length,passRate:1,precision:1,recall:1,unsafeAccepts:0,failedClosed:0});
-  expect(report).toMatchObject({mode:'offline-oracle',provider:'offline-oracle',model:'label-oracle-v1',promptVersion:'dealtwin.constraints.prompt.v1'});
+  expect(report).toMatchObject({mode:'offline-oracle',provider:'offline-oracle',model:'label-oracle-v1',promptVersion:'dealtwin.constraints.prompt.v2'});
  });
 });
 describe('Nebius extraction scoring',()=>{
