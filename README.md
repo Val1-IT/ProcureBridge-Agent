@@ -204,6 +204,51 @@ extract cases v2 answered, v3 passed 14. The prompt and the
 reasoning switch changed together, so this run cannot say which caused what. Only one model id has
 been measured, and router latency has not been measured.
 
+## PayPal edition: a deposit that moves only when the proof still holds
+
+Deal A's safe amendment asks the customer for a deposit. This edition collects that deposit through
+**PayPal** (Orders v2 with `intent: AUTHORIZE`, then Payments v2 capture or void). PayPal moves
+the money; it never decides whether the deal is safe. The proof and the reservation decide that,
+and they are checked again at the moment of capture.
+
+| Step | PayPal call | What DealTwin checks first |
+|---|---|---|
+| **Request** the deposit | Create an AUTHORIZE order. `reference_id` is the commitment id, `custom_id` is the proof's canonical event hash | The proof matches the deal version and can reserve, and the reservation is live and DealTwin's own. A reused idempotency key with a different request is refused (`IDEMPOTENCY_KEY_REUSED`) |
+| **Authorize** after the buyer approves | Authorize the order | The buyer approved it on PayPal (`PAYPAL_ORDER_NOT_APPROVED` otherwise) |
+| **Capture** | Capture the authorization | The proof can still commit: a stale proof (`PROOF_NOT_CURRENT`), a pending approval (`APPROVAL_REQUIRED`), another version (`PROOF_BINDING_MISMATCH`) or a reservation that ended (`RESERVATION_REQUIRED`) blocks it **before** any PayPal call |
+| **Void** | Void the authorization | Runs when the reservation is released, expires or is cancelled. A captured deposit cannot be voided (`DEPOSIT_ALREADY_CAPTURED`) |
+| **Record cash** | `PAYMENT.CAPTURE.COMPLETED` webhook | PayPal verifies the signature, the capture is known, the amount and currency match exactly, and `custom_id` equals the proof hash. Only then is one ledger inflow posted, keyed by capture id, so a replayed webhook posts nothing |
+
+Every mutating call sends a `PayPal-Request-Id`, so a retry after a timeout cannot act twice.
+
+**Currency.** DealTwin works in rupiah. The adapter assumes PayPal does not settle IDR (not checked
+against PayPal) and charges the deposit in a configured settlement currency at a **fixed demo
+rate**, rounded up: Rp15,000,000 at 163 rupiah per cent is USD 920.25. This is not a market FX quote.
+
+**Status: offline only.** The code is in `lib/dealtwin/payments/`. It has not called PayPal yet,
+not even the sandbox, and it is not wired into the DealTwin runtime, the UI or PostgreSQL; the store
+is in memory. The tests use a deterministic fake provider and an injected `fetch`, so they open no
+socket:
+
+```bash
+npx vitest run tests/dealtwin/payments   # 21 tests: gates, idempotency, void, webhook reconciliation, sandbox client
+```
+
+**Sandbox client.** `PayPalSandboxClient` talks only to `https://api-m.sandbox.paypal.com` and
+refuses any other host. It is off unless all four values below are set. You create the sandbox app
+in the PayPal developer dashboard and fill `.env.local` yourself (git-ignored):
+
+```bash
+# .env.local
+DEALTWIN_PAYPAL_SANDBOX_ENABLED=true
+PAYPAL_CLIENT_ID=...       # sandbox app
+PAYPAL_CLIENT_SECRET=...   # sandbox app
+PAYPAL_WEBHOOK_ID=...      # sandbox webhook subscribed to PAYMENT.CAPTURE.COMPLETED
+```
+
+Like the Nebius client it sets `redirect: 'error'` and caps responses at 64 KB; its timeout is at
+most 10 s. Errors carry a code only, never a response body or a secret.
+
 ---
 
 # Host prototype: Arvanta Distributor Mini ERP

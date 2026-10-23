@@ -1,5 +1,36 @@
 # DealTwin — local execution status
 
+## Current continuation — PayPal edition (offline), 2026-10-23
+
+PayPal branch only (`dealtwin-paypal-edition`, cut from
+`dealtwin-nebius-edition`); the Amazon/Alexa+ submission, its documents and
+its branch are unchanged. Commit `4dade23` adds an offline deposit adapter in
+`lib/dealtwin/payments/`: Orders v2 AUTHORIZE order, authorize, capture or
+void, and `PAYMENT.CAPTURE.COMPLETED` webhook reconciliation into an
+idempotent ledger inflow keyed by capture id.
+
+- Gates run before any PayPal call: request needs a matching proof that can
+  reserve and a live self-reservation; capture needs the proof to still be
+  able to commit (STALE → PROOF_NOT_CURRENT, pending approval →
+  APPROVAL_REQUIRED, other version → PROOF_BINDING_MISMATCH, ended
+  reservation → RESERVATION_REQUIRED).
+- Webhook cash is posted only after provider verification, a known capture,
+  an exact amount and currency match, and `custom_id` equal to the proof's
+  canonical event hash. Replays post nothing.
+- Rupiah is converted at a fixed demo rate (163 rupiah per cent, rounded up;
+  Rp15,000,000 → USD 920.25), assuming PayPal does not settle IDR (not
+  checked). Not a market FX quote.
+- `PayPalSandboxClient` is pinned to `https://api-m.sandbox.paypal.com`, off
+  unless `DEALTWIN_PAYPAL_SANDBOX_ENABLED=true` plus `PAYPAL_CLIENT_ID`,
+  `PAYPAL_CLIENT_SECRET` and `PAYPAL_WEBHOOK_ID`; the owner creates the
+  sandbox app and fills `.env.local`.
+
+Verified locally: `npx vitest run tests/dealtwin/payments` 21/21 (fake
+provider and injected fetch, no socket), `npm run typecheck` clean, eslint
+clean on the new files. Not done: no PayPal call of any kind (sandbox
+included), not wired into the runtime, UI or PostgreSQL (in-memory store),
+nothing pushed.
+
 ## Current continuation — Nebius × NVIDIA edition, 2026-10-23
 
 Nebius branch only (dealtwin-nebius-edition); the Amazon/Alexa+ submission and
