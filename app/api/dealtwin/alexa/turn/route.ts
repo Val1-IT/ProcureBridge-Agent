@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {intentRouterFromEnv} from '../../../../../lib/dealtwin/ai/intent-router';
 import {requireJudgeSession} from '../../../../../lib/server/auth/judge-session';
 import {createMcpConfirmation} from '../../../../../lib/server/auth/mcp-confirmation';
 import {createAlexaTicket,verifyAlexaTicket} from '../../../../../lib/server/dealtwin/alexa-ticket';
@@ -21,7 +22,9 @@ export async function POST(request:Request):Promise<Response>{
   const key=process.env.DEALTWIN_JUDGE_SESSION_SIGNING_KEY??'';
   const endpoint=new URL('/api/dealtwin/mcp',request.url);
   let id=0;
+  const router=intentRouterFromEnv(process.env);
   const result=await runAlexaTurn(turn,{
+   ...(router?{routeIntent:(utterance:string)=>router.route(utterance)}:{}),
    async mcp(method,params){
     const response=await mcp(new Request(endpoint,{method:'POST',body:JSON.stringify({jsonrpc:'2.0',id:++id,method,params}),headers:{
      cookie:request.headers.get('cookie')??'',origin:endpoint.origin,'content-type':'application/json',

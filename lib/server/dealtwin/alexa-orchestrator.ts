@@ -14,7 +14,10 @@ export interface AlexaPorts {
  issueTicket(action:AlexaPendingAction):string;
  verifyTicket(ticket:string):AlexaPendingAction|null;
  newKey?():string;
+ /** Optional Nemotron intent router. It only picks which tool to plan; any failure falls back to the grammar. */
+ routeIntent?(utterance:string):Promise<{intent:AlexaIntent;metadata:{model:string;promptVersion:string}}>;
 }
+export interface RouterNote {source:'nemotron'|'grammar';model?:string;promptVersion?:string;fallbackCode?:string}
 export interface AlexaTurnInput {utterance?:string;conversation?:string;ticket?:string;action?:'confirm'|'cancel'}
 export type Tone='good'|'bad'|'warn'|'info';
 export interface AlexaCard {kind:string;title:string;subtitle?:string;tone:Tone;facts:{label:string;value:string}[]}
@@ -23,6 +26,8 @@ export interface AlexaTurnResult {
  intent:AlexaIntent['kind'];speech:string;card:AlexaCard;
  pending:{ticket:string;tool:ToolName;summary:string}|null;
  conversation:string;trace:TraceEntry[];
+ /** Present only when a router port is configured: who chose the intent this turn. */
+ router?:RouterNote;
 }
 type Json=Record<string,unknown>;
 const obj=(value:unknown):Json=>value&&typeof value==='object'&&!Array.isArray(value)?value as Json:{};
@@ -67,9 +72,25 @@ export function describeTerms(terms:unknown):{facts:Fact[];spoken:string}|null{
   {label:'Supplier costs',value:displayRupiah(cost.toString())},{label:'Accepted on',value:String(t.acceptedDate??'—')}];
  return {facts,spoken:`It is ${spokenRupiah(revenue.toString())}, with a ${percent(deposit.basisPoints)} deposit and the balance due in ${days} days, against ${spokenRupiah(cost.toString())} of supplier costs.`};
 }
+/** One constraint row (draft or confirmed) in plain words, for read-back before a human confirms it. */
+export function describeConstraint(row:unknown):string{
+ const c=obj(row),v=c.value,value=obj(v);
+ switch(c.kind){
+  case 'customer_deposit_min_bps':return `deposit at least ${percent(v)}`;
+  case 'customer_deposit_max_bps':return `deposit at most ${percent(v)}`;
+  case 'customer_balance_due_days':return `balance due within ${String(v)} days`;
+  case 'supplier_payment_due_days':return `supplier paid no sooner than ${String(v)} days`;
+  case 'protect_existing_supplier_due_dates':return 'existing supplier due dates stay as they are';
+  case 'new_borrowing_allowed':return v===false?'no new borrowing':'new borrowing allowed';
+  case 'minimum_cash_rupiah':return `keep at least ${spokenRupiah(v)} in cash`;
+  case 'required_inventory_available':return `${String(value.quantity)} units of ${String(value.productId)} available in ${String(value.warehouseId)}`;
+  case 'required_approval':return `approval ${String(value.approvalCode)} required`;
+  default:return String(c.kind??'unknown constraint').replaceAll('_',' ');
+ }
+}
 function pendingApprovals(proof:Json){return arr(proof.approvals).map(obj).filter(row=>row.status==='pending').length;}
 function errorCode(result:DealTwinToolResult):string|undefined{return str(obj(obj(result.data).error).code);}
-interface DealView {dealId:string;revision:number;currentVersionId:string;currentVersion:number;committed:boolean;proofs:Json[];currentProof?:Json;terms:unknown}
+interface DealView {dealId:string;revision:number;currentVersionId:string;currentVersion:number;committed:boolean;proofs:Json[];currentProof?:Json;terms:unknown;constraints:Json[]}
 function latest(rows:Json[]):Json|undefined{return [...rows].sort((l,r)=>String(l.generatedAt).localeCompare(String(r.generatedAt))).at(-1);}
 
 export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promise<AlexaTurnResult>{
@@ -77,8 +98,30 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
  let conversation:ConversationState=initialConversation;
  if(input.conversation){try{conversation=deserializeConversation(input.conversation);}catch{conversation=initialConversation;}}
  const newKey=ports.newKey??(()=>'alexa-'+randomUUID());
+ let router:RouterNote|undefined;
  const done=(intent:AlexaIntent['kind'],speech:string,card:AlexaCard,pending:AlexaTurnResult['pending']=null):AlexaTurnResult=>
-  ({intent,speech,card,pending,conversation:serializeConversation(conversation),trace});
+  ({intent,speech,card,pending,conversation:serializeConversation(conversation),trace,...(router?{router}:{})});
+
+ /** Grammar first for anything that answers or quotes: yes/no, "Terms: …" and "confirm the constraints"
+  * stay deterministic. Nemotron routes the rest; if it fails or shrugs, the grammar's choice stands. */
+ async function chooseIntent(utterance:string):Promise<AlexaIntent>{
+  const grammar=parseIntent(utterance);
+  if(!ports.routeIntent||['confirm','cancel','constraints','confirm_constraints'].includes(grammar.kind))return grammar;
+  try{
+   const routed=await ports.routeIntent(utterance);
+   trace.push({method:'intent/route',httpStatus:200});
+   if(routed.intent.kind==='confirm'||routed.intent.kind==='cancel'||(routed.intent.kind==='unknown'&&grammar.kind!=='unknown')){
+    router={source:'grammar',model:routed.metadata.model,fallbackCode:'ROUTE_DEFERRED_TO_GRAMMAR'};return grammar;
+   }
+   router={source:'nemotron',model:routed.metadata.model,promptVersion:routed.metadata.promptVersion};
+   return routed.intent;
+  }catch(error){
+   const failure=obj(error),code=str(failure.code)??'AI_PROVIDER_UNAVAILABLE',status=typeof failure.httpStatus==='number'?failure.httpStatus:502;
+   trace.push({method:'intent/route',httpStatus:status,code});
+   router={source:'grammar',fallbackCode:code};
+   return grammar;
+  }
+ }
 
  async function rpc(method:string,params:unknown){
   const {status,body}=await ports.mcp(method,params);const envelope=obj(body),error=obj(envelope.error);
@@ -106,14 +149,14 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
   const data=obj(result.data),current=obj(data.currentVersion),proofs=arr(data.proofs).map(obj);
   const currentVersionId=String(current.id);
   return {dealId,revision:Number(data.revision),currentVersionId,currentVersion:Number(current.version??1),committed:!!str(obj(data.deal).committedSalesOrderId),
-   terms:current.terms,proofs,currentProof:latest(proofs.filter(row=>row.dealVersionId===currentVersionId))};
+   terms:current.terms,constraints:arr(data.constraints).map(obj),proofs,currentProof:latest(proofs.filter(row=>row.dealVersionId===currentVersionId))};
  }
  async function prepare(name:ToolName,fields:Json,revision:number,summary:string,intent:AlexaIntent['kind'],context?:{spoken:string;facts:Fact[]}|null):Promise<AlexaTurnResult>{
   const action:AlexaPendingAction={tool:name,input:{...fields,expectedRevision:revision,idempotencyKey:newKey()}};
   const result=await tool(name,{mode:'prepare',input:action.input});
   if(!result.prepared)return refusal(intent,errorCode(result)??'PREPARE_REJECTED');
   // Every tool call below writes something, so every one asks first; the words say what.
-  const effect=erpWriters.has(name)?'That changes your synthetic ERP':'I will record the run as audit evidence';
+  const effect=toolEffect[name]??(erpWriters.has(name)?'That changes your synthetic ERP':'I will record the run as audit evidence');
   return done(intent,(context?context.spoken+' ':'')+`I'll ${summary}. ${effect}. Shall I go ahead?`,
    {kind:'confirm',title:'Waiting for your confirmation',subtitle:'Prepared over MCP — nothing has executed yet',tone:'info',
     facts:[...(context?.facts??[]),{label:'Tool',value:name},{label:'Expected revision',value:String(revision)},{label:'Grant',value:'Minted server-side only after you say yes'}]},
@@ -126,7 +169,7 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
 
  try{
   // Confirmation path: a human said yes (button or voice) to a signed, actor-bound prepared action.
-  const intent:AlexaIntent=input.action==='confirm'?{kind:'confirm'}:input.action==='cancel'?{kind:'cancel'}:parseIntent(input.utterance??'');
+  const intent:AlexaIntent=input.action==='confirm'?{kind:'confirm'}:input.action==='cancel'?{kind:'cancel'}:await chooseIntent(input.utterance??'');
   if(intent.kind==='confirm'||intent.kind==='cancel'){
    const action=input.ticket?ports.verifyTicket(input.ticket):null;
    if(intent.kind==='cancel')return done('cancel',action?'Okay, cancelled. Nothing was written.':'Okay.',{kind:'cancelled',title:'Cancelled',tone:'info',facts:[]});
@@ -202,6 +245,23 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
     if(!proof)return done('replay',`${cap(dealLabel(view.dealId))} has no proof to replay yet.`,{kind:'status',title:'No proof',tone:'warn',facts:[]});
     return prepare('replay_proof',{proofId:String(proof.id)},view.revision,`replay the original ${dealLabel(view.dealId)} proof from its frozen inputs`,'replay');
    }
+   case 'constraints':{
+    const view=await readDeal(intent.deal);
+    if(view.committed)return done('constraints',`${cap(dealLabel(view.dealId))} is already booked, so its terms are locked. Nothing was sent.`,{kind:'status',title:'Deal already committed',tone:'warn',facts:[]});
+    return prepare('extract_constraints',{dealId:view.dealId,dealVersionId:view.currentVersionId,text:intent.text},view.revision,
+     `ask Nemotron to turn that into draft constraints for ${dealLabel(view.dealId)}, version ${view.currentVersion}`,'constraints',
+     {spoken:`I heard: ${intent.text}`,facts:[{label:'Your words',value:intent.text}]});
+   }
+   case 'confirm_constraints':{
+    const view=await readDeal(intent.deal);
+    const drafts=view.constraints.filter(row=>row.resolution==='pending_confirmation');
+    if(!drafts.length)return done('confirm_constraints',`${cap(dealLabel(view.dealId))} has no proposed constraints waiting for you. Tell me the terms first, for example: terms for deal A: deposit at least 30%.`,
+     {kind:'status',title:'Nothing to confirm',tone:'info',facts:[]});
+    // Confirmation covers the whole set on this version, so read every draft back before asking.
+    return prepare('confirm_constraints',{dealId:view.dealId,dealVersionId:view.currentVersionId,constraintIds:view.constraints.map(row=>String(row.id))},view.revision,
+     `confirm ${drafts.length===1?'that constraint':`those ${drafts.length} constraints`} as your own terms for ${dealLabel(view.dealId)}`,'confirm_constraints',
+     {spoken:`The proposed ${drafts.length===1?'constraint is':'constraints are'}: ${drafts.map(describeConstraint).join('; ')}.`,facts:drafts.map((row,index)=>({label:`Draft ${index+1}`,value:describeConstraint(row)}))});
+   }
    case 'supplier_increase':{
     const result=await tool('list_deals',{});const revision=Number(obj(result.data).revision);
     return prepare('mutate_judge_obligation',{invoiceId:'judge-existing-ap',amountRupiah:'19000000'},revision,'record the supplier invoice increase to 19 million rupiah','supplier_increase');
@@ -215,6 +275,12 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
 
  function speakExecution(action:AlexaPendingAction,result:DealTwinToolResult):AlexaTurnResult{
   const code=errorCode(result);
+  if(action.tool==='extract_constraints'&&code==='MISSING_COMMERCIAL_INFORMATION'){
+   // Nemotron asked instead of guessing; nothing was stored.
+   const missing=arr(obj(result.data).missingFields).map(String).slice(0,4);
+   return done('confirm',`I need more detail before I can draft constraints. `+(missing.length?`Missing: ${missing.join('; ')}`.replace(/[^.?!]$/,'$&.'):'')+' Nothing was saved.',
+    {kind:'clarify',title:'More information needed',subtitle:'No constraint was drafted',tone:'warn',facts:missing.map((value,index)=>({label:`Question ${index+1}`,value}))});
+  }
   if(result.httpStatus<200||result.httpStatus>=300)return refusal('confirm',code??'TOOL_FAILED');
   const data=obj(result.data),proof=obj(data.proof),deal=dealLabel(str(data.dealId)??str(action.input.dealId));
   switch(action.tool){
@@ -262,13 +328,33 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
      {kind:'replay',title:'Historical proof reproduced',tone:'good',facts:[{label:'Current status',value:String(data.currentStatus)},{label:'Proof hash',value:String(data.proofHash??'').slice(0,16)+'…'},
       ...(historical.resultHash?[{label:'Result hash match',value:String(historical.resultHash===historical.recomputedResultHash||historical.recomputedResultHash===undefined)}]:[])]});
    }
+   case 'extract_constraints':{
+    const drafts=arr(data.candidates),model=String(obj(data.metadata).model??'Nemotron');
+    return done('confirm',`Nemotron proposed ${drafts.length} ${drafts.length===1?'constraint':'constraints'} for ${deal}: ${drafts.map(describeConstraint).join('; ')}. They are drafts only. Say "confirm the constraints" to make them yours, then ask me to check the deal.`,
+     {kind:'constraints',title:'Draft constraints — not yet authoritative',subtitle:`${cap(deal)} · version ${String(data.version??'—')}`,tone:'info',
+      facts:[...drafts.map((row,index)=>({label:`Draft ${index+1}`,value:`${describeConstraint(row)} — “${String(obj(row).sourceText??'')}”`})),{label:'Model',value:model},{label:'Prompt',value:String(obj(data.metadata).promptVersion??'—')}]});
+   }
+   case 'confirm_constraints':{
+    const rows=arr(data.constraints);
+    return done('confirm',`Confirmed. ${cap(deal)} version ${String(data.version)} now carries ${rows.length} confirmed ${rows.length===1?'constraint':'constraints'}. Ask me whether you can accept it.`,
+     {kind:'constraints',title:'Constraints confirmed',subtitle:`${cap(deal)} · version ${String(data.version??'—')}`,tone:'good',facts:rows.map((row,index)=>({label:`Constraint ${index+1}`,value:describeConstraint(row)}))});
+   }
    default:return done('confirm','Done.',{kind:'done',title:'Done',tone:'good',facts:[]});
   }
  }
 }
 export class AlexaRefusal extends Error {constructor(readonly code:string){super(code);}}
 const erpWriters=new Set<ToolName>(['reserve_liquidity','commit_deal','mutate_judge_obligation','recompile_deal']);
+const toolEffect:Partial<Record<ToolName,string>>={
+ extract_constraints:'Your words go to Nemotron on Nebius, and anything it proposes is saved only as an unconfirmed draft',
+ confirm_constraints:'That saves a new deal version; the drafts stay on record as AI-proposed',
+};
 const refusalSpeech:Record<string,string>={
+ MATERIAL_CONFIRMATION_REQUIRED:'This deal still has proposed constraints nobody confirmed. Say: confirm the constraints, or cancel and start over.',
+ AI_OUTPUT_INVALID:"Nemotron's answer did not pass validation, so I discarded it. Nothing was saved.",
+ AI_REFERENCE_INVALID:'Nemotron referred to a product or warehouse your ERP does not have, so I discarded it. Nothing was saved.',
+ AI_PROVIDER_UNAVAILABLE:'Nemotron did not answer, so nothing was drafted. Try again in a moment.',
+ AI_PROVIDER_TIMEOUT:'Nemotron took too long, so I stopped. Nothing was drafted.',
  APPROVAL_REQUIRED:"Not yet. This proof includes terms that need a finance approver's sign-off, and I'm not allowed to approve my own deal. Once the approver signs off, say commit again.",
  LIQUIDITY_COLLISION:'Blocked. That cash is already committed to another deal. Reserving it twice would double-spend your runway, so nothing was written.',
  REVISION_CONFLICT:'The books changed since I prepared that, so I stopped. Ask again and I will use the latest state.',

@@ -6,7 +6,8 @@ export type AlexaIntent=
  |{kind:'launch'}|{kind:'help'}|{kind:'list'}|{kind:'timeline'}|{kind:'confirm'}|{kind:'cancel'}|{kind:'unknown'}
  |{kind:'status';deal:DealRef}|{kind:'compile';deal:DealRef}|{kind:'amend';deal:DealRef}|{kind:'proof';deal:DealRef}
  |{kind:'stress';deal:DealRef;days:number}|{kind:'reserve';deal:DealRef}|{kind:'commit';deal:DealRef}|{kind:'replay';deal:DealRef}
- |{kind:'supplier_increase'};
+ |{kind:'supplier_increase'}
+ |{kind:'constraints';deal:DealRef;text:string}|{kind:'confirm_constraints';deal:DealRef};
 const numberWords:Record<string,number>={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,fourteen:14,fifteen:15,thirty:30};
 export function normalizeUtterance(value:string):string{
  return value.normalize('NFKC').toLowerCase().replace(/^\s*(hey\s+)?alexa[,!.]?\s*/,'').replace(/[^a-z0-9%.\s'-]/g,' ').replace(/\s+/g,' ').trim();
@@ -22,9 +23,21 @@ function delayDays(text:string):number{
  const value=numberWords[match[1]!]??Number(match[1]);
  return Number.isSafeInteger(value)&&value>=1&&value<=30?value:3;
 }
+/** "Terms for deal A: deposit at least 30%, no borrowing" → the words after the
+ * colon, verbatim. Normalizing would drop "Rp", commas and decimal separators the
+ * extractor must quote back exactly, so this reads the raw utterance. */
+function constraintText(raw:string):{deal:DealRef;text:string}|null{
+ const body=raw.normalize('NFKC').replace(/^\s*(hey\s+)?alexa[,!.]?\s*/i,'');
+ const match=/^((?:(?:please\s+)?(?:extract|set|add|use|new|the)\s+)?(?:deal\s+)?(?:terms|constraints|conditions)\b[^:]{0,40}|for\s+(?:deal|order)\s*\w+)\s*:\s*(\S[\s\S]*)$/i.exec(body);
+ if(!match)return null;
+ return {deal:parseDealRef(normalizeUtterance(match[1]!)),text:match[2]!.trim()};
+}
 export function parseIntent(raw:string):AlexaIntent{
  const text=normalizeUtterance(raw);const deal=parseDealRef(text);
  if(!text)return {kind:'unknown'};
+ // Before yes/no: "confirm the constraints" names what is confirmed and is not a reply to a pending action.
+ const stated=constraintText(raw);if(stated)return {kind:'constraints',...stated};
+ if(/^(confirm|accept|approve|keep|use) (the |these |those |all |all the )?(proposed |extracted |suggested )?(constraints|conditions)\b/.test(text))return {kind:'confirm_constraints',deal};
  if(/^(yes|yeah|yep|confirm(ed)?|do it|go ahead|proceed|sure|ok(ay)?|approved?)\b/.test(text))return {kind:'confirm'};
  if(/^(no|nope|cancel|stop|never ?mind|don'?t|abort)\b/.test(text))return {kind:'cancel'};
  if(/\b(open|launch|start|connect)\b.*\b(deal ?twin)\b|^deal ?twin$/.test(text))return {kind:'launch'};

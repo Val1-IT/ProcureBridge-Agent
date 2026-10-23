@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage",
     "security:client": "node scripts/dealtwin/check-client-artifacts.mjs dist/client",
     "benchmark:dealtwin": "node node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/cli.ts --",
+    "eval:nebius": "node --env-file-if-exists=.env.local node_modules/vite-node/vite-node.mjs --config vitest.config.ts evaluation/dealtwin/nebius/run-nebius-eval.ts --",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "deps:patch": "node scripts/security/apply-braces-patch.mjs",

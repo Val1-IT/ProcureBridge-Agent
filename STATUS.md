@@ -28,7 +28,8 @@ Windows/PostgreSQL 15 on 127.0.0.1:55632: `tests/dealtwin` **829/829** (one
 rerun alone), typecheck, lint on changed paths, Judge build pass; browser smoke
 via admin launch link over http://127.0.0.1:4177 reached the Sept 22 / Rp 3M
 verdict. Not done: real Alexa device/skill, video, push, license/visibility,
-Devpost form. Live Nebius extraction remains disabled and unmeasured.
+Devpost form. Live Nebius extraction remains disabled and unmeasured; the
+offline Nebius edition (front door, router, eval) is on branch dealtwin-nebius-edition.
 
 ## Current continuation — dependency remediation, 2026-10-18
 
@@ -280,7 +281,7 @@ Deployment reality: existing vinext/Cloudflare/Sites scaffold and SQLite/Drizzle
 | Monitor → STALE → Recompile | **PARTIAL** | Task22 allowlisted source-chain AP19m mutation automatically stales proof, durable committed27%proposal retains originalSO/capacity, signed reserved replacement atomic/retry-safe. UI/browser journey remainsTask23-24 |
 | Server-backed Judge / three clean runs | **PARTIAL** | Reset/state/session/refresh via new runtime instances persist; complete Judge browser journey and three consecutive clean runs not yet present |
 | Amazon Alexa+/MCP edition | **PARTIAL (private local MCP)** | Task26 strict17tools/session/grant/state/JSON transport,33MCP tests and privateHTTP8checksPASS; publicAlexa/OAuth/client/account/submission evidence NOT RUN |
-| Nebius × NVIDIA edition | **MISSING** | No provider adapter/live multi-step evidence; sponsor credentials/access not yet established |
+| Nebius × NVIDIA edition | **PARTIAL (offline built, live NOT RUN)** | Branch dealtwin-nebius-edition: conversational constraints front door (draft→read back→confirm), Nemotron intent router with grammar fallback, 32-case EN/ID extraction eval (offline harness 32/32) and fake-provider tests. Live Nemotron run, accuracy numbers, video and Devpost form NOT RUN; operator supplies the key |
 | PayPal sandbox edition | **MISSING** | No authorize/condition/capture/verified-webhook/reconciliation adapter or live sandbox evidence |
 
 ## Immediate execution

@@ -206,8 +206,11 @@ simulated Alexa+) and label the voice as simulated Alexa+.
 ## 3. Later editions (same core, same repo)
 
 - **Nebius (Oct 30):** front door = natural-language deal → `extract_constraints` (Nemotron on
-  Nebius Token Factory) → the same compiler. Needs one approved paid live run and a measured
-  extraction-accuracy table against the existing oracle; until then LLM accuracy is NOT_MEASURED.
+  Nebius Token Factory) → the same compiler. Built offline on branch `dealtwin-nebius-edition`:
+  spoken/typed terms are drafted, read back and confirmed before compile, a Nemotron intent router
+  picks the MCP tool (grammar fallback), and a 32-case EN/ID eval runs via `npm run eval:nebius`.
+  Needs one operator-run live eval; until then LLM accuracy is NOT_MEASURED. Form draft:
+  `docs/dealtwin/DEVPOST-NEBIUS-FORM.md`.
 - **PayPal (Nov 12):** front door = payment execution that may only run what a valid proof and
   reservation already allow (deposit request on commit, release on cancel), sandbox only.
 

@@ -26,7 +26,10 @@ Vitest UI, model-controlled tenant/role or browser-storage authority is allowed.
 Server-only environment: DATABASE_URL (application login), DATABASE_SSL_MODE,
 DEALTWIN_JUDGE_RESET_DATABASE_URL (distinct reset login), and
 DEALTWIN_JUDGE_SESSION_SIGNING_KEY (at least32bytes). NEBIUS_API_KEY is optional
-and must not activate live calls without separate authorization. Never prefix
+and must not activate live calls without separate authorization. Live Nemotron
+needs all of NEBIUS_API_KEY, NEBIUS_MODEL (a Nemotron model id) and
+DEALTWIN_NEBIUS_LIVE_ENABLED=true; the intent router additionally needs
+DEALTWIN_NEBIUS_ROUTER_ENABLED=true (optional NEBIUS_ROUTER_MODEL). Never prefix
 credentials with NEXT_PUBLIC_, put them in client HTML or log connection URLs.
 Keep actual values in operator-controlled secret storage, not committed files.
 
