@@ -25,7 +25,7 @@ describe('Token Factory exact endpoint contract',()=>{
   expect(fetcher).toHaveBeenCalledTimes(1);
   const [url,request]=fetcher.mock.calls[0];
   expect(url).toBe(endpoint);expect(request).toMatchObject({method:'POST',redirect:'error'});
-  expect(JSON.parse(String(request?.body))).toMatchObject({model,max_tokens:2048,stream:false,response_format:{type:'json_object'}});
+  expect(JSON.parse(String(request?.body))).toMatchObject({model,max_tokens:2048,stream:false,response_format:{type:'json_object'},chat_template_kwargs:{enable_thinking:false}});
   expect(result).toEqual({content,model,provider:'nebius'});
  });
  it.each([

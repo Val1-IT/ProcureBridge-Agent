@@ -1,5 +1,7 @@
 import {ExtractionError,type ConstraintProvider,type ProviderReply} from './constraint-extractor';
 const endpointUrl='https://api.tokenfactory.nebius.com/v1/chat/completions';
+/** Sent as chat_template_kwargs.enable_thinking; exported so eval reports record it. */
+export const NEMOTRON_THINKING=false;
 export interface NemotronClientOptions {apiKey:string;model:string;enabled:boolean;fetcher?:typeof fetch;timeoutMs?:number;responseBytes?:number;endpoint?:string}
 export class NemotronClient implements ConstraintProvider {
  constructor(private readonly options:NemotronClientOptions){}
@@ -11,8 +13,14 @@ export class NemotronClient implements ConstraintProvider {
    ||!Number.isSafeInteger(timeout)||timeout<1||timeout>5000||!Number.isSafeInteger(limit)||limit<1||limit>65536)throw new ExtractionError('INVALID_PROVIDER_CONFIG',503);
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);
   try{
+   // Nemotron 3 Super reasons before answering by default (about 375 tokens a
+   // call), and the JSON answer does not need it. With thinking off, a
+   // diagnostic call on 2026-10-23 used no reasoning tokens and returned in
+   // 1460 ms. Only nvidia/nemotron-3-super-120b-a12b has been checked: an id
+   // that ignores the kwarg still reasons, and one that rejects it fails as
+   // AI_PROVIDER_UNAVAILABLE.
    const response=await (options.fetcher??fetch)(endpoint,{method:'POST',redirect:'error',headers:{authorization:'Bearer '+options.apiKey,'content-type':'application/json'},signal:controller.signal,
-    body:JSON.stringify({model:options.model,messages:[{role:'system',content:input.system},{role:'user',content:input.user}],temperature:0,response_format:{type:'json_object'},max_tokens:2048,stream:false})});
+    body:JSON.stringify({model:options.model,messages:[{role:'system',content:input.system},{role:'user',content:input.user}],temperature:0,response_format:{type:'json_object'},max_tokens:2048,stream:false,chat_template_kwargs:{enable_thinking:NEMOTRON_THINKING}})});
    if(!response.ok)throw new ExtractionError('AI_PROVIDER_UNAVAILABLE',503);
    const reader=response.body?.getReader();if(!reader)throw new ExtractionError('AI_OUTPUT_INVALID');
    const chunks:Uint8Array[]=[];let bytes=0;

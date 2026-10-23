@@ -4,6 +4,7 @@ import {extractionCases} from '../../../evaluation/dealtwin/nebius/extraction-ca
 import {oracleProvider,runExtractionEval} from '../../../evaluation/dealtwin/nebius/extraction-eval';
 import {scoreCase,summarize} from '../../../evaluation/dealtwin/nebius/score';
 import {SYSTEM_PROMPT} from '../../../lib/dealtwin/ai/prompt';
+import {NEMOTRON_THINKING} from '../../../lib/dealtwin/ai/nemotron-client';
 const fixture=(id:string)=>extractionCases.find(row=>row.id===id)!;
 const reply=(body:object)=>new NemotronConstraintExtractor({complete:async()=>({provider:'fake',model:'fake-nemotron',content:JSON.stringify({schemaVersion:'dealtwin.constraint-extraction.v1',...body})})});
 let tick=0;const clock=()=>(tick+=10);
@@ -22,7 +23,7 @@ describe('Nebius extraction eval corpus',()=>{
   const report=await runExtractionEval(new NemotronConstraintExtractor(oracleProvider()),{mode:'offline-oracle',clock});
   expect(report.cases.filter(row=>!row.pass)).toEqual([]);
   expect(report.summary).toMatchObject({cases:extractionCases.length,passed:extractionCases.length,passRate:1,precision:1,recall:1,unsafeAccepts:0,failedClosed:0});
-  expect(report).toMatchObject({mode:'offline-oracle',provider:'offline-oracle',model:'label-oracle-v1',promptVersion:'dealtwin.constraints.prompt.v3'});
+  expect(report).toMatchObject({mode:'offline-oracle',provider:'offline-oracle',model:'label-oracle-v1',promptVersion:'dealtwin.constraints.prompt.v3',thinking:null});
  });
 });
 describe('Nebius extraction scoring',()=>{
@@ -52,6 +53,10 @@ describe('Nebius extraction runner',()=>{
  it('records malformed model output as failed closed',async()=>{
   const report=await runExtractionEval(reply({candidates:[{kind:'customer_deposit_min_bps',value:2500,sourceText:'not in the text'}],missingFields:[]}),{mode:'live',cases:[fixture('deposit-min-en')],clock});
   expect(report.cases[0]).toMatchObject({status:'refused',errorCode:'AI_OUTPUT_INVALID',pass:false});
+ });
+ it('records the thinking setting the live client sends',async()=>{
+  const report=await runExtractionEval(reply({candidates:[],missingFields:['which term?']}),{mode:'live',cases:[fixture('noise-en')],thinking:NEMOTRON_THINKING,clock});
+  expect(report.thinking).toBe(false);
  });
  it('aborts instead of scoring an unauthorized provider as safe',async()=>{
   const extractor={extract:async()=>{throw new ExtractionError('LIVE_PROVIDER_NOT_AUTHORIZED',503);}};
