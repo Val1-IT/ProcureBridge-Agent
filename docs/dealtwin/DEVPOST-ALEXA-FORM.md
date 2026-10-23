@@ -11,8 +11,8 @@ Deadline: **Oct 23, 2026, 12:00 PDT (19:00 UTC)**.
 2. Make https://github.com/Val1-IT/ProcureBridge-Agent public. The MIT `LICENSE` is already in
    the repo.
 3. Upload `.cache/demo/dealtwin-demo.webm` (2:54, 1080p) to YouTube as **Public** or
-   **Unlisted** (the rules say public), in English. Put the link wherever `<VIDEO_URL>` appears
-   below.
+   **Unlisted** (the rules say public), in English. Uploaded as Public:
+   https://youtu.be/iazfvCbdpqo.
 
 ---
 
@@ -77,7 +77,7 @@ https://github.com/Val1-IT/ProcureBridge-Agent/tree/dealtwin-alexa-submission
 
 ## Video demo link
 
-<VIDEO_URL>
+https://youtu.be/iazfvCbdpqo
 
 ## Track and mini challenges
 
