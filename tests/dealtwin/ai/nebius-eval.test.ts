@@ -3,6 +3,7 @@ import {NemotronConstraintExtractor,ExtractionError} from '../../../lib/dealtwin
 import {extractionCases} from '../../../evaluation/dealtwin/nebius/extraction-cases';
 import {oracleProvider,runExtractionEval} from '../../../evaluation/dealtwin/nebius/extraction-eval';
 import {scoreCase,summarize} from '../../../evaluation/dealtwin/nebius/score';
+import {SYSTEM_PROMPT} from '../../../lib/dealtwin/ai/prompt';
 const fixture=(id:string)=>extractionCases.find(row=>row.id===id)!;
 const reply=(body:object)=>new NemotronConstraintExtractor({complete:async()=>({provider:'fake',model:'fake-nemotron',content:JSON.stringify({schemaVersion:'dealtwin.constraint-extraction.v1',...body})})});
 let tick=0;const clock=()=>(tick+=10);
@@ -14,11 +15,14 @@ describe('Nebius extraction eval corpus',()=>{
   expect(extractionCases.filter(row=>row.expect==='clarify').length).toBeGreaterThanOrEqual(6);
   expect(extractionCases.filter(row=>row.tags.includes('injection')).length).toBeGreaterThanOrEqual(3);
  });
+ it('keeps case text out of the system prompt so the score measures generalisation',()=>{
+  for(const row of extractionCases)expect(SYSTEM_PROMPT).not.toContain(row.text);
+ });
  it('every label is a valid candidate the production extractor accepts',async()=>{
   const report=await runExtractionEval(new NemotronConstraintExtractor(oracleProvider()),{mode:'offline-oracle',clock});
   expect(report.cases.filter(row=>!row.pass)).toEqual([]);
   expect(report.summary).toMatchObject({cases:extractionCases.length,passed:extractionCases.length,passRate:1,precision:1,recall:1,unsafeAccepts:0,failedClosed:0});
-  expect(report).toMatchObject({mode:'offline-oracle',provider:'offline-oracle',model:'label-oracle-v1',promptVersion:'dealtwin.constraints.prompt.v2'});
+  expect(report).toMatchObject({mode:'offline-oracle',provider:'offline-oracle',model:'label-oracle-v1',promptVersion:'dealtwin.constraints.prompt.v3'});
  });
 });
 describe('Nebius extraction scoring',()=>{
@@ -40,7 +44,7 @@ describe('Nebius extraction scoring',()=>{
  it('summarizes precision, recall and latency percentiles',()=>{
   const scores=[scoreCase(fixture('deposit-min-en'),{id:'deposit-min-en',status:'extracted',candidates:[{kind:'customer_deposit_min_bps',value:2500}],missingFields:[],latencyMs:100}),
    scoreCase(fixture('noise-en'),{id:'noise-en',status:'refused',candidates:[],missingFields:[],errorCode:'AI_OUTPUT_INVALID',latencyMs:300})];
-  expect(summarize(scores)).toEqual({cases:2,passed:2,passRate:1,precision:1,recall:1,clarifyCases:1,clarifyCorrect:1,unsafeAccepts:0,failedClosed:1,latencyP50Ms:100,latencyP95Ms:300});
+  expect(summarize(scores)).toEqual({cases:2,passed:2,passRate:1,precision:1,recall:1,clarifyCases:1,clarifyCorrect:1,clarifyByModel:0,unsafeAccepts:0,failedClosed:1,latencyP50Ms:100,latencyP95Ms:300});
   expect(summarize([])).toMatchObject({precision:null,recall:null,latencyP50Ms:null});
  });
 });

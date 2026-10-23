@@ -11,7 +11,7 @@ describe('non-authoritative commercial extraction',()=>{
  it('normalizes nuanced text, retains prior policy and requires explicit confirmation',async()=>{
   const before=structuredClone(input);const result=await new NemotronConstraintExtractor(provider(output)).extract(input);
   expect(result.candidates).toMatchObject([{kind:'customer_deposit_min_bps',operator:'gte',value:2500,provenance:'ai_extracted',resolution:'pending_confirmation',sourceText:'Deposit minimum 25%'},{kind:'customer_balance_due_days',operator:'lte',value:12}]);
-  expect(result.metadata).toMatchObject({provider:'fixture',model:'synthetic-nemotron',promptVersion:'dealtwin.constraints.prompt.v2'});
+  expect(result.metadata).toMatchObject({provider:'fixture',model:'synthetic-nemotron',promptVersion:'dealtwin.constraints.prompt.v3'});
   expect(input).toEqual(before);
  });
  it('returns missing information without inventing values or a financial verdict',async()=>{
@@ -70,6 +70,7 @@ describe('bounded server-only Nebius compatible client',()=>{
   // Record<ConstraintKind,…> makes typecheck fail if a kind is added without updating the prompt.
   const kinds:Record<ConstraintKind,true>={customer_deposit_min_bps:true,customer_deposit_max_bps:true,customer_balance_due_days:true,supplier_payment_due_days:true,protect_existing_supplier_due_dates:true,new_borrowing_allowed:true,minimum_cash_rupiah:true,required_inventory_available:true,required_approval:true};
   for(const kind of Object.keys(kinds))expect(SYSTEM_PROMPT).toContain(kind);
-  expect(SYSTEM_PROMPT).toContain('25% is 2500');expect(PROMPT_VERSION).toBe('dealtwin.constraints.prompt.v2');
+  expect(SYSTEM_PROMPT).toContain('17% is 1700');expect(SYSTEM_PROMPT).toContain('fixed payer and a fixed direction');expect(SYSTEM_PROMPT).toContain('upper bound on when we pay a supplier');expect(SYSTEM_PROMPT).toContain('Days are counted from deal acceptance when the text names no other start');
+  expect(SYSTEM_PROMPT).toContain('selambat-lambatnya');expect(SYSTEM_PROMPT).toContain('do not ask who pays');expect(SYSTEM_PROMPT).toContain('drop it silently');expect(SYSTEM_PROMPT).toContain('needs no question');expect(SYSTEM_PROMPT).toContain('if nothing new remains');expect(PROMPT_VERSION).toBe('dealtwin.constraints.prompt.v3');
  });
 });
