@@ -44,7 +44,7 @@ DealTwin is one product. The compiler, proof, ledger and policy live in one shar
 | **Judge Mode web app** (`/dealtwin/judge`) | Working: guided compile → amend → approve → reserve → commit → stale → remediate |
 | **Voice assistant** (`/dealtwin/alexa`) | Working simulator: Alexa+-style multi-turn conversation over the real MCP server, browser speech in/out. Not a certified Alexa skill |
 | **Any MCP client / agent** | Working: Streamable HTTP JSON-RPC, prepare/execute with server-minted grants |
-| **Plain-language deals with NVIDIA Nemotron on Nebius** (`extract_constraints`, intent router) | Built and tested offline with fake providers; the live call stays off until an operator sets a key and switches it on. Two early live extraction runs (older prompts) are recorded; the current code (prompt v3, reasoning off) is not measured yet (see [below](#nebius--nvidia-edition-nemotron-as-the-front-door-never-the-judge)) |
+| **Plain-language deals with NVIDIA Nemotron on Nebius** (`extract_constraints`, intent router) | Built and tested offline with fake providers; the live call stays off until an operator sets a key and switches it on. Three live extraction runs are recorded; the current code (prompt v3, reasoning off) passed 28 of the 32 cases its prompt was tuned on, with 1 unsafe accept (see [below](#nebius--nvidia-edition-nemotron-as-the-front-door-never-the-judge)) |
 | **Payment execution rail** | Planned; DealTwin never moves money today |
 
 Everything runs on **synthetic data** for one sandbox distributor in IDR. No bank, no real
@@ -99,8 +99,8 @@ npm run judge:test          # Playwright journeys against the production build
 ```
 
 Honest limits: single tenant, single currency, synthetic data; the voice surface is a browser
-simulator, not a published Alexa skill; live LLM extraction has only two early runs with older
-prompts and the current code is not measured (see the Nebius section below); dependency audit
+simulator, not a published Alexa skill; live LLM extraction of the current code has one run, on one
+model id, scored on the 32 cases its prompt was tuned on (see the Nebius section below); dependency audit
 findings are tracked in [docs/dealtwin](docs/dealtwin/DEPENDENCY-AUDIT-20261018.md). Locked
 scope: [product spec](docs/dealtwin/LOCKED_PRODUCT_SPEC.md) ·
 [verification](docs/dealtwin/VERIFICATION.md) · [deployment boundary](docs/dealtwin/DEPLOYMENT.md).
@@ -146,8 +146,9 @@ JSON mode, reasoning switched off (`chat_template_kwargs: {"enable_thinking": fa
 timeout (3 s for routing) and a 64 KB response cap. Without the flags, extraction returns
 `LIVE_PROVIDER_NOT_AUTHORIZED`, routing uses the grammar alone, and nothing leaves the machine.
 
-The reasoning switch has been tried only on `nvidia/nemotron-3-super-120b-a12b`, in one unscored
-diagnostic call. Another Nemotron id in `NEBIUS_MODEL` or `NEBIUS_ROUTER_MODEL` may ignore it and
+The reasoning switch has been used only on `nvidia/nemotron-3-super-120b-a12b`: in one unscored
+diagnostic call and in the v3 eval run below (0 timeouts, slowest call 2,582 ms; the eval records
+the setting sent, not reasoning tokens). Another Nemotron id in `NEBIUS_MODEL` or `NEBIUS_ROUTER_MODEL` may ignore it and
 keep reasoning, which may add latency against the timeouts above (not measured), or reject it. Then
 extraction fails closed with `AI_PROVIDER_UNAVAILABLE` and the router falls back to the grammar.
 
@@ -161,26 +162,40 @@ npm run eval:nebius -- --offline   # label oracle through the production validat
 npm run eval:nebius -- --live      # one real Nemotron pass; writes docs/dealtwin/evidence/nebius-extraction-eval-<time>.json
 ```
 
-Status: the offline harness passes 32/32. Two live runs on `nvidia/nemotron-3-super-120b-a12b` are
-recorded. Both used older prompts and sent no reasoning switch, so the model ran with its default
-(reasoning on). The scores below come only from their result files; the reasoning setting comes
-from the client code at those commits, because the files predate the `thinking` field.
+Status: the offline harness passes 32/32. Three live runs on `nvidia/nemotron-3-super-120b-a12b`
+are recorded, one per prompt version. v1 and v2 sent no reasoning switch, so the model ran with its
+default (reasoning on); their files predate the `thinking` field, so that setting comes from the
+client code at those commits. The v3 file records `thinking: false`, the setting the client sent.
+The scores below come only from the result files.
 
 | Run | Prompt | Reasoning | Passed | Precision | Recall | Unsafe accepts | Timeouts (5 s) | Latency p50 / p95 |
 |---|---|---|---|---|---|---|---|---|
 | [v1](docs/dealtwin/evidence/nebius-extraction-eval-2026-10-23T03-56-44-128Z.json) | v1 | default | 8/32 | none (no candidates) | 0 | 0 | 3 | 3,019 / 5,009 ms |
 | [v2](docs/dealtwin/evidence/nebius-extraction-eval-2026-10-23T04-07-28-678Z.json) | v2 | default | 23/32 | 0.94 (16 of 17) | 0.53 (16 of 30) | 1 | 11 | 3,775 / 5,017 ms |
+| [v3](docs/dealtwin/evidence/nebius-extraction-eval-2026-10-23T04-57-01-341Z.json) | v3 | off | 28/32 | 0.93 (27 of 29) | 0.90 (27 of 30) | 1 | 0 | 1,249 / 2,239 ms |
 
-Both p95 values sit at the 5-second cutoff, so the real tail latency is unknown. In v1, 27
+The v1 and v2 p95 values sit at the 5-second cutoff, so their real tail latency is unknown. In v1, 27
 answers were rejected as `AI_OUTPUT_INVALID` and nothing was extracted; the 8 passes are all
 clarify cases, 6 of them only because a rejected answer fails closed. In v2, 16 of the 24 extract cases
 passed and the other 8 timed out. Of the 8 clarify cases, the model asked a question in 4,
 extracted a wrong-direction constraint in 1 (`direction-supplier-en`, the unsafe accept) and timed
 out in 3, which fail closed and so count as passes.
 
-**The current code (prompt v3, reasoning off) is NOT_MEASURED.** Prompts v2 and v3 were written
-after reading these failures, so the next score on the same 32 cases is a tuning-set number,
-not a held-out one.
+In v3 (the current code), every call answered within 2,582 ms. 21 of the 24 extract cases passed.
+`protect-ap-en` was rejected as `AI_OUTPUT_INVALID` and `no-borrowing-en` got a clarifying
+question instead of a constraint; both had passed in v2. `multi-id`, a v2 timeout, returned one
+right and one wrong constraint. Of the 8 clarify cases, the model asked a question in 6;
+`contradiction-en` passed only because its answer was rejected and failed closed; and
+`direction-supplier-en` again produced a wrong-direction constraint (the unsafe accept), although
+the v3 prompt rule was written for it. In the app such a candidate is only a draft until the user
+confirms it.
+
+**Read the v3 score with these limits.** It is one run, on the same 32 cases that prompts v2 and v3
+were written against, so it is a tuning-set number, not a held-out one. The gain over v2 comes from
+the timeouts disappearing: 7 of the 8 extract cases that timed out in v2 now pass, while on the 16
+extract cases v2 answered, v3 passed 14. The prompt and the
+reasoning switch changed together, so this run cannot say which caused what. Only one model id has
+been measured, and router latency has not been measured.
 
 ---
 

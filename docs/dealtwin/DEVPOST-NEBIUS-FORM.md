@@ -1,7 +1,7 @@
 # DealTwin — Devpost form draft (Nebius × NVIDIA, "Best Apps and Agents")
 
 Copy-ready text for https://nebiusglobalaihackathon.devpost.com, one block per field. **Draft:**
-fields marked `<…>` wait for a live run of the current code (prompt v3, reasoning off) and the video. Check the field names against the
+fields marked `<…>` wait for the video, the demo link and your own product feedback. Check the field names against the
 live form before pasting. Rules: https://nebiusglobalaihackathon.devpost.com/rules.
 
 Deadline: **Oct 30, 2026, 10:00 PT**.
@@ -12,12 +12,11 @@ Deadline: **Oct 30, 2026, 10:00 PT**.
    `NEBIUS_MODEL=nvidia/nemotron-3-super-120b-a12b` (the only id tried with reasoning off),
    `DEALTWIN_NEBIUS_LIVE_ENABLED=true` and optionally `DEALTWIN_NEBIUS_ROUTER_ENABLED=true`.
    Never commit it.
-2. Two live runs already exist (`docs/dealtwin/evidence/nebius-extraction-eval-*.json`), but they
-   used prompts v1 and v2 with the model's default reasoning. The current code (prompt v3,
-   reasoning off) is not measured. Fill `<LIVE_EVAL_SUMMARY>` only from a run of the current code:
-   run `npm run eval:nebius -- --live` once, copy its summary below and commit the evidence file it
-   writes (its `promptVersion` ends in `v3` and `thinking` is `false`). Say it is a tuning-set
-   score: v2 and v3 were written after reading failures on these 32 cases.
+2. Three live runs exist (`docs/dealtwin/evidence/nebius-extraction-eval-*.json`). The eval
+   figures below come from the one for the current code,
+   `nebius-extraction-eval-2026-10-23T04-57-01-341Z.json` (its `promptVersion` ends in `v3` and
+   `thinking` is `false`). If the eval is ever rerun, replace every figure from the new file. Keep
+   calling it a tuning-set score: v2 and v3 were written after reading failures on these 32 cases.
 3. Record the demo (under 3 minutes; script below) and upload it to YouTube as Public → `<VIDEO_URL>`.
 4. Push branch `dealtwin-nebius-edition` and make sure the repo is public (MIT `LICENSE` is in it).
 5. Fill `<DEMO_URL_OR_TEST_BUILD>`: there is no hosted deployment, so point to the README's
@@ -62,7 +61,7 @@ DealTwin is a financial compiler for deals. The Nebius edition adds a plain-lang
 
 ## Accomplishments that we're proud of
 - On 113 benchmark cases checked by an independent exhaustive oracle, the "margin + 20% deposit" rule wrongly approves 34 of 67 unsafe deals. DealTwin's compiler wrongly approves 0 of 67.
-- Nemotron extraction on the 32-case set we tuned the prompt on: <LIVE_EVAL_SUMMARY: precision / recall / unsafe accepts / timeouts / p50–p95 latency, only from the evidence file whose promptVersion is v3 and thinking is false>
+- Nemotron extraction on the 32-case set we tuned the prompt on (one run, not a held-out set): 28 of 32 passed, precision 0.93, recall 0.90, no timeouts, p50/p95 latency 1.2 s / 2.2 s. One unsafe accept: for a supplier-payment deadline it proposed a constraint where it should have asked, and in the app that draft still waits for the user's confirmation.
 
 ## What we learned
 Treating the model's output as an untrusted proposal is what made Nemotron easy to adopt. Every safety property lives in the schema and the compiler, so we could change prompts or models without re-auditing the money path.
@@ -99,7 +98,7 @@ Suggested script (about 2:40):
 | 0:50–1:05 | "Terms for deal A: the customer pays the rest later" → Yes | "When it can't tell, it asks. Nothing is saved." |
 | 1:05–1:25 | "Confirm the constraints" → Yes | "Every draft is read back. Now they're mine, in a new deal version." |
 | 1:25–2:00 | "Can I accept deal A?" → Yes, then "What would it take?" | "The compiler, not the model, says no: Rp 3M short on September 22. The smallest fix is a 25% deposit, with a replayable proof." |
-| 2:00–2:25 | Eval JSON / table | "On the 32 English and Indonesian cases we tuned the prompt on, Nemotron scored <LIVE_EVAL_SUMMARY>. That's a tuning-set number, not a held-out one." |
+| 2:00–2:25 | Eval JSON / table | "On the 32 English and Indonesian cases we tuned the prompt on, Nemotron got 28 right, with no timeouts and a median answer in 1.2 seconds. Two wrong drafts slipped through; in the app they'd still wait for my confirmation. That's a tuning-set number, not a held-out one." |
 | 2:25–2:40 | End card | "Nemotron reads the deal. The compiler decides. You confirm." |
 
 ## Testing instructions
@@ -130,11 +129,11 @@ DealTwin's compiler, proof, ledger and MCP server existed before this hackathon 
 - A Nemotron intent router (lib/dealtwin/ai/intent-router.ts) that selects which MCP tool to plan. It uses a closed intent list, cannot confirm or cancel, quoted terms must come from the utterance, and it falls back to the deterministic grammar on any failure.
 - A 32-case English/Indonesian extraction eval with injection cases, scoring (precision, recall, unsafe accepts, latency) and a live runner that writes evidence JSON.
 - Fake-provider tests for every fail-closed path.
-- Two live eval runs (evidence JSON in docs/dealtwin/evidence/) drove prompt revisions v2 and v3 and switching Nemotron's reasoning off.
+- Two live eval runs (v1, v2; evidence JSON in docs/dealtwin/evidence/) drove prompt revisions v2 and v3 and switching Nemotron's reasoning off. A third run measured the result: 28 of the 32 tuning cases with no timeouts (v2: 23 of 32, 11 timeouts).
 ```
 
 ## Product feedback (Nebius Token Factory and NVIDIA Nemotron)
 
 ```text
-<Write after the v3 (reasoning off) live run. Cover: onboarding and key creation, the model catalogue (which Nemotron id you used and why), JSON-mode reliability, latency observed (p50/p95 from the eval; with default reasoning on, 11 of 32 v2 calls hit the 5 s timeout; say whether `chat_template_kwargs.enable_thinking: false` changed that only after the v3 run measures it), error messages, billing clarity, and what you'd want next (e.g. JSON-schema-constrained decoding, per-key spend caps).>
+<Write in your own words. Cover: onboarding and key creation, the model catalogue (which Nemotron id you used and why), JSON-mode reliability, latency observed (with default reasoning on, 11 of 32 v2 calls hit the 5 s timeout; with `chat_template_kwargs.enable_thinking: false` and prompt v3, 0 of 32 did, p50/p95 1249/2239 ms; the prompt changed in the same run, so don't credit the switch alone), error messages, billing clarity, and what you'd want next (e.g. JSON-schema-constrained decoding, per-key spend caps).>
 ```

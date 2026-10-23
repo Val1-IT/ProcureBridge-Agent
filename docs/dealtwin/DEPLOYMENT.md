@@ -32,8 +32,9 @@ nvidia/nemotron-3-super-120b-a12b has been used) and
 DEALTWIN_NEBIUS_LIVE_ENABLED=true; the intent router additionally needs
 DEALTWIN_NEBIUS_ROUTER_ENABLED=true (optional NEBIUS_ROUTER_MODEL, which defaults
 to NEBIUS_MODEL). Every request switches reasoning off with
-chat_template_kwargs.enable_thinking=false. That switch has been tried only on
-nvidia/nemotron-3-super-120b-a12b, in one unscored diagnostic call: another id
+chat_template_kwargs.enable_thinking=false. That switch has been used only on
+nvidia/nemotron-3-super-120b-a12b, in one diagnostic call and one 32-call eval
+run (0 timeouts, slowest call 2582 ms; reasoning tokens not recorded): another id
 may ignore it and keep reasoning, which may add latency against the 5 s (3 s
 router) timeout, or reject it, in which case extraction fails closed as
 AI_PROVIDER_UNAVAILABLE and the router falls back to the grammar. Never prefix
