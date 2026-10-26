@@ -7,7 +7,9 @@ export type AlexaIntent=
  |{kind:'status';deal:DealRef}|{kind:'compile';deal:DealRef}|{kind:'amend';deal:DealRef}|{kind:'proof';deal:DealRef}
  |{kind:'stress';deal:DealRef;days:number}|{kind:'reserve';deal:DealRef}|{kind:'commit';deal:DealRef}|{kind:'replay';deal:DealRef}
  |{kind:'supplier_increase'}
- |{kind:'constraints';deal:DealRef;text:string}|{kind:'confirm_constraints';deal:DealRef};
+ |{kind:'constraints';deal:DealRef;text:string}|{kind:'confirm_constraints';deal:DealRef}
+ |{kind:'explain';deal:DealRef;language:ExplainLanguage};
+export type ExplainLanguage='en'|'id';
 const numberWords:Record<string,number>={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,fourteen:14,fifteen:15,thirty:30};
 export function normalizeUtterance(value:string):string{
  return value.normalize('NFKC').toLowerCase().replace(/^\s*(hey\s+)?alexa[,!.]?\s*/,'').replace(/[^a-z0-9%.\s'-]/g,' ').replace(/\s+/g,' ').trim();
@@ -46,6 +48,8 @@ export function parseIntent(raw:string):AlexaIntent{
  if(/\breplay|re-?run the proof|recompute|reproduce\b/.test(text))return {kind:'replay',deal};
  if(/\bstress|what if|\bdelay(ed|s)?\b|pays? late|late payment/.test(text))return {kind:'stress',deal,days:delayDays(text)};
  if(/\b(still valid|status|stale|still good|current|where (do|are) we)\b/.test(text))return {kind:'status',deal};
+ // "Why can't I accept deal A?" asks for the reason behind a verdict, not for a new compile.
+ if(/^(why|explain|jelaskan|kenapa|mengapa)\b|\b(explain|jelaskan)\b/.test(text))return {kind:'explain',deal,language:explainLanguage(text)};
  if(/\b(fix|amend|amendment|make it work|recompile|remediat\w*|what would it take|counter ?offer|repair)\b/.test(text))return {kind:'amend',deal};
  if(/\b(commit|book it|book the|create the sales order|lock it in|finali[sz]e)\b/.test(text))return {kind:'commit',deal};
  if(/\b(reserve|hold|earmark)\b/.test(text))return {kind:'reserve',deal};
@@ -54,6 +58,10 @@ export function parseIntent(raw:string):AlexaIntent{
  if(/\b(cash|timeline|balance|runway|liquidity)\b/.test(text))return {kind:'timeline'};
  if(/\b(list|which deals|what deals|pipeline|my deals|show deals|deals)\b/.test(text))return {kind:'list'};
  return {kind:'unknown'};
+}
+/** Indonesian when the request is in Indonesian or asks for it; English otherwise. */
+export function explainLanguage(text:string):ExplainLanguage{
+ return /\b(indonesian|bahasa|jelaskan|kenapa|mengapa|tolong|dalam)\b/.test(normalizeUtterance(text))?'id':'en';
 }
 /** The canonical judge script, in order. Shown as suggestion chips. */
 export const suggestedUtterances=[
@@ -69,4 +77,16 @@ export const suggestedUtterances=[
  'Is the deal A proof still valid?',
  'Fix deal A',
  'Replay the original proof',
+] as const;
+/** The Nebius × NVIDIA script for the neutral voice page: Nemotron drafts the
+ * terms, the compiler decides, Nemotron explains the verdict in plain words. */
+export const voiceUtterances=[
+ 'Open DealTwin',
+ 'Terms for deal A: deposit at least 20%, and the customer pays the remaining balance within 30 days of acceptance.',
+ 'Confirm the constraints.',
+ 'Can I accept deal A?',
+ 'Why does deal A not work?',
+ 'Explain it in Indonesian.',
+ 'What would it take to make it work?',
+ 'Show me the proof',
 ] as const;

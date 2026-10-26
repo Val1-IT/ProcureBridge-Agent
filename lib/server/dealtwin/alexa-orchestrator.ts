@@ -1,5 +1,7 @@
 import {randomUUID} from 'node:crypto';
-import {parseIntent,type AlexaIntent,type DealRef} from '../../dealtwin/alexa/intents';
+import {parseIntent,type AlexaIntent,type DealRef,type ExplainLanguage} from '../../dealtwin/alexa/intents';
+import {fillFacts,templateExplanation,type Explanation,type VerdictFacts} from '../../dealtwin/ai/verdict-explainer';
+import {latestBaseRun,verdictFacts} from '../../dealtwin/ai/verdict-facts';
 import {advanceConversation,deserializeConversation,initialConversation,serializeConversation,type ConversationState} from '../../dealtwin/mcp/conversation-state';
 import type {DealTwinToolResult} from '../../dealtwin/mcp/tool-handlers';
 import type {ToolName} from '../../dealtwin/mcp/tool-schemas';
@@ -16,11 +18,14 @@ export interface AlexaPorts {
  newKey?():string;
  /** Optional Nemotron intent router. It only picks which tool to plan; any failure falls back to the grammar. */
  routeIntent?(utterance:string):Promise<{intent:AlexaIntent;metadata:{model:string;promptVersion:string}}>;
+ /** Optional Nemotron explainer. It writes the words only; every figure comes from the stored compile run,
+  * and any failure falls back to the deterministic template. */
+ explainVerdict?(facts:VerdictFacts,language:ExplainLanguage):Promise<Explanation>;
 }
 export interface RouterNote {source:'nemotron'|'grammar';model?:string;promptVersion?:string;fallbackCode?:string}
 export interface AlexaTurnInput {utterance?:string;conversation?:string;ticket?:string;action?:'confirm'|'cancel'}
 export type Tone='good'|'bad'|'warn'|'info';
-export interface AlexaCard {kind:string;title:string;subtitle?:string;tone:Tone;facts:{label:string;value:string}[]}
+export interface AlexaCard {kind:string;title:string;subtitle?:string;tone:Tone;facts:{label:string;value:string}[];body?:string[]}
 export interface TraceEntry {method:string;tool?:string;mode?:'prepare'|'execute';httpStatus:number;code?:string}
 export interface AlexaTurnResult {
  intent:AlexaIntent['kind'];speech:string;card:AlexaCard;
@@ -28,6 +33,8 @@ export interface AlexaTurnResult {
  conversation:string;trace:TraceEntry[];
  /** Present only when a router port is configured: who chose the intent this turn. */
  router?:RouterNote;
+ /** Language of `speech` when it is not English, so the client picks a matching voice. */
+ language?:ExplainLanguage;
 }
 type Json=Record<string,unknown>;
 const obj=(value:unknown):Json=>value&&typeof value==='object'&&!Array.isArray(value)?value as Json:{};
@@ -90,7 +97,7 @@ export function describeConstraint(row:unknown):string{
 }
 function pendingApprovals(proof:Json){return arr(proof.approvals).map(obj).filter(row=>row.status==='pending').length;}
 function errorCode(result:DealTwinToolResult):string|undefined{return str(obj(obj(result.data).error).code);}
-interface DealView {dealId:string;revision:number;currentVersionId:string;currentVersion:number;committed:boolean;proofs:Json[];currentProof?:Json;terms:unknown;constraints:Json[]}
+interface DealView {dealId:string;revision:number;currentVersionId:string;currentVersion:number;committed:boolean;proofs:Json[];currentProof?:Json;terms:unknown;constraints:Json[];compileRuns:unknown[]}
 function latest(rows:Json[]):Json|undefined{return [...rows].sort((l,r)=>String(l.generatedAt).localeCompare(String(r.generatedAt))).at(-1);}
 
 export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promise<AlexaTurnResult>{
@@ -149,7 +156,29 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
   const data=obj(result.data),current=obj(data.currentVersion),proofs=arr(data.proofs).map(obj);
   const currentVersionId=String(current.id);
   return {dealId,revision:Number(data.revision),currentVersionId,currentVersion:Number(current.version??1),committed:!!str(obj(data.deal).committedSalesOrderId),
-   terms:current.terms,constraints:arr(data.constraints).map(obj),proofs,currentProof:latest(proofs.filter(row=>row.dealVersionId===currentVersionId))};
+   terms:current.terms,constraints:arr(data.constraints).map(obj),proofs,currentProof:latest(proofs.filter(row=>row.dealVersionId===currentVersionId)),compileRuns:arr(data.compileRuns)};
+ }
+ /** Nemotron words, compiler numbers: the explainer only ever sees placeholders it may use, and
+  * whatever it returns is filled from the same facts. Any refusal falls back to the template. */
+ async function explainTurn(view:DealView,facts:VerdictFacts,language:ExplainLanguage):Promise<AlexaTurnResult>{
+  let written:Explanation|null=null,fallback:string|undefined;
+  if(ports.explainVerdict){
+   try{written=await ports.explainVerdict(facts,language);trace.push({method:'explain/verdict',httpStatus:200});}
+   catch(error){const failure=obj(error);fallback=str(failure.code)??'AI_PROVIDER_UNAVAILABLE';trace.push({method:'explain/verdict',httpStatus:typeof failure.httpStatus==='number'?failure.httpStatus:502,code:fallback});}
+  }
+  const template=written?.template??templateExplanation(facts,language);
+  const sentences=written?.sentences??fillFacts(template,facts,language),spoken=written?.spoken??fillFacts(template,facts,language,true).join(' ');
+  const en=language==='en',bad=facts.outcome==='DOES_NOT_COMPILE',name=dealLabel(view.dealId),Name=cap(name);
+  const title=bad?(en?`Why ${name} does not work`:`Kenapa ${name} tidak bisa jalan`):(en?`Why ${name} works`:`Kenapa ${name} bisa jalan`);
+  const subtitle=written?`Words by ${written.metadata.model} on Nebius · every number filled in by the compiler`
+   :`Compiler template${fallback?` (Nemotron fell back: ${fallback})`:''} · every number from the compile run`;
+  const v=facts.values,shown:Fact[]=[];
+  if(v.violationDate)shown.push({label:'First violation',value:v.violationDate.value});
+  if(v.shortfall)shown.push({label:'Shortfall',value:displayRupiah(v.shortfall.value)});
+  if(v.cashFloor)shown.push({label:'Cash floor',value:displayRupiah(v.cashFloor.value)});
+  if(!bad&&v.lowestBalance)shown.push({label:'Lowest projected balance',value:displayRupiah(v.lowestBalance.value)});
+  shown.push({label:'Words',value:written?'Nemotron':'Template'},{label:'Prompt',value:written?written.metadata.promptVersion:'—'});
+  return {...done('explain',spoken,{kind:'explanation',title,subtitle:`${Name} · version ${view.currentVersion} · ${subtitle}`,tone:bad?'bad':'good',facts:shown,body:[...sentences]}),...(en?{}:{language})};
  }
  async function prepare(name:ToolName,fields:Json,revision:number,summary:string,intent:AlexaIntent['kind'],context?:{spoken:string;facts:Fact[]}|null):Promise<AlexaTurnResult>{
   const action:AlexaPendingAction={tool:name,input:{...fields,expectedRevision:revision,idempotencyKey:newKey()}};
@@ -261,6 +290,12 @@ export async function runAlexaTurn(input:AlexaTurnInput,ports:AlexaPorts):Promis
     return prepare('confirm_constraints',{dealId:view.dealId,dealVersionId:view.currentVersionId,constraintIds:view.constraints.map(row=>String(row.id))},view.revision,
      `confirm ${drafts.length===1?'that constraint':`those ${drafts.length} constraints`} as your own terms for ${dealLabel(view.dealId)}`,'confirm_constraints',
      {spoken:`The proposed ${drafts.length===1?'constraint is':'constraints are'}: ${drafts.map(describeConstraint).join('; ')}.`,facts:drafts.map((row,index)=>({label:`Draft ${index+1}`,value:describeConstraint(row)}))});
+   }
+   case 'explain':{
+    const view=await readDeal(intent.deal),run=latestBaseRun(view.compileRuns,view.currentVersionId),facts=run&&verdictFacts(run,dealLabel(view.dealId));
+    if(!facts)return done('explain',`I have no verdict to explain for ${dealLabel(view.dealId)}, version ${view.currentVersion}, yet. Ask me whether you can accept it first.`,
+     {kind:'status',title:'Nothing to explain yet',tone:'info',facts:[]});
+    return explainTurn(view,facts,intent.language);
    }
    case 'supplier_increase':{
     const result=await tool('list_deals',{});const revision=Number(obj(result.data).revision);
