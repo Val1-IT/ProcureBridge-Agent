@@ -18,7 +18,7 @@ Deadline: **Oct 30, 2026, 10:00 PT**.
    `nebius-explanation-eval-2026-10-26T11-57-08-409Z.json`. If an eval is rerun, replace its figures
    from the new file. The 32-case score and the 20/20 explanations are tuning-set figures; only the
    26 held-out cases were written after the prompt froze.
-3. The demo video is rendered: `.cache/demo/dealtwin-nebius-demo-1080p.webm` (2:42, 1920×1080,
+3. The demo video is rendered: `.cache/demo/dealtwin-nebius-demo-v2-1080p.webm` (2:58, 1920×1080,
    git-ignored). Upload it to YouTube as Public → `<VIDEO_URL>`.
 4. Push branch `dealtwin-nebius-edition` and make sure the repo is public (MIT `LICENSE` is in it).
 5. Fill `<DEMO_URL_OR_TEST_BUILD>`: there is no hosted deployment, so point to the README's
@@ -95,12 +95,18 @@ https://github.com/Val1-IT/ProcureBridge-Agent (branch `dealtwin-nebius-edition`
 
 <VIDEO_URL>
 
-What the video shows (2:42): the cash problem, then a live run on `/dealtwin/voice` against the
-local demo with live Nemotron (router off): terms → draft constraints → confirm → "Does not compile"
-→ Nemotron's English and Indonesian explanations → smallest amendment (25% deposit) → proof and the
-MCP call log → the eval numbers above. Screens are page screenshots from that run (Playwright, not a
-desktop capture); the narration is ElevenLabs. The production scripts live in the session
-scratchpad, not in the repo.
+What the video shows (2:58): an illustrated story first. Budi, a fictional Jakarta distributor,
+gets a profitable deal; a cash tank and a calendar show the deposit, the supplier payment and the
+other bills pushing cash Rp 3,000,000 below the floor on September 22 before the balance arrives on
+the 30th; a generic chatbot guesses "looks fine"; DealTwin splits the job into Nemotron (language),
+a human yes and the compiler (math). Then a live run on `/dealtwin/voice` against the local demo
+with live Nemotron (router off): terms → draft constraints → confirm → "Does not compile" → Nemotron's
+English and Indonesian explanations, with placeholders flipping into compiler values → the
+amendment search (2,457 candidates, 25% deposit) → proof and the MCP call log → the eval numbers
+above. App screens are page screenshots from that run (Playwright, not a desktop capture); the
+building, tank, calendar and candidate-grid art is illustrative, while every labelled figure comes
+from the run or the eval files. Narration: ElevenLabs (eleven_v4, one library voice), with a quiet
+synthesized pad underneath. The production scripts live in the session scratchpad, not in the repo.
 
 Two things to know before you upload:
 

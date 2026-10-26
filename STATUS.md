@@ -18,8 +18,8 @@ Amazon/Alexa+ submission and its branch are unchanged.
   were tuned on these verdicts, so 20/20 is a tuning-set figure.
 - Demo recording found one live fallback (a 284-character sentence over the
   280 cap); the cap is now 400 (97cfcfc).
-- Demo video (2:42, 1080p, ElevenLabs narration, real screenshots of a live
-  run) rendered to `.cache/demo/dealtwin-nebius-demo-1080p.webm` (git-ignored).
+- Demo video v2 (2:58, 1080p, illustrated story + ElevenLabs narration, real screenshots of a live
+  run) rendered to `.cache/demo/dealtwin-nebius-demo-v2-1080p.webm` (git-ignored).
   Not uploaded. Devpost form NOT submitted.
 
 ## Continuation — Nebius × NVIDIA edition, 2026-10-23
