@@ -61,7 +61,8 @@ export function checkExplanation(content:string,facts:VerdictFacts,language:Expl
  return parsed.sentences;
 }
 export function fillFacts(template:readonly string[],facts:VerdictFacts,language:ExplainLanguage,spoken=false):string[]{
- return template.map(sentence=>sentence.replace(/\{([A-Za-z]+)\}/g,(_all,key:string)=>renderFact(facts.values[key as FactKey]!,language,spoken)));
+ // Sentences start with a capital even when the model forgot one.
+ return template.map(sentence=>sentence.replace(/\{([A-Za-z]+)\}/g,(_all,key:string)=>renderFact(facts.values[key as FactKey]!,language,spoken)).replace(/^\p{Ll}/u,letter=>letter.toUpperCase()));
 }
 /** The deterministic explanation used when Nemotron is off or its answer fails a check. */
 export function templateExplanation(facts:VerdictFacts,language:ExplainLanguage):string[]{
