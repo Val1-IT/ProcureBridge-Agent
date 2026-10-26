@@ -42,7 +42,8 @@ export function renderFact(fact:VerdictFact,language:ExplainLanguage,spoken=fals
 const numberWords=/\b(zero|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand|million|billion|half|quarter|percent|dozen|nol|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh|sebelas|belas|puluh|ratus|ribu|juta|miliar|setengah|seperempat|persen|rp|rupiah)\b/i;
 // "May" is left out: it is also the English verb ("you may ask"), and Indonesian "Mei" still catches the month.
 const monthWords=new RegExp('\\b('+[...new Set([...months.en,...months.id])].filter(name=>name!=='May').join('|')+')\\b','i');
-const schema=z.strictObject({schemaVersion:z.literal(EXPLAIN_SCHEMA_VERSION),language:z.enum(['en','id']),sentences:z.array(z.string().trim().min(1).max(280)).min(1).max(4)});
+const schema=z.strictObject({schemaVersion:z.literal(EXPLAIN_SCHEMA_VERSION),language:z.enum(['en','id']),// 400, not 280: a live run told four dated events in one 284-character sentence.
+sentences:z.array(z.string().trim().min(1).max(400)).min(1).max(4)});
 /** Fails closed unless every amount and date in the text is a placeholder for a
  * fact DealTwin holds. Digits, number words, month names and currency words are
  * refused outright, so the model cannot state a figure the compiler did not. */

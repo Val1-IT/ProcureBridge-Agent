@@ -67,9 +67,14 @@ describe('Nemotron verdict explanation',()=>{
   ['wrong language',reply(['Pada {violationDate} kurang {shortfall}.'],'id')],
   ['extra keys',JSON.stringify({schemaVersion:EXPLAIN_SCHEMA_VERSION,language:'en',sentences:['On {violationDate} {shortfall}.'],verdict:'COMPILES'})],
   ['too many sentences',reply(Array(5).fill('On {violationDate} {shortfall}.'))],
+  ['an overlong sentence',reply(['On {violationDate} you are {shortfall} short'+' and short'.repeat(40)+'.'])],
   ['not JSON','On {violationDate} you are {shortfall} short.'],
  ])('rejects %s as invalid output',(_name,content)=>{
   expect(()=>checkExplanation(content,facts,'en')).toThrow('AI_OUTPUT_INVALID');
+ });
+ it('accepts a whole timeline told in one long sentence',()=>{
+  const sentence='The customer deposit of {depositAmount} arrived on {depositDate}, then the deal paid suppliers {supplierPaid} by {supplierDate}, and on {violationDate} cash fell {shortfall} below the cash floor of {cashFloor}, finally the customer balance of {balanceAmount} arrived on {balanceDate}.';
+  expect(sentence.length).toBeGreaterThan(280);expect(checkExplanation(reply([sentence]),facts,'en')).toEqual([sentence]);
  });
  it('allows the verb "may" but not the Indonesian month',()=>{
   expect(checkExplanation(reply(['On {violationDate} you are {shortfall} short; you may ask what would fix it.']),facts,'en')).toHaveLength(1);
