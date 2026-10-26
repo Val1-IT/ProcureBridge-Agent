@@ -20,7 +20,7 @@ describe("local judge launch link", () => {
     vi.stubEnv("DEALTWIN_JUDGE_LAUNCH_TOKEN", token);
     const admin = await launch("role=admin&token=" + token);
     expect(admin.status).toBe(303);
-    expect(admin.headers.get("location")).toBe("/dealtwin/alexa");
+    expect(admin.headers.get("location")).toBe("/dealtwin/voice");
     expect(admin.headers.get("referrer-policy")).toBe("no-referrer");
     const cookie = admin.headers.get("set-cookie")!;
     expect(cookie).toMatch(/; Path=\/api\/dealtwin; Max-Age=3600; HttpOnly; SameSite=Strict; Secure$/);

@@ -1,12 +1,22 @@
 'use client';
 import {useCallback,useEffect,useRef,useState,type FormEvent} from 'react';
-import {suggestedUtterances} from '../../lib/dealtwin/alexa/intents';
+import {suggestedUtterances,voiceUtterances} from '../../lib/dealtwin/alexa/intents';
 
 // Mirrors the turn route's response; kept local so no server module reaches the client bundle.
-interface Card {kind:string;title:string;subtitle?:string;tone:'good'|'bad'|'warn'|'info';facts:{label:string;value:string}[]}
+interface Card {kind:string;title:string;subtitle?:string;tone:'good'|'bad'|'warn'|'info';facts:{label:string;value:string}[];body?:string[]}
 interface Trace {method:string;tool?:string;mode?:'prepare'|'execute';httpStatus:number;code?:string}
-interface Turn {ok:true;intent:string;speech:string;card:Card;pending:{ticket:string;tool:string;summary:string}|null;conversation:string;trace:Trace[]}
+interface Turn {ok:true;intent:string;speech:string;card:Card;pending:{ticket:string;tool:string;summary:string}|null;conversation:string;trace:Trace[];language?:'en'|'id'}
 interface Line {who:'user'|'alexa';text:string}
+/** The same conversation behind two front doors: the Alexa+ simulator, and a neutral
+ * voice page with the Nebius × NVIDIA script that names no third-party assistant. */
+const variants={
+ alexa:{idle:'Say “Alexa, open DealTwin”',assistant:'Alexa',mic:'Speak to Alexa',script:suggestedUtterances as readonly string[],
+  boundary:'Simulated Alexa+ experience. Every answer below comes from the real DealTwin MCP server (Streamable HTTP, protocol 2025-11-25) running against the synthetic ERP in PostgreSQL. Nothing is invented by the voice layer. It never approves its own deals, and every write waits for your “yes”.',
+  caption:'Step 7 stops at the four-eyes rule on purpose. Open the approver launch link in a private window, approve the deal on Judge Mode, then say “Commit deal A” again.'},
+ voice:{idle:'Say “Open DealTwin”',assistant:'DealTwin',mic:'Speak to DealTwin',script:voiceUtterances as readonly string[],
+  boundary:'Every answer below comes from the real DealTwin MCP server (Streamable HTTP, protocol 2025-11-25) running against the synthetic ERP in PostgreSQL. NVIDIA Nemotron on Nebius Token Factory drafts terms from your words and explains verdicts in plain language; the deterministic compiler alone decides, and every write waits for your “yes”.',
+  caption:'Nemotron drafts and explains; it never decides. Every number in an explanation is filled in from the stored compile run.'},
+} as const;
 interface Recognizer {lang:string;interimResults:boolean;maxAlternatives:number;start():void;abort():void;
  onresult:((event:{results:ArrayLike<ArrayLike<{transcript:string}>>})=>void)|null;onend:(()=>void)|null;onerror:(()=>void)|null}
 type RecognizerConstructor=new()=>Recognizer;
@@ -42,13 +52,13 @@ const rp=(value:number)=>'Rp '+value.toLocaleString('en-US');
 // Show enum codes such as CONDITIONALLY_VALID as words so they wrap cleanly in titles and fact tiles.
 const readable=(value:string)=>value.replace(/\b[A-Z]+(?:_[A-Z]+)+\b/g,code=>code.replaceAll('_',' '));
 
-const idleCard:Card={kind:'idle',title:'Say “Alexa, open DealTwin”',subtitle:'Or tap a suggestion below',tone:'info',facts:[]};
 const errorSpeech:Record<string,string>={UNAUTHENTICATED:'Your judge session is missing or expired. Open the launch link printed by npm run judge:demo again.',
  FORBIDDEN_ROLE:'This browser is signed in as the approver. Open the admin launch link to talk to DealTwin.',
  INVALID_ORIGIN:'That request came from another origin, so DealTwin refused it.'};
 
-export function AlexaSimulator(){
- const [lines,setLines]=useState<Line[]>([]);const [card,setCard]=useState<Card>(idleCard);const [trace,setTrace]=useState<Trace[]>([]);
+export function AlexaSimulator({variant='alexa'}:{variant?:keyof typeof variants}){
+ const copy=variants[variant],script=copy.script;
+ const [lines,setLines]=useState<Line[]>([]);const [card,setCard]=useState<Card>({kind:'idle',title:copy.idle,subtitle:'Or tap a suggestion below',tone:'info',facts:[]});const [trace,setTrace]=useState<Trace[]>([]);
  const [pending,setPending]=useState<Turn['pending']>(null);const [busy,setBusy]=useState(false);const [listening,setListening]=useState(false);
  const [draft,setDraft]=useState('');const [life,setLife]=useState<Lifecycle>({focus:'Deal A',deals:{}});const [floor,setFloor]=useState<number|null>(null);
  const [fresh,setFresh]=useState(0);const [voice,setVoice]=useState(true);const [step,setStep]=useState(0);
@@ -59,9 +69,9 @@ export function AlexaSimulator(){
  useEffect(()=>{log.current?.lastElementChild?.scrollIntoView({block:'nearest'});},[lines]);
  useEffect(()=>()=>{recognizer.current?.abort();if('speechSynthesis' in window)window.speechSynthesis.cancel();},[]);
 
- const speak=useCallback((text:string)=>{
+ const speak=useCallback((text:string,language:'en'|'id'='en')=>{
   if(!voice||!('speechSynthesis' in window))return;
-  window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang='en-US';utterance.rate=1.04;window.speechSynthesis.speak(utterance);
+  window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang=language==='id'?'id-ID':'en-US';utterance.rate=1.04;window.speechSynthesis.speak(utterance);
  },[voice]);
  const send=useCallback(async(body:{utterance?:string;action?:'confirm'|'cancel'},shown:string)=>{
   if(busy)return;setBusy(true);setLines(rows=>[...rows,{who:'user',text:shown}]);
@@ -73,11 +83,11 @@ export function AlexaSimulator(){
     setLines(rows=>[...rows,{who:'alexa',text}]);setCard({kind:'error',title:data.error.code,subtitle:'HTTP '+response.status,tone:'bad',facts:[]});speak(text);return;}
    conversation.current=data.conversation;setPending(data.pending);setCard(data.card);setTrace(rows=>[...data.trace,...rows].slice(0,40));setFresh(data.trace.length);
    setLife(state=>advance(state,data.card,shown));const seenFloor=rupiahFact(data.card,'Cash floor');if(seenFloor!==null)setFloor(seenFloor);
-   setLines(rows=>[...rows,{who:'alexa',text:data.speech}]);speak(data.speech);
-   const index=suggestedUtterances.findIndex(text=>text.toLowerCase()===shown.toLowerCase());if(index>=0)setStep(index+1);
+   setLines(rows=>[...rows,{who:'alexa',text:data.speech}]);speak(data.speech,data.language);
+   const index=script.findIndex(text=>text.toLowerCase()===shown.toLowerCase());if(index>=0)setStep(index+1);
   }catch{const text='I could not reach the local DealTwin server.';setLines(rows=>[...rows,{who:'alexa',text}]);setCard({kind:'error',title:'Offline',tone:'bad',facts:[]});}
   finally{setBusy(false);}
- },[busy,pending,speak]);
+ },[busy,pending,speak,script]);
  const say=(text:string)=>{const value=text.trim();if(value)void send({utterance:value},value);};
  const submit=(event:FormEvent)=>{event.preventDefault();say(draft);setDraft('');};
  const listen=()=>{
@@ -89,7 +99,7 @@ export function AlexaSimulator(){
   next.onend=()=>setListening(false);next.onerror=()=>setListening(false);
   setListening(true);next.start();
  };
- const nextSuggestion=pending?null:suggestedUtterances[step]??null;
+ const nextSuggestion=pending?null:script[step]??null;
  const shortfall=rupiahFact(card,'Shortfall');
  const lowest=rupiahFact(card,'Lowest projected balance','Lowest balance')??(shortfall!==null&&floor!==null?floor-shortfall:null);
  const focus=life.deals[life.focus];
@@ -103,7 +113,7 @@ export function AlexaSimulator(){
     <li><strong>112 / 112</strong><span>proofs replay to the same hash</span></li>
     <li><strong>1 yes</strong><span>per write, with a single-use server grant</span></li>
    </ul>
-   <p className="dt-boundary">Simulated Alexa+ experience. Every answer below comes from the real DealTwin MCP server (Streamable HTTP, protocol 2025-11-25) running against the synthetic ERP in PostgreSQL. Nothing is invented by the voice layer. It never approves its own deals, and every write waits for your “yes”.</p>
+   <p className="dt-boundary">{copy.boundary}</p>
   </div>
   <div className="dt-panel dt-lifecycle" aria-label={life.focus+' lifecycle'}>
    <div className="dt-lifecycle-head"><h2>{life.focus} lifecycle</h2><span>{focus?.note??'Not compiled yet'}</span></div>
@@ -114,8 +124,9 @@ export function AlexaSimulator(){
    <div className="dt-echo" data-state={listening?'listening':busy?'thinking':'idle'}>
     <div className="dt-echo-ring" aria-hidden="true"/>
     <div className={'dt-echo-card dt-tone-'+card.tone} aria-live="polite">
-     <small>{card.kind==='idle'?'DealTwin skill':card.kind.replace(/_/g,' ')}</small>
+     <small>{card.kind==='idle'?(variant==='alexa'?'DealTwin skill':'DealTwin'):card.kind.replace(/_/g,' ')}</small>
      <h2>{readable(card.title)}</h2>{card.subtitle?<p>{card.subtitle}</p>:null}
+     {card.body?.length?<div className="dt-echo-body" lang={card.title.startsWith('Kenapa')?'id':undefined}>{card.body.map((sentence,index)=><p key={index}>{sentence}</p>)}</div>:null}
      {lowest!==null&&floor!==null?<CashGauge lowest={lowest} floor={floor} smallest={card.kind==='amendment'}/>:null}
      {card.facts.length?<dl>{card.facts.map(fact=><div key={fact.label}><dt>{fact.label}</dt><dd>{readable(fact.value)}</dd></div>)}</dl>:null}
      {pending?<div className="dt-echo-confirm">
@@ -126,7 +137,7 @@ export function AlexaSimulator(){
     <form className="dt-echo-input" onSubmit={submit}>
      <button type="button" className="dt-mic" onClick={listen} disabled={!Recognition||busy} aria-pressed={listening}
       title={Recognition?'Hold a conversation by voice':'Voice input needs a browser with the Web Speech API (Chrome or Edge)'}>
-      <span aria-hidden="true">●</span><span className="dt-visually-hidden">{listening?'Stop listening':'Speak to Alexa'}</span></button>
+      <span aria-hidden="true">●</span><span className="dt-visually-hidden">{listening?'Stop listening':copy.mic}</span></button>
      <label className="dt-visually-hidden" htmlFor="alexa-utterance">What do you want to ask?</label>
      <input id="alexa-utterance" value={draft} maxLength={300} onChange={event=>setDraft(event.target.value)} placeholder={nextSuggestion??'Ask DealTwin…'} autoComplete="off"/>
      <button className="dt-button" disabled={busy||!draft.trim()}>Send</button>
@@ -135,15 +146,15 @@ export function AlexaSimulator(){
    </div>
    <div className="dt-panel dt-alexa-log">
     <h2>Conversation</h2>
-    {lines.length?<ol ref={log}>{lines.map((line,index)=><li key={index} data-who={line.who}><strong>{line.who==='user'?'You':'Alexa'}</strong><span>{line.text}</span></li>)}</ol>
+    {lines.length?<ol ref={log}>{lines.map((line,index)=><li key={index} data-who={line.who}><strong>{line.who==='user'?'You':copy.assistant}</strong><span>{line.text}</span></li>)}</ol>
      :<p className="dt-muted">Follow the judge script with the suggestions below, or ask in your own words.</p>}
    </div>
   </div>
   <div className="dt-panel">
    <h2>Judge script</h2>
-   <ol className="dt-alexa-chips">{suggestedUtterances.map((text,index)=><li key={text}>
+   <ol className="dt-alexa-chips">{script.map((text,index)=><li key={text}>
     <button className="dt-chip" disabled={busy} aria-current={text===nextSuggestion?'step':undefined} onClick={()=>say(text)}>{index+1}. {text}</button></li>)}</ol>
-   <p className="dt-caption">Step 7 stops at the four-eyes rule on purpose. Open the approver launch link in a private window, approve the deal on Judge Mode, then say “Commit deal A” again.</p>
+   <p className="dt-caption">{copy.caption}</p>
   </div>
   <details className="dt-panel dt-alexa-trace" open>
    <summary>MCP calls behind the voice ({trace.length})</summary>

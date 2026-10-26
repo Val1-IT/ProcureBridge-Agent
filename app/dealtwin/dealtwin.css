@@ -41,6 +41,7 @@
 .dt-echo-card dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:8px 0 0}
 .dt-echo-card dl>div{background:#0e1c28;border:1px solid #24435c;border-radius:9px;padding:10px 12px;display:grid;gap:4px;min-width:0}
 .dt-echo-card dt{font-size:11px;color:#8fb3cc}.dt-echo-card dd{margin:0;font:600 14px ui-monospace,monospace;color:#fff;overflow-wrap:anywhere}
+.dt-echo-body{display:grid;gap:8px;padding:12px 14px;border-left:3px solid #5eead4;background:#0e1c28;border-radius:0 9px 9px 0}.dt-echo-card .dt-echo-body p{color:#e6f1f8;font-size:16px;line-height:1.5}
 .dt-tone-good{border-color:#2f8f68;box-shadow:inset 4px 0 #66e5c7}.dt-tone-bad{border-color:#a44a3d;box-shadow:inset 4px 0 #ff7a66}.dt-tone-warn{border-color:#9b7a2c;box-shadow:inset 4px 0 #f2c14e}.dt-tone-info{box-shadow:inset 4px 0 #1aa5ff}
 .dt-echo-confirm{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .dt-echo-input{display:flex;gap:8px;align-items:center}

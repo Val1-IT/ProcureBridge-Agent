@@ -2,7 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { createJudgeSessionCookie } from "@/lib/server/auth/judge-session";
 import { JUDGE_TENANT_ID } from "@/lib/dealtwin/judge/scenario";
 
-const destinations = { admin: "/dealtwin/alexa", approver: "/dealtwin/judge" } as const;
+const destinations = { admin: "/dealtwin/voice", approver: "/dealtwin/judge" } as const;
 function digest(value: string): Buffer { return createHash("sha256").update(value).digest(); }
 function notFound(): Response { return new Response(null, { status: 404, headers: { "cache-control": "no-store" } }); }
 /** Local judge launch link. Disabled unless `judge:demo` set a random launch token

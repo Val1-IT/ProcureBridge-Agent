@@ -10,4 +10,4 @@ const setup=spawnSync(process.execPath,['node_modules/vite-node/vite-node.mjs','
 if(setup.error||setup.status!==0)process.exit(setup.status??1);
 await import('./node-server.mjs');
 const launch=role=>`http://127.0.0.1:4177/api/dealtwin/judge/launch?role=${role}&token=${process.env.DEALTWIN_JUDGE_LAUNCH_TOKEN}`;
-console.log('\nOpen the simulated Alexa+ experience (sales admin):\n  '+launch('admin')+'\nApprove the deal as the separate finance approver (second browser profile or private window):\n  '+launch('approver')+'\n');
+console.log('\nOpen DealTwin Voice (sales admin):\n  '+launch('admin')+'\nApprove the deal as the separate finance approver (second browser profile or private window):\n  '+launch('approver')+'\n');
