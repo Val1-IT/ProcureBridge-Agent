@@ -5,11 +5,11 @@ import {scoreCase,summarize,type CaseOutcome,type CaseScore,type ExtractionSumma
 export const EXTRACTION_EVAL_VERSION='dealtwin.nebius.extraction-eval.v1';
 /** `thinking` is whether the model was asked to reason before answering; null
  * when no model was called (offline oracle) or the caller did not say. */
-export interface ExtractionEvalReport {readonly evalVersion:string;readonly mode:'live'|'offline-oracle';readonly provider:string|null;readonly model:string|null;readonly promptVersion:string;readonly thinking:boolean|null;readonly startedAt:string;readonly finishedAt:string;readonly summary:ExtractionSummary;readonly cases:readonly CaseScore[]}
+export interface ExtractionEvalReport {readonly evalVersion:string;readonly caseSet:'tuning'|'heldout';readonly mode:'live'|'offline-oracle';readonly provider:string|null;readonly model:string|null;readonly promptVersion:string;readonly thinking:boolean|null;readonly startedAt:string;readonly finishedAt:string;readonly summary:ExtractionSummary;readonly cases:readonly CaseScore[]}
 /** Runs every labelled case through the production extractor, one at a time.
  * Serial on purpose: latency is measured per request and the live provider is
  * never sent concurrent load from this harness. */
-export async function runExtractionEval(extractor:ConstraintExtractionPort,options:{mode:ExtractionEvalReport['mode'];cases?:readonly ExtractionCase[];thinking?:boolean;now?:()=>Date;clock?:()=>number}):Promise<ExtractionEvalReport>{
+export async function runExtractionEval(extractor:ConstraintExtractionPort,options:{mode:ExtractionEvalReport['mode'];caseSet?:ExtractionEvalReport['caseSet'];cases?:readonly ExtractionCase[];thinking?:boolean;now?:()=>Date;clock?:()=>number}):Promise<ExtractionEvalReport>{
  const cases=options.cases??extractionCases,now=options.now??(()=>new Date()),clock=options.clock??(()=>performance.now());
  const startedAt=now().toISOString(),scores:CaseScore[]=[];let provider:string|null=null,model:string|null=null;
  for(const fixture of cases){
@@ -26,7 +26,7 @@ export async function runExtractionEval(extractor:ConstraintExtractionPort,optio
   }
   scores.push(scoreCase(fixture,outcome));
  }
- return {evalVersion:EXTRACTION_EVAL_VERSION,mode:options.mode,provider,model,promptVersion:PROMPT_VERSION,thinking:options.thinking??null,startedAt,finishedAt:now().toISOString(),summary:summarize(scores),cases:scores};
+ return {evalVersion:EXTRACTION_EVAL_VERSION,caseSet:options.caseSet??'tuning',mode:options.mode,provider,model,promptVersion:PROMPT_VERSION,thinking:options.thinking??null,startedAt,finishedAt:now().toISOString(),summary:summarize(scores),cases:scores};
 }
 /** Offline stand-in that answers each case from its human label. It proves the
  * harness, scoring and schema path work end to end; it says nothing about
