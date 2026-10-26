@@ -19,7 +19,8 @@ export const explanationCases:readonly {id:string;facts:VerdictFacts}[]=[
  {id:'passes-at-floor',facts:{outcome:'COMPILES',deal:'deal A',values:{cashFloor:r('5000000'),lowestBalance:r('5000000')}}},
  {id:'passes-comfortably',facts:{outcome:'CONDITIONALLY_VALID',deal:'deal B',values:{cashFloor:r('5000000'),lowestBalance:r('14200000')}}},
 ];
-export interface ExplanationCaseScore {readonly id:string;readonly language:ExplainLanguage;readonly accepted:boolean;readonly errorCode?:string;readonly namesCause:boolean|null;readonly sentences:readonly string[];readonly latencyMs:number}
+/** `rawReply` keeps the first 600 characters of a refused answer, so a fallback can be diagnosed. */
+export interface ExplanationCaseScore {readonly id:string;readonly language:ExplainLanguage;readonly accepted:boolean;readonly errorCode?:string;readonly rawReply?:string;readonly namesCause:boolean|null;readonly sentences:readonly string[];readonly latencyMs:number}
 export interface ExplanationEvalReport {readonly evalVersion:string;readonly mode:'live'|'offline-template';readonly model:string|null;readonly promptVersion:string;readonly startedAt:string;readonly finishedAt:string;
  readonly summary:{readonly calls:number;readonly accepted:number;readonly fellBack:number;readonly fallbackCodes:Record<string,number>;readonly namesCause:number;readonly causeCases:number;readonly latencyP50Ms:number|null;readonly latencyP95Ms:number|null};readonly cases:readonly ExplanationCaseScore[]}
 const causeKeys:FactKey[]=['supplierPaid','supplierDate','balanceAmount','balanceDate','depositAmount','otherBills'];
@@ -28,7 +29,9 @@ const causeKeys:FactKey[]=['supplierPaid','supplierDate','balanceAmount','balanc
  * an accepted failing explanation cites at least one timing fact, not only the
  * shortfall; it is null for passing verdicts. Serial, like the extraction eval. */
 export async function runExplanationEval(provider:ConstraintProvider,options:{mode:ExplanationEvalReport['mode'];now?:()=>Date;clock?:()=>number}):Promise<ExplanationEvalReport>{
- const now=options.now??(()=>new Date()),clock=options.clock??(()=>performance.now()),explainer=new NemotronVerdictExplainer(provider);
+ let last:string|undefined;
+ const recording:ConstraintProvider={complete:async input=>{last=undefined;const reply=await provider.complete(input);last=reply.content;return reply;}};
+ const now=options.now??(()=>new Date()),clock=options.clock??(()=>performance.now()),explainer=new NemotronVerdictExplainer(recording);
  const startedAt=now().toISOString(),cases:ExplanationCaseScore[]=[];let model:string|null=null;
  for(const fixture of explanationCases)for(const language of ['en','id'] as const){
   const started=clock(),bad=fixture.facts.outcome==='DOES_NOT_COMPILE',hasCause=causeKeys.some(key=>fixture.facts.values[key]);
@@ -38,7 +41,7 @@ export async function runExplanationEval(provider:ConstraintProvider,options:{mo
    cases.push({id:fixture.id,language,accepted:true,namesCause:bad&&hasCause?cites:null,sentences:result.sentences,latencyMs:Math.round(clock()-started)});
   }catch(error){
    if(error instanceof ExtractionError&&['LIVE_PROVIDER_NOT_AUTHORIZED','INVALID_PROVIDER_CONFIG'].includes(error.code))throw error;
-   cases.push({id:fixture.id,language,accepted:false,errorCode:error instanceof ExtractionError?error.code:'UNEXPECTED_EXPLANATION_ERROR',namesCause:null,sentences:[],latencyMs:Math.round(clock()-started)});
+   cases.push({id:fixture.id,language,accepted:false,errorCode:error instanceof ExtractionError?error.code:'UNEXPECTED_EXPLANATION_ERROR',...(last!==undefined?{rawReply:last.slice(0,600)}:{}),namesCause:null,sentences:[],latencyMs:Math.round(clock()-started)});
   }
  }
  const latency=cases.map(row=>row.latencyMs).sort((a,b)=>a-b),pick=(p:number)=>latency.length?latency[Math.min(latency.length-1,Math.ceil(p*latency.length)-1)]!:null;
