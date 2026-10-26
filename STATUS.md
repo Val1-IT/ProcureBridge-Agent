@@ -1,6 +1,28 @@
 # DealTwin — local execution status
 
-## Current continuation — Nebius × NVIDIA edition, 2026-10-23
+## Current continuation — Nebius × NVIDIA edition, 2026-10-26
+
+Nebius branch only (dealtwin-nebius-edition, local commits, not pushed); the
+Amazon/Alexa+ submission and its branch are unchanged.
+
+- Neutral voice page `/dealtwin/voice` (no Alexa wording); the judge launch
+  link now opens it. `/dealtwin/alexa` is unchanged.
+- Nemotron explains verdicts ("Why does deal A not work?", "Explain it in
+  Indonesian."): words and placeholders only, every amount and date filled
+  from the stored compile run, fails closed to a deterministic template.
+- Held-out extraction set (26 cases, written after prompt v3 froze), one live
+  run: 24/26, precision 0.913, recall 0.9545, 1 unsafe accept
+  (ho-pay-supplier-by-en), p50/p95 1380/2865 ms.
+- Explanation eval (10 synthetic verdicts × EN/ID), live: prompt v1 9/20,
+  v2 17/20, v3 20/20 (14/14 name a cause, p50/p95 1425/2617 ms). v2 and v3
+  were tuned on these verdicts, so 20/20 is a tuning-set figure.
+- Demo recording found one live fallback (a 284-character sentence over the
+  280 cap); the cap is now 400 (97cfcfc).
+- Demo video (2:42, 1080p, ElevenLabs narration, real screenshots of a live
+  run) rendered to `.cache/demo/dealtwin-nebius-demo-1080p.webm` (git-ignored).
+  Not uploaded. Devpost form NOT submitted.
+
+## Continuation — Nebius × NVIDIA edition, 2026-10-23
 
 Nebius branch only (dealtwin-nebius-edition); the Amazon/Alexa+ submission and
 its branch are unchanged. Three live extraction runs on
@@ -326,7 +348,7 @@ Deployment reality: existing vinext/Cloudflare/Sites scaffold and SQLite/Drizzle
 | Monitor → STALE → Recompile | **PARTIAL** | Task22 allowlisted source-chain AP19m mutation automatically stales proof, durable committed27%proposal retains originalSO/capacity, signed reserved replacement atomic/retry-safe. UI/browser journey remainsTask23-24 |
 | Server-backed Judge / three clean runs | **PARTIAL** | Reset/state/session/refresh via new runtime instances persist; complete Judge browser journey and three consecutive clean runs not yet present |
 | Amazon Alexa+/MCP edition | **PARTIAL (private local MCP)** | Task26 strict17tools/session/grant/state/JSON transport,33MCP tests and privateHTTP8checksPASS; publicAlexa/OAuth/client/account/submission evidence NOT RUN |
-| Nebius × NVIDIA edition | **PARTIAL (offline built; three live runs; current code measured once, on its tuning set)** | Branch dealtwin-nebius-edition: conversational constraints front door (draft→read back→confirm), Nemotron intent router with grammar fallback, 32-case EN/ID extraction eval (offline harness 32/32) and fake-provider tests. Live runs on nvidia/nemotron-3-super-120b-a12b with default reasoning (no switch sent): prompt v1 8/32, prompt v2 23/32 (precision 0.9412, recall 0.5333, 1 unsafe accept, 11 timeouts). Prompt v3 with reasoning off (`enable_thinking: false`): 28/32 (precision 0.931, recall 0.9, 1 unsafe accept, 0 timeouts, p95 2239 ms), one run on the 32 tuning cases, no held-out set; video and Devpost form NOT RUN |
+| Nebius × NVIDIA edition | **PARTIAL (built; live runs on tuning and held-out sets; video rendered, not uploaded)** | Branch dealtwin-nebius-edition: conversational constraints front door (draft→read back→confirm), Nemotron intent router with grammar fallback, 32-case EN/ID extraction eval (offline harness 32/32) and fake-provider tests. Live runs on nvidia/nemotron-3-super-120b-a12b with default reasoning (no switch sent): prompt v1 8/32, prompt v2 23/32 (precision 0.9412, recall 0.5333, 1 unsafe accept, 11 timeouts). Prompt v3 with reasoning off (`enable_thinking: false`): 28/32 (precision 0.931, recall 0.9, 1 unsafe accept, 0 timeouts, p95 2239 ms), one run on the 32 tuning cases. Held-out (26 cases, after v3 froze): 24/26, precision 0.913, recall 0.9545, 1 unsafe accept. Verdict explanations: 20/20 grounded on their tuning verdicts. Video rendered locally; upload and Devpost form NOT RUN |
 | PayPal sandbox edition | **MISSING** | No authorize/condition/capture/verified-webhook/reconciliation adapter or live sandbox evidence |
 
 ## Immediate execution

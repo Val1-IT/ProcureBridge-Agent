@@ -42,9 +42,9 @@ DealTwin is one product. The compiler, proof, ledger and policy live in one shar
 | Front door | Status in this repo |
 |---|---|
 | **Judge Mode web app** (`/dealtwin/judge`) | Working: guided compile → amend → approve → reserve → commit → stale → remediate |
-| **Voice assistant** (`/dealtwin/alexa`) | Working simulator: Alexa+-style multi-turn conversation over the real MCP server, browser speech in/out. Not a certified Alexa skill |
+| **Voice assistant** (`/dealtwin/voice`) | Working: multi-turn voice/chat conversation over the real MCP server, browser speech in/out. `/dealtwin/alexa` keeps the earlier Alexa+-style simulator; neither is a certified Alexa skill |
 | **Any MCP client / agent** | Working: Streamable HTTP JSON-RPC, prepare/execute with server-minted grants |
-| **Plain-language deals with NVIDIA Nemotron on Nebius** (`extract_constraints`, intent router) | Built and tested offline with fake providers; the live call stays off until an operator sets a key and switches it on. Three live extraction runs are recorded; the current code (prompt v3, reasoning off) passed 28 of the 32 cases its prompt was tuned on, with 1 unsafe accept (see [below](#nebius--nvidia-edition-nemotron-as-the-front-door-never-the-judge)) |
+| **Plain-language deals with NVIDIA Nemotron on Nebius** (`extract_constraints`, intent router) | Built and tested offline with fake providers; the live call stays off until an operator sets a key and switches it on. With prompt v3 (reasoning off) extraction passed 28 of the 32 cases it was tuned on and 24 of 26 held-out cases written after it froze, with 1 unsafe accept in each run. Nemotron also explains verdicts in English or Indonesian with every number filled in by the compiler (see [below](#nebius--nvidia-edition-nemotron-as-the-front-door-never-the-judge)) |
 | **Payment execution rail** | Planned; DealTwin never moves money today |
 
 Everything runs on **synthetic data** for one sandbox distributor in IDR. No bank, no real
@@ -69,7 +69,7 @@ npm run judge:demo
 ```
 
 `judge:demo` prints two single-use launch links. Open the **admin** link to sign in, then go to
-`/dealtwin/alexa` (voice) or `/dealtwin/judge` (guided web). Open the **approver** link in a
+`/dealtwin/voice` (voice) or `/dealtwin/judge` (guided web). Open the **approver** link in a
 private window when the four-eyes step asks for a second person.
 
 ### The 2-minute script (voice)
@@ -114,9 +114,10 @@ for the two language jobs, and keeps every money decision in the deterministic c
 | Job | What Nemotron does | What stops it from being the authority |
 |---|---|---|
 | **Words → constraints** (`extract_constraints`) | Turns free text (English or Indonesian) into typed constraint candidates such as a minimum deposit, balance days, a cash floor or no new borrowing, or asks a clarifying question when something is missing | Strict versioned schema (`dealtwin.constraint-extraction.v1`, 9 kinds). Every candidate must quote its `sourceText` verbatim from the user's words. Candidates are saved only as `ai_extracted / pending_confirmation`, and a human must confirm the whole set (`confirm_constraints`) before the deal can compile |
+| **Verdict → explanation** (`explain/verdict`) | Explains a compile verdict in plain English or Indonesian ("why does deal A not work?"), naming the events in date order | Nemotron writes only words and placeholders such as `{shortfall}`; DealTwin fills every amount and date from the stored compile run. A digit, number word, month name, currency word or unknown placeholder of its own, or a missing required fact, rejects the answer and a deterministic template is shown instead. The card says which one you got |
 | **Request → tool** (intent router) | Picks which DealTwin step to plan from a closed list of 15 intents for a free-form spoken request ("suppose the first buyer settles a week late"). Optional and off by default; its routing accuracy hasn't been measured yet | A closed list of intents. It can never output "yes" or "cancel", so it cannot approve anything. Quoted terms must be a substring of what was said. Any invalid output, timeout or disabled provider falls back to the deterministic grammar. The chosen tool is still only *prepared*; a human yes and a single-use server grant execute it |
 
-The conversation on `/dealtwin/alexa`, on a freshly seeded deal A (`npm run judge:seed`). Every
+The conversation on `/dealtwin/voice`, on a freshly seeded deal A (`npm run judge:seed`). Every
 step that changes something is only prepared until you say "Yes":
 
 1. "Terms for deal A: the customer will pay the rest later." → Yes → Nemotron says what is
@@ -132,9 +133,12 @@ step that changes something is only prepared until you say "Yes":
 4. "Can I accept deal A?" → Yes → the same compiler, proof and ledger as every other front door:
    *"No. Deal A breaks your cash floor on …"*, with the dated shortfall (3 million rupiah on
    September 22 in the seed).
-5. "What would it take to make deal A work?" → Yes → the smallest amendment that compiles (a 25%
+5. "Why does deal A not work?" → Nemotron explains the verdict: the deposit, the supplier payment,
+   other bills and the late customer balance, in date order, with every figure from the compile run.
+   "Explain it in Indonesian." gives the same facts in Indonesian. Nothing is written.
+6. "What would it take to make deal A work?" → Yes → the smallest amendment that compiles (a 25%
    deposit in the seed).
-6. "Show me the proof." → reads back the hash-bound, replayable Deal Proof and says it still needs
+7. "Show me the proof." → reads back the hash-bound, replayable Deal Proof and says it still needs
    one human approval.
 
 **Run it live** (operator only; your key stays in `.env.local`, which is git-ignored):
@@ -144,7 +148,7 @@ step that changes something is only prepared until you say "Yes":
 NEBIUS_API_KEY=...                          # from Nebius Token Factory
 NEBIUS_MODEL=nvidia/nemotron-3-super-120b-a12b  # the only id used so far; must contain "nemotron"
 DEALTWIN_NEBIUS_LIVE_ENABLED=true
-DEALTWIN_NEBIUS_ROUTER_ENABLED=true         # optional: Nemotron intent routing on /dealtwin/alexa
+DEALTWIN_NEBIUS_ROUTER_ENABLED=true         # optional: Nemotron intent routing on /dealtwin/voice
 # NEBIUS_ROUTER_MODEL=                      # optional: router model; defaults to NEBIUS_MODEL
 ```
 
@@ -167,6 +171,8 @@ produced where the right answer was to ask) and latency p50/p95.
 ```bash
 npm run eval:nebius -- --offline   # label oracle through the production validator; proves the harness
 npm run eval:nebius -- --live      # one real Nemotron pass; writes docs/dealtwin/evidence/nebius-extraction-eval-<time>.json
+npm run eval:nebius -- --live --set heldout   # the 26 held-out cases
+npm run eval:nebius -- --live --set explain   # verdict explanations, English and Indonesian
 ```
 
 Status: the offline harness passes 32/32. Three live runs on `nvidia/nemotron-3-super-120b-a12b`
@@ -203,6 +209,38 @@ the timeouts disappearing: 7 of the 8 extract cases that timed out in v2 now pas
 extract cases v2 answered, v3 passed 14. The prompt and the
 reasoning switch changed together, so this run cannot say which caused what. Only one model id has
 been measured, and router latency has not been measured.
+
+**Held-out check.** On 2026-10-26, after prompt v3 froze and before any live run against them, 26
+new cases were written (19 extract, 7 clarify, English and Indonesian, three of them injection
+attempts; `evaluation/dealtwin/nebius/heldout-cases.ts`). One live run
+([evidence](docs/dealtwin/evidence/nebius-extraction-heldout-eval-2026-10-26T11-50-05-535Z.json)):
+**24 of 26 passed**, precision 0.91 (21 of 23), recall 0.95 (21 of 22), 6 of 7 clarify cases asked a
+question, no answer failed closed, p50/p95 1,380 / 2,865 ms. The two failures:
+`ho-deposit-fifth-en` ("at least one fifth of the order value up front") produced a wrong deposit
+constraint, and `ho-pay-supplier-by-en` ("settle the supplier invoice by day 10") produced a
+constraint where the right answer was to ask, the unsafe accept. It is the same weakness as
+`direction-supplier-en` in the tuning set, and as there the candidate stays a draft until the user
+confirms it. One run, 26 cases: a sanity check that v3 was not fitted to its own cases, not a
+benchmark.
+
+**Explanations.** `evaluation/dealtwin/nebius/explanation-eval.ts` asks Nemotron to explain 10
+synthetic verdicts (8 failing, 2 passing) in English and Indonesian, and counts how many answers
+pass the grounding checks above and how many failing explanations name a cause beyond the
+shortfall. Three live runs, one per explainer prompt version:
+
+| Run | Prompt | Accepted | Names a cause (accepted failing answers) | Latency p50 / p95 |
+|---|---|---|---|---|
+| [v1](docs/dealtwin/evidence/nebius-explanation-eval-2026-10-26T11-51-17-121Z.json) | v1 | 9/20 | 7 of 8 | 1,452 / 2,073 ms |
+| [v2](docs/dealtwin/evidence/nebius-explanation-eval-2026-10-26T11-53-24-833Z.json) | v2 | 17/20 | 11 of 14 | 1,296 / 1,958 ms |
+| [v3](docs/dealtwin/evidence/nebius-explanation-eval-2026-10-26T11-57-08-409Z.json) | v3 | 20/20 | 14 of 14 | 1,425 / 2,617 ms |
+
+v2 and v3 were written after reading the failures of the run before, on these same 10 verdicts, so
+20 of 20 is a tuning-set figure. v3 hands the model the events already sorted by date and an
+Indonesian word list (uang muka, pelunasan, pemasok, batas minimum kas), because v2 answers had
+told events out of order and used "deposito". During the demo recording a v3 answer was refused
+for a 284-character sentence, over the then 280-character cap; the cap is now 400 and every
+other check is unchanged. When an answer is refused, the card says "Compiler template" and names
+the error code.
 
 ---
 
