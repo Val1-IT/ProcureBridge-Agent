@@ -1,0 +1,255 @@
+{
+ "evalVersion": "dealtwin.nebius.explanation-eval.v1",
+ "mode": "live",
+ "model": "nvidia/nemotron-3-super-120b-a12b",
+ "promptVersion": "dealtwin.verdict-explanation.prompt.v2",
+ "startedAt": "2026-10-26T11:53:24.833Z",
+ "finishedAt": "2026-10-26T11:53:52.662Z",
+ "summary": {
+  "calls": 20,
+  "accepted": 17,
+  "fellBack": 3,
+  "fallbackCodes": {
+   "AI_FACT_MISSING": 3
+  },
+  "namesCause": 11,
+  "causeCases": 14,
+  "latencyP50Ms": 1296,
+  "latencyP95Ms": 1958
+ },
+ "cases": [
+  {
+   "id": "supplier-before-balance",
+   "language": "en",
+   "accepted": true,
+   "namesCause": false,
+   "sentences": [
+    "On September 22 the cash balance falls short by Rp 3,000,000.",
+    "The deposit arrived earlier but supplier payments and other bills due before that day used more cash than was available.",
+    "Ask DealTwin what changes would make the deal work."
+   ],
+   "latencyMs": 2345
+  },
+  {
+   "id": "supplier-before-balance",
+   "language": "id",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "Pada tanggal 22 September, kas jatuh ke bawah ambang batas sebesar Rp3.000.000.",
+    "Ini terjadi karena pembayaran ke supplier pada 20 September dan tagihan lain sebesar Rp18.000.000 melebihi kas yang tersedia sebelum deposito masuk pada 15 September.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan untuk membuat deal ini bisa diterima."
+   ],
+   "latencyMs": 1224
+  },
+  {
+   "id": "large-shortfall",
+   "language": "en",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "On November 3 the cash balance falls short by Rp 42,500,000.",
+    "The deal pays suppliers on November 1 but the customer balance arrives later on December 1.",
+    "Ask DealTwin what would make the deal work."
+   ],
+   "latencyMs": 1164
+  },
+  {
+   "id": "large-shortfall",
+   "language": "id",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "Pada tanggal 3 November, kas jatuh di bawah ambang batas sebesar Rp42.500.000.",
+    "Ini terjadi karena pembayaran ke suplieur dilakukan pada 1 November sebelum saldo pelanggan masuk pada 1 Desember.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan agar transaksi ini bisa diterima."
+   ],
+   "latencyMs": 1438
+  },
+  {
+   "id": "old-bills-only",
+   "language": "en",
+   "accepted": true,
+   "namesCause": false,
+   "sentences": [
+    "On October 5 the cash balance falls short by Rp 1,250,000.",
+    "The deposit arrives too late to cover the bills due before that day.",
+    "Ask DealTwin what would make the deal work."
+   ],
+   "latencyMs": 923
+  },
+  {
+   "id": "old-bills-only",
+   "language": "id",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "Saldo kas jatuh di bawah ambang batas pada tanggal 5 Oktober dengan kekurangan sebesar Rp1.250.000.",
+    "Ini terjadi karena tagihan lain sebesar Rp22.000.000 jatuh sebelum atau pada hari tersebut, sementara setoran nasabah sebesar Rp4.000.000 hanya masuk pada tanggal 1 Oktober.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan agar transaksi ini bisa diterima."
+   ],
+   "latencyMs": 1187
+  },
+  {
+   "id": "no-balance-in-horizon",
+   "language": "en",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "On December 15 the cash balance falls short by Rp 7,000,000.",
+    "The deal pays suppliers on December 10 but this does not prevent the shortfall.",
+    "Ask DealTwin what would make the deal work."
+   ],
+   "latencyMs": 1119
+  },
+  {
+   "id": "no-balance-in-horizon",
+   "language": "id",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "Saldo kas jatuh di bawah ambang batas pada tanggal 15 Desember dengan kekurangan sebesar Rp7.000.000.",
+    "Pembayaran ke supplier dilakukan pada 10 Desember dengan nilai Rp15.000.000, tetapi ini tidak cukup untuk menutupi kekurangan yang terjadi.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan agar transaksi ini bisa diterima."
+   ],
+   "latencyMs": 1495
+  },
+  {
+   "id": "same-day",
+   "language": "en",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "On September 30 the cash balance falls short by Rp 500,000.",
+    "Suppliers are paid on September 30 but the customer balance arrives later on October 30.",
+    "Ask DealTwin what would make the deal work."
+   ],
+   "latencyMs": 1570
+  },
+  {
+   "id": "same-day",
+   "language": "id",
+   "accepted": true,
+   "namesCause": false,
+   "sentences": [
+    "Pada tanggal 30 September, kas jatuh di bawah ambang batas sebesar Rp500.000.",
+    "Ini terjadi karena pembayaran ke supplier dilakukan pada hari yang sama dengan terjadinya kekurangan, sementara saldo dari customer hanya tiba setelahnya.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan untuk membuat deal ini bisa diterima."
+   ],
+   "latencyMs": 1243
+  },
+  {
+   "id": "deposit-too-small",
+   "language": "en",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "On January 12 the cash balance falls short by Rp 2,800,000.",
+    "The supplier is paid on January 10 and the deposit arrives on January 5, but the balance comes later on February 4.",
+    "Ask DealTwin what would make the deal work."
+   ],
+   "latencyMs": 890
+  },
+  {
+   "id": "deposit-too-small",
+   "language": "id",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "Saldo kas jatuh di bawah ambang batas pada tanggal 12 Januari dengan kekurangan sebesar Rp2.800.000.",
+    "Pembayaran ke supplier terjadi pada tanggal 10 Januari sebelum uang masuk dari deposito pada tanggal 5 Januari, sementara saldo pelanggan hanya tiba setelah tanggal 12 Januari pada tanggal 4 Februari.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan untuk membuat transaksi ini bisa diterima."
+   ],
+   "latencyMs": 1568
+  },
+  {
+   "id": "minimal-facts",
+   "language": "en",
+   "accepted": true,
+   "namesCause": null,
+   "sentences": [
+    "On October 20 the cash balance fell below the floor by Rp 900,000.",
+    "This happens because incoming funds arrive too late to cover outgoing payments when they are due.",
+    "Ask DealTwin what changes would make the deal work."
+   ],
+   "latencyMs": 1144
+  },
+  {
+   "id": "minimal-facts",
+   "language": "id",
+   "accepted": true,
+   "namesCause": null,
+   "sentences": [
+    "Saldo kas proyeksi jatuh di bawah batas minimum pada tanggal 20 Oktober dengan kekurangan sebesar Rp900.000.",
+    "Ini terjadi karena pengeluaran yang harus dibayarkan lebih besar daripada penerimaan yang diterima sebelum tanggal tersebut.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan agar transaksi ini bisa berjalan."
+   ],
+   "latencyMs": 1296
+  },
+  {
+   "id": "two-suppliers",
+   "language": "en",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "On November 18 the cash balance falls short by Rp 6,300,000.",
+    "The deposit arrived on November 8 but the balance comes later on December 8, while supplier payments start on November 10 and other bills are due.",
+    "Ask DealTwin what changes would make the deal work."
+   ],
+   "latencyMs": 1615
+  },
+  {
+   "id": "two-suppliers",
+   "language": "id",
+   "accepted": true,
+   "namesCause": true,
+   "sentences": [
+    "Pada tanggal 18 November, kas jatuh di bawah ambang batas sebesar Rp6.300.000.",
+    "Ini terjadi karena pembayaran ke supplier pada 10 November dan tagihan lain mencukupi sebelum deposito datang pada 8 November, sementara saldo pelanggan hanya tiba setelahnya.",
+    "Anda dapat bertanya kepada DealTwin apa yang diperlukan untuk membuat transaksi ini bisa diterima."
+   ],
+   "latencyMs": 1958
+  },
+  {
+   "id": "passes-at-floor",
+   "language": "en",
+   "accepted": false,
+   "errorCode": "AI_FACT_MISSING",
+   "rawReply": "{\"schemaVersion\": \"dealtwin.verdict-explanation.v1\", \"language\": \"en\", \"sentences\": [\"The projected cash stays at or above the cash floor because the lowest balance equals the cash floor.\"]}",
+   "namesCause": null,
+   "sentences": [],
+   "latencyMs": 1527
+  },
+  {
+   "id": "passes-at-floor",
+   "language": "id",
+   "accepted": false,
+   "errorCode": "AI_FACT_MISSING",
+   "rawReply": "{\"schemaVersion\": \"dealtwin.verdict-explanation.v1\", \"language\": \"id\", \"sentences\": [\"Proyeksi saldo kas tetap berada di atas atau sama dengan batas minimum karena nilai terendahnya mencukupi untuk menutupi kebutuhan.\"]}",
+   "namesCause": null,
+   "sentences": [],
+   "latencyMs": 1668
+  },
+  {
+   "id": "passes-comfortably",
+   "language": "en",
+   "accepted": false,
+   "errorCode": "AI_FACT_MISSING",
+   "rawReply": "{\"schemaVersion\": \"dealtwin.verdict-explanation.v1\", \"language\": \"en\", \"sentences\": [\"The projected cash remains at or above the required level throughout the period.\"]}",
+   "namesCause": null,
+   "sentences": [],
+   "latencyMs": 1094
+  },
+  {
+   "id": "passes-comfortably",
+   "language": "id",
+   "accepted": true,
+   "namesCause": null,
+   "sentences": [
+    "Proyeksi saldo kas tetap berada di atas atau sama dengan batas minimum yang ditetapkan.",
+    "Rp14.200.000 mencukupi untuk menutupi kebutuhan Rp5.000.000 selama seluruh periode."
+   ],
+   "latencyMs": 1360
+  }
+ ]
+}

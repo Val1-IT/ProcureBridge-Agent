@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest';
 import {parseIntent} from '../../../lib/dealtwin/alexa/intents';
-import {EXPLAIN_PROMPT_VERSION,EXPLAIN_SCHEMA_VERSION,NemotronVerdictExplainer,checkExplanation,fillFacts,renderFact,templateExplanation,verdictExplainerFromEnv,type VerdictFacts} from '../../../lib/dealtwin/ai/verdict-explainer';
+import {EXPLAIN_PROMPT_VERSION,EXPLAIN_SCHEMA_VERSION,NemotronVerdictExplainer,checkExplanation,fillFacts,renderFact,templateExplanation,timelineOf,verdictExplainerFromEnv,type VerdictFacts} from '../../../lib/dealtwin/ai/verdict-explainer';
 import {latestBaseRun,verdictFacts} from '../../../lib/dealtwin/ai/verdict-facts';
 import {ExtractionError,type ConstraintProvider} from '../../../lib/dealtwin/ai/constraint-extractor';
 import {runAlexaTurn,type AlexaPorts} from '../../../lib/server/dealtwin/alexa-orchestrator';
@@ -88,6 +88,12 @@ describe('Nemotron verdict explanation',()=>{
   expect(renderFact({kind:'rupiah',value:'2750000'},'en',true)).toBe('2.75 million rupiah');
   expect(renderFact({kind:'rupiah',value:'1234567'},'id',true)).toBe('Rp1.234.567');
   expect(renderFact({kind:'rupiah',value:'-400000'},'en')).toBe('-Rp 400,000');
+ });
+ it('hands the model the events already in date order',()=>{
+  expect(timelineOf(facts).map(row=>row.when)).toEqual(['{depositDate}','{supplierDate}','{violationDate}','{balanceDate}']);
+  const sameDay:VerdictFacts={...facts,values:{...facts.values,supplierDate:{kind:'date',value:'2026-09-22'},depositDate:{kind:'date',value:'2026-09-22'}}};
+  expect(timelineOf(sameDay).map(row=>row.when)).toEqual(['{depositDate}','{supplierDate}','{violationDate}','{balanceDate}']);
+  expect(timelineOf(facts)[2]!.what).toContain('{otherBills}');
  });
  it('is off unless the live provider is enabled',()=>{
   expect(verdictExplainerFromEnv({})).toBeUndefined();
